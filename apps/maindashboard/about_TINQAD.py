@@ -24,7 +24,7 @@ def create_card(name, image_url, description, linkedin_url):
                     html.P(description, className="card-text"),
                     html.A(
                         html.Img(
-                            src= app.get_asset_url('LinkedIn_icon.png'),
+                            src=app.get_asset_url('linkedinicon1.png'),
                             style={'height': '1.5em', 'width': 'auto', 'margin-top': '0.5em'}
                         ),
                         href=linkedin_url,
