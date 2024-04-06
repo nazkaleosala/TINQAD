@@ -98,7 +98,7 @@ layout = dbc.Row(
             }
         ),
         ), 
-        dbc.Col(second_card, width=3),
+        dbc.Col(second_card, width=3,)
     ]
 )       
 
