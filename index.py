@@ -12,7 +12,7 @@ from apps import commonmodules as cm
 from apps import home
 
 from apps.maindashboard import homepage, user_profile, register_user, search_users
-from apps.admin import administration_dashboard, record_expenses, training_instructions, training_documents
+from apps.admin import administration_dashboard, record_expenses, training_instructions, training_documents,  generate_report
 from apps.iqa import iqa_dashboard, acad_heads_directory, iaads_reports, acadheads_profile
 from apps.eqa import eqa_dashboard, assessment_reports, assessment_details, accreditation_tracker, program_list, program_details
 from apps.km import km_dashboard, THEworld_rankings, SDGimpact_rankings, QSworld_rankings, SDG_submission, SDG_revision
@@ -71,7 +71,8 @@ def displaypage (pathname):
                 returnlayout = training_instructions.layout
             elif pathname == '/training/training_documents':
                 returnlayout = training_documents.layout
-            
+            elif pathname == '/generate_report':
+                returnlayout = generate_report.layout
                 
             #IQA
             elif pathname == '/iqa_dashboard':
