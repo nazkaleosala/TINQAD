@@ -63,11 +63,12 @@ def displaypage (pathname):
                 returnlayout = search_users.layout
 
             #admin
+            elif pathname == '/administration_dashboard':
+                returnlayout = administration_dashboard.layout
             elif pathname == '/record_expenses':
                 returnlayout = record_expenses.layout
             elif pathname == '/training_documents':
                 returnlayout = training_instructions.layout
-            
             elif pathname == '/training/training_documents':
                 returnlayout = training_documents.layout
             
