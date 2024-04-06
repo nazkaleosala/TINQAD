@@ -202,6 +202,18 @@ for i in range(MAX_MESSAGES):  # Replace MAX_MESSAGES with the maximum expected 
 #timeline column
 timeline_card = dbc.Card(
     [
+        dbc.CardHeader("TIMELINE", className="text-center text-bold"),
+        dbc.CardBody(
+            [
+                html.P("Some exciting event happening soon.", className="card-text"),
+            ]
+        ),
+    ],
+    className="mb-3"
+)
+
+upcomingevents_card = dbc.Card(
+    [
         dbc.CardHeader("UPCOMING EVENTS", className="text-center text-bold"),
         dbc.CardBody(
             [
@@ -211,6 +223,8 @@ timeline_card = dbc.Card(
     ],
     className="mb-3"
 )
+
+
 
 
 
@@ -256,12 +270,12 @@ layout = html.Div(
                                                     ],
                                                     align="center"
                                                 ),
-                                            ]
+                                            ] 
                                         ),
                                         className="mb-3",
                                         style={"backgroundColor": "#FFFFFF"}
                                     ),
-                                    href='/administration-team'
+                                    href='/administration_dashboard'
                                     ),
                                     width=6, md=6, sm=12
                                 ),
@@ -287,7 +301,7 @@ layout = html.Div(
                                         className="mb-3",
                                         style={"backgroundColor": "#FFFFFF"}
                                     ),
-                                    href='/external-quality-assurance-team'
+                                    href='/eqa_dashboard'
                                     ),
                                     width=6, md=6, sm=12
                                 ),
@@ -318,7 +332,7 @@ layout = html.Div(
                                         className="mb-3",
                                         style={"backgroundColor": "#FFFFFF"}
                                     ),
-                                    href='/internal-quality-assurance-team'
+                                    href='/iqa_dashboard'
                                     ),
                                     width=6, md=6, sm=12
                                 ),
@@ -344,7 +358,7 @@ layout = html.Div(
                                         className="mb-3",
                                         style={"backgroundColor": "#FFFFFF"}
                                     ),
-                                    href='/knowledge-management'
+                                    href='/km_dashboard'
                                     ),
                                     width=6, md=6, sm=12
                                 ),
@@ -352,13 +366,35 @@ layout = html.Div(
                             className="mb-3"
                         ),
                     ],
-                    width=8,  
+                    width=7,  
                 ),
                 dbc.Col(
                     [   # Right column for the timeline card
-                        timeline_card,  # Your new timeline card component
+                        dbc.Row ([
+                            dbc.Col(
+                                dbc.Card(
+                                    dbc.CardBody(
+                                        [
+                                            html.Div(style={'background-color': '#7A0911', 'width': '100%', 'height': '20px'}),  # Rectangle
+                                            html.A(
+                                                html.H5("Quality Assurance Officers", className="card-title fw-bold text-dark text-center"), 
+                                                href='/qa_officers',
+                                                style={'text-decoration': 'none'}
+                                            ),
+                                        
+                                        ]
+                                        ),
+                                        className="mb-3",
+                                        style={"backgroundColor": "#FFFFFF"},
+                                    ),
+                                    
+                                ),
+                        
+                        ]),
+                        timeline_card,  # timeline card component
+                        upcomingevents_card,
                     ],
-                    width=2,  md=2, sm=12
+                    width=3,  md=3, sm=12
                 ),
             ],
             className="mb-3",

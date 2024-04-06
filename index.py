@@ -56,7 +56,7 @@ def displaypage (pathname):
             #maindashboard
             elif pathname == '/homepage':
                 returnlayout = homepage.layout
-            elif pathname == '/user_profile':
+            elif pathname == '/profile':
                 returnlayout = user_profile.layout  
             elif pathname == '/register_user':
                 returnlayout = register_user.layout

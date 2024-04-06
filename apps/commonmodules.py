@@ -11,44 +11,60 @@ navlink_style = {
 }
 
 
+
+
 navbar = dbc.Navbar(
     [
         dbc.Col(
-            [
-                html.A(
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                dbc.NavbarBrand(
-                                    [
-                                        
-                                            html.Img(
-                                            src = app.get_asset_url('logo-block.png'),
-                                            style = {'height' : '2em'}
-                                            ),
-
-                                    ]
-                                    , className = "ms-2"
-                                )
+            html.A(
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            dbc.NavbarBrand(
+                                [
+                                    html.Img(
+                                        src=app.get_asset_url('logo-block.png'),
+                                        style={'height': '2em'}
+                                    ),
+                                ],
+                                className="ms-2"
                             )
-                        ],
-                        align = "center",
-                        className = 'g-0'
-                    ),
-                    href = "/home"
-                )
-            ]
-        )
+                        )
+                    ],
+                    align="center",
+                    className='g-0'
+                ),
+                href="/home"
+            )
+        ),
+        dbc.Col(
+            dbc.DropdownMenu(
+                children=[
+                    dbc.DropdownMenuItem("Profile", href="/profile"),
+                    dbc.DropdownMenuItem("🏠 Home", href="/homepage"),
+                    dbc.DropdownMenuItem("🔒Logout", href="/logout"),
+                    dbc.DropdownMenuItem("🔑Change Password", href="/change-password"),
+                ],
+                nav=True,
+                in_navbar=True,
+                label=html.Span('Hi Pika!', style={'color': 'white'}),   
+                right=True,
+            ),
+            width="auto",
+            align="end",
+            style={'margin-right': '1in'}  
+        ),
     ],
-    dark = False,
-    color = 'dark',
-    style = {
-        'background-image' : 'url(/assets/red-navbar.png)',
-        'background-size' : '80em 4em',
-        'background-position' : 'center top'
-
+    dark=False,
+    color='dark',
+    style={
+        'background-image': 'url(/assets/red-navbar.png)',
+        'background-size': '80em 4em',
+        'background-position': 'center top'
     },
 )
+
+
 
 
 def generate_navbar():
@@ -58,7 +74,7 @@ def generate_navbar():
                 [
                     
                     html.A(html.B('Home'), href='/homepage', style={'color': 'black', 'text-decoration': 'none'}), html.Br(),
-                    html.A('User Profile', href='/user_profile', style={'color': 'black', 'text-decoration': 'none'}), html.Br(),
+                    html.A('User Profile', href='/profile', style={'color': 'black', 'text-decoration': 'none'}), html.Br(),
                     html.A('Register User', href='/register_user', style={'color': 'black', 'text-decoration': 'none'}), html.Br(),
                     html.A('Search Users', href='/search_users', style={'color': 'black', 'text-decoration': 'none'}), html.Br(),
                     html.Hr(),
