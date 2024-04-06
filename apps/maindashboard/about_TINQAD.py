@@ -13,6 +13,39 @@ from apps import dbconnect as db
 
 
 
+
+def create_card(name, image_url, description, linkedin_url): 
+    return dbc.Card(
+        [
+            dbc.CardImg(src=image_url, top=True, style={'object-fit': 'cover', 'display': 'block', 'width': '100%', 'height': 'auto'}),
+            dbc.CardBody(
+                [
+                    html.H4(name, className="card-title", style={'fontWeight': 'bold'}),
+                    html.P(description, className="card-text"),
+                    html.A(
+                        html.Img(
+                            src= app.get_asset_url('LinkedIn_icon.png'),
+                            style={'height': '1.5em', 'width': 'auto', 'margin-top': '0.5em'}
+                        ),
+                        href=linkedin_url,
+                        target="_blank"
+                    ),
+                ]
+            ),
+        ],
+        className="mb-3",
+    )
+
+
+cards = [
+    create_card("Naomi Takagaki", app.get_asset_url('takagaki1.png'), "Description for Person 1", "https://www.linkedin.com/in/naomi-takagaki-4456aa266/"),
+    create_card("Nazka Leosala", app.get_asset_url('leosala1.png'), "Description for Person 2", "https://www.linkedin.com/in/nazka-leosala-b4ab012b8/"),
+    create_card("Ma. Roxette Rojas", app.get_asset_url('rojas1.png'), "Description for Person 3", "https://www.linkedin.com/in/maroxetterojas/"),
+    create_card("Ma. Isabelle Tinaza", app.get_asset_url('tinaza1.png'), "Description for Person 4", "https://www.linkedin.com/in/ma-lourdes-isabelle-tinaza/"),
+] 
+
+card_columns = [dbc.Col(card, xs=12, sm=6, md=6, lg=3, xl=3) for card in cards]
+
 layout = html.Div(
     [
         dbc.Row(
@@ -48,13 +81,14 @@ layout = html.Div(
                         html.Div(
                             [
                                 html.H3("Meet the Developers", style={'textAlign': 'center'}),
-                                html.Img(
-                                    src=app.get_asset_url('leosala1.png'),
-                                    style = {
-                                        'height' : '20em',
-                                        'width' : '50%',
-                                    }
-                                ), 
+                                html.Hr(),
+                                dbc.Container(
+                                    dbc.Row(
+                                        card_columns,
+                                        justify="start"
+                                    ),
+                                    fluid=True
+                                )
                             ],
                         )
                     ], 
