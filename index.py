@@ -12,7 +12,7 @@ from apps import commonmodules as cm
 from apps import home
 
 
-from apps.maindashboard import homepage, user_profile, register_user, search_users
+from apps.maindashboard import homepage, user_profile, register_user, search_users, about_TINQAD
 from apps.admin import administration_dashboard, record_expenses, training_instructions, training_documents,  generate_report
 from apps.iqa import iqa_dashboard, acad_heads_directory, iaads_reports, acadheads_profile
 from apps.eqa import eqa_dashboard, assessment_reports, assessment_details, accreditation_tracker, program_list, program_details
@@ -62,6 +62,8 @@ def displaypage (pathname):
                 returnlayout = register_user.layout
             elif pathname == '/search_users':
                 returnlayout = search_users.layout
+            elif pathname == '/About_TINQAD':
+                returnlayout = about_TINQAD.layout
 
             #admin
             elif pathname == '/administration_dashboard':

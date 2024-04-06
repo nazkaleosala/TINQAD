@@ -39,6 +39,13 @@ second_card = dbc.Card(
             html.H4("Total Integrated Network for Quality Assurance and Development", className="fw-bolder text-danger" ),
             html.P ("The Total Integrated Network for Quality Assurance and Development (TINQAD) is a centralized network that allows the singular monitoring of the Quality Assurance teams activities."),
             
+            html.Br(),
+
+            html.P("Contact Us", className= "fw-bolder " ),
+            html.P("🏢4th Floor, 411-412. National Engineering Center, University of the Philippines, Diliman. "),
+            html.P("📧 qa.upd@up.edu.ph"),
+            html.P("📞(02) 9891-8500 local 2092"),
+                             
         ]
     )
 )
@@ -75,16 +82,18 @@ layout = dbc.Row(
                             [
                                 html.A("About TINQAD", href="/about-us", className="link-style"), " • ",
                                 html.A("Main Website", href="https://qa.upd.edu.ph/", className="link-style"), " • ",
-                                html.A("Facebook", href="https://www.facebook.com/QAODiliman", className="link-style")
+                                html.A("Facebook", href="https://www.facebook.com/QAODiliman", className="link-style"), " • ",
+                                html.A("LinkedIn", href="https://www.linkedin.com/company/quality-assurance-office/about/", className="link-style")
+                                
                             ],
                             width = "auto"
                         ),
                     ],
                     style = {'margin' : 'auto'},
                     align = 'center', justify = 'center'
-                )            
-
-
+                ),
+                
+                 
 
             ],
             id = 'bg',
@@ -98,7 +107,11 @@ layout = dbc.Row(
             }
         ),
         ), 
-        dbc.Col(second_card, width=3,)
+        dbc.Col(
+            [
+                second_card,
+                   
+            ], width=3,)
     ]
 )       
 

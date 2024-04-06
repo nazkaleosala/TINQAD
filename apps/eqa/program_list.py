@@ -34,13 +34,13 @@ layout = html.Div(
                                 ),
                                 dbc.Col(   
                                     dbc.Button(
-                                        "📁 Upload CSV File", color="danger",  
+                                        "📥 Upload CSV File", color="danger",  
                                     ),
                                     width="auto",    
                                 ),
                                 dbc.Col(   
                                     dbc.Button(
-                                        "💾 Export as CSV File", color="secondary",  
+                                        "📁 Export as CSV File", color="secondary",  
                                     ),
                                     width="auto",    
                                 ),
