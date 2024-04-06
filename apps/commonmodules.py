@@ -52,7 +52,7 @@ navbar = dbc.Navbar(
             ),
             width="auto",
             align="end",
-            style={'margin-right': '1in'}  
+            style={'margin-right': '0.5in'}  
         ),
     ],
     dark=False,
@@ -74,7 +74,7 @@ def generate_navbar():
                 [
                     
                     html.A(html.B('Home'), href='/homepage', style={'color': 'black', 'text-decoration': 'none'}), html.Br(),
-                    html.A('User Profile', href='/profile', style={'color': 'black', 'text-decoration': 'none'}), html.Br(),
+                    html.A('Profile', href='/profile', style={'color': 'black', 'text-decoration': 'none'}), html.Br(),
                     html.A('Register User', href='/register_user', style={'color': 'black', 'text-decoration': 'none'}), html.Br(),
                     html.A('Search Users', href='/search_users', style={'color': 'black', 'text-decoration': 'none'}), html.Br(),
                     html.Hr(),

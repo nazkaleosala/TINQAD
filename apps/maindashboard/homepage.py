@@ -198,8 +198,8 @@ def generate_delete_callback(index):
 for i in range(MAX_MESSAGES):  # Replace MAX_MESSAGES with the maximum expected number of messages
     generate_delete_callback(f"message-{i}")
 
-
-#timeline column
+ 
+ 
 timeline_card = dbc.Card(
     [
         dbc.CardHeader("TIMELINE", className="text-center text-bold"),

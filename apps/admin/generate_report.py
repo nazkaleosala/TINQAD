@@ -23,7 +23,7 @@ layout = html.Div(
                 ),
                 dbc.Col(
                 [
-                    html.H1("SEARCH USERS"),
+                    html.H1("GENERATE REPORT"),
                     html.Hr(),
                 ], width=8, style={'marginLeft': '15px'}
                 ),
