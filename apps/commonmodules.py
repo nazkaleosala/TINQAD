@@ -157,6 +157,7 @@ def generate_footer():
                 # Column for the links
                 dbc.Col(
                     [
+                        html.P(" ", className="mb-0"), 
                         html.Div(html.A("About TINQAD", href="/About_TINQAD", style={'color': 'white', 'text-decoration': 'none'})),
                         html.Div(html.A("QAO Website", href="https://qa.upd.edu.ph/new-qao-website/", style={'color': 'white', 'text-decoration': 'none'})),
                          
