@@ -102,7 +102,26 @@ layout = html.Div(
                         ), 
 
                         html.Br(),             
-                        html.Img(src=app.get_asset_url('QAOTeam.jpg'), style={'height': '50px'}),
+                        
+                        html.H4("The Quality Assurance Office Team", style={'textAlign': 'center'}),
+                         
+                        html.Img(src=app.get_asset_url('QAOTeam.jpg'), style={'height': '150px', 'margin': 'auto', 'display': 'block'}),
+                        html.Br(),  
+
+                        html.P("""
+                            The Quality Assurance Office (QAO) at UP Diliman has a fundamental mission: 
+                                to uphold and enhance academic and administrative excellence across various disciplines.
+                                Under the leadership of Dean Aura C. Matias, the office is committed to establishing global 
+                                standards of performance. They diligently monitor and evaluate programs to facilitate continuous improvement, 
+                                champion quality assurance initiatives, and enforce efficient policies. Operating 
+                                through four specialized units—the General Administration (Admin) Team, the Internal Quality 
+                                Assurance (IQA) Team, the External Quality Assurance (EQA) Team, and the Knowledge Management (KM) 
+                                Team—the QAO aims to shape a future where UP Diliman stands as a 
+                                beacon of educational quality and operational efficiency.
+                                             
+                            """ , style={'textAlign': 'justify'}),                               
+                        
+                            
                           
                         html.Div(
                             [
@@ -118,8 +137,8 @@ layout = html.Div(
                                        of services provided by the university.
                                             """ , style={'textAlign': 'justify'}), 
   
-                                html.Br(),
-                                html.Br(),
+                                
+                                
                             ],
                         ),
 
@@ -129,13 +148,15 @@ layout = html.Div(
                                     """• • •""",
                                     style = {'text-align' : 'center'}
                                 ),
-                                html.H4("The Development Team", style={'textAlign': 'center'}),
+
+                               
+                                html.H5("The Development Team", style={'textAlign': 'center'}),
                                 html.P(
                                     [
                                         "TINQAD is a project in IE 194 and 195 (Capstone I and II) by BS Industrial Engineering students at the ",
                                         html.A(html.B("Industrial Engineering and Operations Research Department (IEORD)"), href = 'https://ieor.engg.upd.edu.ph'),
                                         " of the University of the Philippines College of Engineering in Diliman, Quezon City. The project team is composed of:"
-                                    ]
+                                    ], style={'textAlign': 'justify'} 
                                 ),
                                  
                                 dbc.Container(
