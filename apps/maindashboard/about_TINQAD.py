@@ -41,28 +41,26 @@ cards = [
     create_card("Naomi Takagaki", 
                 app.get_asset_url('takagaki1.png'),  
                 """
-                Nams is the team leader of the project. Born and raised in Makati City,
-                    she has a penchant for reading online novels and exploring arts and crafts.
-                    She deeply cares for marine diversity preservation and spreading awareness for local flora.
+                Project Manager and Lead Developer
                                             """,
                 "https://www.linkedin.com/in/naomi-takagaki-4456aa266/"),
     create_card("Nazka Leosala", 
                 app.get_asset_url('leosala1.png'), 
                 """
-                Nazka is the team's database developer.
+                Main Programmer and Backend Developer
                                             """,
                 "https://www.linkedin.com/in/nazka-leosala-b4ab012b8/"),
     create_card("Ma. Roxette Rojas", 
                 app.get_asset_url('rojas1.png'), 
                 """
-                Rox is the front-end developer of the project.
+                Systems Designer and Frontend Developer
                                             """, 
                 
                 "https://www.linkedin.com/in/maroxetterojas/"),
     create_card("Ma. Lourdes Isabelle Tinaza", 
                 app.get_asset_url('tinaza1.png'), 
                 """
-                Sabel is the instructional developer for the project.
+                Instructional Designer and Database Developer
                                             """,
                 "https://www.linkedin.com/in/ma-lourdes-isabelle-tinaza/"),
 ] 
@@ -104,27 +102,22 @@ layout = html.Div(
                         ), 
 
                         html.Br(),             
-                        html.P(
-                                    """• • •""",
-                                    style = {'text-align' : 'center'}
-                                ),
+                        html.Img(src=app.get_asset_url('QAOTeam.jpg'), style={'height': '50px'}),
+                          
                         html.Div(
                             [
-                                #html.H4("Our Mission", style={'textAlign': 'center'}),
-                                #html.P("At TINQAD, we are committed to enhancing the operational excellence of the University of the Philippines Diliman (UPD). In alignment with the mission of the Quality Assurance Office (QAO), our platform is the vanguard of fostering improvements across various departments — academic, financial, administrative, and support services. Our aim is to elevate UPD's global standards of excellence through rigorous quality assessment and encouragement of continuous improvement in every sector.", style={'textAlign': 'justify'}),
-                                 
-                                
+                                  
                                 html.Br(),
                                 html.H4("Streamlining Quality Assurance with Data-Driven Solutions ", style={'textAlign': 'center'}),
-                                #html.H5("Quality", style={'textAlign': 'center'}),
-                                html.P("TINQAD stands as a testament to our dedication to quality. By offering a streamlined, integrated system, we ensure that each department within UPD operates at its highest potential. Our tools and analytics are designed to maintain and elevate the quality of services provided by the university.", style={'textAlign': 'justify'}),
-                                #html.H5("Sectors", style={'textAlign': 'center'}),
-                                html.P("Recognizing the diversity within UPD, TINQAD is tailored to meet the unique needs of different sectors. Whether it's academic excellence, financial management, administrative efficiency, or support service optimization, our platform provides bespoke solutions that resonate with each sector's specific demands.", style={'textAlign': 'justify'}),
-                                #html.H5("Continuous Improvement", style={'textAlign': 'center'}),
-                                html.P("At the heart of TINQAD is the ethos of never-ending enhancement. Our platform not only identifies areas for improvement but also tracks the progress over time. This enables departments to adapt, evolve, and continuously enhance their processes and services.", style={'textAlign': 'justify'}),
                                  
-                                #html.H4("Our General Objective", style={'textAlign': 'center'}),
-                                #html.P("Our primary goal is to create a unified dashboard that acts as a nerve center for all teams within the QAO. This singular system facilitates effortless data collection, viewing, and tracking. By bringing all components under one roof, TINQAD simplifies workflows, enhances communication, and enables more efficient decision-making processes.", style={'textAlign': 'justify'}),
+                                html.P("""
+                                       TINQAD stands as a testament to our dedication to quality. 
+                                       By offering a streamlined, integrated system, we ensure 
+                                       that each department within UPD operates at its highest potential. 
+                                       Our tools and analytics are designed to maintain and elevate the quality 
+                                       of services provided by the university.
+                                            """ , style={'textAlign': 'justify'}), 
+  
                                 html.Br(),
                                 html.Br(),
                             ],
@@ -160,14 +153,12 @@ layout = html.Div(
                                 html.P(
                                 [
                                     "This project was made possible through the guidance and instruction of ",
-                                    html.B(html.A("Erickson Llaguno", href = "https://ieor.engg.upd.edu.ph/people/faculty/assistant-professor/erickson-l-llaguno/")),
+                                    html.B( "Erickson Llaguno"),
                                     " and ",
-                                    html.B(html.A("Leslie Gopalan", href = "https://ieor.engg.upd.edu.ph/people/faculty/assistant-professor/pierre-allan-c-villena/")),
+                                    html.B( "Leslie Gopalan"),
                                     ", Senior Lecturers at the UPD IEORD."
                                     
-                                ],
-                                
-                                ),
+                                ]),
                                 html.Br(),
                                 html.Br(),
                             ]
