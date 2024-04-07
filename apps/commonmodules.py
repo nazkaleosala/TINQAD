@@ -159,11 +159,13 @@ def generate_footer():
                     [
                         html.Div(html.A("About TINQAD", href="/About_TINQAD", style={'color': 'white', 'text-decoration': 'none'})),
                         html.Div(html.A("QAO Website", href="https://qa.upd.edu.ph/new-qao-website/", style={'color': 'white', 'text-decoration': 'none'})),
-                        html.Div(html.A("Helpdesk", href="/Helpdesk", style={'color': 'white', 'text-decoration': 'none'})),
+                         
+                        html.P("📧 qa.upd@up.edu.ph", className="mb-0"), 
+                        html.P("📞(02) 9891-8500 local 2092", className="mb-0"),
                     ],
-                    md=3  # Adjusted for a third of the width
+                    md=3  
                 ),
-                # Column for the text content
+                
                 dbc.Col(
                     [
                         html.H1("TINQAD", className="fw-bold mb-0"),  # mb-0 sets the bottom margin to 0
@@ -171,9 +173,9 @@ def generate_footer():
                         html.P("Homepage images provided by Wikipedia and Ralff Nestor Nacor", className="fw-lighter mb-0 fst-italic"),
                        
                     ],
-                    md=4  # Adjusted for a third of the width
+                    md=4 
                 ),
-                # Column for the "back to top" arrow
+                
                 dbc.Col(
                     html.A(
                         html.Img(
