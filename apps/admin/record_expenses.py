@@ -369,6 +369,12 @@ def toggle_save_button(date, payee, main_type, sub_type, particulars, amount, st
         return False  # All fields are filled, button is enabled
     return True  # Not all fields are filled, button remains disabled
 
+
+
+
+
+
+
 layout = html.Div(
    [
        dbc.Row(

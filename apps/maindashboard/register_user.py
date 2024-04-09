@@ -111,13 +111,11 @@ form = dbc.Form(
         dbc.Row(
             [
                 dbc.Col(
-                    dbc.Button("Register", color="primary", className="me-3"), 
-                    # Removed the offset and changed the size to 'auto' to take up only as much space as needed
+                    dbc.Button("Register", color="primary", className="me-3"),  
                     width="auto"
                 ),
                 dbc.Col(
-                    dbc.Button("Cancel", color="secondary"),
-                    # Set the width to 'auto' to align the button to the left alongside the "Register" button
+                    dbc.Button("Cancel", color="secondary"), 
                     width="auto"
                 ),
             ],

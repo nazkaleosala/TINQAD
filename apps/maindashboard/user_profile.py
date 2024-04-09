@@ -10,9 +10,12 @@ import pandas as pd
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
+from calendar import month_name
+
 
 
 profile_image_path = '/assets/database/takagaki1.png'
+
 
 # Your profile header component with circular image
 profile_header = html.Div(
@@ -44,43 +47,50 @@ profile_header = html.Div(
 )
 
 
+
+
+
+# Generate month options as words
+month_options = [{'label': month, 'value': str(index)} for index, month in enumerate(month_name) if index != 0]
+
+
+
 form = dbc.Form(
     [
         dbc.Row(
             [
                 dbc.Label("First Name", width=4),
-                dbc.Col(dbc.Input(type="text", value="Pika"), width=8),
+                dbc.Col(dbc.Input(type="text"  ), width=8),
             ],
-            className="mb-3",
+            className="mb-2",
+        ),
+        dbc.Row(
+            [
+                dbc.Label("Middle Initial", width=4),
+                dbc.Col(dbc.Input(type="text"), width=8),
+            ],
+            className="mb-2",
         ),
         dbc.Row(
             [
                 dbc.Label("Surname", width=4),
-                dbc.Col(dbc.Input(type="text", value="Pikachu"), width=8),
+                dbc.Col(dbc.Input(type="text" ), width=8),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         dbc.Row(
             [
                 dbc.Label("ID Number", width=4),
-                dbc.Col(dbc.Input(type="text", value="2020-*****"), width=8),
+                dbc.Col(dbc.Input(type="text" ), width=8),
             ],
-            className="mb-3",
-        ),
-        # ... Other dbc.Row components for different fields
+            className="mb-2",
+        ), 
         dbc.Row(
             [
-                dbc.Label("Department", width=4),
-                dbc.Col(dbc.Input(type="text", value="Quality Assurance Office"), width=8),
+                dbc.Label("Lived Name", width=4),
+                dbc.Col(dbc.Input(type="text" ), width=8),
             ],
-            className="mb-3",
-        ),
-        dbc.Row(
-            [
-                dbc.Label("Position", width=4),
-                dbc.Col(dbc.Input(type="text", value="Internal Quality Assurance Team"), width=8),
-            ],
-            className="mb-3",
+            className="mb-2", 
         ),
         dbc.Row(
             [
@@ -90,28 +100,111 @@ form = dbc.Form(
                         options=[
                             {"label": "Female", "value": "F"},
                             {"label": "Male", "value": "M"},
-                            # Include other options here
-                        ],
-                        value="F",  # Preselect "Female"
+                             
+                        ], 
+                    ),
+                    width=8,
+                ),
+            ],
+            className="mb-2",
+        ),
+        dbc.Row(
+            [
+                dbc.Label("Birthday", width=4),
+                dbc.Col(dbc.Input(type="text" ), width=8),
+            ],
+            className="mb-2", 
+        ),
+
+        dbc.Row(
+               [
+                dbc.Label( "Phone Number ", width=4),
+                dbc.Col(
+                    dbc.Input(
+                        type="text", id='phone-no-input', placeholder="0000-00-00000"
                     ),
                     width=8,
                 ),
             ],
             className="mb-3",
         ),
+       
         dbc.Row(
             [
-                dbc.Label("Civil Status", width=4),
-                dbc.Col(dbc.Input(type="text", value="Single"), width=8),
+                dbc.Label("Office/Department", width=4),
+                dbc.Col(dbc.Input(type="text"  ), width=8),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
-        # ... Continue adding rows for each field
+        dbc.Row(
+            [
+                dbc.Label("Position", width=4),
+                dbc.Col(dbc.Input(type="text"  ), width=8),
+            ],
+            className="mb-2",
+        ),
+        
+         
+        
+        dbc.Row(
+            [
+                dbc.Label("Email Address (primary)", width=4),
+                dbc.Col(dbc.Input(type="text"), width=8),
+            ],
+            className="mb-2",
+        ),
+        dbc.Row(
+            [
+                dbc.Label("Present Housing", width=4),
+                dbc.Col(dbc.Input(type="text"), width=8),
+            ],
+            className="mb-2",
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    dbc.Button("Save", color="primary", className="me-3"),  
+                    width="auto"
+                ),
+                dbc.Col(
+                    dbc.Button("Cancel", color="secondary"), 
+                    width="auto"
+                ),
+            ],
+            className="mb-2",
+        )
+        
     ],
     className="g-2",
 )
 
- 
+  
+
+#phone-no  format:
+@app.callback(
+   Output('phone-no-input', 'value'),
+   Input('phone-no-input', 'value')
+)
+def format_phone_no(phone_no):
+   if not phone_no:
+       return ''
+  
+   # Remove non-numeric characters
+   bur_no = ''.join(filter(str.isdigit, bur_no))
+
+
+   # Add dashes at appropriate positions
+   formatted_phone_no = ''
+   for i, char in enumerate(bur_no):
+       if i == 4 or i == 6:
+           formatted_phone_no += '-'
+       formatted_phone_no += char
+
+
+   return formatted_phone_no[:13]  # Limit the length to fit the pattern
+
+
+
 
 
 layout = html.Div(
@@ -127,9 +220,12 @@ layout = html.Div(
                     html.H1("PROFILE"),
                     html.Hr(),
                     profile_header,  # Insert the profile header here
+                    html.Br(), 
                     form,  # Insert the profile table here
+                    
 
                 ], 
+                
                     width=8, 
                     style={'marginLeft': '15px'}
                 ),
