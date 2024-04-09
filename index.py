@@ -45,6 +45,10 @@ app.layout = html.Div(
         Input('url', 'pathname')
     ]
 )
+
+
+
+
 def displaypage (pathname):
     ctx = dash.callback_context
     if ctx.triggered:

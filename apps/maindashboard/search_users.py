@@ -10,9 +10,7 @@ import pandas as pd
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
-
-
-
+ 
 layout = html.Div(
     [
         dbc.Row(
@@ -22,7 +20,6 @@ layout = html.Div(
                     [
                         html.H1("SEARCH USERS"),
                         html.Hr(),
-                        
                         dbc.Row(   
                             [
                                 dbc.Col(   
@@ -31,7 +28,6 @@ layout = html.Div(
                                         href='/searchusers/newuser_profile', 
                                     ),
                                     width="auto",    
-                                    
                                 ),
                                 dbc.Col(  
                                     dbc.Input(
@@ -40,29 +36,17 @@ layout = html.Div(
                                         placeholder='🔎 Search by name, email, position, etc',
                                         className='ml-auto'   
                                     ),
-                                    width="8",
+                                    width=8,
                                 ),
                             ],
-                             
                             className="align-items-center",   
                             justify="between",  
                         ),
-
-                        dbc.Row(  
-                            [
-                                 dbc.Col(   
-                                    html.Div(
-                                        "Table with names will go here.",
-                                        id='searchusers_list',
-                                        style={'marginTop': '20px'} 
-                                    ),
-                                    width=12  
-                                )
-                            ],
-                                     
-                        ),
-
-                    ], width=8, style={'marginLeft': '15px'}
+                        # Placeholder for the users table
+                        html.Div(id='searchusers_list', style={'marginTop': '20px'})  
+                    ], 
+                    width=8, 
+                    style={'marginLeft': '15px'}
                 ),
             ]
         ),
@@ -75,65 +59,47 @@ layout = html.Div(
 )
 
 
-
-
 @app.callback(
     [
         Output('searchusers_list', 'children')
     ],
     [
-        Input('url', 'pathname'),
-        Input('searchusers_namefilter', 'value'),
+        Input('url', 'pathname'),  
+        Input('searchusers_filter', 'value'),
     ]
-    )
+)
 
-def moviehome_loadmovielist(pathname, searchterm):
-    if pathname == '/movies':
-        sql = """ SELECT movie_name, genre_name, movie_id
-            FROM movies m
-                INNER JOIN genres g ON m.genre_id = g.genre_id
-            WHERE
-                NOT movie_delete_ind
+def searchusers_loaduserlist (pathname, searchterm):
+    if pathname == '/search_users':
+        sql = """  
+            SELECT user_sname AS "Surname", user_fname AS "First Name", user_office AS "Dept", 
+                user_position AS "Position", user_email AS "Email",  
+                user_phone_num AS "Phone"
+            FROM maindashboard.users
         """
-        values = []
-        cols = ['Movie Title', 'Genre', 'ID']
+
         
+        cols = ['Surname', 'First Name', 'Dept', 'Position', 'Email', 'Phone']
+
         if searchterm:
-            # We use the operator ILIKE for pattern-matching
-            sql += " AND movie_name ILIKE %s"
-
-            # The % before and after the term means that
-            # there can be text before and after
-            # the search term
-            values += [f"%{searchterm}%"]
-        
-        
-        df = db.querydatafromdatabase(sql, values, cols)
-
-        if df.shape:
-            buttons = []
-            for movie_id in df['ID']:
-                buttons += [
-                    html.Div(
-                        dbc.Button('Edit',
-                href=f'movies/movies_profile?mode=edit&id={movie_id}',
-                            size='sm', color='warning'),
-                            style={'text-align': 'center'}
-                    )
-                ]   
-            df['Action'] = buttons
-            # remove the column ID before turning into a table
-            df = df[['Movie Title', 'Genre', "Action"]]
-
-
-            table = dbc.Table.from_dataframe(df, striped=True, bordered=True,
-                    hover=True, size='sm')
-            return [table]
-        
+            # Add a WHERE clause with ILIKE to filter the results
+            sql += """ WHERE user_sname ILIKE %s OR user_fname ILIKE  %s OR user_position ILIKE %s OR 
+                user_email ILIKE %s  """
+            like_pattern = f"%{searchterm}%"
+            values = [like_pattern, like_pattern,   like_pattern  , like_pattern]
         else:
-            return ["No records to display"]
+            values = []
+
     
-    
-    
+
+        df = db.querydatafromdatabase(sql, values, cols) 
+         
+
+        # Generate the table from the DataFrame
+        if not df.empty:  # Check if the DataFrame is not empty
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return [table]
+        else:
+            return [html.Div("No records to display")]
     else:
         raise PreventUpdate
