@@ -55,6 +55,77 @@ college = {
     ]
 }
 
+department = {
+    "College of Arts and Letters": [
+        "N/A", "Department of Art Studies", "Department of English and Comparative Literature",
+        "Department of European Languages", "Department of Filipino and Panitikan ng Pilipinas",
+        "Department of Speech Communication and Theater Arts"
+    ],
+    "College of Fine Arts": [
+        "N/A", "Department of Studio Arts", "Department of Theory",
+        "Department of Visual Communication", "CFA Graduate Program"
+    ],
+    "College of Human Kinetics": [
+        "N/A", "Department of Physical Education", "Department of Sports Science", "Graduate Studies Program"
+    ],
+    "College of Mass Communication": [
+        "N/A", "Department of Broadcast Communication", "Department of Communication Research",
+        "Film Institute", "Department of Journalism", "Department of Graduate Studies"
+    ],
+    "College of Music": ["N/A"],
+    "Asian Institute of Tourism": ["N/A"],
+    "Cesar E.A. Virata School of Business": [
+        "N/A", "Department of Business Administration", "Department of Accounting and Finance"
+    ],
+    "School of Economics": ["N/A"],
+    "School of Labor and Industrial Relations": ["N/A"],
+    "School of Urban and Regional Planning": ["N/A"],
+    "Technology Management Center": ["N/A"],
+    "National College of Public Administration and Governance": ["N/A"],
+    "UP Diliman Extension Program in Pampanga + Olongapo": ["N/A"],
+    "School of Archaeology": ["N/A"],
+    "College of Architecture": ["N/A"],
+    "College of Engineering": [
+        "N/A", "Department of Chemical Engineering", "Department of Computer Science",
+        "Department of Geodetic Engineering", "Department of Industrial Engineering and Operations Research",
+        "Department of Mechanical Engineering", "Department of Mining, Metallurgical, and Material Engineering",
+        "Energy Engineering Program", "Environmental Engineering Program",
+        "Institute of Electrical and Electronics Engineering", "Institute of Civil Engineering"
+    ],
+    "College of Home Economics": [
+        "N/A", "Department of Clothing, Textiles and Interior Design", "Department of Family Life and Child Development",
+        "Department of Food Science and Nutrition", "Department of Home Economics Education",
+        "Department of Hotel, Restaurant and Institution Management"
+    ],
+    "College of Science": [
+        "N/A", "Institute of Biology", "Institute of Chemistry",
+        "Institute of Environmental Science and Meteorology", "Institute of Mathematics",
+        "National Institute of Molecular Biology and Biotechnology", "Marine Science Institute",
+        "National Institute of Geological Sciences", "National Institute of Physics",
+        "Materials Science and Engineering Program"
+    ],
+    "School of Library and Information Studies": ["N/A"],
+    "School of Statistics": ["N/A"],
+    "College of Social Sciences and Philosophy": [
+        "N/A", "Department of Anthropology", "Department of Geography", "Departamento ng Kasaysayan",
+        "Departamento ng Linggwistiks", "Department of Philosophy", "Department of Political Science",
+        "Population Institute", "Department of Psychology", "Department of Sociology"
+    ],
+    "College of Social Work and Community Development": [
+        "N/A", "Department of Community Development", "Department of Social Work",
+        "Department of Women and Development Studies", "Doctor of Social Development Program"
+    ],
+    "Institute of Islamic Studies": ["N/A"],
+    "College of Law": ["N/A"],
+    "Asian Center": ["N/A"],
+    "College of Education": [
+        "N/A", "Division of Educational Leadership and Professional Services",
+        "Division of Curriculum and Instruction"
+    ],
+    "Tri-college Program": ["N/A"]
+}
+
+
 cancel_modal = dbc.Modal(
     [
         dbc.ModalHeader("Cancel Confirmation"),
@@ -183,6 +254,7 @@ form = dbc.Form(
            ],
            className="mb-2",
        ),
+
        dbc.Row(
             [
                 dbc.Label(
@@ -193,7 +265,10 @@ form = dbc.Form(
                     width=4
                 ),
                 dbc.Col(
-                    dbc.Input(type="text", id='department-input', placeholder="Enter Department"),
+                    dcc.Dropdown(
+                        id='department-dropdown',
+                        placeholder="Select Department",
+                    ),
                     width=8,
                 ),
             ],
@@ -517,6 +592,15 @@ form = dbc.Form(
 def set_college_options(selected_cluster):
     if selected_cluster:
         return [{'label': i, 'value': i} for i in college[selected_cluster]]
+    return []
+
+@app.callback(
+    Output('department-dropdown', 'options'),
+    [Input('college-dropdown', 'value')]
+)
+def set_department_options(selected_college):
+    if selected_college in department:
+        return [{'label': dept, 'value': dept} for dept in department[selected_college]]
     return []
 
 @app.callback(
