@@ -25,7 +25,7 @@ layout = html.Div(
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add New", color="primary", 
-                                        href='/searchusers/newuser_profile', 
+                                        href='/register_user', 
                                     ),
                                     width="auto",    
                                 ),
