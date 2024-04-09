@@ -22,7 +22,7 @@ form = dbc.Form(
                     width=6,
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         dbc.Row(
             [
@@ -32,7 +32,7 @@ form = dbc.Form(
                     width=6,
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         dbc.Row(
             [
@@ -42,7 +42,7 @@ form = dbc.Form(
                     width=6,
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         dbc.Row(
             [
@@ -59,7 +59,7 @@ form = dbc.Form(
                     width=6,
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         dbc.Row(
             [
@@ -69,7 +69,7 @@ form = dbc.Form(
                     width=6,
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         dbc.Row(
             [
@@ -79,7 +79,7 @@ form = dbc.Form(
                     width=6,
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         dbc.Row(
             [
@@ -95,7 +95,7 @@ form = dbc.Form(
                     width=6,
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         dbc.Row(
             [
@@ -105,7 +105,7 @@ form = dbc.Form(
                     width=6,
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         html.Br(),
         dbc.Row(
@@ -121,7 +121,7 @@ form = dbc.Form(
                     width="auto"
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         )
     ],
     className="g-2",
