@@ -1,23 +1,236 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-import dash_table
+from dash import Dash, html, dcc, Input, Output, State
+
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import pandas as pd
-
 
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
 
+
+
+form = dbc.Form(
+    [
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                       "Date ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dcc.DatePickerSingle(
+                       id='exp_date',
+                       date=str(pd.to_datetime("today").date())
+                    ),
+                    width=8,
+                ),
+            ],
+            className="mb-3",
+        ),
+        
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Payee ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dbc.Input(type="text", id='exp_payee', placeholder="First Name Last Name"),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
+        
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Expense Main Type ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dbc.Select(
+                        id='main_expense_id',
+                        options=[]
+                    ),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
+
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Expense Sub Type ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dbc.Select(
+                        id='sub_expense_id',
+                        options=[]
+                    ),
+                    width=6,
+                ),
+            ],
+            className="mb-3",
+        ),
+
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Particulars ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                   dbc.Textarea(id='exp_particulars', placeholder="Enter particulars"),
+                   width=8,
+                ),
+            ],
+            className="mb-2",
+        ),
+
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Amount ",
+                        html.Span("*", style={"color": "#F8B237"}) 
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dbc.Input(type="text", id='exp_amount', placeholder="0,000.00"),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
+
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Status ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dbc.Select(
+                        id='exp_status',
+                        options=[ 
+                            {"label": "Approved", "value": 1},
+                            {"label": "Pending", "value": 2},
+                            {"label": "Denied", "value": 3},
+                        ]
+                    ),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
+
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "BUR No. ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dbc.Input(type="text", id='exp_bur_no', placeholder="0000-00-00000"),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
  
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Submitted by",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],  
+                    width=4
+                ),
+                dbc.Col(
+                    dbc.Input(type="text", id = 'exp_submitted_by'),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
+
+        
+        html.Br(),
+        dbc.Row(
+            [
+                dbc.Col(
+                    dbc.Button("Save", color="primary", className="me-3", id="save_button", n_clicks=0),
+                    width="auto"
+                ),
+                dbc.Col(
+                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
+                    width="auto"
+                ),
+            ],
+            className="mb-2",
+        ),
+
+        dbc.Modal(
+            [
+                dbc.ModalHeader(className="bg-success"),
+                dbc.ModalBody(
+                    html.H4('Expense added.'),
+                ),
+                dbc.ModalFooter(
+                    dbc.Button(
+                        "Proceed", id='proceed_button', className='ml-auto'
+                    ), 
+                )
+                 
+            ],
+            centered=True,
+            id='recordexpenses_successmodal',
+            backdrop=True,  # Allow clicking outside to close the modal
+            className="modal-success"  # You can define this class in your CSS file for additional styling
+        ),
+        
+    ],
+    className="g-2",
+)
+
+
+
 
 #main expense dropdown
 @app.callback(
-    Output('main_expenses_id', 'options'),
+    Output('main_expense_id', 'options'),
     Input('url', 'pathname')
 )
 
@@ -41,7 +254,7 @@ def populate_mainexpenses_dropdown(pathname):
 
 #sub expense dropdown
 @app.callback(
-    Output('sub_expenses', 'options'),
+    Output('sub_expense_id', 'options'),
     Input('main_expense_id', 'value')
 )
 def update_subexpenses_options(selected_main_expense):
@@ -67,300 +280,40 @@ def update_subexpenses_options(selected_main_expense):
 
 
 
+
+
+
 # Callbacks for formatting input fields
-
-#Amount
-@app.callback(
-   Output('exp_amount', 'value'),
-   Input('exp_amount', 'value')
-)
-def format_amount(amount):
-   if not amount or amount == '.':
-       return ''
-  
-   cleaned_amount = ''.join([c for c in amount if c.isdigit() or c == '.']) # Filter out invalid characters
-   parts = cleaned_amount.split('.')# Split into whole and decimal parts
-   whole_part = parts[0]
-   formatted_whole = format(int(whole_part) if whole_part else 0, ',d')# Format whole part with commas
-
-   # Reconstruct the amount
-   if len(parts) > 1:
-       decimal_part = parts[1][:2]  # Take at most two decimal places
-       formatted_amount = f'{formatted_whole}.{decimal_part}'
-   else:
-       formatted_amount = formatted_whole
-   return formatted_amount
-
-
 #BUR No
 @app.callback(
-   Output('exp_bur_no', 'value'),
-   Input('exp_bur_no', 'value')
+    Output('exp_bur_no', 'value'),
+    Input('exp_bur_no', 'n_blur'),
+    State('exp_bur_no', 'value')
 )
-def format_bur_no(bur_no):
-   if not bur_no:
-       return ''
-  
-   bur_no = ''.join(filter(str.isdigit, bur_no)) # Remove non-numeric characters
-   
-   formatted_bur_no = ''   # Add dashes at appropriate positions
-   for i, char in enumerate(bur_no):
-       if i == 4 or i == 6:
-           formatted_bur_no += '-'
-       formatted_bur_no += char
+def format_bur_no(n_blur, bur_no):
+    if not bur_no:
+        return ''
 
-   return formatted_bur_no[:13]  # Limit the length to fit the pattern
+    # Removing non-numeric characters
+    bur_no = ''.join(filter(str.isdigit, bur_no))
+
+    # Formatting the BUR number
+    formatted_bur_no = ''
+    for i, char in enumerate(bur_no):
+        if i in [4, 6]:  # Adding dashes after 4th and 6th digit
+            formatted_bur_no += '-'
+        formatted_bur_no += char
+
+    # Trimming to the pattern length (13 including dashes)
+    return formatted_bur_no[:13]
  
  
 
 
-form = dbc.Form(
-   [
-       dbc.Row(
-           [
-               dbc.Label(
-                   [
-                       "Date ",
-                        html.Span("*", style={"color": "#F8B237"})
-                   ],
-                   width=4
-               ),
-               dbc.Col(
-                   dcc.DatePickerSingle(
-                       id='exp_date',
-                       date=str(pd.to_datetime("today").date())
-                   ),
-                   width=8,
-               ),
-           ],
-           className="mb-3",
-       ),
-       dbc.Row(
-           [
-               dbc.Label(
-                    [
-                        "Payee ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4
-                ),
-               dbc.Col(
-                   dbc.Input(type="text", id='exp_payee', placeholder="First Name Last Name"),
-                   width=8,
-               ),
-           ],
-           className="mb-3",
-       ),
-        
-       dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Expense Main Type ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4
-                ),
-                dbc.Col(
-                    dbc.Select(
-                        id='main_expense_id',
-                        options=[]
-                    ),
-                    width=6,
-                ),
-            ],
-            className="mb-3",
-        ),
-       dbc.Row(
-              [
-               dbc.Label(
-                    [
-                        "Expense Sub Type ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4
-                ),
-               dbc.Col(
-                    dbc.Select(
-                        id='sub_expense_id',
-                        options=[]
-                    ),
-                    width=6,
-                ),
-           ],
-           className="mb-3",
-       ),
-       dbc.Row(
-           [
-               dbc.Label(
-                    [
-                        "Particulars ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4
-                ),
-               dbc.Col(
-                   dbc.Textarea(id='exp_particulars', placeholder="Enter particulars"),
-                   width=8,
-               ),
-           ],
-           className="mb-3",
-       ),
-      dbc.Row(
-               [
-                dbc.Label(
-                    [
-                        "Amount ",
-                        html.Span("*", style={"color": "#F8B237"}) 
-                    ],
-                    width=4
-                ),
-                dbc.Col(
-                    dbc.Input(
-                        type="text", id='exp_amount', placeholder="0,000.00"
-                    ),
-                    width=8,
-                ),
-            ],
-            className="mb-3",
-        ),
-       dbc.Row(
-           [
-               dbc.Label(
-                    [
-                        "Status ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4
-                ),
-               dbc.Col(
-                   dbc.Select(
-                       id=' exp_status',
-                       options=[
-                           {"label": "Approved", "value": 1},
-                           {"label": "Pending", "value": 2},
-                           {"label": "Denied", "value": 3},
-                           # Include other options here
-                       ],
-                       placeholder="Select status",
-                   ),
-                   width=8,
-               ),
-           ],
-           className="mb-3",
-       ),
-       dbc.Row(
-               [
-                dbc.Label(
-                    [
-                        "BUR No. ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4
-                ),
-                dbc.Col(
-                    dbc.Input(
-                        type="text", id='exp_bur_no', placeholder="0000-00-00000"
-                    ),
-                    width=8,
-                ),
-            ],
-            className="mb-3",
-        ),
-      
-       dbc.Row(
-           [
-               dbc.Label(
-                    [
-                        "Submitted by",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],  
-                    width=4
-                ),
-               dbc.Col(
-                   dbc.Input(type="text", id='exp_submitted_by', placeholder="First Name Last Name"),
-                   width=8,
-               ),
-           ],
-           className="mb-3",
-       ),
 
-        dbc.Row(
-                dbc.Col(
-                    dcc.Upload(
-                        id='exp_receipt',  
-                        children=html.Div(
-                            [
-                                html.Img(
-                                    src=app.get_asset_url('upload_photo.png'),
-                                    style={'width': '50px', 'height': '50px', 'margin-bottom': '5px'}
-                                ),
-                                html.Div([
-                                    "Add Receipt ",
-                                    html.Span("*", style={'color': '#F8B237'})
-                                ], style={'fontWeight': 'bold', 'fontSize': '20px', 'margin-bottom': '1px'}),
-                                html.Div("Drag and Drop or Select Files", style={'fontSize': '14px'})
-                            ],
-                            style={
-                                'display': 'flex',
-                                'flexDirection': 'column',
-                                'alignItems': 'center',
-                                'justifyContent': 'center',
-                                'height': '100%',
-                                'padding': '15px 30px'  # Adjust padding as needed
-                            }
-                        ),
-                        style={
-                            'width': '100%', 'minHeight': '100px',  # Adjust height as needed
-                            'borderWidth': '2px', 'borderStyle': 'solid',
-                            'borderRadius': '5px', 'textAlign': 'center',
-                            'margin': '5px', 'display': 'flex',
-                            'alignItems': 'center', 'justifyContent': 'center'
-                        },
-                        multiple=True
-                    ),
-                    lg={'size': 8, 'offset': 2},  # Adjust size and offset for proper alignment
-                    md={'size': 10, 'offset': 1},
-                    sm={'size': 12},
-                    style={'marginBottom': '1rem'}
-                ),
-            ),
-       dbc.Row(
-           [
-               dbc.Col(
-                    dbc.Button("Save", color="primary", className="me-3", id="save_button", n_clicks=0),
-                    width="auto"
-                ),
-                dbc.Col(
-                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
-                    width="auto"
-                ),
-               
-        ],
-           className="mb-4",
-       ),
 
-       dbc.Modal(
-            [
-                dbc.ModalHeader(className="bg-success"),
-                dbc.ModalBody(
-                    html.H4('Expense added.'),
-                ),
-                dbc.ModalFooter(
-                    dbc.Button(
-                        "Proceed", id='proceed_button', className='ml-auto'
-                    ), 
-                )
-                 
-            ],
-            centered=True,
-            id='recordexpense_successmodal',
-            backdrop=True,  # Allow clicking outside to close the modal
-            className="modal-success"   
-        ),
-   ],
-   className="g-2",
-)
+
+
 
 
 
@@ -373,38 +326,35 @@ form = dbc.Form(
 
 
 layout = html.Div(
-   [
-       dbc.Row(
-           [ 
-               dbc.Col(
-                   cm.generate_navbar(),
-                   width=2
-               ), 
-               dbc.Col(
-               [
-                   html.H1("ADD EXPENSE"),
-                   html.Hr(),
-                   dbc.Alert(id='recordexpense_alert', is_open=False),
-                   form,
-               ],
-               width=8, style={'marginLeft': '15px'}
-              
-               )
-           ]
-       ),
-       #footer
-       dbc.Row (
-           [
-               dbc.Col(
-                   cm.generate_footer(), width={"size": 12, "offset": 0}
-               ),
-           ]
-       )
-   ]
+    [
+        dbc.Row(
+            [
+                dbc.Col(
+                    cm.generate_navbar(), 
+                    width=2 
+                ),
+                dbc.Col(
+                [
+                    html.H1("ADD EXPENSE"),
+                    html.Hr(),
+                    dbc.Alert(id='recordexpenses_alert', is_open=False), # For feedback purpose
+                    form, 
+                ],
+                width=8, style={'marginLeft': '15px'}
+                
+                )
+            ]
+        ),
+        dbc.Row (
+            [
+                dbc.Col(
+                    cm.generate_footer(), width={"size": 12, "offset": 0}
+                ),
+            ]
+        ),
+        
+    ]
 )
-
-
-
 
 
 
@@ -412,10 +362,10 @@ layout = html.Div(
 
 @app.callback(
     [
-        Output('recordexpense_alert', 'color'),
-        Output('recordexpense_alert', 'children'),
-        Output('recordexpense_alert', 'is_open'),
-        Output('recordexpense_successmodal', 'is_open')
+        Output('recordexpenses_alert', 'color'),
+        Output('recordexpenses_alert', 'children'),
+        Output('recordexpenses_alert', 'is_open'),
+        Output('recordexpenses_successmodal', 'is_open')
     ],
     [
         Input('save_button', 'n_clicks')
@@ -435,22 +385,18 @@ layout = html.Div(
  
 
 
-
-def record_expenses(submitbtn, date, payee, mainexpense, subexpense, 
-                    particulars, amount, status, bur_no, submittedby):
-    ctx = dash.callback_context 
-    if not ctx.triggered:
+def record_expenses(submitbtn, date, payee, mainexpense, 
+                    subexpense, particulars, amount, 
+                    status, bur_no, submittedby):
+    if not submitbtn:
         raise PreventUpdate
 
-    eventid = ctx.triggered[0]['prop_id'].split('.')[0]
-    if eventid != 'save_button' or not submitbtn:
-        raise PreventUpdate
- 
     alert_open = False
     modal_open = False
     alert_color = ''
     alert_text = ''
- 
+
+    # Input validation
     if not date:
         alert_open = True
         alert_color = 'danger'
@@ -496,39 +442,40 @@ def record_expenses(submitbtn, date, payee, mainexpense, subexpense,
     if not bur_no:
         alert_open = True
         alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a bur_no.'
+        alert_text = 'Check your inputs. Please add a BUR no.'
+        return [alert_color, alert_text, alert_open, modal_open]
+    
+    if not submittedby:
+        alert_open = True
+        alert_color = 'danger'
+        alert_text = 'Check your inputs. Please add Submitted by.'
         return [alert_color, alert_text, alert_open, modal_open]
  
 
+
     # Default values
-    exp_receipt = 1  
+    exp_receipt = None
 
+    # Insert data into the database
+    try:
+        sql = """
+            INSERT INTO adminteam.expenses (
+                exp_date, exp_payee, main_expense_id, sub_expense_id, 
+                exp_particulars, exp_amount, exp_status, 
+                exp_bur_no, exp_submitted_by, exp_receipt
+            )
+            VALUES (
+                %s, %s, %s, %s, 
+                %s, %s, %s, 
+                %s, %s, %s
+            )
+        """
+        values = (date, payee, mainexpense, subexpense, particulars, amount, status, bur_no, submittedby, exp_receipt)
+        db.modifydatabase(sql, values)
+        modal_open = True
+    except Exception as e:
+        alert_color = 'danger'
+        alert_text = 'An error occurred while saving the data.'
+        alert_open = True
 
-    # SQL query to insert data
-    sql = """
-        INSERT INTO adminteam.expenses (
-            exp_date, exp_payee, main_expense_id, sub_expense_id, 
-            exp_particulars, exp_amount, exp_status, 
-            exp_bur_no, exp_submitted_by, exp_receipt
-        )
-        VALUES (
-            %s, %s, %s, %s, 
-            %s, %s, %s, 
-            %s, %s, %s
-        )
-    """
- 
-    values = (
-        date, payee, mainexpense, subexpense, 
-        particulars, amount, status, bur_no, submittedby, exp_receipt
-    )
-
-    db.modifydatabase(sql, values)
-    # If this is successful, we want the successmodal to show
-    modal_open = True
-
-    return [alert_color, alert_text, alert_open, modal_open] 
-
- 
-
- 
+    return [alert_color, alert_text, alert_open, modal_open]
