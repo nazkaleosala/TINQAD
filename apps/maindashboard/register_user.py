@@ -339,8 +339,6 @@ layout = html.Div(
                     dbc.Alert(id='registeruser_alert', is_open=False), # For feedback purpose
                     form,
                     cancel_modal,
-                     
-                     
                 ],
                 width=8, style={'marginLeft': '15px'}
                 
