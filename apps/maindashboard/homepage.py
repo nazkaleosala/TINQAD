@@ -150,8 +150,8 @@ def post_message(n_clicks, message, displayed_messages):
     # Create a text-based "Delete" link
     delete_link = html.A(
         html.Img(
-            src=app.get_asset_url("icons/delete_icon.png"),  # Assuming 'delete_icon.png' is in the assets folder
-            style={"height": "20px", "width": "20px"}  # Adjust the size as needed
+            src=app.get_asset_url("icons/delete_icon.png"),  
+            style={"height": "20px", "width": "20px"}   
         ),
         href="#",
         id={"type": "delete", "index": message_id},
