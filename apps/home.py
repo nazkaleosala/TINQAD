@@ -57,7 +57,7 @@ layout = dbc.Row(
             html.Div(
             [
                 html.Img(
-                    src=app.get_asset_url('bg1.png'),
+                    src=app.get_asset_url('icons/bg1.png'),
                     style = {
                         'height' : '50em',
                         'width' : '100%',
@@ -66,7 +66,7 @@ layout = dbc.Row(
                     }
                 ),
 
-                html.Img(src=app.get_asset_url('qao-logo-icon.png'),
+                html.Img(src=app.get_asset_url('icons/qao-logo-icon.png'),
                         style = {
                             'max-width': '15vw',
                             'margin': 'auto',  # Center the image horizontally

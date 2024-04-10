@@ -258,8 +258,8 @@ cancel_modal = dbc.Modal(
             html.P("Are you sure you want to cancel?"),
             dbc.Button("Confirm Cancellation", color="danger", id="confirm_cancel", className="me-2", n_clicks=0),
             dbc.Button("Close", id="close_modal", className="ms-auto", n_clicks=0)
+         
         ]),
-        
     ],
     id="cancel_modal",
     is_open=False,  # Starts hidden
