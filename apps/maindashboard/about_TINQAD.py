@@ -24,7 +24,7 @@ def create_card(name, image_url, description, linkedin_url):
                     html.P(description, className="card-text "),
                     html.A(
                         html.Img(
-                            src=app.get_asset_url('linkedinicon1.png'),
+                            src=app.get_asset_url('icons/linkedinicon1.png'),
                             style={'height': '1.5em', 'width': 'auto', 'margin-top': '0.5em'}
                         ),
                         href=linkedin_url,
@@ -39,26 +39,26 @@ def create_card(name, image_url, description, linkedin_url):
  
 cards = [
     create_card("Naomi Takagaki", 
-                app.get_asset_url('takagaki1.png'),  
+                app.get_asset_url('aboutus/takagaki1.png'),  
                 """
                 Project Manager and Lead Developer
                                             """,
                 "https://www.linkedin.com/in/naomi-takagaki-4456aa266/"),
     create_card("Nazka Leosala", 
-                app.get_asset_url('leosala1.png'), 
+                app.get_asset_url('aboutus/leosala1.png'), 
                 """
                 Main Programmer and Backend Developer
                                             """,
                 "https://www.linkedin.com/in/nazka-leosala-b4ab012b8/"),
     create_card("Ma. Roxette Rojas", 
-                app.get_asset_url('rojas1.png'), 
+                app.get_asset_url('aboutus/rojas1.png'), 
                 """
                 Systems Designer and Frontend Developer
                                             """, 
                 
                 "https://www.linkedin.com/in/maroxetterojas/"),
     create_card("Ma. Lourdes Isabelle Tinaza", 
-                app.get_asset_url('tinaza1.png'), 
+                app.get_asset_url('aboutus/tinaza1.png'), 
                 """
                 Instructional Designer and Database Developer
                                             """,
@@ -105,7 +105,7 @@ layout = html.Div(
                         
                         html.H4("The Quality Assurance Office Team", style={'textAlign': 'center'}),
                          
-                        html.Img(src=app.get_asset_url('QAOTeam.jpg'), style={'height': '150px', 'margin': 'auto', 'display': 'block'}),
+                        html.Img(src=app.get_asset_url('aboutus/QAOTeam.jpg'), style={'height': '150px', 'margin': 'auto', 'display': 'block'}),
                         html.Br(),  
 
                         html.P("""

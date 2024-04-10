@@ -23,7 +23,7 @@ navbar = dbc.Navbar(
                             dbc.NavbarBrand(
                                 [
                                     html.Img(
-                                        src=app.get_asset_url('logo-block.png'),
+                                        src=app.get_asset_url('icons/logo-block.png'),
                                         style={'height': '2em'}
                                     ),
                                 ],
@@ -58,7 +58,7 @@ navbar = dbc.Navbar(
     dark=False,
     color='dark',
     style={
-        'background-image': 'url(/assets/red-navbar.png)',
+        'background-image': 'url(/assets/icons/red-navbar.png)',
         'background-size': '80em 4em',
         'background-position': 'center top'
     },
@@ -147,7 +147,7 @@ def generate_footer():
                 dbc.Col(
                     html.A(
                         html.Img(
-                            src="/assets/qao-logo-icon1.png",
+                            src="/assets/icons/qao-logo-icon1.png",
                             style={'height': '100px'}
                         ),
                         href="/home",  
@@ -179,7 +179,7 @@ def generate_footer():
                 dbc.Col(
                     html.A(
                         html.Img(
-                            src="/assets/arrow.png",
+                            src="/assets/icons/arrow.png",
                             style={'height': '50px'}
                         ),
                         href="#",  

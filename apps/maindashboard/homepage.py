@@ -150,7 +150,7 @@ def post_message(n_clicks, message, displayed_messages):
     # Create a text-based "Delete" link
     delete_link = html.A(
         html.Img(
-            src=app.get_asset_url("delete_icon.png"),  # Assuming 'delete_icon.png' is in the assets folder
+            src=app.get_asset_url("icons/delete_icon.png"),  # Assuming 'delete_icon.png' is in the assets folder
             style={"height": "20px", "width": "20px"}  # Adjust the size as needed
         ),
         href="#",
@@ -260,7 +260,7 @@ layout = html.Div(
                                             [
                                                 dbc.Row(
                                                     [
-                                                        dbc.Col(html.Img(src=app.get_asset_url("admin_icon.png"), style={"height": "100px"})),
+                                                        dbc.Col(html.Img(src=app.get_asset_url("icons/admin_icon.png"), style={"height": "100px"})),
                                                         dbc.Col(
                                                             [
                                                                 html.Div(style={'background-color': '#31356E', 'width': '100%', 'height': '20px'}),  # Rectangle
@@ -286,7 +286,7 @@ layout = html.Div(
                                             [
                                                 dbc.Row(
                                                     [
-                                                        dbc.Col(html.Img(src=app.get_asset_url("eqa_icon.png"), style={"height": "100px"})),
+                                                        dbc.Col(html.Img(src=app.get_asset_url("icons/eqa_icon.png"), style={"height": "100px"})),
                                                         dbc.Col(
                                                             [
                                                                 html.Div(style={'background-color': '#F8B237', 'width': '100%', 'height': '20px'}),  # Rectangle
@@ -317,7 +317,7 @@ layout = html.Div(
                                             [
                                                 dbc.Row(
                                                     [
-                                                        dbc.Col(html.Img(src=app.get_asset_url("iqa_icon.png"), style={"height": "100px"})),
+                                                        dbc.Col(html.Img(src=app.get_asset_url("icons/iqa_icon.png"), style={"height": "100px"})),
                                                         dbc.Col(
                                                             [
                                                                 html.Div(style={'background-color': '#D37157', 'width': '100%', 'height': '20px'}),  # Rectangle
@@ -343,7 +343,7 @@ layout = html.Div(
                                             [
                                                 dbc.Row(
                                                     [
-                                                        dbc.Col(html.Img(src=app.get_asset_url("km_icon.png"), style={"height": "100px"})),
+                                                        dbc.Col(html.Img(src=app.get_asset_url("icons/km_icon.png"), style={"height": "100px"})),
                                                         dbc.Col(
                                                             [
                                                                 html.Div(style={'background-color': '#39B54A', 'width': '100%', 'height': '20px'}),  # Rectangle
