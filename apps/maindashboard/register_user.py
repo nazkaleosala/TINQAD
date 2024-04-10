@@ -125,18 +125,7 @@ form = dbc.Form(
                 dbc.Col(
                     dbc.Select(
                         id='user_office',
-                        options=[ 
-                            {'label': "Quality Assurance Office", 'value': '1'},
-                            {'label': "Office of the Vice President for Academic Affairs", 'value': '2'},
-                            {'label': "Office of the Chancellor", 'value': '3'},
-                            {'label': "Office of the Vice Chancellor for Academic Affairs", 'value': '4'},
-                            {'label': "Office of the Vice Chancellor for Research and Development", 'value': '5'},
-                            {'label': "Office of the Vice Chancellor for Administration", 'value': '6'},
-                            {'label': "Office of the Vice Chancellor for Student Affairs", 'value': '7'},
-                            {'label': "Office of the Vice Chancellor for Community Affairs", 'value': '8'},
-                            {'label': "Office of the Vice Chancellor for Planning and Development", 'value': '9'},
-                            {'label': "UP Diliman Information Office (UPDIO)", 'value': '10'}
-                        ]
+                        options=[]
                     ),
                     width=6,
                 ),
@@ -282,6 +271,54 @@ def toggle_modal(cancel_click, close_click, confirm_click, is_open):
 )
 def refresh_on_confirm(n_clicks):
     return dash.no_update
+
+
+
+#offices dropdown
+@app.callback(
+    Output('user_office', 'options'),
+    Input('url', 'pathname')
+)
+
+def populate_offices_dropdown(pathname):
+    # Check if the pathname matches if necessary
+    if pathname == '/register_user':
+        sql = """
+        SELECT office_name as label, office_id as value
+        FROM maindashboard.offices
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        office_options = df.to_dict('records')
+        return office_options
+    else:
+        raise PreventUpdate
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -33,7 +33,7 @@ layout = html.Div(
                                     dbc.Input(
                                         type='text',
                                         id='searchusers_filter',
-                                        placeholder='🔎 Search by name, email, position, etc',
+                                        placeholder='🔎 Search by name, office, position',
                                         className='ml-auto'   
                                     ),
                                     width=8,
@@ -43,9 +43,15 @@ layout = html.Div(
                             justify="between",  
                         ),
                         # Placeholder for the users table
-                        html.Div(id='searchusers_list', style={'marginTop': '20px'})  
+                        html.Div(
+                            id='searchusers_list', 
+                            style={
+                                'marginTop': '20px',
+                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                            }
+                        )
                     ], 
-                    width=8, 
+                    width=9, 
                     style={'marginLeft': '15px'}
                 ),
             ]
@@ -69,31 +75,33 @@ layout = html.Div(
     ]
 )
 
-def searchusers_loaduserlist (pathname, searchterm):
+def searchusers_loaduserlist(pathname, searchterm):
     if pathname == '/search_users':
+        # Updated SQL query to join with the offices table
         sql = """  
-            SELECT user_sname AS "Surname", user_fname AS "First Name", user_office AS "Dept", 
-                user_position AS "Position", user_email AS "Email",  
-                user_phone_num AS "Phone"
-            FROM maindashboard.users
+            SELECT 
+                u.user_sname AS "Surname", 
+                u.user_fname AS "First Name", 
+                o.office_name AS "Dept",  -- Joining to get office_name
+                u.user_position AS "Position", 
+                u.user_email AS "Email",  
+                u.user_phone_num AS "Phone"
+            FROM maindashboard.users u
+            LEFT JOIN maindashboard.offices o ON u.user_office = o.office_id
         """
 
-        
         cols = ['Surname', 'First Name', 'Dept', 'Position', 'Email', 'Phone']
 
         if searchterm:
             # Add a WHERE clause with ILIKE to filter the results
-            sql += """ WHERE user_sname ILIKE %s OR user_fname ILIKE  %s OR user_position ILIKE %s OR 
-                user_email ILIKE %s  """
+            sql += """ WHERE u.user_sname ILIKE %s OR u.user_fname ILIKE  %s OR u.user_position ILIKE %s OR 
+                o.office_name ILIKE %s  """
             like_pattern = f"%{searchterm}%"
-            values = [like_pattern, like_pattern,   like_pattern  , like_pattern]
+            values = [like_pattern, like_pattern, like_pattern, like_pattern]
         else:
             values = []
 
-    
-
         df = db.querydatafromdatabase(sql, values, cols) 
-         
 
         # Generate the table from the DataFrame
         if not df.empty:  # Check if the DataFrame is not empty
