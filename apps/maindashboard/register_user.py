@@ -2,6 +2,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash import dash_table
+from dash import Dash, html, dcc, Input, Output, State
+
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -11,9 +13,7 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
-import bcrypt
-import base64
-import hashlib
+import bcrypt 
 
 def hash_password(password):
     # Convert the password to bytes if it's a string
@@ -243,13 +243,46 @@ form = dbc.Form(
             id='registeruser_successmodal',
             backdrop=True,  # Allow clicking outside to close the modal
             className="modal-success"  # You can define this class in your CSS file for additional styling
-        )
+        ),
         
     ],
     className="g-2",
 )
 
   
+#cancel button callback
+cancel_modal = dbc.Modal(
+    [
+        dbc.ModalHeader(className="bg-warning"),
+        dbc.ModalBody([
+            html.P("Are you sure you want to cancel?"),
+            dbc.Button("Confirm Cancellation", color="danger", id="confirm_cancel", className="me-2", n_clicks=0),
+            dbc.Button("Close", id="close_modal", className="ms-auto", n_clicks=0)
+        ]),
+        
+    ],
+    id="cancel_modal",
+    is_open=False,  # Starts hidden
+)
+
+@app.callback(
+    Output("cancel_modal", "is_open"),
+    [Input("cancel_button", "n_clicks"), Input("close_modal", "n_clicks"), Input("confirm_cancel", "n_clicks")],
+    [State("cancel_modal", "is_open")],
+)
+def toggle_modal(cancel_click, close_click, confirm_click, is_open):
+    if cancel_click or close_click or confirm_click:
+        return not is_open
+    return is_open
+
+@app.callback(
+    Output('dummy-div', 'children'),
+    [Input('confirm_cancel', 'n_clicks')],
+    prevent_initial_call=True
+)
+def refresh_on_confirm(n_clicks):
+    return dash.no_update
+
 
 
 layout = html.Div(
@@ -268,6 +301,8 @@ layout = html.Div(
                     html.Hr(),
                     dbc.Alert(id='registeruser_alert', is_open=False), # For feedback purpose
                     form,
+                    cancel_modal,
+                     
                      
                 ],
                 width=8, style={'marginLeft': '15px'}
@@ -281,7 +316,8 @@ layout = html.Div(
                     cm.generate_footer(), width={"size": 12, "offset": 0}
                 ),
             ]
-        )
+        ),
+        html.Div(id='dummy-div', style={'display': 'none'})
     ]
 )
 
