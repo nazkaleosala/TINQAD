@@ -151,7 +151,7 @@ def post_message(n_clicks, message, displayed_messages):
     delete_link = html.A(
         html.Img(
             src=app.get_asset_url("icons/delete_icon.png"),  
-            style={"height": "20px", "width": "20px"}   
+            style={"height": "20px", "width": "20px"}  # Adjust the size as needed
         ),
         href="#",
         id={"type": "delete", "index": message_id},
