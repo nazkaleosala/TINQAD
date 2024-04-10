@@ -226,24 +226,23 @@ form = dbc.Form(
             className="mb-2",
         ),
 
-        dbc.Modal(  
+        dbc.Modal(
             [
-                dbc.ModalHeader(
-                    html.H4('Save Success')
-                ),
+                dbc.ModalHeader(className="bg-success"),
                 dbc.ModalBody(
-                'Message here! Edit me please!'
+                    html.H4('User registered successfully.'),
                 ),
-                    dbc.ModalFooter(
-                        dbc.Button(
-                        "Proceed",
-                            href='/register_user' # Clicking this would lead to a change of pages
-                    )
+                dbc.ModalFooter(
+                    dbc.Button(
+                        "Proceed", id='proceed_button', className='ml-auto'
+                    ), 
                 )
+                 
             ],
             centered=True,
             id='registeruser_successmodal',
-            backdrop='static' # Dialog box does not go away if you click at the background
+            backdrop=True,  # Allow clicking outside to close the modal
+            className="modal-success"  # You can define this class in your CSS file for additional styling
         )
         
     ],
@@ -255,6 +254,8 @@ form = dbc.Form(
 
 layout = html.Div(
     [
+         
+        
         dbc.Row(
             [
                 dbc.Col(
@@ -338,13 +339,13 @@ def register_user(submitbtn, fname, mname, sname, livedname,
     if not password:
         alert_open = True
         alert_color = 'danger'
-        alert_text = 'Check your inputs. Please supply the password.'
+        alert_text = 'Check your inputs. Please add a password.'
         return [alert_color, alert_text, alert_open, modal_open]
 
     if not confirm_password:
         alert_open = True
         alert_color = 'danger'
-        alert_text = 'Check your inputs. Please supply the confirm password.'
+        alert_text = 'Check your inputs. Please confirm your password.'
         return [alert_color, alert_text, alert_open, modal_open]
 
     if password != confirm_password:
@@ -362,10 +363,6 @@ def register_user(submitbtn, fname, mname, sname, livedname,
     user_profile_pic = None  # This will be interpreted as NULL in SQL
 
 
-
-
-
-
     # SQL query to insert data
     sql = """
         INSERT INTO maindashboard.users (
@@ -381,8 +378,7 @@ def register_user(submitbtn, fname, mname, sname, livedname,
             %s, %s, %s
         )
     """
-
-    default_acc_status = 1   
+ 
     values = (
         fname, mname, sname, livedname, 
         sex, bday, phone_num, id_num, 
@@ -390,15 +386,10 @@ def register_user(submitbtn, fname, mname, sname, livedname,
         user_access_type, user_acc_status, user_profile_pic
     )
 
-    try: 
-        db.modifydatabase(sql, values)
-        alert_color = 'success'
-        alert_open = True
-        alert_text = "User registered successfully."
+    db.modifydatabase(sql, values)
+    # If this is successful, we want the successmodal to show
+    modal_open = True
 
-    except Exception as e:
-        alert_color = 'danger'
-        alert_open = True
-        alert_text = f"Error in registration: {e}"
+    return [alert_color, alert_text, alert_open, modal_open] 
 
-    return [alert_color, alert_text, alert_open, modal_open]
+ 
