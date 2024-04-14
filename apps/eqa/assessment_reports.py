@@ -21,23 +21,7 @@ layout = html.Div(
                 dbc.Col(
                     [
                         html.H1("ASSESSMENT REPORTS"),
-                        html.Hr(),
-
-                        #placeholder until there is database
-                        dbc.Row(   
-                            [
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "➕ Add Program", color="primary", 
-                                        href='/assessmentreports/assessment_details', 
-                                    ),
-                                    width="auto",    
-                                ),
-                            ],
-                           
-                        ),
-
-                        html.Br (),
+                        html.Hr(), 
 
                         dbc.Row(   
                             [
@@ -53,19 +37,13 @@ layout = html.Div(
                             ]
                         ),
 
-                        dbc.Row(  
-                            [
-                                 dbc.Col(   
-                                    html.Div(
-                                        "Table with names will go here.",
-                                        id='assessmentreports_list',
-                                        style={'marginTop': '20px'} 
-                                    ),
-                                    width=12  
-                                )
-                            ],
-                                     
-                        ),
+                        html.Div(
+                            id='assessmentreports_list', 
+                            style={
+                                'marginTop': '20px',
+                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                            }
+                        )
 
                     ], width=8, style={'marginLeft': '15px'}
                 ),
@@ -81,3 +59,41 @@ layout = html.Div(
 
 
 
+
+@app.callback(
+    [
+        Output('assessmentreports_list', 'children')
+    ],
+    [
+        Input('url', 'pathname'),
+        Input('assessmentreports_filter', 'value'),
+    ]
+    )
+
+def assessmentreports_loadlist(pathname, searchterm):
+    if pathname == '/assessment_reports': 
+        sql = """  
+            
+        """
+
+        cols = ['Degree Program', 'College', 'Department', 'Cluster', 'Current Progress']   
+
+        if searchterm:
+            
+            sql += """ WHERE a.unit_head_sname ILIKE %s OR a.unit_head_fname ILIKE %s OR
+                        a.unit_head_full_name ILIKE %s OR d.designation_name ILIKE %s  """
+            like_pattern = f"%{searchterm}%"
+            values = [like_pattern, like_pattern, like_pattern, like_pattern]
+        else:
+            values = []
+
+        df = db.querydatafromdatabase(sql, values, cols) 
+
+        # Generate the table from the DataFrame
+        if not df.empty:
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return [table]
+        else:
+            return [html.Div("No records to display")]
+    else:
+        raise PreventUpdate

@@ -28,8 +28,8 @@ layout = html.Div(
                             [
                                 dbc.Col(   
                                     dbc.Button(
-                                        "➕ Add Program", color="primary", 
-                                        href='/programlist/program_details', 
+                                        "➕ Add Report", color="primary", 
+                                        href='/iaadsreport/report_details', 
                                     ),
                                     width="auto",    
                                 )
@@ -39,33 +39,17 @@ layout = html.Div(
                         ),
 
                         html.Br(),
-                        dbc.Row(   
-                            [
-                                dbc.Col(  
-                                    dbc.Input(
-                                        type='text',
-                                        id='IAADSreports_filter',
-                                        placeholder='🔎 Search by name, email, position, etc',
-                                        className='ml-auto'   
-                                    ),
-                                    width="8",
-                                ),
-                            ]
-                        ),
+                        html.H4("CONSOLIDATED REPORTS"),
+                          
+                         
+                        html.Div(
+                            id='iaadsreports_list', 
+                            style={
+                                'marginTop': '20px',
+                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                            }
+                        )
 
-                        dbc.Row(  
-                            [
-                                 dbc.Col(   
-                                    html.Div(
-                                        "Table with names will go here.",
-                                        id='IAADSreports_list',
-                                        style={'marginTop': '20px'} 
-                                    ),
-                                    width=12  
-                                )
-                            ],
-                                     
-                        ),
 
                     ], width=8, style={'marginLeft': '15px'}
                 ),
@@ -81,3 +65,42 @@ layout = html.Div(
 
 
 
+
+@app.callback(
+    [
+        Output('iaadsreports_list', 'children')
+    ],
+    [
+        Input('url', 'pathname'), 
+    ]
+    )
+
+def acadheadsdirectory_loadlist(pathname, searchterm):
+    if pathname == '/iaads_reports':
+        # Updated SQL query to match the new table and column structure
+        sql = """  
+            SELECT 
+                
+        """
+
+        cols = ['Academic Unit', 'Degree Granting Unit', 'Department Goals/Direction']  
+
+        if searchterm:
+            # Add a WHERE clause with ILIKE to filter the results
+            sql += """ WHERE a.unit_head_sname ILIKE %s OR a.unit_head_fname ILIKE %s OR
+                        a.unit_head_full_name ILIKE %s OR d.designation_name ILIKE %s  """
+            like_pattern = f"%{searchterm}%"
+            values = [like_pattern, like_pattern, like_pattern, like_pattern]
+        else:
+            values = []
+
+        df = db.querydatafromdatabase(sql, values, cols) 
+
+        # Generate the table from the DataFrame
+        if not df.empty:
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return [table]
+        else:
+            return [html.Div("No records to display")]
+    else:
+        raise PreventUpdate

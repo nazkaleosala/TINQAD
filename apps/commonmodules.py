@@ -42,8 +42,8 @@ navbar = dbc.Navbar(
                 children=[
                     dbc.DropdownMenuItem("Profile", href="/profile"),
                     dbc.DropdownMenuItem("🏠 Home", href="/homepage"),
-                    dbc.DropdownMenuItem("🔒Logout", href="/logout"),
-                    dbc.DropdownMenuItem("🔑Change Password", href="/change-password"),
+                    dbc.DropdownMenuItem("🔒 Logout", href="/logout"),
+                    dbc.DropdownMenuItem("🔑 Change Password", href="/change-password"),
                 ],
                 nav=True,
                 in_navbar=True,

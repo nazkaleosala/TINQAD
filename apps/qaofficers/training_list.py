@@ -13,29 +13,25 @@ from apps import dbconnect as db
  
 
 
-training_data = pd.DataFrame({
-    "Name ": [
-        "Name Surname ",
-         
-    ],
-    "Rank/ Designation ": [
-        "BS Industrial Engineering"
-    ],
-    "College ": [
-        "Engineering"
-    ],
-    "Department ": [
-        "IEORD"
-    ],
-    "Academic Cluster ": [
-        "Science and Engineering"
-    ],
-    "Trainings ": [
-        "Training 1, Training 2, Training 3.............."
-    ]
-})
-  
+
+def create_card(title, content=None):
+    return dbc.Card(
+        [
+            dbc.CardHeader(title),
+            dbc.CardBody(content if content else "")
+        ],
+        className="mb-3",  # Add space below each card
+    )
  
+def create_table(headers, id):
+    return dash_table.DataTable(
+        id=id,
+        columns=[{"name": i, "id": i} for i in headers],
+        style_header={'fontWeight': 'bold'}, 
+    )
+ 
+
+
 layout = html.Div(
     [
         dbc.Row(
@@ -48,6 +44,19 @@ layout = html.Div(
                     [
                         html.H1("QA OFFICERS TRAINING LIST"),
                         html.Hr(),
+                        dbc.Row(
+                            [
+                                dbc.Col(create_card("No. of faculty with QA Training"), width=12),
+                                
+                            ]
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.Col(create_card("Total Trained Officers"), width=12),
+                                
+                            ]
+                        ),
+                        html.Br(),
                         dbc.Row(   
                             [
                                 dbc.Col(   
@@ -76,27 +85,29 @@ layout = html.Div(
                                 "margin-bottom": "15px",
                             }
                         ), 
-                        html.Div(
-                            dash_table.DataTable(
-                                id='criteria-table',
-                                columns=[
-                                    {"name": i, "id": i} for i in training_data.columns
-                                ],
-                                data=training_data.to_dict('records'),
-                                style_header={'fontWeight': 'bold'},
-                                style_data_conditional=[
-                                    {
-                                        'if': {'column_id': 'Last Accessed'},
-                                        'color': 'blue'
-                                    },
-                                    {
-                                        'if': {'column_id': 'Action'},
-                                        'color': 'green'
-                                    }
-                                ]
-                            ),
-                            style={'overflowX': 'auto'}
+
+                        dbc.Row(   
+                            [
+                                dbc.Col(  
+                                    dbc.Input(
+                                        type='text',
+                                        id='qaotraininglist_filter',
+                                        placeholder='🔎 Search by name, email, position, etc',
+                                        className='ml-auto'   
+                                    ),
+                                    width="8",
+                                ),
+                            ]
                         ),
+
+                        html.Div(
+                            id='qaotraininglist_list', 
+                            style={
+                                'marginTop': '20px',
+                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                            }
+                        )
+                        
                     ], 
                     width=9, style={'marginLeft': '15px'}
                 ),
@@ -111,3 +122,45 @@ layout = html.Div(
         )
     ]
 )
+
+
+
+
+
+@app.callback(
+    [
+        Output('qaotraininglist_list', 'children')
+    ],
+    [
+        Input('url', 'pathname'),
+        Input('qaotraininglist_filter', 'value'),
+    ]
+    )
+
+def programlist_loadlist(pathname, searchterm):
+    if pathname == '/training_list': 
+        sql = """  
+            
+        """
+
+        cols = ['Name', 'Rank/Designation', 'Department','College','Academic Cluster', 'Trainings']   
+
+        if searchterm:
+            
+            sql += """ WHERE a.unit_head_sname ILIKE %s OR a.unit_head_fname ILIKE %s OR
+                        a.unit_head_full_name ILIKE %s OR d.designation_name ILIKE %s  """
+            like_pattern = f"%{searchterm}%"
+            values = [like_pattern, like_pattern, like_pattern, like_pattern]
+        else:
+            values = []
+
+        df = db.querydatafromdatabase(sql, values, cols) 
+
+        # Generate the table from the DataFrame
+        if not df.empty:
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return [table]
+        else:
+            return [html.Div("No records to display")]
+    else:
+        raise PreventUpdate
