@@ -36,7 +36,7 @@ layout = html.Div(
                                 dbc.Col(  
                                     dbc.Input(
                                         type='text',
-                                        id='acadheads_filter',
+                                        id='acadheadsdirectory_filter',
                                         placeholder='🔎 Search by name, email, position, etc',
                                         className='ml-auto'   
                                     ),
@@ -47,20 +47,15 @@ layout = html.Div(
                             className="align-items-center",   
                             justify="between",  
                         ),
-
-                        dbc.Row(  
-                            [
-                                 dbc.Col(   
-                                    html.Div(
-                                        "Table with names will go here.",
-                                        id='acadheadsdirectory_list',
-                                        style={'marginTop': '20px'} 
-                                    ),
-                                    width=12  
-                                )
-                            ],
-                                     
-                        ),
+  
+                        # Placeholder for the users table
+                        html.Div(
+                            id='acadheadsdirectory_list', 
+                            style={
+                                'marginTop': '20px',
+                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                            }
+                        )
 
                     ], width=8, style={'marginLeft': '15px'}
                 ),
@@ -83,57 +78,47 @@ layout = html.Div(
     ],
     [
         Input('url', 'pathname'),
-        Input('acadheadsdirectory_namefilter', 'value'),
+        Input('acadheadsdirectory_filter', 'value'),
     ]
     )
 
-def moviehome_loadmovielist(pathname, searchterm):
-    if pathname == '/movies':
-        sql = """ SELECT movie_name, genre_name, movie_id
-            FROM movies m
-                INNER JOIN genres g ON m.genre_id = g.genre_id
-            WHERE
-                NOT movie_delete_ind
+def acadheadsdirectory_loadlist(pathname, searchterm):
+    if pathname == '/acad_heads_directory':
+        # Updated SQL query to match the new table and column structure
+        sql = """  
+            SELECT 
+                a.unit_head_sname AS "Surname",
+                a.unit_head_fname AS "First Name",
+                CASE
+                    WHEN a.unit_head_mname IS NOT NULL THEN a.unit_head_fname || ' ' || a.unit_head_mname || ' ' || a.unit_head_sname
+                    ELSE a.unit_head_fname || ' ' || a.unit_head_sname
+                END AS "Full Name",
+                d.designation_name AS "Position",
+                a.unit_head_upmail AS "Email"
+                -- If you have additional columns such as Phone, Department, College, or Unit, include them here without a trailing comma
+            FROM iqateam.acad_unit_heads a
+            LEFT JOIN public.official_designation d ON a.unit_head_official_designation = d.designation_id
+            -- Add more joins if needed to link to department/college/unit tables
         """
-        values = []
-        cols = ['Movie Title', 'Genre', 'ID']
-        
+
+        cols = ['Surname', 'First Name', 'Full Name', 'Position', 'Email']  # Add 'Phone', 'Dept', etc. if needed
+
         if searchterm:
-            # We use the operator ILIKE for pattern-matching
-            sql += " AND movie_name ILIKE %s"
-
-            # The % before and after the term means that
-            # there can be text before and after
-            # the search term
-            values += [f"%{searchterm}%"]
-        
-        
-        df = db.querydatafromdatabase(sql, values, cols)
-
-        if df.shape:
-            buttons = []
-            for movie_id in df['ID']:
-                buttons += [
-                    html.Div(
-                        dbc.Button('Edit',
-                href=f'movies/movies_profile?mode=edit&id={movie_id}',
-                            size='sm', color='warning'),
-                            style={'text-align': 'center'}
-                    )
-                ]   
-            df['Action'] = buttons
-            # remove the column ID before turning into a table
-            df = df[['Movie Title', 'Genre', "Action"]]
-
-
-            table = dbc.Table.from_dataframe(df, striped=True, bordered=True,
-                    hover=True, size='sm')
-            return [table]
-        
+            # Add a WHERE clause with ILIKE to filter the results
+            sql += """ WHERE a.unit_head_sname ILIKE %s OR a.unit_head_fname ILIKE %s OR
+                        a.unit_head_full_name ILIKE %s OR d.designation_name ILIKE %s  """
+            like_pattern = f"%{searchterm}%"
+            values = [like_pattern, like_pattern, like_pattern, like_pattern]
         else:
-            return ["No records to display"]
-    
-    
-    
+            values = []
+
+        df = db.querydatafromdatabase(sql, values, cols) 
+
+        # Generate the table from the DataFrame
+        if not df.empty:
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return [table]
+        else:
+            return [html.Div("No records to display")]
     else:
         raise PreventUpdate
