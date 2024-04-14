@@ -62,19 +62,7 @@ layout = html.Div(
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add Officer", color="primary", 
-                                        href='/qaofficers_profile', 
-                                    ),
-                                    width="auto",    
-                                ),
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "📁 Upload CSV File", color="danger",  
-                                    ),
-                                    width="auto",    
-                                ),
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "💾 Export as CSV File", color="secondary",  
+                                        href='/QAOfficers/qaofficers_profile', 
                                     ),
                                     width="auto",    
                                 ),

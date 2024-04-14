@@ -28,7 +28,7 @@ layout = html.Div(
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add New", color="primary", 
-                                        href='/qa_directory/qaofficers_profile', 
+                                        href='/QAOfficers/qaofficers_profile', 
                                     ),
                                     width="auto",    
                                     

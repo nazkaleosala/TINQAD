@@ -133,8 +133,6 @@ def displaypage (pathname):
                 returnlayout = qaofficers_profile.layout
             elif pathname == '/qa_directory':
                 returnlayout = qa_directory.layout
-            elif pathname == '/qa_directory/qaofficers_profile':
-                returnlayout = qaofficers_profile.layout
             elif pathname == '/training_list':
                 returnlayout = training_list.layout
 
