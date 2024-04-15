@@ -13,6 +13,7 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
+from datetime import datetime
 import bcrypt 
 
 def hash_password(password):
@@ -376,7 +377,7 @@ layout = html.Div(
         State('user_sname', 'value'),
         State('user_livedname', 'value'),
         State('user_sex', 'value'),    
-        State('user_bday', 'date'),
+        State('user_bday', 'value'),
         State('user_phone_num', 'value'),
         State('user_id_num', 'value'),
         State('user_office', 'value'),
@@ -427,6 +428,7 @@ def register_user(submitbtn, fname, mname, sname, livedname,
 
     # Hash the password
     hashed_password = hash_password(password)
+
 
     # Default values
     user_access_type = 1

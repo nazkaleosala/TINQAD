@@ -122,7 +122,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dbc.Input(type="text", id='exp_amount', placeholder="0,000.00"),
-                    width=6,
+                    width=5,
                 ),
                 dbc.Col(
                     html.Div(id='amount-copy'),
@@ -150,7 +150,7 @@ form = dbc.Form(
                             {"label": "Denied", "value": 3},
                         ]
                     ),
-                    width=6,
+                    width=5,
                 ),
             ],
             className="mb-2",
@@ -167,7 +167,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dbc.Input(type="text", id='exp_bur_no', placeholder="0000-00-00000", maxLength=11),
-                    width=6,
+                    width=5,
                 ),
                 dbc.Col(
                     html.Div(id='bur-no-copy'),
