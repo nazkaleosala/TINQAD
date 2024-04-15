@@ -452,37 +452,37 @@ def record_expenses(submitbtn, date, payee, mainexpense,
     if not payee:
         alert_open = True
         alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a payee.'
+        alert_text = 'Check your inputs. Please add a Payee.'
         return [alert_color, alert_text, alert_open, modal_open]
     
     if not mainexpense:
         alert_open = True
         alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a mainexpense.'
+        alert_text = 'Check your inputs. Please add a Main expense.'
         return [alert_color, alert_text, alert_open, modal_open]
     
     if not subexpense:
         alert_open = True
         alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a subexpense.'
+        alert_text = 'Check your inputs. Please add a Sub expense.'
         return [alert_color, alert_text, alert_open, modal_open]
     
     if not particulars:
         alert_open = True
         alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a particulars.'
+        alert_text = 'Check your inputs. Please add a Particulars.'
         return [alert_color, alert_text, alert_open, modal_open]
     
     if not amount:
         alert_open = True
         alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add an amount.'
+        alert_text = 'Check your inputs. Please add an Amount.'
         return [alert_color, alert_text, alert_open, modal_open]
     
     if not status:
         alert_open = True
         alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a status.'
+        alert_text = 'Check your inputs. Please add a Status.'
         return [alert_color, alert_text, alert_open, modal_open]
     
     if not bur_no:
