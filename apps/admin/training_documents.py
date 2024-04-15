@@ -11,136 +11,7 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
-academic_clusters = {
-    "AL": "Arts and Letters",
-    "ME": "Management and Economics",
-    "ST": "Science and Technology",
-    "SSL": "Social Sciences and Law"
-}
 
-college = {
-    "AL": [
-        "College of Arts and Letters",
-        "College of Fine Arts",
-        "College of Human Kinetics",
-        "College of Mass Communication",
-        "College of Music"
-    ],
-    "ME": [
-        "Asian Institute of Tourism",
-        "Cesar E.A. Virata School of Business",
-        "School of Economics",
-        "School of Labor and Industrial Relations",
-        "National College of Public Administration and Governance",
-        "School of Urban and Regional Planning",
-        "Technology Management Center",
-        "UPD Extension Program in Pampanga and Olongapo"
-    ],
-    "ST": [
-        "School of Archaeology",
-        "College of Architecture",
-        "College of Engineering",
-        "College of Home Economics",
-        "College of Science",
-        "School of Library and Information Studies",
-        "School of Statistics"
-    ],
-    "SSL": [
-        "Asian Center",
-        "College of Education",
-        "Institute of Islamic Studies",
-        "College of Law",
-        "College of Social Sciences and Philosophy",
-        "College of Social Work and Community Development"
-    ]
-}
-
-department = {
-    "College of Arts and Letters": [
-        "N/A", "Department of Art Studies", "Department of English and Comparative Literature",
-        "Department of European Languages", "Department of Filipino and Panitikan ng Pilipinas",
-        "Department of Speech Communication and Theater Arts"
-    ],
-    "College of Fine Arts": [
-        "N/A", "Department of Studio Arts", "Department of Theory",
-        "Department of Visual Communication", "CFA Graduate Program"
-    ],
-    "College of Human Kinetics": [
-        "N/A", "Department of Physical Education", "Department of Sports Science", "Graduate Studies Program"
-    ],
-    "College of Mass Communication": [
-        "N/A", "Department of Broadcast Communication", "Department of Communication Research",
-        "Film Institute", "Department of Journalism", "Department of Graduate Studies"
-    ],
-    "College of Music": ["N/A"],
-    "Asian Institute of Tourism": ["N/A"],
-    "Cesar E.A. Virata School of Business": [
-        "N/A", "Department of Business Administration", "Department of Accounting and Finance"
-    ],
-    "School of Economics": ["N/A"],
-    "School of Labor and Industrial Relations": ["N/A"],
-    "School of Urban and Regional Planning": ["N/A"],
-    "Technology Management Center": ["N/A"],
-    "National College of Public Administration and Governance": ["N/A"],
-    "UP Diliman Extension Program in Pampanga + Olongapo": ["N/A"],
-    "School of Archaeology": ["N/A"],
-    "College of Architecture": ["N/A"],
-    "College of Engineering": [
-        "N/A", "Department of Chemical Engineering", "Department of Computer Science",
-        "Department of Geodetic Engineering", "Department of Industrial Engineering and Operations Research",
-        "Department of Mechanical Engineering", "Department of Mining, Metallurgical, and Material Engineering",
-        "Energy Engineering Program", "Environmental Engineering Program",
-        "Institute of Electrical and Electronics Engineering", "Institute of Civil Engineering"
-    ],
-    "College of Home Economics": [
-        "N/A", "Department of Clothing, Textiles and Interior Design", "Department of Family Life and Child Development",
-        "Department of Food Science and Nutrition", "Department of Home Economics Education",
-        "Department of Hotel, Restaurant and Institution Management"
-    ],
-    "College of Science": [
-        "N/A", "Institute of Biology", "Institute of Chemistry",
-        "Institute of Environmental Science and Meteorology", "Institute of Mathematics",
-        "National Institute of Molecular Biology and Biotechnology", "Marine Science Institute",
-        "National Institute of Geological Sciences", "National Institute of Physics",
-        "Materials Science and Engineering Program"
-    ],
-    "School of Library and Information Studies": ["N/A"],
-    "School of Statistics": ["N/A"],
-    "College of Social Sciences and Philosophy": [
-        "N/A", "Department of Anthropology", "Department of Geography", "Departamento ng Kasaysayan",
-        "Departamento ng Linggwistiks", "Department of Philosophy", "Department of Political Science",
-        "Population Institute", "Department of Psychology", "Department of Sociology"
-    ],
-    "College of Social Work and Community Development": [
-        "N/A", "Department of Community Development", "Department of Social Work",
-        "Department of Women and Development Studies", "Doctor of Social Development Program"
-    ],
-    "Institute of Islamic Studies": ["N/A"],
-    "College of Law": ["N/A"],
-    "Asian Center": ["N/A"],
-    "College of Education": [
-        "N/A", "Division of Educational Leadership and Professional Services",
-        "Division of Curriculum and Instruction"
-    ],
-    "Tri-college Program": ["N/A"]
-}
-
-
-cancel_modal = dbc.Modal(
-    [
-        dbc.ModalHeader("Cancel Confirmation"),
-        dbc.ModalBody("Are you sure you want to cancel?"),
-        dbc.ModalFooter(
-            dbc.Row(
-                [
-                    dbc.Col(dbc.Button("Yes", id="cancel-yes-button", color="danger"), width=6),
-                    dbc.Col(dbc.Button("No", id="cancel-no-button", color="secondary"), width=6),
-                ]
-            )
-        ),
-    ],
-    id="cancel-modal",
-)
 
 
 form = dbc.Form(
@@ -155,12 +26,13 @@ form = dbc.Form(
                     width=4
                 ),
                 dbc.Col(
-                    dbc.Input(type="text", id='complete-name-input', placeholder="Last Name, First Name, Middle Initial"),
-                    width=8,
+                    dbc.Input(type="text", id='complete_name', placeholder="Last Name, First Name, Middle Initial"),
+                    width=6,
                 ),
             ],
             className="mb-2",
         ),
+        
         dbc.Row(
             [
                 dbc.Label(
@@ -172,69 +44,37 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dbc.Select(
-                        id='position-select',
-                        options=[
-                        {"label": "Professor 1", "value": "Professor 1"},
-                        {"label": "Professor 2", "value": "Professor 2"},
-                        {"label": "Professor 3", "value": "Professor 3"},
-                        {"label": "Professor 4", "value": "Professor 4"},
-                        {"label": "Professor 5", "value": "Professor 5"},
-                        {"label": "Professor 6", "value": "Professor 6"},
-                        {"label": "Professor 7", "value": "Professor 7"},
-                        {"label": "Professor 8", "value": "Professor 8"},
-                        {"label": "Professor 9", "value": "Professor 9"},
-                        {"label": "Professor 10", "value": "Professor 10"},
-                        {"label": "Professor 11", "value": "Professor 11"},
-                        {"label": "Professor 12", "value": "Professor 12"},
-                        {"label": "Assistant Professor 1", "value": "Assistant Professor 1"},
-                        {"label": "Assistant Professor 2", "value": "Assistant Professor 2"},
-                        {"label": "Assistant Professor 3", "value": "Assistant Professor 3"},
-                        {"label": "Assistant Professor 4", "value": "Assistant Professor 4"},
-                        {"label": "Assistant Professor 5", "value": "Assistant Professor 5"},
-                        {"label": "Assistant Professor 6", "value": "Assistant Professor 6"},
-                        {"label": "Assistant Professor 7", "value": "Assistant Professor 7"},
-                        {"label": "Associate Professor 1", "value": "Associate Professor 1"},
-                        {"label": "Associate Professor 2", "value": "Associate Professor 2"},
-                        {"label": "Associate Professor 3", "value": "Associate Professor 3"},
-                        {"label": "Associate Professor 4", "value": "Associate Professor 4"},
-                        {"label": "Associate Professor 5", "value": "Associate Professor 5"},
-                        {"label": "Associate Professor 6", "value": "Associate Professor 6"},
-                        {"label": "Associate Professor 7", "value": "Associate Professor 7"},
-                        {"label": "Instructor 1", "value": "Instructor 1"},
-                        {"label": "Instructor 2", "value": "Instructor 2"},
-                        {"label": "Instructor 3", "value": "Instructor 3"},
-                        {"label": "Instructor 4", "value": "Instructor 4"},
-                        {"label": "Instructor 5", "value": "Instructor 5"},
-                        {"label": "Instructor 6", "value": "Instructor 6"},
-                        {"label": "Instructor 7", "value": "Instructor 7"},
-                        ],
+                        id='fac_posn_id',
+                        options=[],
                         placeholder="Select position",
                     ),
-                    width=8,
+                    width=5,
                 ),
             ],
             className="mb-2",
         ),
-       dbc.Row(
-            [
-                dbc.Label(
+
+        
+        dbc.Row(
+              [
+               dbc.Label(
                     [
-                        "Academic Cluster ",
+                        "Cluster ",
                         html.Span("*", style={"color": "#F8B237"})
                     ],
                     width=4
                 ),
-                dbc.Col(
-                    dcc.Dropdown(
-                        id='academic-cluster-dropdown',
-                        options=[{"label": name, "value": code} for code, name in academic_clusters.items()],
-                        placeholder="Select Academic Cluster",
-                    ),
-                    width=8,
-                ),
-            ],
-            className="mb-2",
-        ),
+               dbc.Col(
+                   dcc.Dropdown(
+                       id='cluster_id',
+                       placeholder="Select Cluster",
+                   ),
+                   width=6,
+               ),
+           ],
+           className="mb-2",
+       ),
+        
         dbc.Row(
               [
                dbc.Label(
@@ -246,7 +86,7 @@ form = dbc.Form(
                 ),
                dbc.Col(
                    dcc.Dropdown(
-                       id='college-dropdown',
+                       id='college_id',
                        placeholder="Select College",
                    ),
                    width=8,
@@ -266,7 +106,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='department-dropdown',
+                        id='deg_unit_id',
                         placeholder="Select Department",
                     ),
                     width=8,
@@ -295,15 +135,8 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dbc.Select(
-                        id='qa-training-select',
-                        options=[
-                            {"label": "AUN-QA Tier 1", "value": "AUN-QA Tier 1"},
-                            {"label": "AUN-QA Tier 2", "value": "AUN-QA Tier 2"},
-                            {"label": "AUN-QA Tier 3", "value": "AUN-QA Tier 3"},
-                            {"label": "AUN-QA SAR Writing Workshop", "value": "AUN-QA SAR Writing Workshop"},
-                            {"label": "UP System External Reviewers Training", "value": "UP System External Reviewers Training"},
-                            {"label": "Other", "value": "Other"}
-                        ],
+                        id='qa_training_id',
+                        options=[],
                         placeholder="Select QA Training"
                     ),
                     width=8,
@@ -311,16 +144,7 @@ form = dbc.Form(
             ],
             className="mb-1",
         ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dbc.Input(id='other-qa-training-input', placeholder="Specify if Other", style={'display': 'none'}),
-                    width={"size": 8, "offset": 4},
-                )
-            ],
-            className="mb-1",
-            id='other-qa-training-row'
-        ),
+        
         dbc.Row(
            [
                dbc.Label(
@@ -332,7 +156,7 @@ form = dbc.Form(
                ),
                dbc.Col(
                    dcc.DatePickerSingle(
-                       id='date-of-departure-input',
+                       id='departure_date',
                        date=str(pd.to_datetime("today").date())
                    ),
                    width=8,
@@ -351,7 +175,7 @@ form = dbc.Form(
                ),
                dbc.Col(
                    dcc.DatePickerSingle(
-                       id='date-of-return-input',
+                       id='return_date',
                        date=str(pd.to_datetime("today").date())
                    ),
                    width=8,
@@ -369,7 +193,7 @@ form = dbc.Form(
                     width=4
                 ),
                 dbc.Col(
-                    dbc.Input(type="text", id='training-venue-input', placeholder="Venue Name, City, Country"),
+                    dbc.Input(type="text", id='venue', placeholder="Venue Name, City, Country"),
                     width=8,
                 ),
             ],
@@ -397,7 +221,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Upload(
-                        id='upload-certificate',
+                        id='parti_attendance_cert',
                         children=html.Div(
                             [
                             html.Img(src=app.get_asset_url('add_file.png'), style={'height': '15px', 'marginRight': '5px'}),
@@ -433,7 +257,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Upload(
-                        id='upload-training-receipt',
+                        id='official_receipt',
                         children=html.Div(
                             [
                                 html.Img(
@@ -470,7 +294,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Upload(
-                        id='upload-travel-report',
+                        id='official_travel_report',
                         children=html.Div(
                             [
                                 html.Img(
@@ -507,7 +331,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Upload(
-                        id='upload-other-receipts',
+                        id='other_receipts',
                         children=html.Div(
                             [
                                 html.Img(
@@ -541,7 +365,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Upload(
-                        id='upload-receiving-copy',
+                        id='receiving_copy',
                         children=html.Div(
                             [
                                 html.Img(
@@ -566,189 +390,357 @@ form = dbc.Form(
             ],
             className="mb-4",
         ),
-       dbc.Row(
+
+        html.Br(),
+        dbc.Row(
             [
                 dbc.Col(
-                    dbc.Button("Submit", id="submit-button", color="primary", className="me-3", style={"font-weight": "bold", "font-size": "18px"}),
-                    width={"size": 2, "offset": 4}
+                    dbc.Button("Save", color="primary", className="me-3", id="save_button", n_clicks=0),
+                    width="auto"
                 ),
                 dbc.Col(
-                    dbc.Button("Cancel", color="secondary", style={"font-weight": "bold", "font-size": "18px"}, id="cancel-button"),
-                    width={"size": 2}
+                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
+                    width="auto"
                 ),
             ],
-            className="mb-4",
+            className="mb-2",
         ),
-        cancel_modal
+
+        dbc.Modal(
+            [
+                dbc.ModalHeader(className="bg-success"),
+                dbc.ModalBody(
+                    html.H4('Training document added.'),
+                ),
+                dbc.ModalFooter(
+                    dbc.Button(
+                        "Proceed", id='proceed_button', className='ml-auto'
+                    ), 
+                )
+                 
+            ],
+            centered=True,
+            id='trainingdocuments_successmodal',
+            backdrop=True,  # Allow clicking outside to close the modal
+            className="modal-success"  # You can define this class in your CSS file for additional styling
+        ),
+
+
+
+
+
+
    ],
    className="g-2",
 )
 
 
-@app.callback(
-    Output('college-dropdown', 'options'),
-    Input('academic-cluster-dropdown', 'value')
-)
-def set_college_options(selected_cluster):
-    if selected_cluster:
-        return [{'label': i, 'value': i} for i in college[selected_cluster]]
-    return []
 
+#faculty positions dropdown
 @app.callback(
-    Output('department-dropdown', 'options'),
-    [Input('college-dropdown', 'value')]
+    Output('fac_posn_id', 'options'),
+    Input('url', 'pathname')
 )
-def set_department_options(selected_college):
-    if selected_college in department:
-        return [{'label': dept, 'value': dept} for dept in department[selected_college]]
-    return []
 
-@app.callback(
-    Output('other-qa-training-input', 'style'),
-    [Input('qa-training-select', 'value')]
-)
-def toggle_other_input(selected_training):
-    if selected_training == 'Other':
-        return {'display': 'block'}
+def populate_facultypositions_dropdown(pathname):
+    # Check if the pathname matches if necessary
+    if pathname == '/training/training_documents':
+        sql = """
+        SELECT fac_posn_name as label, fac_posn_id  as value
+        FROM public.fac_posns
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        fac_posns_types = df.to_dict('records')
+        return fac_posns_types
     else:
-        return {'display': 'none'}
+        raise PreventUpdate
 
-@app.callback(
-    Output('certificate-output-container', 'children'),
-    Input('upload-certificate', 'contents'),
-    State('upload-certificate', 'filename'),
-    prevent_initial_call=True
-)
-def upload_certificate(contents, filename):
-    if contents is not None:
-        return html.Div([
-            html.H5("Certificate Uploaded"),
-            html.P(f"Filename: {filename}")
-        ])
 
-@app.callback(
-    Output('official-receipt-output-container', 'children'),
-    Input('upload-official-receipt', 'contents'),
-    State('upload-official-receipt', 'filename'),
-    prevent_initial_call=True
-)
-def upload_official_receipt(contents, filename):
-    if contents is not None:
-        return html.Div([
-            html.H5("Official Receipt Uploaded"),
-            html.P(f"Filename: {filename}")
-        ])
 
-@app.callback(
-    Output('official-travel-report-output-container', 'children'),
-    Input('upload-official-travel-report', 'contents'),
-    State('upload-official-travel-report', 'filename'),
-    prevent_initial_call=True
-)
-def upload_official_travel_report(contents, filename):
-    if contents is not None:
-        return html.Div([
-            html.H5("Official Travel Report Uploaded"),
-            html.P(f"Filename: {filename}")
-        ])
 
-@app.callback(
-    Output('other-receipts-output-container', 'children'),
-    Input('upload-other-receipts', 'contents'),
-    State('upload-other-receipts', 'filename'),
-    prevent_initial_call=True
-)
-def upload_other_receipts(contents, filename):
-    if contents is not None:
-        return html.Div([
-            html.H5("Other Receipts Uploaded"),
-            html.P(f"Filename: {filename}")
-        ])
-    
-@app.callback(
-    Output('receiving-copy-output-container', 'children'),
-    Input('upload-receiving-copy', 'contents'),
-    State('upload-receiving-copy', 'filename'),
-    prevent_initial_call=True
-)
-def upload_receiving_copy(contents, filename):
-    if contents is not None:
-        return html.Div([
-            html.H5("Receiving Copy Uploaded"),
-            html.P(f"Filename: {filename}")
-        ])
 
+#cluster dropdown
 @app.callback(
-    Output('submit-button', 'disabled'),
-    Input('complete-name-input', 'value'),
-    Input('position-select', 'value'),
-    Input('academic-cluster-dropdown', 'value'),
-    Input('college-dropdown', 'value'),
-    Input('department-input', 'value'),
-    Input('qa-training-select', 'value'),
-    Input('upload-certificate', 'contents'),
-    Input('upload-official-receipt', 'contents'),  # Add input for Official Receipt of Training Attended
-    Input('upload-official-travel-report', 'contents'),  # Add input for Official Travel Report
-    Input('upload-other-receipts', 'contents'),  # Add input for Other Receipts
-    prevent_initial_call=True
+    Output('cluster_id', 'options'),
+    Input('url', 'pathname')
 )
-def enable_submit(complete_name, position, academic_cluster, college, department, qa_training, certificate_contents, official_receipt_contents, travel_report_contents, other_receipts_contents):
-    if all([complete_name, position, academic_cluster, college, department, qa_training, certificate_contents, official_receipt_contents, travel_report_contents, other_receipts_contents]):
-        return False
+
+def populate_cluster_dropdown(pathname):
+    # Check if the pathname matches if necessary
+    if pathname == '/training/training_documents':
+        sql = """
+        SELECT cluster_name as label, cluster_id  as value
+        FROM public.clusters
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        cluster_types = df.to_dict('records')
+        return cluster_types
     else:
-        return True
+        raise PreventUpdate
 
+
+#college dropdown
 @app.callback(
-    Output("cancel-modal", "is_open"),
-    [Input("cancel-button", "n_clicks"), Input("cancel-yes-button", "n_clicks"), Input("cancel-no-button", "n_clicks")],
-    [State("cancel-modal", "is_open")],
+    Output('college_id', 'options'),
+    Input('cluster_id', 'value')
 )
-def toggle_modal(cancel_btn_click, yes_btn_click, no_btn_click, is_open):
-    ctx = dash.callback_context
-    if ctx.triggered:
-        prop_id = ctx.triggered[0]["prop_id"].split(".")[0]
-        if prop_id == "cancel-button":
-            return True
-        elif prop_id == "cancel-yes-button":
-            # Redirect to cancel_page or any other action you want to perform
-            return True, "/training_instructions"
-        elif prop_id == "cancel-no-button":
-            return False
-    return is_open
+def populate_college_dropdown(selected_cluster):
+    if selected_cluster is None:
+        return []  # Return empty options if no main expense is selected
     
+    try:
+        # Query to fetch sub-expenses based on the selected main expense
+        sql = """
+        SELECT college_name as label,  college_id  as value
+        FROM public.college
+        WHERE cluster_id = %s
+        """
+        values = [selected_cluster]
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        college_options = df.to_dict('records')
+        return college_options
+    except Exception as e:
+        # Log the error or handle it appropriately
+        return [] 
+
+
+# dgu dropdown
+@app.callback(
+    Output('deg_unit_id', 'options'),
+    Input('college_id', 'value')
+)
+def populate_dgu_dropdown(selected_college):
+    if selected_college is None:
+        return []  # Return empty options if no college is selected
+    
+    try:
+        # Query to fetch degree units based on the selected college
+        sql = """
+        SELECT deg_unit_name as label,  deg_unit_id  as value
+        FROM public.deg_unit
+        WHERE college_id = %s
+        """
+        values = [selected_college]
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        dgu_options = df.to_dict('records')
+        return dgu_options
+    except Exception as e:
+        # Log the error or handle it appropriately
+        return []
+    
+
+
+
+
+#qa training dropdown
+@app.callback(
+    Output('qa_training_id', 'options'),
+    Input('url', 'pathname')
+)
+def populate_qatrainings_dropdown(pathname):
+    # Check if the pathname matches if necessary
+    if pathname == '/training/training_documents':
+        sql = """
+        SELECT qa_training_name as label, qa_training_id  as value
+        FROM public.qa_training
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        qa_training_options = df.to_dict('records')
+        return qa_training_options
+    else:
+        raise PreventUpdate
+
+
+
+
+
+
+
 layout = html.Div(
-   [
-       dbc.Row(
-           [
-               #navbar
-               dbc.Col(
-                   cm.generate_navbar(),
-                   width=2
-               ),
-
-
-               #title
-               dbc.Col(
-               [
-                   html.H1("ADD TRAINING DOCUMENT"),
-                   html.Hr(),
-
-
-                   #working form
-                   form,
-               ],
-               width=8, style={'marginLeft': '15px'}
-              
-               )
-           ]
-       ),
-       #footer
-       dbc.Row (
-           [
-               dbc.Col(
-                   cm.generate_footer(), width={"size": 12, "offset": 0}
-               ),
-           ]
-       )
-   ]
+    [
+        dbc.Row(
+            [
+                dbc.Col(
+                    cm.generate_navbar(), 
+                    width=2 
+                ),
+                dbc.Col(
+                [
+                    html.H1("ADD EXPENSE"),
+                    html.Hr(),
+                    dbc.Alert(id='trainingdocuments_alert', is_open=False), # For feedback purpose
+                    form, 
+                ],
+                width=8, style={'marginLeft': '15px'}
+                
+                )
+            ]
+        ),
+        dbc.Row (
+            [
+                dbc.Col(
+                    cm.generate_footer(), width={"size": 12, "offset": 0}
+                ),
+            ]
+        ),
+        
+    ]
 )
+
+
+
+
+
+
+
+@app.callback(
+    [
+        Output('trainingdocuments_alert', 'color'),
+        Output('trainingdocuments_alert', 'children'),
+        Output('trainingdocuments_alert', 'is_open'),
+        Output('trainingdocuments_successmodal', 'is_open')
+    ],
+    [
+        Input('save_button', 'n_clicks')
+    ],
+    [
+        State('complete_name', 'value'),
+        State('fac_posn_id', 'value'),
+        State('cluster_id', 'value'),
+        State('college_id', 'value'),
+        State('deg_unit_id', 'value'),
+        State('qa_training_id', 'value'),
+        State('departure_date', 'date'),
+        State('return_date', 'date'),
+        State('venue', 'value'),
+        State('parti_attendance_cert', 'filename'),  
+        State('official_receipt', 'filename'),      
+        State('official_travel_report', 'filename'), 
+        State('other_receipts', 'filename'),         
+        State('receiving_copy', 'filename')          
+    ]
+)
+ 
+
+
+def record_training_documents (submitbtn, complete_name, fac_posn_id, 
+                               cluster_id, college_id, deg_unit_id, qa_training_id, 
+                               departure_date, return_date, venue, parti_attendance_cert, 
+                               official_receipt, official_travel_report, other_receipts, receiving_copy):
+    if not submitbtn:
+        raise PreventUpdate
+
+    alert_open = False
+    modal_open = False
+    alert_color = ''
+    alert_text = ''
+
+    # Input validation
+    if not complete_name:
+        alert_open = True
+        alert_color = 'danger'
+        alert_text = 'Check your inputs. Please add a Name.'
+        return [alert_color, alert_text, alert_open, modal_open]
+
+    if not fac_posn_id:
+        alert_open = True
+        alert_color = 'danger'
+        alert_text = 'Check your inputs. Please add a Position Type.'
+        return [alert_color, alert_text, alert_open, modal_open]
+    
+    if not cluster_id:
+        alert_open = True
+        alert_color = 'danger'
+        alert_text = 'Check your inputs. Please add a Cluster type.'
+        return [alert_color, alert_text, alert_open, modal_open]
+    
+    if not college_id:
+        alert_open = True
+        alert_color = 'danger'
+        alert_text = 'Check your inputs. Please add a College.'
+        return [alert_color, alert_text, alert_open, modal_open]
+    
+    if not deg_unit_id:
+        alert_open = True
+        alert_color = 'danger'
+        alert_text = 'Check your inputs. Please add a Department.'
+        return [alert_color, alert_text, alert_open, modal_open]
+    
+    if not qa_training_id:
+        alert_open = True
+        alert_color = 'danger'
+        alert_text = 'Check your inputs. Please add a QA training.'
+        return [alert_color, alert_text, alert_open, modal_open]
+    
+    if not departure_date:
+        alert_open = True
+        alert_color = 'danger'
+        alert_text = 'Check your inputs. Please add a Departure date.'
+        return [alert_color, alert_text, alert_open, modal_open]
+    
+    if not return_date:
+        alert_open = True
+        alert_color = 'danger'
+        alert_text = 'Check your inputs. Please add a Return date.'
+        return [alert_color, alert_text, alert_open, modal_open]
+    
+    if not venue:
+        alert_open = True
+        alert_color = 'danger'
+        alert_text = 'Check your inputs. Please add a Venue.'
+        return [alert_color, alert_text, alert_open, modal_open]
+    
+
+     # Set default values for non-nullable fields
+    if not parti_attendance_cert:
+        parti_attendance_cert = b''  # Empty bytes
+    if not official_receipt:
+        official_receipt = b''  
+    if not official_travel_report:
+        official_travel_report = b'' 
+    if not other_receipts:
+        other_receipts = b''
+     
+ 
+ 
+
+    try:
+        sql = """
+            INSERT INTO adminteam.training_documents (
+                complete_name, fac_posn_id, cluster_id, college_id, deg_unit_id, 
+                qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
+                official_receipt, official_travel_report, other_receipts, receiving_copy
+            )
+            VALUES (
+                %s, %s, %s, %s, %s, 
+                %s, %s, %s, %s, %s, 
+                %s, %s, %s, %s
+            )
+        """
+        values = (complete_name, fac_posn_id, cluster_id, college_id, deg_unit_id, 
+                  qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
+                  official_receipt, official_travel_report, other_receipts, receiving_copy)
+        
+        
+        db.modifydatabase(sql, values)
+        modal_open = True
+    except Exception as e:
+        alert_color = 'danger'
+        alert_text = 'An error occurred while saving the data.'
+        alert_open = True
+
+    return [alert_color, alert_text, alert_open, modal_open]
+
