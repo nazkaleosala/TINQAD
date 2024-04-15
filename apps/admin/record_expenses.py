@@ -12,8 +12,8 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
-
-
+import locale
+import re
 
 form = dbc.Form(
     [
@@ -124,6 +124,10 @@ form = dbc.Form(
                     dbc.Input(type="text", id='exp_amount', placeholder="0,000.00"),
                     width=6,
                 ),
+                dbc.Col(
+                    html.Div(id='amount-copy'),
+                    width=2,
+                )
             ],
             className="mb-2",
         ),
@@ -162,9 +166,13 @@ form = dbc.Form(
                     width=4
                 ),
                 dbc.Col(
-                    dbc.Input(type="text", id='exp_bur_no', placeholder="0000-00-00000"),
+                    dbc.Input(type="text", id='exp_bur_no', placeholder="0000-00-00000", maxLength=11),
                     width=6,
                 ),
+                dbc.Col(
+                    html.Div(id='bur-no-copy'),
+                    width=2,
+                )
             ],
             className="mb-2",
         ),
@@ -249,6 +257,44 @@ def populate_mainexpenses_dropdown(pathname):
         return main_expense_types
     else:
         raise PreventUpdate
+
+
+#amount
+locale.setlocale(locale.LC_ALL, '')
+
+@app.callback(
+    Output('amount-copy', 'children'),
+    Input('exp_amount', 'value')
+)
+def update_amount_copy(value):
+    try:
+        # Try to convert the input value to a float
+        float_value = float(value.replace(',', ''))
+        # Format the float value with commas and two decimal places
+        formatted_value = locale.format_string("%0.2f", float_value, grouping=True)
+        return formatted_value
+    except ValueError:
+        # If conversion fails, return None
+        return None
+
+
+
+
+#bur
+@app.callback(
+    Output('bur-no-copy', 'children'),
+    Input('exp_bur_no', 'value')
+)
+def update_bur_no_copy(value):
+    if value:
+        # Remove any non-digit characters
+        cleaned_value = re.sub(r'\D', '', value)
+        # Format the cleaned value as ####-##-#####
+        formatted_value = '-'.join([cleaned_value[:4], cleaned_value[4:6], cleaned_value[6:]])
+        return formatted_value
+    else:
+        return ''
+
 
 
 
