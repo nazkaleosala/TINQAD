@@ -244,7 +244,7 @@ form = dbc.Form(
 
 def populate_mainexpenses_dropdown(pathname):
     # Check if the pathname matches if necessary
-    if pathname == '/record_expenses':
+    if pathname == '/record_expenses/add_expense':
         sql = """
         SELECT main_expense_name as label,  main_expense_id  as value
         FROM adminteam.main_expenses
