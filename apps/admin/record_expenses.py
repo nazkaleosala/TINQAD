@@ -1,8 +1,7 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-from dash import Dash, html, dcc, Input, Output, State
-
+import dash_table
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -11,517 +10,108 @@ import pandas as pd
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
-
-import locale
-import re
-
-form = dbc.Form(
-    [
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                       "Date ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4
-                ),
-                dbc.Col(
-                    dcc.DatePickerSingle(
-                       id='exp_date',
-                       date=str(pd.to_datetime("today").date())
-                    ),
-                    width=8,
-                ),
-            ],
-            className="mb-3",
-        ),
-        
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Payee ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4
-                ),
-                dbc.Col(
-                    dbc.Input(type="text", id='exp_payee', placeholder="First Name Last Name"),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-        
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Expense Main Type ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4
-                ),
-                dbc.Col(
-                    dbc.Select(
-                        id='main_expense_id',
-                        options=[]
-                    ),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Expense Sub Type ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4
-                ),
-                dbc.Col(
-                    dbc.Select(
-                        id='sub_expense_id',
-                        options=[]
-                    ),
-                    width=6,
-                ),
-            ],
-            className="mb-3",
-        ),
-
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Particulars ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4
-                ),
-                dbc.Col(
-                   dbc.Textarea(id='exp_particulars', placeholder="Enter particulars"),
-                   width=8,
-                ),
-            ],
-            className="mb-2",
-        ),
-
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Amount ",
-                        html.Span("*", style={"color": "#F8B237"}) 
-                    ],
-                    width=4
-                ),
-                dbc.Col(
-                    dbc.Input(type="text", id='exp_amount', placeholder="0,000.00"),
-                    width=5,
-                ),
-                dbc.Col(
-                    html.Div(id='amount-copy'),
-                    width=2,
-                )
-            ],
-            className="mb-2",
-        ),
-
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Status ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4
-                ),
-                dbc.Col(
-                    dbc.Select(
-                        id='exp_status',
-                        options=[ 
-                            {"label": "Approved", "value": 1},
-                            {"label": "Pending", "value": 2},
-                            {"label": "Denied", "value": 3},
-                        ]
-                    ),
-                    width=5,
-                ),
-            ],
-            className="mb-2",
-        ),
-
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "BUR No. ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4
-                ),
-                dbc.Col(
-                    dbc.Input(type="text", id='exp_bur_no', placeholder="0000-00-00000", maxLength=11),
-                    width=5,
-                ),
-                dbc.Col(
-                    html.Div(id='bur-no-copy'),
-                    width=2,
-                )
-            ],
-            className="mb-2",
-        ),
  
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Submitted by",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],  
-                    width=4
-                ),
-                dbc.Col(
-                    dbc.Input(type="text", id = 'exp_submitted_by'),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-
-        
-        html.Br(),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dbc.Button("Save", color="primary", className="me-3", id="save_button", n_clicks=0),
-                    width="auto"
-                ),
-                dbc.Col(
-                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
-                    width="auto"
-                ),
-            ],
-            className="mb-2",
-        ),
-
-        dbc.Modal(
-            [
-                dbc.ModalHeader(className="bg-success"),
-                dbc.ModalBody(
-                    html.H4('Expense added.'),
-                ),
-                dbc.ModalFooter(
-                    dbc.Button(
-                        "Proceed", id='proceed_button', className='ml-auto'
-                    ), 
-                )
-                 
-            ],
-            centered=True,
-            id='recordexpenses_successmodal',
-            backdrop=True,  # Allow clicking outside to close the modal
-            className="modal-success"  # You can define this class in your CSS file for additional styling
-        ),
-        
-    ],
-    className="g-2",
-)
-
-
-
-
-#main expense dropdown
-@app.callback(
-    Output('main_expense_id', 'options'),
-    Input('url', 'pathname')
-)
-
-def populate_mainexpenses_dropdown(pathname):
-    # Check if the pathname matches if necessary
-    if pathname == '/record_expenses':
-        sql = """
-        SELECT main_expense_name as label,  main_expense_id  as value
-        FROM adminteam.main_expenses
-        """
-        values = []
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        
-        main_expense_types = df.to_dict('records')
-        return main_expense_types
-    else:
-        raise PreventUpdate
-
-
-#amount
-locale.setlocale(locale.LC_ALL, '')
-
-@app.callback(
-    Output('amount-copy', 'children'),
-    Input('exp_amount', 'value')
-)
-def update_amount_copy(value):
-    try:
-        # Try to convert the input value to a float
-        float_value = float(value.replace(',', ''))
-        # Format the float value with commas and two decimal places
-        formatted_value = locale.format_string("%0.2f", float_value, grouping=True)
-        return formatted_value
-    except ValueError:
-        # If conversion fails, return None
-        return None
-
-
-
-
-#bur
-@app.callback(
-    Output('bur-no-copy', 'children'),
-    Input('exp_bur_no', 'value')
-)
-def update_bur_no_copy(value):
-    if value:
-        # Remove any non-digit characters
-        cleaned_value = re.sub(r'\D', '', value)
-        # Format the cleaned value as ####-##-#####
-        formatted_value = '-'.join([cleaned_value[:4], cleaned_value[4:6], cleaned_value[6:]])
-        return formatted_value
-    else:
-        return ''
-
-
-
-
-#sub expense dropdown
-@app.callback(
-    Output('sub_expense_id', 'options'),
-    Input('main_expense_id', 'value')
-)
-def update_subexpenses_options(selected_main_expense):
-    if selected_main_expense is None:
-        return []  # Return empty options if no main expense is selected
-    
-    try:
-        # Query to fetch sub-expenses based on the selected main expense
-        sql = """
-        SELECT sub_expense_name as label, sub_expense_id as value
-        FROM adminteam.sub_expenses
-        WHERE main_expense_id = %s
-        """
-        values = [selected_main_expense]
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        
-        sub_expense_options = df.to_dict('records')
-        return sub_expense_options
-    except Exception as e:
-        # Log the error or handle it appropriately
-        return [] 
-
-
-
-
-
-
-# Callbacks for formatting input fields
-#BUR No
-@app.callback(
-    Output('exp_bur_no', 'value'),
-    Input('exp_bur_no', 'n_blur'),
-    State('exp_bur_no', 'value')
-)
-def format_bur_no(n_blur, bur_no):
-    if not bur_no:
-        return ''
-
-    # Removing non-numeric characters
-    bur_no = ''.join(filter(str.isdigit, bur_no))
-
-    # Formatting the BUR number
-    formatted_bur_no = ''
-    for i, char in enumerate(bur_no):
-        if i in [4, 6]:  # Adding dashes after 4th and 6th digit
-            formatted_bur_no += '-'
-        formatted_bur_no += char
-
-    # Trimming to the pattern length (13 including dashes)
-    return formatted_bur_no[:13]
- 
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 layout = html.Div(
     [
         dbc.Row(
             [
+                dbc.Col(cm.generate_navbar(), width=2),
                 dbc.Col(
-                    cm.generate_navbar(), 
-                    width=2 
+                    [
+                        html.H1("RECORD EXPENSES"),
+                        html.Hr(),
+                        dbc.Row(   
+                            [
+                                dbc.Col(   
+                                    dbc.Button(
+                                        "➕ Add expense", color="primary", 
+                                        href='/record_expenses/add_expense', 
+                                    ),
+                                    width="auto",    
+                                ),
+                                dbc.Col(  
+                                    dbc.Input(
+                                        type='text',
+                                        id='recordexpenses_filter',
+                                        placeholder='🔎 Search by name, office, position',
+                                        className='ml-auto'   
+                                    ),
+                                    width=8,
+                                ),
+                                 
+                            ],
+                            className="align-items-center",   
+                            justify="between",  
+                        ),
+                        # Placeholder for the users table
+                        html.Div(
+                            id='recordexpenses_list', 
+                            style={
+                                'marginTop': '20px',
+                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                            }
+                        )
+                    ], 
+                    width=9, 
+                    style={'marginLeft': '15px'}
                 ),
-                dbc.Col(
-                [
-                    html.H1("ADD EXPENSE"),
-                    html.Hr(),
-                    dbc.Alert(id='recordexpenses_alert', is_open=False), # For feedback purpose
-                    form, 
-                ],
-                width=8, style={'marginLeft': '15px'}
-                
-                )
             ]
         ),
-        dbc.Row (
+        dbc.Row(
             [
-                dbc.Col(
-                    cm.generate_footer(), width={"size": 12, "offset": 0}
-                ),
+                dbc.Col(cm.generate_footer(), width={"size": 12, "offset": 0}),
             ]
-        ),
-        
+        )
     ]
 )
-
-
-
 
 
 @app.callback(
     [
-        Output('recordexpenses_alert', 'color'),
-        Output('recordexpenses_alert', 'children'),
-        Output('recordexpenses_alert', 'is_open'),
-        Output('recordexpenses_successmodal', 'is_open')
+        Output('recordexpenses_list', 'children')
     ],
     [
-        Input('save_button', 'n_clicks')
-    ],
-    [
-        State('exp_date', 'date'),
-        State('exp_payee', 'value'),
-        State('main_expense_id', 'value'),
-        State('sub_expense_id', 'value'),
-        State('exp_particulars', 'value'),
-        State('exp_amount', 'value'),
-        State('exp_status', 'value'),  
-        State('exp_bur_no', 'value'),
-        State('exp_submitted_by', 'value'), 
+        Input('url', 'pathname'),   
+        Input('recordexpenses_filter', 'value'),
     ]
 )
- 
 
 
-def record_expenses(submitbtn, date, payee, mainexpense, 
-                    subexpense, particulars, amount, 
-                    status, bur_no, submittedby):
-    if not submitbtn:
-        raise PreventUpdate
-
-    alert_open = False
-    modal_open = False
-    alert_color = ''
-    alert_text = ''
-
-    # Input validation
-    if not date:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a date.'
-        return [alert_color, alert_text, alert_open, modal_open]
-
-    if not payee:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a payee.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not mainexpense:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a mainexpense.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not subexpense:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a subexpense.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not particulars:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a particulars.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not amount:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add an amount.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not status:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a status.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not bur_no:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a BUR no.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not submittedby:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add Submitted by.'
-        return [alert_color, alert_text, alert_open, modal_open]
- 
-
-
-    # Default values
-    exp_receipt = None
-
-    # Insert data into the database
-    try:
+def recordexpenses_loadlist(pathname, searchterm):
+    if pathname == '/record_expenses':
+        # Updated SQL query to select all records from the expenses table
         sql = """
-            INSERT INTO adminteam.expenses (
-                exp_date, exp_payee, main_expense_id, sub_expense_id, 
-                exp_particulars, exp_amount, exp_status, 
-                exp_bur_no, exp_submitted_by, exp_receipt
-            )
-            VALUES (
-                %s, %s, %s, %s, 
-                %s, %s, %s, 
-                %s, %s, %s
-            )
+            SELECT 
+                exp_date AS "Date", 
+                exp_payee AS "Payee Name", 
+                me.main_expense_name AS "Main Expense Type",
+                se.sub_expense_name AS "Sub Expense Type",
+                exp_particulars AS "Particulars", 
+                exp_amount AS "Amount", 
+                exp_status AS "Status",
+                exp_bur_no AS "BUR No"
+            FROM adminteam.expenses AS e
+            LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
+            LEFT JOIN adminteam.sub_expenses AS se ON e.sub_expense_id = se.sub_expense_id
         """
-        values = (date, payee, mainexpense, subexpense, particulars, amount, status, bur_no, submittedby, exp_receipt)
-        db.modifydatabase(sql, values)
-        modal_open = True
-    except Exception as e:
-        alert_color = 'danger'
-        alert_text = 'An error occurred while saving the data.'
-        alert_open = True
 
-    return [alert_color, alert_text, alert_open, modal_open]
+        cols = ['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type',  'Particulars', 'Amount', 'Status', 'BUR No']
+
+        if searchterm:
+            # Add a WHERE clause with ILIKE to filter the results
+            sql += """ WHERE exp_payee ILIKE %s OR exp_particulars ILIKE %s OR exp_bur_no ILIKE %s """
+            like_pattern = f"%{searchterm}%"
+            values = [like_pattern, like_pattern, like_pattern]
+        else:
+            values = []
+
+        df = db.querydatafromdatabase(sql, values, cols) 
+
+        # Generate the table from the DataFrame
+        if not df.empty:  # Check if the DataFrame is not empty
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return [table]
+        else:
+            return [html.Div("No records to display")]
+    else:
+        raise PreventUpdate
