@@ -12,6 +12,7 @@ from app import app
 from apps import dbconnect as db
 
 
+
 form = dbc.Form(
     [
         html.H5("PERSONAL INFORMATION", className="form-header fw-bold"),
@@ -19,183 +20,334 @@ form = dbc.Form(
             [
                 dbc.Label("Surname", width=4),
                 dbc.Col(
-                    dbc.Input(type="text"),
+                    dbc.Input(id="qaofficer_sname", type="text"),
                     width=5,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
         dbc.Row(
             [
                 dbc.Label("First Name", width=4),
                 dbc.Col(
-                    dbc.Input(type="text"),
+                    dbc.Input(id="qaofficer_fname",type="text"),
                     width=5,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
         dbc.Row(
             [
-                dbc.Label("Middle Initial", width=4),
+                dbc.Label("Middle Name", width=4),
                 dbc.Col(
-                    dbc.Input(type="text"),
+                    dbc.Input(id="qaofficer_mname",type="text"),
                     width=5,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
         dbc.Row(
             [
                 dbc.Label("UP Mail", width=4),
                 dbc.Col(
-                    dbc.Input(type="email"),
+                    dbc.Input(id="qaofficer_upmail",type="text"),
                     width=5,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
+        
+         
+
         dbc.Row(
             [
-                dbc.Label("Cluster Name ", width=4),
+                dbc.Label(
+                    [
+                       "Cluster",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
                 dbc.Col(
-                    dbc.Input(type="text"),
-                    width=5,
+                    dcc.Dropdown(
+                        id='qaofficer_cluster_id',
+                        placeholder="Select Cluster",
+                    ),
+                    width=6,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
+
         dbc.Row(
             [
-                dbc.Label("College", width=4),
+                dbc.Label(
+                    [
+                       "College",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
                 dbc.Col(
-                    dbc.Input(type="text"),
-                    width=5,
+                    dcc.Dropdown(
+                        id='qaofficer_college_id',
+                        placeholder="Select College",
+                    ),
+                    width=6,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
+
         dbc.Row(
             [
-                dbc.Label("Unit", width=4),
+                dbc.Label(
+                    [
+                       "Department",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
                 dbc.Col(
-                    dbc.Input(type="text"),
-                    width=5,
+                    dcc.Dropdown(
+                        id='qaofficer_deg_unit_id',
+                        placeholder="Select Department",
+                    ),
+                    width=6,
                 ),
             ],
-            className="mb-5",
+            className="mb-4",
         ),
         html.H5("QA INFORMATION", className="form-header fw-bold"),
+         
         dbc.Row(
             [
-                dbc.Label("QA Position in the CU", width=4),
+                dbc.Label(
+                    [
+                       "QA Position in the CU",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
                 dbc.Col(
-                    dbc.Input(type="text"),
-                    width=5,
+                    dcc.Dropdown(
+                        id='qaofficer_cuposition_id',
+                        placeholder="Select Position",
+                    ),
+                    width=6,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
+         
         dbc.Row(
             [
                 dbc.Label("With Basic Paper as QAO?", width=4),
                 dbc.Col(
-                    dbc.RadioItems(
+                    dbc.Select(
+                        id="qaofficer_basicpaper",
                         options=[
-                            {"label": "Yes", "value": "Yes"},
-                            {"label": "No", "value": "No"}
+                            {"label":"Yes","value":"Yes"},
+                            {"label":"No","value":"No"}
                         ],
-                            value="Yes",  # Set the default value to 'Yes' or 'No' as needed
-                            id="basicpaperqao-radio",
-                            inline=True
-                    ), width=5,
+                        placeholder="Please select yes/no"
+                    ),
+                    width=4,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
         dbc.Row(
             [
                 dbc.Label("Remarks", width=4),
                 dbc.Col(
                     dbc.Select(
-                        id="remarks-select",
+                        id="qaofficer_remarks",
                         options=[
-                            {"label": "For renewal", "value": "For renewal"},
-                            {"label": "No record", "value": "No record"}
+                            {"label":"For renewal","value":"For renewal"},
+                            {"label":"No record","value":"No record"}
                         ],
                         placeholder="Select a remark"
                     ),
-                    width=5,
+                    width=4,
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         dbc.Row(
             [
                 dbc.Label("ALC", width=4),
                 dbc.Col(
-                    dbc.Input(type="text"),
+                    dbc.Input(id="qaofficer_alc", type="text"),
                     width=5,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
+         
         dbc.Row(
             [
                 dbc.Label("Start of Term", width=4),
                 dbc.Col(
-                    dbc.Input(type="text", placeholder="MM DD YYYY"),
-                    width=5,
+                    dbc.Input(type="date", id='qaofficer_appointment_start'),
+                    width=4,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
         dbc.Row(
             [
                 dbc.Label("End of Term", width=4),
                 dbc.Col(
-                    dbc.Input(type="text", placeholder="MM DD YYYY"),
-                    width=5,
+                    dbc.Input(type="date", id='qaofficer_appointment_end'),
+                    width=4,
                 ),
             ],
-            className="mb-3", 
-                                    
+            className="mb-2",
         ),
-    ]
-)
-
-
-trainings_table = dbc.Table(
-    [
-        html.Thead(
-            html.Tr([html.Th("#", style={'width': '5%'}), html.Th("Date Trained", style={'width': '20%'}), html.Th("Name of Training", style={'width': '75%'})])
-        ),
-        html.Tbody(
+         
+        dbc.Row(
             [
-                html.Tr(
-                    [
-                        html.Td("1", style={'width': '5%'}), 
-                        html.Td(dbc.Input(type="text", placeholder="MM/DD/YYYY"), style={'width': '20%'}), 
-                        html.Td(dbc.Input(type="text", placeholder="AUNQA T1/International/Local"), style={'width': '75%'}),
-                        html.Td(dbc.Button("+", color="primary", className="btn-sm"), style={'width': '5%'})
-                    ]
+                dbc.Col(
+                    dbc.Button("Register", color="primary", className="me-3", id="save_button", n_clicks=0),
+                    width="auto"
+                ),
+                dbc.Col(
+                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
+                    width="auto"
+                ),
+            ],
+            className="mb-2",
+        ),
+
+        dbc.Modal(
+            [
+                dbc.ModalHeader(className="bg-success"),
+                dbc.ModalBody(
+                    html.H4('QA Officer profile added.'),
+                ),
+                dbc.ModalFooter(
+                    dbc.Button(
+                       "Proceed", id='proceed_button', className='ml-auto'
+                    ), 
                 )
-            ]
-        )
-    ],
-    bordered=True,
-    hover=True
-)
-
-
-card_form = dbc.Card(
-    [
-        dbc.CardHeader("QA Trainings"),
-        dbc.CardBody(
-            [trainings_table]
-        )
+                 
+            ],
+            centered=True,
+            id='qaofficer_successmodal',
+            backdrop=True,   
+            className="modal-success"  
+        ),
+         
     ]
 )
+
+
+
+
+
+
+
+# CU dropdown
+@app.callback(
+    Output('qaofficer_cuposition_id', 'options'),
+    Input('url', 'pathname')
+)
+def populate_cuposition_dropdown(pathname):
+    # Check if the pathname matches if necessary
+    if pathname == '/QAOfficers/qaofficers_profile':
+        sql = """
+        SELECT cuposition_name as label, cuposition_id  as value
+        FROM qaofficers.cuposition
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        qaofficer_cuposition_types = df.to_dict('records')
+        return qaofficer_cuposition_types
+    else:
+        raise PreventUpdate
+
+
+
+
+
+
+
+
+# Cluster dropdown
+@app.callback(
+    Output('qaofficer_cluster_id', 'options'),
+    Input('url', 'pathname')
+)
+def populate_cluster_dropdown(pathname):
+    # Check if the pathname matches if necessary
+    if pathname == '/QAOfficers/qaofficers_profile':
+        sql = """
+        SELECT cluster_name as label, cluster_id  as value
+        FROM public.clusters
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        qaofficer_cluster_types = df.to_dict('records')
+        return qaofficer_cluster_types
+    else:
+        raise PreventUpdate
+
+# College dropdown
+@app.callback(
+    Output('qaofficer_college_id', 'options'),
+    Input('qaofficer_cluster_id', 'value')
+)
+def populate_college_dropdown(selected_cluster):
+    if selected_cluster is None:
+        return []   
+    
+    try:  
+        sql = """
+        SELECT college_name as label,  college_id  as value
+        FROM public.college
+        WHERE cluster_id = %s
+        """
+        values = [selected_cluster]
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        qaofficer_college_options = df.to_dict('records')
+        return qaofficer_college_options
+    except Exception as e:
+        # Log the error or handle it appropriately
+        return [] 
+
+# Degree Unit dropdown
+@app.callback(
+    Output('qaofficer_deg_unit_id', 'options'),
+    Input('qaofficer_college_id', 'value')
+)
+def populate_dgu_dropdown(selected_college):
+    if selected_college is None:
+        return []  # Return empty options if no college is selected
+    
+    try:
+        # Query to fetch degree units based on the selected college
+        sql = """
+        SELECT deg_unit_name as label,  deg_unit_id  as value
+        FROM public.deg_unit
+        WHERE college_id = %s
+        """
+        values = [selected_college]
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        qaofficer_dgu_options = df.to_dict('records')
+        return qaofficer_dgu_options
+    except Exception as e:
+        # Log the error or handle it appropriately
+        return []
+    
 
 
 
@@ -210,33 +362,11 @@ layout = html.Div(
                 ),
                 dbc.Col(
                     [
-                        html.H1("ADD NEW PROFILE"),
+                        html.H1("ADD NEW QA OFFICER PROFILE"),
                         html.Hr(),
-                        dbc.Row(
-                            [
-                                form, 
-                                
-                                html.Div(card_form, 
-                                    style={
-                                        'margin-top': '50px',
-                                        'margin-bottom': '50px'
-                                        }
-                                    )
-                            ]
-                        ),
-                        dbc.Row(
-                            [
-                                dbc.Col(
-                                    dbc.Button("Register", color="primary", className="me-3"), 
-                                    width="auto"
-                                ),
-                                dbc.Col(
-                                    dbc.Button("Cancel", color="secondary"),
-                                    width="auto"
-                                ),
-                            ],
-                            className="mb-3",
-                        ),
+                        dbc.Alert(id='qaofficer_alert', is_open=False), # For feedback purpose
+                        form, 
+                         
                         
                     ], width=8, style={'marginLeft': '15px'}
                 ),   
@@ -253,5 +383,147 @@ layout = html.Div(
         )
     ]
 )
+ 
 
 
+ 
+@app.callback(
+    [
+        Output('qaofficer_alert', 'color'),
+        Output('qaofficer_alert', 'children'),
+        Output('qaofficer_alert', 'is_open'),
+        Output('qaofficer_successmodal', 'is_open')
+    ],
+    [
+        Input('save_button', 'n_clicks')
+    ],
+    [
+        State('qaofficer_fname', 'value'),
+        State('qaofficer_mname', 'value'),
+        State('qaofficer_sname', 'value'),
+        State('qaofficer_upmail', 'value'),
+        State('qaofficer_cuposition_id', 'value'),
+        State('qaofficer_basicpaper', 'value'),
+        State('qaofficer_remarks', 'value'),   
+        State('qaofficer_alc', 'value'),      
+        State('qaofficer_appointment_start', 'value'),
+        State('qaofficer_appointment_end', 'value'),  
+        State('qaofficer_cluster_id', 'value'),      
+        State('qaofficer_college_id', 'value'), 
+        State('qaofficer_deg_unit_id', 'value')        
+    ]
+)
+ 
+def record_qaofficer_profile(submitbtn, qaofficer_fname, qaofficer_mname, 
+                            qaofficer_sname, qaofficer_upmail,
+                            qaofficer_cuposition_id, qaofficer_basicpaper, 
+                            qaofficer_remarks, qaofficer_alc,
+                            qaofficer_appointment_start, qaofficer_appointment_end, 
+                            qaofficer_cluster_id, qaofficer_college_id, qaofficer_deg_unit_id):
+    if not submitbtn:
+        raise PreventUpdate
+
+    alert_open = True  # Set alert_open to True by default
+    modal_open = False
+    alert_color = ''
+    alert_text = ''
+
+    # Input validation
+    if not qaofficer_sname:
+        alert_color_sname = 'danger'
+        alert_text_sname = 'Check your inputs. Please add a Surname.'
+        return [alert_color_sname, alert_text_sname, alert_open, modal_open]
+    
+    if not qaofficer_fname:
+        alert_color_fname = 'danger'
+        alert_text_fname = 'Check your inputs. Please add a First Name.'
+        return [alert_color_fname, alert_text_fname, alert_open, modal_open]
+
+    if not qaofficer_mname:
+        alert_color_mname = 'danger'
+        alert_text_mname = 'Check your inputs. Please add a Middle Name.'
+        return [alert_color_mname, alert_text_mname, alert_open, modal_open]
+
+    
+
+    if not qaofficer_upmail:
+        alert_color_upmail = 'danger'
+        alert_text_upmail = 'Check your inputs. Please add a UP Mail.'
+        return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
+    
+    if not qaofficer_cluster_id :
+        alert_color_upmail = 'danger'
+        alert_text_upmail = 'Check your inputs. Please select a Cluster.'
+        return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
+    
+    if not qaofficer_college_id :
+        alert_color_upmail = 'danger'
+        alert_text_upmail = 'Check your inputs. Please select a College.'
+        return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
+    
+    if not qaofficer_deg_unit_id :
+        alert_color_upmail = 'danger'
+        alert_text_upmail = 'Check your inputs. Please select a Department.'
+        return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
+    
+    if not qaofficer_cuposition_id :
+        alert_color_upmail = 'danger'
+        alert_text_upmail = 'Check your inputs. Please add a CU Position.'
+        return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
+    
+    if not qaofficer_basicpaper :
+        alert_color_upmail = 'danger'
+        alert_text_upmail = 'Check your inputs. Please check if there is basic paper.'
+        return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
+    
+    if not qaofficer_remarks :
+        alert_color_upmail = 'danger'
+        alert_text_upmail = 'Check your inputs. Please add a remark.'
+        return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
+    
+    if not qaofficer_alc :
+        alert_color_upmail = 'danger'
+        alert_text_upmail = 'Check your inputs. Please add an ALC.'
+        return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
+    
+    
+    if not qaofficer_appointment_start  :
+        alert_color_upmail = 'danger'
+        alert_text_upmail = 'Check your inputs. Please add a start date.'
+        return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
+    
+    
+    if not qaofficer_appointment_end  :
+        alert_color_upmail = 'danger'
+        alert_text_upmail = 'Check your inputs. Please add a end date.'
+        return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
+    
+     
+    try:
+        sql = """
+            INSERT INTO  qaofficers.qa_officer (
+                qaofficer_fname, qaofficer_mname, qaofficer_sname, qaofficer_upmail,
+                qaofficer_cuposition_id, qaofficer_basicpaper, qaofficer_remarks, qaofficer_alc,
+                qaofficer_appointment_start, qaofficer_appointment_end, qaofficer_cluster_id, qaofficer_college_id, qaofficer_deg_unit_id
+            )
+            VALUES (%s, %s, %s, %s,
+                    %s, %s, %s, %s, 
+                    %s, %s, %s, %s, %s)
+        
+        """
+        values = (qaofficer_fname, qaofficer_mname, 
+                qaofficer_sname, qaofficer_upmail,
+                qaofficer_cuposition_id, qaofficer_basicpaper, 
+                qaofficer_remarks, qaofficer_alc,
+                qaofficer_appointment_start, qaofficer_appointment_end, 
+                qaofficer_cluster_id, qaofficer_college_id, qaofficer_deg_unit_id)
+
+        db.modifydatabase(sql, values)
+        modal_open = True
+    except Exception as e:
+        alert_color = 'danger'
+        alert_text = 'An error occurred while saving the data.'
+
+    return [alert_color, alert_text, alert_open, modal_open]
+
+  
