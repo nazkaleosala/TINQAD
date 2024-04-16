@@ -186,7 +186,7 @@ def generate_footer():
             style={'flex-wrap': 'wrap', 'justify-content': 'space-between'}
         ),
         fluid=True,
-        style={'background-color': '#7A0911', 'color': 'white', 'position': 'fixed', 'bottom': '0', 'left': '0', 'right': '0', 'padding': '20px 0', 'margin-top': '200px'},
+        style={'background-color': '#7A0911', 'color': 'white'},
         className="py-3",
     )
     return footer
