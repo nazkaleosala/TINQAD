@@ -138,44 +138,38 @@ def generate_navbar():
 
 
 
-
 def generate_footer():
     footer = dbc.Container(
         dbc.Row(
             [
-                # Column for the logo
                 dbc.Col(
                     html.A(
                         html.Img(
                             src="/assets/icons/qao-logo-icon1.png",
-                            style={'height': '100px'}
+                            style={'height': '80px','margin-left': '30px'}
                         ),
                         href="/home",  
                     ),
-                    md=4  # Reduced size to fit in the grid
+                    md=4
                 ),
-                # Column for the links
                 dbc.Col(
                     [ 
-                        html.Div(html.A("About TINQAD", href="/About_TINQAD", style={'color': 'white', 'text-decoration': 'none'})),
-                        html.Div(html.A("QAO Website", href="https://qa.upd.edu.ph/new-qao-website/", style={'color': 'white', 'text-decoration': 'none'})),
-                         
-                        html.P("📧 qa.upd@up.edu.ph", className="mb-0"), 
-                        html.P("📞(02) 9891-8500 local 2092", className="mb-0"),
+                        html.Div(html.A("About TINQAD", href="/About_TINQAD", style={'color': 'white', 'text-decoration': 'none', 'font-size': '12px'})),
+                        html.Div(html.A("QAO Website", href="https://qa.upd.edu.ph/new-qao-website/", style={'color': 'white', 'text-decoration': 'none', 'font-size': '12px'})),
+                        html.P("📧 qa.upd@up.edu.ph", className="mb-0", style={'font-size': '12px'}), 
+                        html.P("📞(02) 9891-8500 local 2092", className="mb-0", style={'font-size': '12px'}),
                     ],
                     md=3  
                 ),
-                
                 dbc.Col(
                     [
-                        html.H1("TINQAD", className="fw-bold mb-0"),  # mb-0 sets the bottom margin to 0
-                        html.P("The Total Integrated Network for Quality Assurance and Development © 2023-2024", className="mb-0"),
-                        html.P("Homepage images provided by Wikipedia and Ralff Nestor Nacor", className="fw-lighter mb-0 fst-italic"),
-                       
+                        html.H1("TINQAD", className="fw-bold mb-0", style={'font-size': '32px'}),
+                        html.P("The Total Integrated Network for Quality Assurance and Development", className="mb-0", style={'font-size': '12px'}),
+                        html.P("© 2023-2024 Diliman. Some rights reserved", className="mb-0", style={'font-size': '12px'}),
+                        html.P("Homepage images provided by Wikipedia and Ralff Nestor Nacor", className="fw-lighter mb-0 fst-italic", style={'font-size': '12px'}),
                     ],
                     md=4 
                 ),
-                
                 dbc.Col(
                     html.A(
                         html.Img(
@@ -183,15 +177,16 @@ def generate_footer():
                             style={'height': '50px'}
                         ),
                         href="#",  
-                    ), style={'text-align': 'right'}
-                    
+                    ),
+                    md=1,
+                    style={'display': 'flex', 'align-items': 'flex-end', 'justify-content': 'flex-end'}
                 ),
             ],
-            
             className="gx-0",
+            style={'flex-wrap': 'wrap', 'justify-content': 'space-between'}
         ),
         fluid=True,
-        style={'background-color': '#7A0911', 'color': 'white'},
+        style={'background-color': '#7A0911', 'color': 'white', 'position': 'fixed', 'bottom': '0', 'left': '0', 'right': '0', 'padding': '20px 0', 'margin-top': '200px'},
         className="py-3",
     )
     return footer
