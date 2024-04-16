@@ -86,19 +86,7 @@ def acadheadsdirectory_loadlist(pathname, searchterm):
     if pathname == '/acad_heads_directory':
         # Updated SQL query to match the new table and column structure
         sql = """  
-            SELECT 
-                a.unit_head_sname AS "Surname",
-                a.unit_head_fname AS "First Name",
-                CASE
-                    WHEN a.unit_head_mname IS NOT NULL THEN a.unit_head_fname || ' ' || a.unit_head_mname || ' ' || a.unit_head_sname
-                    ELSE a.unit_head_fname || ' ' || a.unit_head_sname
-                END AS "Full Name",
-                d.designation_name AS "Position",
-                a.unit_head_upmail AS "Email"
-                -- If you have additional columns such as Phone, Department, College, or Unit, include them here without a trailing comma
-            FROM iqateam.acad_unit_heads a
-            LEFT JOIN public.official_designation d ON a.unit_head_official_designation = d.designation_id
-            -- Add more joins if needed to link to department/college/unit tables
+             
         """
 
         cols = ['Surname', 'First Name', 'Full Name', 'Position', 'Email']  # Add 'Phone', 'Dept', etc. if needed
