@@ -19,7 +19,7 @@ form = dbc.Form(
             [
                 dbc.Label("Surname", width=4),
                 dbc.Col(
-                    dbc.Input(type="text"),
+                    dbc.Input(id="unit_head_sname", type="text"),
                     width=5,
                 ),
             ],
@@ -29,7 +29,7 @@ form = dbc.Form(
             [
                 dbc.Label("First Name", width=4),
                 dbc.Col(
-                    dbc.Input(type="text"),
+                    dbc.Input(id="unit_head_fname",type="text"),
                     width=5,
                 ),
             ],
@@ -37,9 +37,9 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Middle Initial", width=4),
+                dbc.Label("Middle Name", width=4),
                 dbc.Col(
-                    dbc.Input(type="text"),
+                    dbc.Input(id="unit_head_mname",type="text"),
                     width=5,
                 ),
             ],
@@ -49,53 +49,105 @@ form = dbc.Form(
             [
                 dbc.Label("UP Mail", width=4),
                 dbc.Col(
-                    dbc.Input(type="email"),
+                    dbc.Input(id="unit_head_upmail",type="email"),
                     width=5,
                 ),
             ],
             className="mb-1",
         ),
+        
         dbc.Row(
             [
-                dbc.Label("Cluster Name ", width=4),
+                dbc.Label(
+                    [
+                        "Position ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4
+                ),
                 dbc.Col(
-                    dbc.Input(type="text"),
+                    dbc.Select(
+                        id='fac_posn_id',
+                        options=[],
+                        placeholder="Select position",
+                    ),
                     width=5,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
+
+        
         dbc.Row(
+              [
+               dbc.Label(
+                    [
+                        "Cluster ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4
+                ),
+               dbc.Col(
+                   dcc.Dropdown(
+                       id='cluster_id',
+                       placeholder="Select Cluster",
+                   ),
+                   width=6,
+               ),
+           ],
+           className="mb-2",
+       ),
+        
+        dbc.Row(
+              [
+               dbc.Label(
+                    [
+                        "College ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4
+                ),
+               dbc.Col(
+                   dcc.Dropdown(
+                       id='college_id',
+                       placeholder="Select College",
+                   ),
+                   width=8,
+               ),
+           ],
+           className="mb-2",
+       ),
+
+       dbc.Row(
             [
-                dbc.Label("College", width=4),
+                dbc.Label(
+                    [
+                        "Department ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4
+                ),
                 dbc.Col(
-                    dbc.Input(type="text"),
-                    width=5,
+                    dcc.Dropdown(
+                        id='deg_unit_id',
+                        placeholder="Select Department",
+                    ),
+                    width=8,
                 ),
             ],
-            className="mb-1",
-        ),
-        dbc.Row(
-            [
-                dbc.Label("Unit", width=4),
-                dbc.Col(
-                    dbc.Input(type="text"),
-                    width=5,
-                ),
-            ],
-            className="mb-5",
+            className="mb-4",
         ),
         html.H5("QA INFORMATION", className="form-header fw-bold"),
         dbc.Row(
             [
                 dbc.Label("QA Position in the CU", width=4),
                 dbc.Col(
-                    dbc.Input(type="text"),
+                    dbc.Input(id='unit_head_cuposition', type="text"),
                     width=5,
                 ),
             ],
             className="mb-1",
-        ),
+        ), 
         dbc.Row(
             [
                 dbc.Label("With Basic Paper as QAO?", width=4),
@@ -106,7 +158,7 @@ form = dbc.Form(
                             {"label": "No", "value": "No"}
                         ],
                             value="Yes",  # Set the default value to 'Yes' or 'No' as needed
-                            id="basicpaperqao-radio",
+                            id="unit_head_basicpaper",
                             inline=True
                     ), width=5,
                 ),
@@ -118,7 +170,7 @@ form = dbc.Form(
                 dbc.Label("Remarks", width=4),
                 dbc.Col(
                     dbc.Select(
-                        id="remarks-select",
+                        id="unit_head_remarks",
                         options=[
                             {"label": "For renewal", "value": "For renewal"},
                             {"label": "No record", "value": "No record"}
@@ -134,7 +186,7 @@ form = dbc.Form(
             [
                 dbc.Label("ALC", width=4),
                 dbc.Col(
-                    dbc.Input(type="text"),
+                    dbc.Input(id="unit_head_alc", type="text"),
                     width=5,
                 ),
             ],
@@ -144,7 +196,7 @@ form = dbc.Form(
             [
                 dbc.Label("Start of Term", width=4),
                 dbc.Col(
-                    dbc.Input(type="text", placeholder="MM DD YYYY"),
+                    dbc.Input(id="unit_head_appointment_start",type="text", placeholder="MM DD YYYY"),
                     width=5,
                 ),
             ],
@@ -154,7 +206,7 @@ form = dbc.Form(
             [
                 dbc.Label("End of Term", width=4),
                 dbc.Col(
-                    dbc.Input(type="text", placeholder="MM DD YYYY"),
+                    dbc.Input(id="unit_head_appointment_end",type="text", placeholder="MM DD YYYY"),
                     width=5,
                 ),
             ],
@@ -163,39 +215,23 @@ form = dbc.Form(
         ),
     ]
 )
+ 
+ 
 
 
-trainings_table = dbc.Table(
-    [
-        html.Thead(
-            html.Tr([html.Th("#", style={'width': '5%'}), html.Th("Date Trained", style={'width': '20%'}), html.Th("Name of Training", style={'width': '75%'})])
-        ),
-        html.Tbody(
-            [
-                html.Tr(
-                    [
-                        html.Td("1", style={'width': '5%'}), 
-                        html.Td(dbc.Input(type="text", placeholder="MM/DD/YYYY"), style={'width': '20%'}), 
-                        html.Td(dbc.Input(type="text", placeholder="AUNQA T1/International/Local"), style={'width': '75%'}),
-                        html.Td(dbc.Button("+", color="primary", className="btn-sm"), style={'width': '5%'})
-                    ]
-                )
-            ]
-        )
-    ],
-    bordered=True,
-    hover=True
-)
 
 
-card_form = dbc.Card(
-    [
-        dbc.CardHeader("QA Trainings"),
-        dbc.CardBody(
-            [trainings_table]
-        )
-    ]
-)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -212,18 +248,7 @@ layout = html.Div(
                     [
                         html.H1("ADD NEW PROFILE"),
                         html.Hr(),
-                        dbc.Row(
-                            [
-                                form, 
-                                
-                                html.Div(card_form, 
-                                    style={
-                                        'margin-top': '50px',
-                                        'margin-bottom': '50px'
-                                        }
-                                    )
-                            ]
-                        ),
+                        form, 
                         dbc.Row(
                             [
                                 dbc.Col(
