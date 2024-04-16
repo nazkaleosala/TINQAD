@@ -121,7 +121,8 @@ def generate_navbar():
                 style = {
                     'margin-left' : '2em',
                     'margin-top' : '1em',
-                    'max-height': '90vh',  # Maximum height of the navbar 
+                    'max-height': '90vh',  # Maximum height of the navbar
+                    'overflow-y': 'auto'   # Enable vertical scrolling
                 },
             ),
         ],
