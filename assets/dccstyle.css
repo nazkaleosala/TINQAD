@@ -102,12 +102,13 @@
 }
 
 .nav-link {
-    padding: 5px 20px; /* Adjust padding as needed */
+    padding: -5px ; /* Adjust padding as needed */
     transition: background-color 0.3s;
+    color: black; /* Change font color to black */
 }
+
 
 .nav-link:hover,
 .nav-link.active {
-    background-color: #FEE8C6;
-    border-radius: 5px; /* Add border-radius for rounded corners */
+    background-color: #FEE8C6; 
 }

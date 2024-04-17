@@ -15,65 +15,83 @@ from apps import dbconnect as db
 
  
 
+
+
 form = dbc.Form(
     [
+         
+        dbc.Row(
+            [
+                dbc.Label("Degree Program Title",   width=4),
+                 
+            ],
+            className="mb-2",
+        ),
+        dbc.Row(
+            [
+                dbc.Label("Cluster",  width=4),
+                 
+            ],
+            className="mb-2",
+        ),
         
         dbc.Row(
             [
-                dbc.Label("Degree Program Title", html_for="degree-program-title", width=4),
+                dbc.Label("Assessment Title", width=4),
                 dbc.Col(
-                    dbc.Input(id="degree-program-title", type="text"),
-                    width=8,
+                    dbc.Input(id="arep_title", type="text"),
+                    width=5,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
         dbc.Row(
             [
-                dbc.Label("Cluster", html_for="cluster", width=4),
-                dbc.Col(
-                    dbc.Input(id="cluster", type="text"),
-                    width=6,
+                dbc.Label(
+                    [
+                       "Date ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4
                 ),
-            ],
-            className="mb-1",
-        ),
-        dbc.Row(
-            [
-                dbc.Label("Assessment Title", html_for="assessment-title", width=4),
                 dbc.Col(
-                    dbc.Input(id="assessment-title", type="text"),
-                    width=8,
-                ),
-            ],
-            className="mb-1",
-        ),
-        dbc.Row(
-            [
-                dbc.Label("Approved EQA Type", html_for="eqa-type", width=4),
-                dbc.Col(
-                    dbc.Select(
-                        id="eqa-type",
-                        options=[
-                            {"label": "Type A", "value": "Type A"},
-                            {"label": "Type B", "value": "Type B"},
-                            {"label": "Type C", "value": "Type C"},
-                            {"label": "Type D", "value": "Type D"},
-                            {"label": "Type E", "value": "Type E"},
-                            {"label": "Type F", "value": "Type F"},
-                        ],
+                    dcc.DatePickerSingle(
+                       id='arep_currentdate ',
+                       date=str(pd.to_datetime("today").date())
                     ),
                     width=8,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
+  
+
         dbc.Row(
             [
-                dbc.Label("To be Assessed by", html_for="assessed-by", width=4),
+                dbc.Label(
+                    [
+                       "Approved EQA Type",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id='arep_approv_eqa',
+                        placeholder="Select EQA Type",
+                    ),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
+
+        dbc.Row(
+            [
+                dbc.Label("To be Assessed by", width=4),
                 dbc.Col(
                     dbc.Select(
-                        id="assessed-by",
+                        id="arep_assessedby",
                         options=[
                             {"label": "Engineering Accreditation Commission", "value": "Engineering Accreditation Commission"},
                             {"label": "International Accreditation", "value": "International Accreditation"},
@@ -83,14 +101,25 @@ form = dbc.Form(
                     width=8,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
         dbc.Row(
             [
-                dbc.Label("Is there a scheduled assessment date?", html_for="scheduled-assessment", width=4),
+                dbc.Label("UP Mail", width=4),
+                dbc.Col(
+                    dbc.Input(id="qaofficer_upmail",type="text"),
+                    width=5,
+                ),
+            ],
+            className="mb-2",
+        ),
+
+        dbc.Row(
+            [
+                dbc.Label("Is there a scheduled assessment date?", width=4),
                 dbc.Col(
                     dbc.RadioItems(
-                        id="scheduled-assessment",
+                        id="arep_qscheddate",
                         options=[
                             {"label": "Yes", "value": "Yes"},
                             {"label": "No", "value": "No"},
@@ -98,135 +127,145 @@ form = dbc.Form(
                             inline=True,  
                         ),
                 ),
-            ], 
+            ],
+            className="mb-2", 
         ), 
+        
+        
+        dbc.Row(
+            [
+                dbc.Label("Scheduled Assessment Date", width=4),
+                dbc.Col(
+                    dbc.Input(type="date", id='arep_sched_assessdate'),
+                    width=4,
+                ),
+            ],
+            className="mb-2",
+        ),
+ 
+
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                       "Report type",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id='arep_report_type',
+                        placeholder="Select Report Type",
+                    ),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
 
         
-        # Additional field for "Scheduled Assessment Date"
         dbc.Row(
             [
-                dbc.Row(
-                    [
-                        dbc.Col(
-                            dbc.Label("Scheduled Assessment Date", html_for="scheduled-assessment-date"),  width=5, 
-                             className="align-self-center",
-                        ),
-                        dbc.Col(
-                            dbc.Input(id="scheduled-assessment-date", type="date"),  width=4
-                        ),
-                    ],
-                    
-                ), 
+                dbc.Label("Link", width=4),
+                dbc.Col(
+                    dbc.Input(id="arep_link", type="text"),
+                    width=5,
+                ),
             ],
-            className="mb-1",
-            style={"display": "none"},  # Initially hide the field
-            id="scheduled-assessment-date-field"
-        ),  
+            className="mb-2",
+        ),
 
         dbc.Row(
             [
-                dbc.Label("Report type", html_for="report-type", width=4),
+                dbc.Label("PDF File", width=4),
                 dbc.Col(
-                    dbc.Select(
-                        id="report-type",
-                        options=[
-                            {"label": "Self-Assessment Report", "value": "Self-Assessment Report"},
-                            {"label": "EQA Endorsement", "value": "EQA Endorsement"},
-                            {"label": "EQA Assessment", "value": "EQA Assessment"},
-                            {"label": "Post QA report", "value": "Post QA report"},
-                        ],
-                    ),
-                    width=8,
+                    dbc.Input(id="arep_pdf", type="text"),
+                    width=5,
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
         ),
+
+        
         dbc.Row(
             [
-                dbc.Label("Link", html_for="link", width=4),
-                dbc.Col(
-                    dbc.Input(id="link", type="text"),
-                    width=8,
-                ),
-            ],
-            className="mb-1",
-        ), 
-        dbc.Row(
-            [
-                dbc.Col(
-                    dbc.Label("PDF File", width=4),
-                    width=8,
-                ),
-            ],
-            className="mb-1",
-        ),
-        dbc.Row(
-            [
-                dbc.Label("Check Status", html_for="check-status", width=4),
+                dbc.Label("Check Status", width=4),
                 dbc.Col(
                     dbc.RadioItems(
-                        id="check-status",
+                        id="arep_checkstatus ",
                         options=[
                             {"label": "For Checking", "value": "For Checking"},
                             {"label": "Already Checked", "value": "Already Checked"},
-                        ],
-                        inline=True,  # Display radio items inline
-                    ),
-                    width=8,
+                            ],
+                            inline=True,  
+                        ),
                 ),
             ],
-            className="mb-1",
-        ),
+            className="mb-2", 
+        ), 
 
         # Additional fields for "Already Checked" option
         dbc.Row(
             [
                 dbc.Row (
                     [
+                
                         dbc.Row(
                             [
-                                dbc.Col(dbc.Label("Date Reviewed", html_for="date-reviewed"), width=5),
-                                dbc.Col(dbc.Input(id="date-reviewed", type="date"), width=4),
-                            ],
-                            className="mb-1", 
-                        ),
-                        dbc.Row(
-                            [
-                                dbc.Col(dbc.Label("Review Status", html_for="review-status"), width=5 ),
+                                dbc.Label("Date to be Reviewed", width=4),
                                 dbc.Col(
-                                    dbc.Select(
-                                        id="review-status",
-                                        options=[
-                                            {"label": "Incomplete SAR", "value": "Incomplete SAR"},
-                                            {"label": "Initial Review", "value": "Initial Review"},
-                                            {"label": "1st Iteration", "value": "1st Iteration"},
-                                            {"label": "2nd Iteration", "value": "2nd Iteration"},
-                                            {"label": "3rd Iteration", "value": "3rd Iteration"},
-                                            {"label": "Presented to QAO", "value": "Presented to QAO"},
-                                            {"label": "Post EQA", "value": "Post EQA"},
-                                        ],
-                                    ),
+                                    dbc.Input(type="date", id='arep_datereviewed '),
                                     width=4,
                                 ),
                             ],
-                            className="mb-1", 
+                            className="mb-2",
                         ),
                         dbc.Row(
                             [
-                                dbc.Col(dbc.Label("Notes", html_for="notes"), width=5),
+                                dbc.Label(
+                                    [
+                                    "Review Status",
+                                        html.Span("*", style={"color":"#F8B237"})
+                                    ],
+                                    width=4
+                                ),
                                 dbc.Col(
-                                    dbc.Textarea(id="notes", style={'resize': 'vertical', 'minHeight': '50px', 'maxHeight': '200px'}),
-                                    width=6, className="ml-2"
+                                    dcc.Dropdown(
+                                        id='arep_review_status',
+                                        placeholder="Select Review Status",
+                                    ),
+                                    width=6,
                                 ),
                             ],
-                            className="mb-1", 
+                            className="mb-2",
                         ),
+
                         dbc.Row(
                             [
-                                dbc.Col(dbc.Label("SAR Score", html_for="sar-score"), width=5),
-                                dbc.Col(dbc.Input(id="sar-score", type="number"), width=4),
+                                dbc.Label(
+                                    [
+                                        "Notes"
+                                    ],
+                                    width=4
+                                ),
+                                dbc.Col(
+                                dbc.Textarea(id='arep_notes', placeholder="Add notes"),
+                                width=8,
+                                ),
                             ],
-                            
+                            className="mb-2",
+                        ),
+
+                        dbc.Row(
+                            [
+                                dbc.Label("SAR Score", width=4),
+                                dbc.Col(
+                                    dbc.Input(id="arep_sarscore",type="number"),
+                                    width=3,
+                                ),
+                            ],
+                            className="mb-2",
                         ),
                     ]
                 )
@@ -236,79 +275,78 @@ form = dbc.Form(
             id="already-checked-fields"
         ),
 
-
-
-
  
+         
+
         dbc.Row(
             [
-                dbc.Col(
-                    dbc.Label("Ready for presenting to QAO?", html_for="ready-for-qao"),width=4,  
-                    className="align-self-center",  # Vertically center the label
-                ),
+                dbc.Label("Ready for presenting to QAO?", width=4),
                 dbc.Col(
                     dbc.RadioItems(
-                        id="ready-for-qao",
+                        id="arep_qqaopresent",
                         options=[
                             {"label": "Yes", "value": "Yes"},
                             {"label": "No", "value": "No"},
-                        ],
-                        inline=True,  
-                    ),
-                    width=4, 
+                            ],
+                            inline=True,  
+                        ),
                 ),
             ],
-            className="mb-1",
-        ),
+            className="mb-2", 
+        ), 
 
-        
         # Additional fields for "Ready for presenting to QAO?" option
         dbc.Row(
             [
                 dbc.Row(
                     [
-                         dbc.Row(
+                        dbc.Row(
                             [
-                                dbc.Col(dbc.Label("Date to be presented to QAO", html_for="date-presented-to-qao"), width=5),
-                                dbc.Col(dbc.Input(id="date-presented-to-qao", type="date"), width=6),
+                                dbc.Label("Date to be presented to QAO", width=4),
+                                dbc.Col(
+                                    dbc.Input(type="date", id='arep_presdate'),
+                                    width=4,
+                                ),
                             ],
-                            className="mb-1",
+                            className="mb-2",
                         ),
                         dbc.Row(
                             [
-                                dbc.Col(dbc.Label("Mode of EQA Assessment", html_for="mode-of-external-qa"), width=5  ),
+                                dbc.Label(
+                                    [
+                                    "Mode of EQA Assessment", 
+                                    ],
+                                    width=4
+                                ),
                                 dbc.Col(
-                                    dbc.Select(
-                                        id="mode-of-external-qa",
-                                        options=[
-                                            {"label": "Within the CU", "value": "Within the CU"},
-                                            {"label": "Another CU", "value": "Another CU"},
-                                            {"label": "Outside UP - Local", "value": "Outside UP - Local"},
-                                            {"label": "Outside UP - International", "value": "Outside UP - International"},
-                                        ]
+                                    dcc.Dropdown(
+                                        id='arep_mode_eqa_assess',
+                                        placeholder="Select Mode",
                                     ),
-                                    width=6, className="ml-2"
+                                    width=6,
                                 ),
                             ],
-                            className="mb-1",
+                            className="mb-2",
                         ),
+                        
                         dbc.Row(
                             [
-                                dbc.Col(dbc.Label("Specific EQA Assessment", html_for="specific-qa"), width=5 ),
+                                dbc.Label(
+                                    [
+                                    "Specific EQA Assessment", 
+                                    ],
+                                    width=4
+                                ),
                                 dbc.Col(
-                                    dbc.Select(
-                                        id="specific-qa",
-                                        options=[
-                                            {"label": "A-EQA by assessors/external reviewers from within the CU", "value": "A-EQA"},
-                                            {"label": "D-EQA by assessors/external reviewers from outside UP", "value": "D-EQA"},
-                                            {"label": "F-EQA by an international accrediting/assessing body", "value": "F-EQA"},
-                                        ]
+                                    dcc.Dropdown(
+                                        id='arep_spec_eqa_assess',
+                                        placeholder="Select EQA",
                                     ),
-                                    width=6, 
+                                    width=6,
                                 ),
                             ],
-                            className="mb-1 ",
-                        )
+                            className="mb-2",
+                        ),
                     ]
                 )
             ],
@@ -316,10 +354,52 @@ form = dbc.Form(
             style={"display": "none"},  # Initially hide the fields
             id="ready-for-qao-fields"
         ),
-         
+        
+        
 
+ 
+ 
+        
+        
+ 
+        dbc.Row(
+            [
+                dbc.Col(
+                    dbc.Button("Register", color="primary", className="me-3", id="save_button", n_clicks=0),
+                    width="auto"
+                ),
+                dbc.Col(
+                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
+                    width="auto"
+                ),
+            ],
+            className="mb-2",
+        ),
+
+        dbc.Modal(
+            [
+                dbc.ModalHeader(className="bg-success"),
+                dbc.ModalBody(
+                    html.H4('QA Officer profile added.'),
+                ),
+                dbc.ModalFooter(
+                    dbc.Button(
+                       "Proceed", id='proceed_button', className='ml-auto'
+                    ), 
+                )
+                 
+            ],
+            centered=True,
+            id='arep_successmodal',
+            backdrop=True,   
+            className="modal-success"  
+        ),
+         
     ]
 )
+
+
+
  
 
 

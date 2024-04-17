@@ -3848,8 +3848,7 @@ textarea.form-control-lg {
 }
 
 .nav-link {
-  display: block;
-  padding: 0.5rem 1rem;
+  display: block; 
   color: #000000;
   text-decoration: none;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
@@ -3863,7 +3862,7 @@ textarea.form-control-lg {
   color: #f8b237;
 }
 .nav-link.disabled {
-  color: #6c757d;
+  color: #000000;
   pointer-events: none;
   cursor: default;
 }
@@ -3883,13 +3882,13 @@ textarea.form-control-lg {
   isolation: isolate;
 }
 .nav-tabs .nav-link.disabled {
-  color: #6c757d;
+  color: #474a4d;
   background-color: transparent;
   border-color: transparent;
 }
 .nav-tabs .nav-link.active,
 .nav-tabs .nav-item.show .nav-link {
-  color: #495057;
+  color: #3d4043;
   background-color: #fff;
   border-color: #dee2e6 #dee2e6 #fff;
 }
