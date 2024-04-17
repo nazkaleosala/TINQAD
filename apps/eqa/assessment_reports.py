@@ -25,6 +25,15 @@ layout = html.Div(
 
                         dbc.Row(   
                             [
+                                dbc.Col(   
+                                    dbc.Button(
+                                        "➕ Add New", color="primary", 
+                                        href='/assessmentreports/assessment_details', 
+                                    ),
+                                    width="auto",    
+                                    
+                                ),
+                                
                                 dbc.Col(  
                                     dbc.Input(
                                         type='text',

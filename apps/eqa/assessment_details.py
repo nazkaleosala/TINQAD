@@ -276,7 +276,7 @@ form = dbc.Form(
                         ),
                         dbc.Row(
                             [
-                                dbc.Col(dbc.Label("Mode of External Quality Assurance Assessment/Accreditation/Review", html_for="mode-of-external-qa"), width=5  ),
+                                dbc.Col(dbc.Label("Mode of EQA Assessment", html_for="mode-of-external-qa"), width=5  ),
                                 dbc.Col(
                                     dbc.Select(
                                         id="mode-of-external-qa",
@@ -294,7 +294,7 @@ form = dbc.Form(
                         ),
                         dbc.Row(
                             [
-                                dbc.Col(dbc.Label("Specific EQA Assessment/Accreditation/Review", html_for="specific-qa"), width=5 ),
+                                dbc.Col(dbc.Label("Specific EQA Assessment", html_for="specific-qa"), width=5 ),
                                 dbc.Col(
                                     dbc.Select(
                                         id="specific-qa",
