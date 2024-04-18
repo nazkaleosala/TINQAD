@@ -181,7 +181,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Submitted by",
+                        "Submitted by ",
                         html.Span("*", style={"color": "#F8B237"})
                     ],  
                     width=4
