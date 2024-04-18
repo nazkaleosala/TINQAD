@@ -274,7 +274,7 @@ form = dbc.Form(
         dbc.Row(
             [
                 dbc.Col(
-                    dbc.Button("Save", color="primary", className="me-3", id="save_button", n_clicks=0),
+                    dbc.Button("Save", color="primary", className="me-1", id="save_button", n_clicks=0),
                     width="auto"
                 ),
                 dbc.Col(
@@ -283,6 +283,7 @@ form = dbc.Form(
                 ),
             ],
             className="mb-2",
+            justify="end",
         ),
 
         dbc.Modal(
@@ -314,11 +315,15 @@ cancel_modal = dbc.Modal(
     [
         dbc.ModalHeader(className="bg-warning"),
         dbc.ModalBody([
-            html.P("Are you sure you want to cancel?"),
-            dbc.Button("Confirm Cancellation", color="danger", id="confirm_cancel", className="me-2", n_clicks=0),
-            dbc.Button("Close", id="close_modal", className="ms-auto", n_clicks=0)
-         
+            html.P("Are you sure you want to cancel? "),
         ]),
+        dbc.ModalFooter(
+            [
+                dbc.Button("Close", id="close_modal", className="mr-2", n_clicks=0),
+                dbc.Button("Confirm Cancellation", color="danger", id="confirm_cancel", n_clicks=0),
+            ],
+            className="justify-content-end"
+        )
     ],
     id="cancel_modal",
     is_open=False,  # Starts hidden
@@ -342,6 +347,15 @@ def toggle_modal(cancel_click, close_click, confirm_click, is_open):
 def refresh_on_confirm(n_clicks):
     return dash.no_update
 
+@app.callback(
+    Output('url', 'pathname'),
+    [Input('confirm_cancel', 'n_clicks')],
+    prevent_initial_call=True
+)
+def redirect_to_homepage(n_clicks):
+    if n_clicks:
+        return '/homepage'
+    raise PreventUpdate
 
 
 #offices dropdown
