@@ -579,7 +579,7 @@ layout = html.Div(
                 ),
                 dbc.Col(
                 [
-                    html.H1("ADD EXPENSE"),
+                    html.H1("ADD TRAINING DOCUMENTS DETAILS"),
                     html.Hr(),
                     dbc.Alert(id='trainingdocuments_alert', is_open=False), # For feedback purpose
                     form, 
