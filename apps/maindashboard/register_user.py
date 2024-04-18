@@ -165,7 +165,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                     "Office",
+                        "Office ",
                         html.Span("*", style={"color":"#F8B237"})
                     ],
                     width=4
