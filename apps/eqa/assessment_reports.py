@@ -90,7 +90,7 @@ def assessmentreports_loadlist(pathname, searchterm):
                 arep_currentdate AS "Date", 
                 d.deg_prog_name AS "Degree Program",
                 c.cluster_name AS "Cluster",
-                a.arep_title AS "Current Progress"
+                a.arep_title AS "Assessment Title"
             FROM 
                 eqateam.assess_report AS a 
             LEFT JOIN 

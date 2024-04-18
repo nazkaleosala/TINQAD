@@ -683,7 +683,7 @@ def populate_degprog_dropdown(pathname):
     Output('arep_approv_eqa', 'options'),
     Input('url', 'pathname')
 )
-def populate_degprog_dropdown(pathname):
+def populate_approvedeqa_dropdown(pathname):
     # Check if the pathname matches if necessary
     if pathname == '/assessmentreports/assessment_details':
         sql ="""
