@@ -32,7 +32,12 @@ form = dbc.Form(
     [
         dbc.Row(
             [
-                dbc.Label("First Name", width=4),
+                dbc.Label(
+                    [
+                        "First Name ", 
+                        html.Span("*", style={"color": "#F8B237"})
+                    ], 
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text", id='user_fname'),
                     width=6,
@@ -42,7 +47,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Middle Name", width=4),
+                dbc.Label(
+                    [
+                        "Middle Name ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ], 
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text", id='user_mname'),
                     width=6,
@@ -54,7 +64,12 @@ form = dbc.Form(
         # Surname
         dbc.Row(
             [
-                dbc.Label("Surname", width=4),
+                dbc.Label(
+                    [
+                        "Surname ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ], 
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text", id='user_sname'),
                     width=6,
@@ -66,7 +81,12 @@ form = dbc.Form(
         # Lived Name
         dbc.Row(
             [
-                dbc.Label("Lived Name", width=4),
+                dbc.Label(
+                    [
+                        "Lived Name ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ], 
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text", id='user_livedname'),
                     width=6,
@@ -76,7 +96,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Sex Assigned at Birth", width=4),
+                dbc.Label(
+                    [
+                        "Sex Assigned at Birth ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Select(
                         id='user_sex',
@@ -92,7 +117,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Birthday", width=4),
+                dbc.Label(
+                    [
+                        "Birthday ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="date", id='user_bday'),
                     width=6,
@@ -102,7 +132,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Phone Number", width=4),
+                dbc.Label(
+                    [
+                        "Phone Number ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ], 
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text", id='user_phone_num'),
                     width=6,
@@ -112,7 +147,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("ID Number", width=4),
+                dbc.Label(
+                    [
+                        "ID Number ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text", id='user_id_num'),
                     width=6,
@@ -122,7 +162,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Office", width=4),
+                dbc.Label(
+                    [
+                        "Office ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Select(
                         id='user_office',
@@ -136,7 +181,12 @@ form = dbc.Form(
 
         dbc.Row(
             [
-                dbc.Label("Position", width=4),
+                dbc.Label(
+                    [
+                        "Position ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ], 
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text", id='user_position'),
                     width=6,
@@ -147,7 +197,12 @@ form = dbc.Form(
 
         dbc.Row(
             [
-                dbc.Label("Email Address", width=4),
+                dbc.Label(
+                    [
+                        "Email Address ",
+                         html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text", id='user_email'),
                     width=6,
@@ -158,7 +213,12 @@ form = dbc.Form(
 
         dbc.Row(
             [
-                dbc.Label("Password", width=4),
+                dbc.Label(
+                    [
+                        "Password ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="password", id='user_password'),
                     width=6,
@@ -169,7 +229,12 @@ form = dbc.Form(
  
         dbc.Row(
             [
-                dbc.Label("Confirm Password", width=4),
+                dbc.Label(
+                    [
+                        "Confirm Password ",
+                         html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="password", id = 'confirm_password', placeholder = 'Confirm password' ),
                     width=6,
@@ -181,7 +246,11 @@ form = dbc.Form(
         # Access Type
         dbc.Row(
             [
-                dbc.Label("Access Type", width=4),
+                dbc.Label(
+                    [
+                        "Access Type ",
+                         html.Span("*", style={"color": "#F8B237"})
+                    ],width=4),
                 dbc.Col(
                     dbc.Select(
                         id='user_access_type',
