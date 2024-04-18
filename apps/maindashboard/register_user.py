@@ -84,7 +84,6 @@ form = dbc.Form(
                 dbc.Label(
                     [
                         "Lived Name ",
-                        html.Span("*", style={"color": "#F8B237"})
                     ], 
                     width=4),
                 dbc.Col(
@@ -125,7 +124,7 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dbc.Input(type="date", id='user_bday'),
-                    width=6,
+                    width=4,
                 ),
             ],
             className="mb-2",
@@ -160,24 +159,30 @@ form = dbc.Form(
             ],
             className="mb-2",
         ),
+      
+
         dbc.Row(
             [
                 dbc.Label(
                     [
-                        "Office ",
-                        html.Span("*", style={"color": "#F8B237"})
+                     "Office",
+                        html.Span("*", style={"color":"#F8B237"})
                     ],
-                    width=4),
+                    width=4
+                ),
                 dbc.Col(
-                    dbc.Select(
+                    dcc.Dropdown(
                         id='user_office',
-                        options=[]
+                        placeholder="Select Office",
                     ),
                     width=6,
                 ),
             ],
             className="mb-2",
         ),
+
+
+
 
         dbc.Row(
             [
@@ -277,10 +282,15 @@ form = dbc.Form(
                     dbc.Button("Save", color="primary", className="me-1", id="save_button", n_clicks=0),
                     width="auto"
                 ),
+                
                 dbc.Col(
-                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
+                    dcc.Link(
+                        dbc.Button("Cancel", color="secondary", id="cancel_button"),
+                        href="/search_users" 
+                    ),
                     width="auto"
-                ),
+                )
+            
             ],
             className="mb-2",
             justify="end",
@@ -310,6 +320,33 @@ form = dbc.Form(
 )
 
   
+
+#offices dropdown
+@app.callback(
+    Output('user_office', 'options'),
+    Input('url', 'pathname')
+)
+
+def populate_offices_dropdown(pathname):
+    # Check if the pathname matches if necessary
+    if pathname == '/register_user':
+        sql = """
+        SELECT office_name as label, office_id as value
+        FROM maindashboard.offices
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        office_options = df.to_dict('records')
+        return office_options
+    else:
+        raise PreventUpdate
+
+
+
+
+
 #cancel button callback
 cancel_modal = dbc.Modal(
     [
@@ -352,37 +389,10 @@ def refresh_on_confirm(n_clicks):
     [Input('confirm_cancel', 'n_clicks')],
     prevent_initial_call=True
 )
-def redirect_to_homepage(n_clicks):
+def redirect_to_searchusers(n_clicks):
     if n_clicks:
-        return '/homepage'
+        return '/search_users'
     raise PreventUpdate
-
-
-#offices dropdown
-@app.callback(
-    Output('user_office', 'options'),
-    Input('url', 'pathname')
-)
-
-def populate_offices_dropdown(pathname):
-    # Check if the pathname matches if necessary
-    if pathname == '/register_user':
-        sql = """
-        SELECT office_name as label, office_id as value
-        FROM maindashboard.offices
-        """
-        values = []
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        
-        office_options = df.to_dict('records')
-        return office_options
-    else:
-        raise PreventUpdate
-
-
-
-
 
 
 
@@ -421,8 +431,7 @@ layout = html.Div(
                     html.H1("CREATE NEW USER"),
                     html.Hr(),
                     dbc.Alert(id='registeruser_alert', is_open=False), # For feedback purpose
-                    form,
-                    cancel_modal,
+                    form, 
                 ],
                 width=8, style={'marginLeft': '15px'}
                 
