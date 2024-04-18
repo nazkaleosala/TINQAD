@@ -87,6 +87,7 @@ def assessmentreports_loadlist(pathname, searchterm):
          
         sql = """  
             SELECT 
+                arep_currentdate AS "Date", 
                 d.deg_prog_name AS "Degree Program",
                 c.cluster_name AS "Cluster",
                 a.arep_title AS "Current Progress"
@@ -98,7 +99,7 @@ def assessmentreports_loadlist(pathname, searchterm):
                 public.clusters AS c ON a.arep_cluster_id = c.cluster_id
         """
 
-        cols = ['Degree Program', 'Cluster', 'Current Progress']
+        cols = ['Date','Degree Program', 'Cluster', 'Assessment Title']
 
         if searchterm:
             sql += """ WHERE d.deg_prog_name ILIKE %s OR
