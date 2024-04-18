@@ -82,6 +82,75 @@ def create_evidence_table(table_id, data, title):
         ], style={'marginBottom': '20px'} 
     )
 
+add_criteria_modal = dbc.Modal(
+    [
+        dbc.ModalHeader(html.H4("ADD CRITERIA", className="fw-bold")),
+        dbc.ModalBody(
+            [
+                dbc.Form(
+                    [
+                        dbc.Row(
+                            [
+                                dbc.Label(
+                                    [
+                                        "SDG # ",
+                                        html.Span("*", style={"color": "#F8B237"})
+                                    ],
+                                    width=4
+                                ),
+                                dbc.Col(
+                                    dbc.Textarea(placeholder="Enter SDG #", style={"height": "30px"}),
+                                    width=8,
+                                ),
+                            ],
+                            className="mb-1",
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.Label(
+                                    [
+                                        "Criteria Code ",
+                                        html.Span("*", style={"color": "#F8B237"})
+                                    ],
+                                    width=4
+                                ),
+                                dbc.Col(
+                                    dbc.Textarea(placeholder="Enter Criteria Code", style={"height": "30px"}),
+                                    width=8,
+                                ),
+                            ],
+                            className="mb-1",
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.Label(
+                                    [
+                                        "Description ",
+                                        html.Span("*", style={"color": "#F8B237"})
+                                    ],
+                                    width=4
+                                ),
+                                dbc.Col(
+                                    dbc.Textarea(placeholder="Enter Description", style={"height": "80px"}),
+                                    width=8,
+                                ),
+                            ],
+                            className="mb-3",
+                        ),
+                    ]
+                ),
+            ]
+        ),
+        dbc.ModalFooter(
+            [
+                dbc.Button("Save", id="save-criteria-btn", className="ml-auto"),
+                dbc.Button("Cancel", id="close-criteria-btn", className="ml-auto"),
+            ]
+        ),
+    ],
+    id="add-criteria-modal",
+    centered=True,
+)
 
 layout = html.Div(
     [
@@ -98,17 +167,15 @@ layout = html.Div(
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add criteria", color="primary", 
-                                        href='/SDGimpactrankings/criteria_details', 
+                                        id="open-criteria-modal-btn"
                                     ),
                                     width="auto",    
-                                    
                                 ),
                                 dbc.Col(   
                                     dbc.Button(
                                         "📁 Upload CSV File", color="danger",   
                                     ),
                                     width="auto",    
-                                    
                                 )
                             ],
                         ),
@@ -148,18 +215,13 @@ layout = html.Div(
                             className="mb-3",
                         ),
 
-                         
-                        
                         dbc.Row(
                             [
                                 dbc.Col(
                                     criteria_checklist, width=12, className="mb-3 ",
-                                    ),
- 
-
+                                ),
                                 dbc.Col(
                                     [
-                                        
                                         dash_table.DataTable(
                                             id='evidence-table',
                                             columns=[
@@ -179,15 +241,11 @@ layout = html.Div(
                             [
                                 html.Br(),
                                 html.Hr(),
-                                
-                                
-
                                 dbc.Row(   
                                     [
                                         dbc.Col(   
                                             html.H5("SUBMITTED EVIDENCES"),
                                         ), 
-                                        
                                         dbc.Col(   
                                             dbc.Button(
                                                 "➕ Add Submission", color="primary", 
@@ -195,9 +253,7 @@ layout = html.Div(
                                             ),
                                             width="auto",    
                                             className="mb-3",
-                                            
                                         ), 
-
                                         dbc.Col(   
                                             dbc.Button(
                                                 "✍🏻 Add Revision", color="warning", 
@@ -205,11 +261,9 @@ layout = html.Div(
                                             ),
                                             width="auto",    
                                             className="mb-3",
-                                            
                                         ), 
                                     ],
                                 ),
-                                
                                 create_evidence_table('table-revisions', data_revisions, "Submissions in need of Revisions"),
                                 create_evidence_table('table-checking', data_checking, "Submissions for Checking"),
                                 create_evidence_table('table-approved', data_approved, "Approved Submissions"),
@@ -224,6 +278,17 @@ layout = html.Div(
             [
                 dbc.Col(cm.generate_footer(), width={"size": 12, "offset": 0}),
             ]
-        )
+        ),
+        add_criteria_modal,
     ]
 )
+
+@app.callback(
+    Output("add-criteria-modal", "is_open"),
+    [Input("open-criteria-modal-btn", "n_clicks"), Input("close-criteria-btn", "n_clicks")],
+    [State("add-criteria-modal", "is_open")],
+)
+def toggle_add_criteria_modal(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
