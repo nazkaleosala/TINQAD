@@ -25,12 +25,12 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Degree Program Title ", 
+                        "Department", 
                          html.Span("*", style={"color": "#F8B237"})
                     ],
                     width=4),
                 dbc.Col(
-                    dbc.Input(id="arep_deg_prog_id", type="number"),
+                    dbc.Input(id="arep_dept", type="text"),
                     width=5,
                 ),
                  
@@ -41,15 +41,32 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Cluster ", 
+                        "Degree Program Title ", 
+                         html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id='arep_degree_programs_id', 
+                    ),
+                    width=6,
+                ),
+                 
+            ],
+            className="mb-2",
+        ),
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "College", 
                         html.Span("*", style={"color": "#F8B237"})
                     ],
                     width=4),
                 dbc.Col(
-                    dbc.Input(id="arep_cluster_id", type="number"),
+                    html.P(id="arep_college_text"),
                     width=5,
-                ),
-                 
+                ), 
             ],
             className="mb-2",
         ),
@@ -567,7 +584,7 @@ def toggle_fields(check_status):
 
 
 
-
+#Ready for presenting to QAO?
 @app.callback(
     [Output('arep_presdate', 'disabled'),
      Output('arep_mode_eqa_assess', 'disabled'),
@@ -581,6 +598,31 @@ def update_qao_fields(qao_present):
         return False, False, False
 
 
+
+
+
+
+
+
+
+@app.callback(
+    Output('arep_college_text', 'children'),
+    [Input('arep_degree_programs_id', 'value')]
+)
+
+def update_college_text(selected_degree_program):
+    if selected_degree_program is None:
+        return "No degree program selected"
+    else:
+        try:
+            # Assuming you have a function in your db module to fetch the college based on the degree program
+            college = db.get_college(selected_degree_program)
+            if college:
+                return college
+            else:
+                return "No college found for this degree program"
+        except Exception as e:
+            return "An error occurred while fetching the college: {}".format(str(e))
 
  
 
@@ -634,8 +676,7 @@ layout = html.Div(
         Input('save_button', 'n_clicks')
     ],
     [
-        State('arep_deg_prog_id', 'value'),
-        State('arep_cluster_id', 'value'),
+        State('arep_degree_programs_id', 'value'), 
         State('arep_title', 'value'),
         State('arep_currentdate', 'value'),
         State('arep_approv_eqa', 'value'),
@@ -657,7 +698,7 @@ layout = html.Div(
     ]
 )
  
-def record_assessment_details (submitbtn, arep_deg_prog_id, arep_cluster_id, arep_title, arep_currentdate, 
+def record_assessment_details (submitbtn, arep_degree_programs_id, arep_title, arep_currentdate, 
                                arep_approv_eqa, arep_assessedby, arep_qscheddate, arep_sched_assessdate, 
                                arep_report_type, arep_link, arep_pdf, arep_checkstatus, arep_datereviewed, 
                                arep_review_status, arep_notes, arep_sarscore, arep_qqaopresent, 
@@ -671,7 +712,7 @@ def record_assessment_details (submitbtn, arep_deg_prog_id, arep_cluster_id, are
     alert_text = ''
 
     # Input validation
-    if not arep_deg_prog_id:
+    if not arep_degree_programs_id:
         alert_color_sname = 'danger'
         alert_text_sname = 'Check your inputs. Please add a Degree Program Title.'
         return [alert_color_sname, alert_text_sname, alert_open, modal_open]
@@ -682,19 +723,19 @@ def record_assessment_details (submitbtn, arep_deg_prog_id, arep_cluster_id, are
     try:
         sql ="""
             INSERT INTO eqateam.assess_report (
-                arep_deg_prog_id, arep_cluster_id, arep_title,arep_currentdate,
+                arep_degree_programs_id, arep_title,arep_currentdate,
                 arep_approv_eqa,arep_assessedby, arep_qscheddate,
                 arep_sched_assessdate,arep_report_type,  arep_link, arep_pdf,
                 arep_checkstatus,arep_datereviewed,  arep_review_status, arep_notes,
                 arep_sarscore, arep_qqaopresent, arep_presdate,
                 arep_mode_eqa_assess, arep_spec_eqa_assess
             )
-            VALUES (%s, %s, %s, %s, %s,
+            VALUES (%s, %s, %s, %s,
                     %s, %s, %s, %s, %s, 
                     %s, %s, %s, %s, %s, %s,
                     %s, %s, %s, %s)
            """
-        values = (arep_deg_prog_id, arep_cluster_id, arep_title,arep_currentdate,
+        values = (arep_degree_programs_id, arep_title,arep_currentdate,
                 arep_approv_eqa,arep_assessedby, arep_qscheddate,
                 arep_sched_assessdate,arep_report_type,  arep_link, arep_pdf,
                 arep_checkstatus,arep_datereviewed,  arep_review_status, arep_notes,
@@ -726,15 +767,15 @@ def record_assessment_details (submitbtn, arep_deg_prog_id, arep_cluster_id, are
 
 # degree programs dropdown
 @app.callback(
-    Output('arep_deg_prog_id', 'options'),
+    Output('arep_degree_programs_id', 'options'),
     Input('url', 'pathname')
 )
 def populate_degprog_dropdown(pathname):
     # Check if the pathname matches if necessary
     if pathname == '/assessmentreports/assessment_details':
         sql ="""
-        SELECT deg_prog_name as label, deg_prog_id as value
-        FROM public.deg_prog_title
+        SELECT degree_name as label, degree_id as value
+        FROM public.degree_programs
        """
         values = []
         cols = ['label', 'value']
@@ -794,7 +835,7 @@ def populate_reporttype_dropdown(pathname):
 
 
 
-#report types dropdown
+#review status dropdown
 @app.callback(
     Output('arep_review_status', 'options'),
     Input('url', 'pathname')

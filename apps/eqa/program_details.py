@@ -11,130 +11,152 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
-
 form = dbc.Form(
     [
-        html.H5("DEGREE PROGRAM INFORMATION", className="form-header fw-bold"),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Degree Program Title ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="text"),
-                    width=5,
-                ),
-            ],
-            className="mb-1",
-        ),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "College ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="text"),
-                    width=5,
-                ),
-            ],
-            className="mb-1",
-        ),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Institute/ Department ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="text"),
-                    width=5,
-                ),
-            ],
-            className="mb-1",
-        ),
+         
         dbc.Row(
             [
                 dbc.Label(
                     [
                         "Academic Cluster ",
-                        html.Span("*", style={"color": "#F8B237"})
+                        html.Span("*", style={"color":"#F8B237"})
                     ],
-                    width=4),
+                    width=4
+                ),
                 dbc.Col(
-                    dbc.Select(
-                        options=[
-                            {"label": "Science and Technology", "value": "Science and Technology"},
-                            {"label": "Social Sciences and Law", "value": "Social Sciences and Law"},
-                            {"label": "Management and Economics", "value": "Management and Economics"},
-                            {"label": "Arts and Letters", "value": "Arts and Letters"},
-                        ],
+                    dcc.Dropdown(
+                        id='pr_cluster_id  ', 
                     ),
-                    width=5,
+                    width=6,
                 ),
             ],
-            className="mb-1",
-        ),
+            className="mb-2",
+        ), 
         dbc.Row(
             [
                 dbc.Label(
                     [
-                        "Degree Count ",
-                        html.Span("*", style={"color": "#F8B237"})
+                        "Institute/ Department ",
+                        html.Span("*", style={"color":"#F8B237"})
                     ],
-                    width=4),
+                    width=4
+                ),
                 dbc.Col(
-                    dbc.Input(type="number"),
-                    width=5,
+                    dcc.Dropdown(
+                        id='pr_department_id ', 
+                    ),
+                    width=6,
                 ),
             ],
-            className="mb-1",
-        ),
+            className="mb-2",
+        ), 
         dbc.Row(
             [
                 dbc.Label(
                     [
-                        "Degree Program Type ",
+                        "College",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id='pr_college_id', 
+                    ),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ), 
+        
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Degree Program Title",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id='pr_degree_id', 
+                    ),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
+        
+        
+        
+            
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Degree Count",
                         html.Span("*", style={"color": "#F8B237"})
                     ],
                     width=4),
                 dbc.Col(
-                    dbc.Select(
-                        options=[
-                            {"label": "Certificate", "value": "Certificate"},
-                            {"label": "Diploma", "value": "Diploma"},
-                            {"label": "Associate", "value": "Associate"},
-                            {"label": "Undergraduate", "value": "Undergraduate"},
-                            {"label": "Master's", "value": "Master's"},
-                            {"label": "Doctorate", "value": "Doctorate"},
-                        ],
-                    ),
-                    width=5,
+                    dbc.Input(type="number", id="degree-count"),
+                    width=4,
                 ),
             ],
             className="mb-1",
         ),
+
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Degree Program Type",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id='program_type_id', 
+                    ),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ), 
         dbc.Row(
             [
                 dbc.Label(
                     [
                         "Academic Calendar Type ",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id='academic_calendar_type_id ', 
+                    ),
+                    width=4,
+                ),
+            ],
+            className="mb-2",
+        ),  
+         
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Applicable Accredited Bodies",
                         html.Span("*", style={"color": "#F8B237"})
                     ],
                     width=4),
                 dbc.Col(
-                    dbc.Select(
-                        options=[
-                            {"label": "Semester", "value": "Semester"},
-                            {"label": "Trimester", "value": "Trimester"},
-                        ],
+                    dcc.Dropdown(
+                        id="pr_accreditation_body_id",
+                        options=[],
+                        multi=True  # Allow selecting multiple values
                     ),
                     width=5,
                 ),
@@ -143,21 +165,39 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label(
-                    [
-                        "Applicable accreditation body ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
                 dbc.Col(
-                    dbc.Input(type="text"),
-                    width=5,
+                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
+                    width="auto"
+                ),
+                 dbc.Col(
+                    dbc.Button("Register", color="primary", className="me-3", id="save_button", n_clicks=0),
+                    width="auto"
                 ),
             ],
-            className="mb-1",
+            className="mb-2",
+            justify="end",
+        ),
+
+        dbc.Modal(
+            [
+                dbc.ModalHeader(className="bg-success"),
+                dbc.ModalBody(
+                    html.H4('Program Registered Successfully.'),
+                ),
+                dbc.ModalFooter(
+                    dbc.Button(
+                      "Proceed", id='proceed_button', className='ml-auto'
+                    ), 
+                )
+                 
+            ],
+            centered=True,
+            id='arep_successmodal',
+            backdrop=True,   
+            className="modal-success"  
         ),
     ]
-) 
+)
  
 
 
@@ -180,20 +220,7 @@ layout = html.Div(
                             ] 
                         ), 
                         html.Br(),
-                        dbc.Row(
-                            [
-                                dbc.Col(
-                                    dbc.Button("Cancel", color="secondary"),
-                                    width="auto"
-                                ),
-                                dbc.Col(
-                                    dbc.Button("Register", color="primary", className="me-3"), 
-                                    width="auto"
-                                ),
-                            ],
-                            className="mb-3",
-                            justify="end",
-                        ),
+                         
                         
                     ], width=8, style={'marginLeft': '15px'}
                 ),   
@@ -211,4 +238,26 @@ layout = html.Div(
     ]
 )
 
+
+
+#degree program id dropdown
+@app.callback(
+    Output('pr_degree_id', 'options'),
+    Input('url', 'pathname')
+)
+def populate_reporttype_dropdown(pathname):
+    # Check if the pathname matches if necessary
+    if pathname == '/programlist/program_details':
+        sql ="""
+        SELECT degree_name as label, degree_id as value
+        FROM  public.degree_programs
+       """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        pr_degree_types = df.to_dict('records')
+        return pr_degree_types
+    else:
+        raise PreventUpdate
 

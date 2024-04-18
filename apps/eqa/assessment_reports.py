@@ -88,13 +88,13 @@ def assessmentreports_loadlist(pathname, searchterm):
         sql = """  
             SELECT 
                 arep_currentdate AS "Date", 
-                d.deg_prog_name AS "Degree Program",
+                d.degree_name AS "Degree Program",
                 c.cluster_name AS "Cluster",
                 a.arep_title AS "Assessment Title"
             FROM 
                 eqateam.assess_report AS a 
             LEFT JOIN 
-                public.deg_prog_title AS d ON a.arep_deg_prog_id = d.deg_prog_id
+                public.degree_program AS d ON a.arep_degree_programs_id = d.degree_id
             LEFT JOIN 
                 public.clusters AS c ON a.arep_cluster_id = c.cluster_id
         """
@@ -102,7 +102,7 @@ def assessmentreports_loadlist(pathname, searchterm):
         cols = ['Date','Degree Program', 'Cluster', 'Assessment Title']
 
         if searchterm:
-            sql += """ WHERE d.deg_prog_name ILIKE %s OR
+            sql += """ WHERE d.degree_name ILIKE %s OR
                         c.cluster_name ILIKE %s OR
                         a.arep_title ILIKE %s """
             like_pattern = f"%{searchterm}%"

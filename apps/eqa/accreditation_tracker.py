@@ -180,21 +180,19 @@ def accreditationtracker_loadlist(pathname, searchterm, eqa_types, selected_mont
             SELECT 
                 TO_CHAR(arep_sched_assessdate, 'FMMonth FMDD, YYYY') AS "Assessment Date", 
                 a.arep_title AS "Assessment Title",
-                COALESCE(d.deg_prog_name, '') AS "Degree Program",
-                COALESCE(c.cluster_name, '') AS "Cluster",
+                COALESCE(d.degree_name, '') AS "Degree Program", 
                 ae.approv_eqa_name AS "EQA Type"
             FROM 
                 eqateam.assess_report AS a 
             LEFT JOIN 
-                public.deg_prog_title AS d ON a.arep_deg_prog_id = d.deg_prog_id
-            LEFT JOIN 
-                public.clusters AS c ON a.arep_cluster_id = c.cluster_id 
+                public.degree_programs AS d ON a.arep_degree_programs_id = d.degree_id
+             
             LEFT JOIN 
                 eqateam.approv_eqa AS ae ON a.arep_approv_eqa = ae.approv_eqa_id
             WHERE 1=1
         """
 
-        cols = ['Assessment Date', 'Assessment Title','Degree Program', 'Cluster', 'EQA Type']   
+        cols = ['Assessment Date', 'Assessment Title','Degree Program' , 'EQA Type']   
         
         values = []
         
