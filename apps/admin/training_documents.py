@@ -224,7 +224,7 @@ form = dbc.Form(
                         id='parti_attendance_cert',
                         children=html.Div(
                             [
-                            html.Img(src=app.get_asset_url('add_file.png'), style={'height': '15px', 'marginRight': '5px'}),
+                            html.Img(src=app.get_asset_url('icons/add_file.png'), style={'height': '15px', 'marginRight': '5px'}),
                             "add file"
                         ],
                         style={
@@ -261,7 +261,7 @@ form = dbc.Form(
                         children=html.Div(
                             [
                                 html.Img(
-                                    src=app.get_asset_url('add_file.png'),
+                                    src=app.get_asset_url('icons/add_file.png'),
                                     style={'height': '15px', 'marginRight': '5px'}
                                 ),
                                 "add file"
@@ -298,7 +298,7 @@ form = dbc.Form(
                         children=html.Div(
                             [
                                 html.Img(
-                                    src=app.get_asset_url('add_file.png'),
+                                    src=app.get_asset_url('icons/add_file.png'),
                                     style={'height': '15px', 'marginRight': '5px'}
                                 ),
                                 "add file"
@@ -335,7 +335,7 @@ form = dbc.Form(
                         children=html.Div(
                             [
                                 html.Img(
-                                    src=app.get_asset_url('add_file.png'),
+                                    src=app.get_asset_url('icons/add_file.png'),
                                     style={'height': '15px', 'marginRight': '5px'}
                                 ),
                                 "add file"
@@ -369,7 +369,7 @@ form = dbc.Form(
                         children=html.Div(
                             [
                                 html.Img(
-                                    src=app.get_asset_url('add_file.png'),
+                                    src=app.get_asset_url('icons/add_file.png'),
                                     style={'height': '15px', 'marginRight': '5px'}
                                 ),
                                 "add file"
