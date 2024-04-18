@@ -125,7 +125,7 @@ form = dbc.Form(
                     width=5,
                 ),
                 dbc.Col(
-                    html.Div(id='amount-copy'),
+                    html.Div(id='amount-copy', style={"color": "#C4BDBD"}),
                     width=2,
                 )
             ],
@@ -170,7 +170,7 @@ form = dbc.Form(
                     width=5,
                 ),
                 dbc.Col(
-                    html.Div(id='bur-no-copy'),
+                    html.Div(id='bur-no-copy', style={"color": "#C4BDBD"}),
                     width=2,
                 )
             ],
@@ -181,7 +181,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Submitted by",
+                        "Submitted by ",
                         html.Span("*", style={"color": "#F8B237"})
                     ],  
                     width=4

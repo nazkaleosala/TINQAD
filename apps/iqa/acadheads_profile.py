@@ -18,7 +18,12 @@ form = dbc.Form(
         html.H5("PERSONAL INFORMATION", className="form-header fw-bold"),
         dbc.Row(
             [
-                dbc.Label("Surname", width=4),
+                dbc.Label(
+                    [
+                        "Surname ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(id="unithead_sname", type="text"),
                     width=5,
@@ -28,7 +33,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("First Name", width=4),
+                dbc.Label(
+                    [
+                        "First Name ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(id="unithead_fname",type="text"),
                     width=5,
@@ -38,7 +48,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Middle Name", width=4),
+                dbc.Label(
+                    [
+                        "Middle Name ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(id="unithead_mname",type="text"),
                     width=5,
@@ -48,7 +63,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("UP Mail", width=4),
+                dbc.Label(
+                    [
+                        "UP Mail ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(id="unithead_upmail",type="text"),
                     width=5,
@@ -142,7 +162,12 @@ form = dbc.Form(
          
         dbc.Row(
             [
-                dbc.Label("With Basic Paper as QAO?", width=4),
+                dbc.Label(
+                    [
+                        "With Basic Paper as QAO?",
+                         html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Select(
                         id="unithead_basicpaper",
@@ -159,7 +184,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Remarks", width=4),
+                dbc.Label(
+                    [
+                        "Remarks",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Select(
                         id="unithead_remarks",
@@ -176,7 +206,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("ALC", width=4),
+                dbc.Label(
+                    [
+                        "ALC",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(id="unithead_alc", type="text"),
                     width=5,
@@ -187,7 +222,12 @@ form = dbc.Form(
          
         dbc.Row(
             [
-                dbc.Label("Start of Term", width=4),
+                dbc.Label(
+                    [
+                        "Start of Term",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="date", id='unithead_appointment_start'),
                     width=4,
@@ -197,7 +237,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("End of Term", width=4),
+                dbc.Label(
+                    [
+                        "End of Term",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="date", id='unithead_appointment_end'),
                     width=4,

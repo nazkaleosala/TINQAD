@@ -17,7 +17,12 @@ form = dbc.Form(
         
         dbc.Row(
             [
-                dbc.Label("Ranking Body", width=4),
+                dbc.Label(
+                    [
+                        "Ranking Body ",
+                         html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text", placeholder="Enter Ranking Body", value="THE World Rankings"),
                     width=8,
@@ -27,7 +32,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Evidence Name", width=4),
+                dbc.Label(
+                    [
+                        "Evidence Name ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text", placeholder="Enter Evidence Name", value="Building XX"),
                     width=8,
@@ -37,7 +47,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Description", width=4),
+                dbc.Label(
+                    [
+                        "Description ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Textarea(placeholder="Enter Description"),
                     width=8,
@@ -47,7 +62,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Office", width=4),
+                dbc.Label(
+                    [
+                        "Office ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Select(
                         options=[
@@ -63,7 +83,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Accomplished By", width=4),
+                dbc.Label(
+                    [
+                        "Accomplished By ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text", placeholder="Name Surname", value="Name Surname"),  # Pre-filled as per image
                     width=8,
@@ -73,7 +98,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Date Submitted", width=4),
+                dbc.Label(
+                    [
+                        "Date Submitted ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text", placeholder="Date Submitted", value="Monday, 29 January 2024, 11:00 PM"),  # Pre-filled as per image
                     width=8,
@@ -83,7 +113,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("File Submissions", width=4),
+                dbc.Label(
+                    [
+                        "File Submissions ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dcc.Upload(
                         dbc.Button('Upload File', color="primary"),
@@ -97,7 +132,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Link Submissions", width=4),
+                dbc.Label(
+                    [
+                        "Link Submissions ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="url", placeholder="Enter Link"),
                     width=8,
@@ -107,7 +147,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Add Applicable Criteria", width=4),
+                dbc.Label(
+                    [
+                        "Add Applicable Criteria ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Checklist(
                         options=[

@@ -17,7 +17,12 @@ form = dbc.Form(
         html.H5("DEGREE PROGRAM INFORMATION", className="form-header fw-bold"),
         dbc.Row(
             [
-                dbc.Label("Degree Program Title", width=4),
+                dbc.Label(
+                    [
+                        "Degree Program Title ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text"),
                     width=5,
@@ -27,7 +32,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("College", width=4),
+                dbc.Label(
+                    [
+                        "College ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text"),
                     width=5,
@@ -37,7 +47,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Institute/ Department", width=4),
+                dbc.Label(
+                    [
+                        "Institute/ Department ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text"),
                     width=5,
@@ -47,7 +62,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Academic Cluster", width=4),
+                dbc.Label(
+                    [
+                        "Academic Cluster ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Select(
                         options=[
@@ -64,7 +84,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Degree Count", width=4),
+                dbc.Label(
+                    [
+                        "Degree Count ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="number"),
                     width=5,
@@ -74,7 +99,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Degree Program Type", width=4),
+                dbc.Label(
+                    [
+                        "Degree Program Type ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Select(
                         options=[
@@ -93,7 +123,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Academic Calendar Type", width=4),
+                dbc.Label(
+                    [
+                        "Academic Calendar Type ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Select(
                         options=[
@@ -108,7 +143,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Applicable accreditation body", width=4),
+                dbc.Label(
+                    [
+                        "Applicable accreditation body ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(type="text"),
                     width=5,
@@ -131,7 +171,7 @@ layout = html.Div(
                 ),
                 dbc.Col(
                     [
-                        html.H1("ADD NEW PROFILE"),
+                        html.H1("ADD NEW PROGRAM"),
                         html.Hr(),
                         dbc.Row(
                             [
