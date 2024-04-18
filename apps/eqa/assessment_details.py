@@ -55,11 +55,8 @@ form = dbc.Form(
                     width=4
                 ),
                 dbc.Col(
-                    dcc.DatePickerSingle(
-                       id='arep_currentdate ',
-                       date=str(pd.to_datetime("today").date())
-                    ),
-                    width=8,
+                    dbc.Input(type="date", id='arep_currentdate' ),
+                            width=4,
                 ),
             ],
             className="mb-2",
@@ -114,35 +111,37 @@ form = dbc.Form(
             className="mb-2",
         ),
 
-        dbc.Row(
-            [
-                dbc.Label("Is there a scheduled assessment date?", width=4),
-                dbc.Col(
-                    dbc.RadioItems(
-                        id="arep_qscheddate",
-                        options=[
-                            {"label": "Yes", "value": "Yes"},
-                            {"label": "No", "value": "No"},
-                            ],
-                            inline=True,  
+                
+                
+                # with disabled input
+                dbc.Row(
+                    [
+                        dbc.Label("Is there a scheduled assessment date?", width=4),
+                        dbc.Col(
+                            dbc.RadioItems(
+                                id="arep_qscheddate",
+                                options=[
+                                    {"label": "Yes", "value": "Yes"},
+                                    {"label": "No", "value": "No"},
+                                ],
+                                inline=True,
+                            ),
                         ),
+                    ],
+                    className="mb-2",
                 ),
-            ],
-            className="mb-2", 
-        ), 
-        
-        
-        dbc.Row(
-            [
-                dbc.Label("Scheduled Assessment Date", width=4),
-                dbc.Col(
-                    dbc.Input(type="date", id='arep_sched_assessdate'),
-                    width=4,
+                # Additional field for "Scheduled Assessment Date"
+                dbc.Row(
+                    [
+                        dbc.Label("Scheduled Assessment Date", width=4),
+                        dbc.Col(
+                            dbc.Input(type="date", id='arep_sched_assessdate', disabled=True),
+                            width=4,
+                        ),
+                    ],
+                    className="mb-2",
+                    id="scheduled-assessment-date-field"
                 ),
-            ],
-            className="mb-2",
-        ),
- 
 
         dbc.Row(
             [
@@ -158,7 +157,7 @@ form = dbc.Form(
                         id='arep_report_type',
                         placeholder="Select Report Type",
                     ),
-                    width=6,
+                    width=4,
                 ),
             ],
             className="mb-2",
@@ -204,6 +203,8 @@ form = dbc.Form(
             ],
             className="mb-2", 
         ), 
+
+
 
         # Additional fields for "Already Checked" option
         dbc.Row(
@@ -295,6 +296,9 @@ form = dbc.Form(
             className="mb-2", 
         ), 
 
+
+
+
         # Additional fields for "Ready for presenting to QAO?" option
         dbc.Row(
             [
@@ -323,7 +327,7 @@ form = dbc.Form(
                                         id='arep_mode_eqa_assess',
                                         placeholder="Select Mode",
                                     ),
-                                    width=6,
+                                    width=4,
                                 ),
                             ],
                             className="mb-2",
@@ -403,42 +407,31 @@ form = dbc.Form(
  
 
 
+@app.callback(
+    Output('scheduled-assessment-date-field', 'children'),
+    [Input('arep_qscheddate', 'value')]
+)
+def update_scheduled_assessment_date_field(value):
+    if value == "Yes":
+        return dbc.Col(
+            dbc.Input(type="date", id='arep_sched_assessdate'),
+            width=4,
+        )
+    else:
+        return dbc.Col(
+            dbc.Input(type="date", id='arep_sched_assessdate', disabled=True),
+            width=4,
+        )
+
 
  
 
 
 
   
+ 
 
 
-# Define callback to show/hide additional fields based on radio button selection
-@app.callback(
-    [Output("already-checked-fields", "style"),
-     Output("ready-for-qao-fields", "style"),
-     Output("scheduled-assessment-date-field", "style")],
-    [Input("arep_checkstatus", "value"),
-     Input("arep_qqaopresent", "value"),
-     Input("arep_qscheddate", "value")]
-)
-
-
-def toggle_additional_fields(check_status, ready_for_qao, scheduled_assessment):
-    if check_status == "Already Checked":
-        already_checked_style = {"display": "block"}  # Show the "Already Checked" fields
-    else:
-        already_checked_style = {"display": "none"}  # Hide the "Already Checked" fields
-        
-    if ready_for_qao == "Yes":
-        ready_for_qao_style = {"display": "block"}   
-    else:
-        ready_for_qao_style = {"display": "none"}  
-    
-    if scheduled_assessment == "Yes":
-        scheduled_assessment_style = {"display": "block"}  
-    else:
-        scheduled_assessment_style = {"display": "none"}   
-    
-    return already_checked_style, ready_for_qao_style, scheduled_assessment_style
 
 layout = html.Div(
     [
