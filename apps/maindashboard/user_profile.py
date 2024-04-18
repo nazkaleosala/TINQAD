@@ -59,42 +59,72 @@ form = dbc.Form(
     [
         dbc.Row(
             [
-                dbc.Label("First Name", width=4),
+                dbc.Label(
+                    [
+                        "First Name ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(dbc.Input(type="text"  ), width=8),
             ],
             className="mb-2",
         ),
         dbc.Row(
             [
-                dbc.Label("Middle Initial", width=4),
+                dbc.Label(
+                    [
+                        "Middle Initial ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ], 
+                    width=4),
                 dbc.Col(dbc.Input(type="text"), width=8),
             ],
             className="mb-2",
         ),
         dbc.Row(
             [
-                dbc.Label("Surname", width=4),
+                dbc.Label(
+                    [
+                        "Surname ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ], 
+                    width=4),
                 dbc.Col(dbc.Input(type="text" ), width=8),
             ],
             className="mb-2",
         ),
         dbc.Row(
             [
-                dbc.Label("ID Number", width=4),
+                dbc.Label(
+                    [
+                        "ID Number ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(dbc.Input(type="text" ), width=8),
             ],
             className="mb-2",
         ), 
         dbc.Row(
             [
-                dbc.Label("Lived Name", width=4),
+                dbc.Label(
+                    [
+                        "Lived Name ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(dbc.Input(type="text" ), width=8),
             ],
             className="mb-2", 
         ),
         dbc.Row(
             [
-                dbc.Label("Sex Assigned at Birth", width=4),
+                dbc.Label(
+                    [
+                        "Sex Assigned at Birth ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Select(
                         options=[
@@ -110,7 +140,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Birthday", width=4),
+                dbc.Label(
+                    [
+                        "Birthday ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(dbc.Input(type="text" ), width=8),
             ],
             className="mb-2", 
@@ -118,7 +153,12 @@ form = dbc.Form(
 
         dbc.Row(
                [
-                dbc.Label( "Phone Number ", width=4),
+                dbc.Label(
+                    [
+                        "Phone Number ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(
                         type="text", id='phone-no-input', placeholder="0000-00-00000"
@@ -131,14 +171,24 @@ form = dbc.Form(
        
         dbc.Row(
             [
-                dbc.Label("Office/Department", width=4),
+                dbc.Label(
+                    [
+                        "Office/Department ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(dbc.Input(type="text"  ), width=8),
             ],
             className="mb-2",
         ),
         dbc.Row(
             [
-                dbc.Label("Position", width=4),
+                dbc.Label(
+                    [
+                        "Position ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(dbc.Input(type="text"  ), width=8),
             ],
             className="mb-2",
@@ -148,14 +198,24 @@ form = dbc.Form(
         
         dbc.Row(
             [
-                dbc.Label("Email Address (primary)", width=4),
+                dbc.Label(
+                    [
+                        "Email Address (primary) ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(dbc.Input(type="text"), width=8),
             ],
             className="mb-2",
         ),
         dbc.Row(
             [
-                dbc.Label("Present Housing", width=4),
+                dbc.Label(
+                    [
+                        "Present Housing",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(dbc.Input(type="text"), width=8),
             ],
             className="mb-2",
