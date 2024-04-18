@@ -433,11 +433,11 @@ form = dbc.Form(
         dbc.Row(
             [
                 dbc.Col(
-                    dbc.Button("Register Assessment", color="primary", className="me-3", id="save_button", n_clicks=0),
+                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
                     width="auto"
                 ),
-                dbc.Col(
-                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
+                 dbc.Col(
+                    dbc.Button("Register Assessment", color="primary", className="me-3", id="save_button", n_clicks=0),
                     width="auto"
                 ),
             ],
