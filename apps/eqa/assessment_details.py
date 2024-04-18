@@ -416,9 +416,9 @@ form = dbc.Form(
     [Output("already-checked-fields", "style"),
      Output("ready-for-qao-fields", "style"),
      Output("scheduled-assessment-date-field", "style")],
-    [Input("check-status", "value"),
-     Input("ready-for-qao", "value"),
-     Input("scheduled-assessment", "value")]
+    [Input("arep_checkstatus", "value"),
+     Input("arep_qqaopresent", "value"),
+     Input("arep_qscheddate", "value")]
 )
 
 
@@ -429,14 +429,14 @@ def toggle_additional_fields(check_status, ready_for_qao, scheduled_assessment):
         already_checked_style = {"display": "none"}  # Hide the "Already Checked" fields
         
     if ready_for_qao == "Yes":
-        ready_for_qao_style = {"display": "block"}  # Show the "Ready for presenting to QAO?" fields
+        ready_for_qao_style = {"display": "block"}   
     else:
-        ready_for_qao_style = {"display": "none"}  # Hide the "Ready for presenting to QAO?" fields
+        ready_for_qao_style = {"display": "none"}  
     
     if scheduled_assessment == "Yes":
-        scheduled_assessment_style = {"display": "block"}  # Show the "Scheduled Assessment Date" field
+        scheduled_assessment_style = {"display": "block"}  
     else:
-        scheduled_assessment_style = {"display": "none"}  # Hide the "Scheduled Assessment Date" field
+        scheduled_assessment_style = {"display": "none"}   
     
     return already_checked_style, ready_for_qao_style, scheduled_assessment_style
 

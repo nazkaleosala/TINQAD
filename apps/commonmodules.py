@@ -77,20 +77,20 @@ def generate_navbar():
                     html.A('Profile', id='profile-link', href='/profile', className="nav-link"),  
                     html.A('Register User', id='register-user-link', href='/register_user', className="nav-link"),  
                     html.A('Search Users', id='search-users-link', href='/search_users', className="nav-link"),  
-                    html.A('-----------------------------------', style={'color': 'gray', 'text-decoration': 'none'}, className="nav-link"),  
+                    html.A('-----------------------------------', style={'color': 'white'} ),  
 
                     #admin dashboard 
                     html.A(html.B('Admin'), id='admin-link', href='/administration_dashboard', className="nav-link"),  
                     html.A('Record Expenses', id='record-expenses-link', href='/record_expenses', className="nav-link"),  
                     html.A('Training Documents', id='training-documents-link', href='/training_documents', className="nav-link"),  
                     html.A('Generate Report', id='generate-report-link', href='/generate_report', className="nav-link"), 
-                    html.A('-----------------------------------', style={'color': 'gray', 'text-decoration': 'none'}, className="nav-link"),  
+                    html.A('-----------------------------------', style={'color': 'white'} ),  
 
                     #internal qa dashboard
                     html.A(html.B('Internal QA'), id='internal-qa-link', href='/iqa_dashboard', className="nav-link"),  
                     html.A('iAADs Reports Summary', id='iaads-reports-link', href='/iaads_reports', className="nav-link"),  
                     html.A('Acad Heads Directory', id='acad-heads-directory-link', href='/acad_heads_directory', className="nav-link"),  
-                    html.A('-----------------------------------', style={'color': 'gray', 'text-decoration': 'none'}, className="nav-link"),  
+                    html.A('-----------------------------------', style={'color': 'white'} ),  
 
                     
                     #external qa dashboard
@@ -98,7 +98,7 @@ def generate_navbar():
                     html.A('Assessment Reports', id='assessment-reports-link', href='/assessment_reports', className="nav-link"),  
                     html.A('Accreditation Tracker', id='accreditation-tracker-link', href='/accreditation_tracker', className="nav-link"),  
                     html.A('Program List', id='program-list-link', href='/program_list', className="nav-link"),  
-                    html.A('-----------------------------------', style={'color': 'gray', 'text-decoration': 'none'}, className="nav-link"),   
+                    html.A('-----------------------------------', style={'color': 'white'} ),  
 
                     
                     #km team dashboard
@@ -106,7 +106,7 @@ def generate_navbar():
                     html.A('THE World Univ Rankings', id='the-world-univ-rankings-link', href='/THEworld_rankings', className="nav-link"),  
                     html.A('SDG Impact Rankings', id='sdg-impact-rankings-link', href='/SDGimpact_rankings', className="nav-link"),  
                     html.A('QS University Rankings', id='qs-university-rankings-link', href='/QSworld_rankings', className="nav-link"),  
-                    html.A('-----------------------------------', style={'color': 'gray', 'text-decoration': 'none'}, className="nav-link"),  
+                    html.A('-----------------------------------', style={'color': 'white'} ), 
 
                     
                     #qa officers
