@@ -223,15 +223,16 @@ form = dbc.Form(
         dbc.Row(
             [
                 dbc.Col(
-                    dbc.Button("Save", color="primary", className="me-3"),  
+                    dbc.Button("Cancel", color="secondary"), 
                     width="auto"
                 ),
-                dbc.Col(
-                    dbc.Button("Cancel", color="secondary"), 
+                 dbc.Col(
+                    dbc.Button("Save", color="primary", className="me-3"),  
                     width="auto"
                 ),
             ],
             className="mb-2",
+            justify="end",
         )
         
     ],

@@ -183,11 +183,11 @@ layout = html.Div(
                         dbc.Row(
                             [
                                 dbc.Col(
-                                    dbc.Button("Register", color="primary", className="me-3"), 
+                                    dbc.Button("Cancel", color="secondary"),
                                     width="auto"
                                 ),
                                 dbc.Col(
-                                    dbc.Button("Cancel", color="secondary"),
+                                    dbc.Button("Register", color="primary", className="me-3"), 
                                     width="auto"
                                 ),
                             ],

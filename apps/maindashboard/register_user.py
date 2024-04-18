@@ -165,7 +165,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                     "Office",
+                        "Office ",
                         html.Span("*", style={"color":"#F8B237"})
                     ],
                     width=4
@@ -277,20 +277,18 @@ form = dbc.Form(
  
         html.Br(),
         dbc.Row(
-            [
-                dbc.Col(
-                    dbc.Button("Save", color="primary", className="me-1", id="save_button", n_clicks=0),
-                    width="auto"
-                ),
-                
+            [   
                 dbc.Col(
                     dcc.Link(
                         dbc.Button("Cancel", color="secondary", id="cancel_button"),
                         href="/search_users" 
                     ),
                     width="auto"
-                )
-            
+                ),
+                 dbc.Col(
+                    dbc.Button("Save", color="primary", className="me-1", id="save_button", n_clicks=0),
+                    width="auto"
+                ),
             ],
             className="mb-2",
             justify="end",

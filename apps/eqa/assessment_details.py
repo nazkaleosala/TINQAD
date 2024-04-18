@@ -23,7 +23,12 @@ form = dbc.Form(
          
         dbc.Row(
             [
-                dbc.Label("Degree Program Title",   width=4),
+                dbc.Label(
+                    [
+                        "Degree Program Title ", 
+                         html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(id="arep_deg_prog_id", type="number"),
                     width=5,
@@ -34,7 +39,12 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Cluster",  width=4),
+                dbc.Label(
+                    [
+                        "Cluster ", 
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(id="arep_cluster_id", type="number"),
                     width=5,
@@ -46,7 +56,12 @@ form = dbc.Form(
         
         dbc.Row(
             [
-                dbc.Label("Assessment Title", width=4),
+                dbc.Label(
+                    [
+                        "Assessment Title ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(id="arep_title", type="text"),
                     width=5,
@@ -58,7 +73,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                     "Date",
+                     "Date ",
                         html.Span("*", style={"color":"#F8B237"})
                     ],
                     width=4
@@ -76,7 +91,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                     "Approved EQA Type",
+                     "Approved EQA Type ",
                         html.Span("*", style={"color":"#F8B237"})
                     ],
                     width=4
@@ -94,7 +109,12 @@ form = dbc.Form(
 
         dbc.Row(
             [
-                dbc.Label("To be Assessed by", width=4),
+                dbc.Label(
+                    [
+                        "To be Assessed by ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ], 
+                    width=4),
                 dbc.Col(
                     dbc.Select(
                         id="arep_assessedby",
@@ -115,7 +135,12 @@ form = dbc.Form(
                 # with disabled input
                 dbc.Row(
                     [
-                        dbc.Label("Is there a scheduled assessment date?", width=4),
+                        dbc.Label(
+                            [
+                                "Is there a scheduled assessment date? ",
+                                html.Span("*", style={"color": "#F8B237"})
+                            ], 
+                            width=4),
                         dbc.Col(
                             dbc.RadioItems(
                                 id="arep_qscheddate",
@@ -132,7 +157,12 @@ form = dbc.Form(
                 # Additional field for"Scheduled Assessment Date"
                 dbc.Row(
                     [
-                        dbc.Col(dbc.Label("Scheduled Assessment Date"), width=4),
+                        dbc.Col(dbc.Label(
+                            [
+                                "Scheduled Assessment Date ",
+                                html.Span("*", style={"color": "#F8B237"})
+                            ],  
+                        ), width=4),
                         dbc.Col(
                             dbc.Input(type="date", id='arep_sched_assessdate', disabled=True),
                             width=4,
@@ -146,7 +176,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                      "Report type",
+                      "Report type ",
                         html.Span("*", style={"color":"#F8B237"})
                     ],
                     width=4
@@ -165,7 +195,12 @@ form = dbc.Form(
         
         dbc.Row(
             [
-                dbc.Label("Link", width=4),
+                dbc.Label(
+                    [
+                        "Link ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.Input(id="arep_link", type="text"),
                     width=5,
@@ -176,7 +211,12 @@ form = dbc.Form(
 
         dbc.Row(
             [
-                dbc.Label("PDF File", width=4),
+                dbc.Label(
+                    [
+                        "PDF File ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],  
+                    width=4),
                 dbc.Col(
                     dbc.Input(id="arep_pdf", type="text"),
                     width=5,
@@ -188,7 +228,12 @@ form = dbc.Form(
         
         dbc.Row(
             [
-                dbc.Label("Check Status", width=4),
+                dbc.Label(
+                    [
+                        "Check Status ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],  
+                    width=4),
                  
                 dbc.Col(
                     dcc.Dropdown(
@@ -213,7 +258,12 @@ form = dbc.Form(
             [
                 dbc.Row(
                     [
-                        dbc.Label("Date to be Reviewed", width=4),
+                        dbc.Label(
+                            [
+                                "Date to be Reviewed ",
+                                html.Span("*", style={"color": "#F8B237"})
+                            ],
+                            width=4),
                         dbc.Col(
                             dbc.Input(type="date", id='arep_datereviewed', disabled=True),
                             width=4,
@@ -225,7 +275,7 @@ form = dbc.Form(
                     [
                         dbc.Label(
                             [
-                               "Review Status",
+                               "Review Status ",
                                 html.Span("*", style={"color":"#F8B237"})
                             ],
                             width=4
@@ -246,7 +296,8 @@ form = dbc.Form(
                     [
                         dbc.Label(
                             [
-                               "Notes"
+                               "Notes ",
+                               html.Span("*", style={"color": "#F8B237"})
                             ],
                             width=4
                         ),
@@ -260,7 +311,12 @@ form = dbc.Form(
 
                 dbc.Row(
                     [
-                        dbc.Label("SAR Score", width=4),
+                        dbc.Label(
+                            [
+                                "SAR Score ",
+                                html.Span("*", style={"color": "#F8B237"})
+                            ],
+                            width=4),
                         dbc.Col(
                             dbc.Input(id="arep_sarscore", type="number", disabled=True),
                             width=3,
@@ -278,7 +334,12 @@ form = dbc.Form(
 
         dbc.Row(
             [
-                dbc.Label("Ready for presenting to QAO?", width=4),
+                dbc.Label(
+                    [
+                        "Ready for presenting to QAO? ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
                     dbc.RadioItems(
                         id="arep_qqaopresent",
@@ -303,7 +364,12 @@ form = dbc.Form(
                     [
                         dbc.Row(
                             [
-                                dbc.Label("Date to be presented to QAO", width=4 ,
+                                dbc.Label(
+                                    [
+                                        "Date to be presented to QAO ",
+                                        html.Span("*", style={"color": "#F8B237"})
+                                    ],
+                                    width=4 ,
                                     style={"margin-right":"18px"},),
                                 dbc.Col(
                                     dbc.Input(type="date", id='arep_presdate'),
@@ -316,7 +382,8 @@ form = dbc.Form(
                             [
                                 dbc.Label(
                                     [
-                                   "Mode of EQA Assessment", 
+                                        "Mode of EQA Assessment ",
+                                        html.Span("*", style={"color": "#F8B237"}) 
                                     ],
                                     width=4,
                                     style={"margin-right":"18px"},
@@ -336,7 +403,8 @@ form = dbc.Form(
                             [
                                 dbc.Label(
                                     [
-                                   "Specific EQA Assessment", 
+                                        "Specific EQA Assessment ",
+                                        html.Span("*", style={"color": "#F8B237"}) 
                                     ],
                                     width=4,
                                     style={"margin-right":"18px"},
@@ -354,7 +422,7 @@ form = dbc.Form(
                     ]
                 )
             ],
-            className="mb-1",
+            className="mb-4",
             style={"display":"block"},  # Initially hide the fields
             id="ready-for-qao-fields"
         ),
@@ -365,15 +433,16 @@ form = dbc.Form(
         dbc.Row(
             [
                 dbc.Col(
-                    dbc.Button("Register Assessment", color="primary", className="me-3", id="save_button", n_clicks=0),
+                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
                     width="auto"
                 ),
-                dbc.Col(
-                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
+                 dbc.Col(
+                    dbc.Button("Register Assessment", color="primary", className="me-3", id="save_button", n_clicks=0),
                     width="auto"
                 ),
             ],
             className="mb-2",
+            justify="end",
         ),
 
         dbc.Modal(
