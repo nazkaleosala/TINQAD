@@ -404,6 +404,7 @@ form = dbc.Form(
                 ),
             ],
             className="mb-2",
+            justify="end",
         ),
 
         dbc.Modal(

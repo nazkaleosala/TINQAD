@@ -209,6 +209,7 @@ layout = html.Div(
                                 ),
                             ],
                             className="mb-3",
+                            justify="end",
                         ),
                         
                     ], width=8, style={'marginLeft': '15px'}
