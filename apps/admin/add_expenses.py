@@ -191,7 +191,7 @@ form = dbc.Form(
                     width=6,
                 ),
             ],
-            className="mb-2",
+            className="mb-4",
         ),
 
         dbc.Row(
