@@ -194,6 +194,46 @@ form = dbc.Form(
             className="mb-2",
         ),
 
+        dbc.Row(
+                dbc.Col(
+                    dcc.Upload(
+                        id='upload-receipt',
+                        children=html.Div(
+                            [
+                                html.Img(
+                                    src=app.get_asset_url('icons/upload_photo.png'),
+                                    style={'width': '50px', 'height': '50px', 'margin-bottom': '5px'}
+                                ),
+                                html.Div([
+                                    "Add Receipt ",
+                                    html.Span("*", style={'color': '#F8B237'})
+                                ], style={'fontWeight': 'bold', 'fontSize': '20px', 'margin-bottom': '1px'}),
+                                html.Div("Drag and Drop or Select Files", style={'fontSize': '14px'})
+                            ],
+                            style={
+                                'display': 'flex',
+                                'flexDirection': 'column',
+                                'alignItems': 'center',
+                                'justifyContent': 'center',
+                                'height': '100%',
+                                'padding': '15px 30px'  # Adjust padding as needed
+                            }
+                        ),
+                        style={
+                            'width': '100%', 'minHeight': '100px',  # Adjust height as needed
+                            'borderWidth': '2px', 'borderStyle': 'solid',
+                            'borderRadius': '5px', 'textAlign': 'center',
+                            'margin': '5px', 'display': 'flex',
+                            'alignItems': 'center', 'justifyContent': 'center'
+                        },
+                        multiple=True
+                    ),
+                    lg={'size': 8, 'offset': 2},  # Adjust size and offset for proper alignment
+                    md={'size': 10, 'offset': 1},
+                    sm={'size': 12},
+                    style={'marginBottom': '1rem'}
+                ),
+            ),
         
         html.Br(),
         dbc.Row(
