@@ -32,7 +32,7 @@ app.layout = html.Div(
         dcc.Location(id='url', refresh=True),
         cm.navbar,
         html.Div(id='page-content', style=CONTENT_STYLE),
-        html.Link(rel='icon', href='/assets/TINQAD.png')
+        html.Link(rel='icon', href='/assets/icons/TINQAD.png')
     ]
 )
 

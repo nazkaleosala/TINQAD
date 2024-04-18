@@ -38,7 +38,7 @@ layout = html.Div(
                                     dbc.Input(
                                         type='text',
                                         id='assessmentreports_filter',
-                                        placeholder='🔎 Search by name, email, position, etc',
+                                        placeholder='🔎 Search by degree program',
                                         className='ml-auto'   
                                     ),
                                     width="8",
@@ -46,6 +46,8 @@ layout = html.Div(
                             ]
                         ),
 
+                         
+                        # Placeholder for the users table
                         html.Div(
                             id='assessmentreports_list', 
                             style={
@@ -79,20 +81,31 @@ layout = html.Div(
     ]
     )
 
+
 def assessmentreports_loadlist(pathname, searchterm):
-    if pathname == '/assessment_reports': 
+    if pathname == '/assessment_reports':  # Adjusted URL path
+         
         sql = """  
-            
+            SELECT 
+                d.deg_prog_name AS "Degree Program",
+                c.cluster_name AS "Cluster",
+                a.arep_title AS "Current Progress"
+            FROM 
+                eqateam.assess_report AS a 
+            LEFT JOIN 
+                public.deg_prog_title AS d ON a.arep_deg_prog_id = d.deg_prog_id
+            LEFT JOIN 
+                public.clusters AS c ON a.arep_cluster_id = c.cluster_id
         """
 
-        cols = ['Degree Program', 'College', 'Department', 'Cluster', 'Current Progress']   
+        cols = ['Degree Program', 'Cluster', 'Current Progress']
 
         if searchterm:
-            
-            sql += """ WHERE a.unit_head_sname ILIKE %s OR a.unit_head_fname ILIKE %s OR
-                        a.unit_head_full_name ILIKE %s OR d.designation_name ILIKE %s  """
+            sql += """ WHERE d.deg_prog_name ILIKE %s OR
+                        c.cluster_name ILIKE %s OR
+                        a.arep_title ILIKE %s """
             like_pattern = f"%{searchterm}%"
-            values = [like_pattern, like_pattern, like_pattern, like_pattern]
+            values = [like_pattern, like_pattern, like_pattern]
         else:
             values = []
 
