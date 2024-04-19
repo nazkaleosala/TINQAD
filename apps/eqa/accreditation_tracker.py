@@ -105,6 +105,11 @@ layout = html.Div(
                                     ),
                                     width="auto"  # Adjust the width to fit the content
                                 ),
+                                dbc.Col(
+                                    dbc.Button("Deselect EQA type filters", id="deselect_button", color="danger", size="sm"),
+                                    width="auto",  # Adjust the width to fit the content
+                                    style={"margin-left": "auto"}  # Align the button to the right
+                                ),
                             ]
                         ),
  
@@ -164,6 +169,22 @@ def populate_approvedeqa_dropdown(pathname):
     else:
         raise PreventUpdate
 
+#eqa deselect
+@app.callback(
+    Output('accred_approv_eqa', 'value'),
+    [Input('deselect_button', 'n_clicks')]
+)
+def deselect_all_options(n_clicks):
+    if n_clicks:
+        # Return an empty list to deselect all options
+        return []
+    else:
+        # Return current value if no click event has occurred
+        return dash.no_update
+
+
+
+
 @app.callback(
     Output('accreditationtracker_list', 'children'),
     [
@@ -174,6 +195,8 @@ def populate_approvedeqa_dropdown(pathname):
         Input('year_dropdown', 'value')
     ]
 )
+
+
 def accreditationtracker_loadlist(pathname, searchterm, eqa_types, selected_month, selected_years):
     if pathname == '/accreditation_tracker': 
         sql = """  

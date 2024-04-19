@@ -79,8 +79,7 @@ layout = html.Div(
         Input('url', 'pathname'),
         Input('assessmentreports_filter', 'value'),
     ]
-    )
-
+)
 
 def assessmentreports_loadlist(pathname, searchterm):
     if pathname == '/assessment_reports':  # Adjusted URL path
@@ -88,23 +87,19 @@ def assessmentreports_loadlist(pathname, searchterm):
         sql = """  
             SELECT 
                 arep_currentdate AS "Date", 
-                d.degree_name AS "Degree Program",
-                c.cluster_name AS "Cluster",
-                a.arep_title AS "Assessment Title"
+                dp.degree_name AS "Degree Program", 
+                arep_title AS "Assessment Title"
             FROM 
-                eqateam.assess_report AS a 
+                eqateam.assess_report AS ar
             LEFT JOIN 
-                public.degree_program AS d ON a.arep_degree_programs_id = d.degree_id
-            LEFT JOIN 
-                public.clusters AS c ON a.arep_cluster_id = c.cluster_id
+                public.degree_programs AS dp ON ar.arep_degree_programs_id = dp.degree_id 
         """
 
-        cols = ['Date','Degree Program', 'Cluster', 'Assessment Title']
+        cols = ['Date','Degree Program' , 'Assessment Title']
 
         if searchterm:
-            sql += """ WHERE d.degree_name ILIKE %s OR
-                        c.cluster_name ILIKE %s OR
-                        a.arep_title ILIKE %s """
+            sql += """ WHERE dp.degree_name ILIKE %s OR 
+                        arep_title ILIKE %s """
             like_pattern = f"%{searchterm}%"
             values = [like_pattern, like_pattern, like_pattern]
         else:
