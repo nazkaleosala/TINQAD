@@ -12,10 +12,24 @@ from app import app
 from apps import dbconnect as db 
 import json
 
+import base64
+import os
+
  
 
+# Using the corrected path
+UPLOAD_DIRECTORY = r"C:\Users\Naomi A. Takagaki\OneDrive\Documents\TINQAD\assets\database"
+
+# Ensure the directory exists or create it
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 
+ranking_options = [
+    {"label": "THE World Rankings", "value": 1},
+    {"label": "QS World University Rankings", "value": 2},
+    {"label": "Academic Ranking of World Universities", "value": 3},
+    # Add more options as needed
+]
   
 
 
@@ -32,9 +46,10 @@ form = dbc.Form(
                 dbc.Col(
                     dbc.Select(
                         id='sdg_rankingbody', 
-                        value="THE World Rankings"
+                        options=ranking_options,
+                        value=1,
                     ),
-                    width=8,
+                    width=5,
                 ), 
             ],
             className="mb-1",
@@ -150,38 +165,49 @@ form = dbc.Form(
                 dbc.Label(
                     [
                         "File Submissions ",
-                        html.Span("*", style={"color": "#F8B237"})
+                        html.Span("*", style={"color": "#F8B237"}),
                     ],
-                    width=4),
+                    width=4,
+                ),
                 dbc.Col(
-                    dcc.Upload(id="sdg_file", 
+                    dcc.Upload(
+                        id="sdg_file",
                         children=html.Div(
                             [
                                 html.Img(
-                                    src=app.get_asset_url('icons/add_file.png'),
-                                    style={'height': '15px', 'marginRight': '5px'}
+                                    src=app.get_asset_url("icons/add_file.png"),
+                                    style={"height": "15px", "marginRight": "5px"},
                                 ),
-                                "add file"
+                                "Add file",
                             ],
-                            style={'display': 'flex', 'alignItems': 'center'}
+                            style={"display": "flex", "alignItems": "center"},
                         ),
                         style={
-                            'width': '100%', 'minHeight': '30px',  # Adjust height as needed
-                            'borderWidth': '1px', 'borderStyle': 'solid',
-                            'borderRadius': '5px', 'textAlign': 'center',
-                            'margin': '5px', 'display': 'flex',
-                            'alignItems': 'center', 'justifyContent': 'center'
+                            "width": "100%",
+                            "minHeight": "30px",
+                            "borderWidth": "1px",
+                            "borderStyle": "solid",
+                            "borderRadius": "5px",
+                            "textAlign": "center",
+                            "margin": "5px",
+                            "display": "flex",
+                            "alignItems": "center",
+                            "justifyContent": "center",
                         },
-                               
-                        
-                    
-                    multiple=True
+                        multiple=True,  # Enable multiple file uploads
                     ),
-                    width=5, 
+                    width=5,
                 ),
+                
             ],
             className="mb-3",
         ),
+
+        dbc.Row(
+            [dbc.Col(id="file_name_output",style={"color": "#F8B237"}, width=8)],  # Output area for uploaded file names
+            className="mt-3",
+        ),
+        
          
         dbc.Row(
             [
@@ -254,30 +280,7 @@ form = dbc.Form(
     className="g-2",
 )
 
-
  
-#rankingbody  dropdown
-@app.callback(
-    Output('sdg_rankingbody', 'options'),
-    Input('url', 'pathname')
-)
-def populate_rankingbody_dropdown(pathname):
-    # Check if the pathname matches if necessary
-    if pathname == '/SDGimpactrankings/SDG_submission':
-        sql = """
-        SELECT ranking_body_name as label, ranking_body_id  as value
-        FROM kmteam.ranking_body
-        """
-        values = []
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        
-        rankingbody_types = df.to_dict('records')
-        return rankingbody_types
-    else:
-        raise PreventUpdate
-
-
 
 
 #office dropdown
@@ -350,6 +353,32 @@ def populate_applycriteria_dropdown(pathname):
 
 
 
+
+
+# Callback to display the names of the uploaded files
+@app.callback(
+    Output("file_name_output", "children"),
+    [Input("sdg_file", "filename")],  # Use filename to get uploaded file names
+)
+def display_uploaded_files(filenames):
+    if not filenames:
+        return "No files uploaded"
+    
+    if isinstance(filenames, list):
+        # If multiple files are uploaded, join their names
+        file_names_str = ", ".join(filenames)
+        return f"Uploaded files: {file_names_str}"
+    
+    # If it's a single file, just return the filename
+    return f"Uploaded file: {filenames}"
+
+
+
+
+
+
+
+
 # Layout for the Dash app
 layout = html.Div(
     [
@@ -361,10 +390,11 @@ layout = html.Div(
                         html.H1("ADD NEW SDG SUBMISSION"),
                         html.Hr(),
                         html.Br(),
-                        form,
                         dbc.Alert(id="sdgsubmission_alert", is_open=False),  # Alert for feedback
+                        form,
+                        
                     ],
-                    width=6,
+                    width=8,
                     style={"marginLeft": "15px"},
                 ),
             ],
@@ -379,7 +409,14 @@ layout = html.Div(
         ),
     ]
 )
- 
+
+
+
+
+
+
+
+
 @app.callback(
     [
         Output('sdgsubmission_alert', 'color'),
@@ -397,20 +434,18 @@ layout = html.Div(
         State('sdg_office_id', 'value'),
         State('sdg_deg_unit_id', 'value'),
         State('sdg_accomplishedby', 'value'),
-        State('sdg_datesubmitted', 'value'),  
-        State('sdg_file', 'value'),
+        State('sdg_datesubmitted', 'date'), 
+        State('sdg_file', 'contents'),
+        State('sdg_file', 'filename'),  
+ 
         State('sdg_link', 'value'), 
         State('sdg_applycriteria', 'value'), 
     ]
-) 
-
-
-
-
-def record_SDGsubmission (submitbtn, sdg_rankingbody, sdg_evidencename,
-                          sdg_description,sdg_office_id,sdg_deg_unit_id,
-                          sdg_accomplishedby,sdg_datesubmitted,
-                          sdg_file,sdg_link, sdg_applycriteria):
+)
+def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_description,
+                        sdg_office_id, sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted,
+                        sdg_file_contents, sdg_file_names, sdg_link, sdg_applycriteria
+                            ):
     if not submitbtn:
         raise PreventUpdate
 
@@ -420,12 +455,55 @@ def record_SDGsubmission (submitbtn, sdg_rankingbody, sdg_evidencename,
     alert_color = ""
     alert_text = ""
 
-    # Input validation checks
+ 
     if not sdg_rankingbody:
         alert_open = True
         alert_color = 'danger'
         alert_text = 'Check your inputs. Please add a Ranking Body.'
         return [alert_color, alert_text, alert_open, modal_open]
+
+    if not sdg_evidencename:
+        alert_open = True
+        alert_color = 'danger'
+        alert_text = 'Check your inputs. Please add an Evidence Name.'
+        return [alert_color, alert_text, alert_open, modal_open]
+ 
+
+    if not (sdg_office_id or sdg_deg_unit_id):
+        alert_open = True
+        alert_color = 'danger'
+        alert_text = 'Please provide an Office ID or a Degree Unit ID.'
+        return [alert_color, alert_text, alert_open, modal_open]
+
+    if not sdg_accomplishedby:
+        alert_open = True
+        alert_color = 'danger'
+        alert_text = 'Check your inputs. Please add a Accomplished by.'
+        return [alert_color, alert_text, alert_open, modal_open]
+    
+    if sdg_file_contents and sdg_file_names:
+        file_data = []
+        for content, filename in zip(sdg_file_contents, sdg_file_names):
+            try:
+                # Decode the base64 content
+                content_type, content_string = content.split(',')
+                decoded_content = base64.b64decode(content_string)
+
+                # Save the file to the server
+                file_path = os.path.join(UPLOAD_DIRECTORY, filename)
+                with open(file_path, 'wb') as f:
+                    f.write(decoded_content)
+
+                file_info = {
+                    "path": file_path,
+                    "name": filename,
+                    "type": content_type,
+                    "size": len(decoded_content),
+                }
+                file_data.append(file_info)
+
+            except Exception as e:
+                return set_alert(f"Error processing uploaded files: {str(e)}", 'danger')
 
 
     try:
@@ -434,33 +512,41 @@ def record_SDGsubmission (submitbtn, sdg_rankingbody, sdg_evidencename,
                 sdg_rankingbody, sdg_evidencename,
                 sdg_description, sdg_office_id, sdg_deg_unit_id,
                 sdg_accomplishedby, sdg_datesubmitted,
-                sdg_file, sdg_link, sdg_applycriteria
+                sdg_link, sdg_applycriteria,
+                sdg_file_path, sdg_file_name, sdg_file_type, sdg_file_size
             )
-        
-        VALUES (
-                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+            VALUES (
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
             )
         """
-        # Values for insertion
         values = (
             sdg_rankingbody,
             sdg_evidencename,
-            sdg_description,   
-            sdg_office_id,     
-            sdg_deg_unit_id,   
+            sdg_description,
+            sdg_office_id,
+            sdg_deg_unit_id,
             sdg_accomplishedby,
-            sdg_datesubmitted,   
-            sdg_file,           
-            sdg_link,         
-            json.dumps(sdg_applycriteria) if sdg_applycriteria else None  # JSONB handling
+            sdg_datesubmitted,
+            sdg_link,
+            json.dumps(sdg_applycriteria) if sdg_applycriteria else None,
+            file_data[0]["path"] if file_data else None,
+            file_data[0]["name"] if file_data else None,
+            file_data[0]["type"] if file_data else None,
+            file_data[0]["size"] if file_data else None,
         )
-
 
         db.modifydatabase(sql, values)
         modal_open = True
+
     except Exception as e:
-        alert_color = 'danger'
-        alert_text = 'An error occurred while saving the data.'
-        alert_open = True
+        return set_alert("An error occurred while saving the data: " + str(e), 'danger')
 
     return [alert_color, alert_text, alert_open, modal_open]
+
+
+# Helper function for setting alerts
+def set_alert(message, color):
+    return [color, message, True, False]
+
+
+ 
