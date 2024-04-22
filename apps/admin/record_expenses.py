@@ -13,6 +13,11 @@ from apps import dbconnect as db
 
 import datetime
 
+custom_css = {
+    "tabs": {"background-color": "#C2C2C2"},
+    "tab": {"padding": "20px"},
+    "active_tab": {"background-color": "yellow"}
+}
   
 layout = html.Div(
     [
@@ -50,11 +55,13 @@ layout = html.Div(
 
                         dbc.Tabs(
                             [
-                                dbc.Tab(label="Current", tab_id="current"),
-                                dbc.Tab(label="View All Expenses", tab_id="view_all"),
+                                dbc.Tab(label="|   Current   |", tab_id="current"),
+                                dbc.Tab(label="|   View All Expenses   |", tab_id="view_all"),
                             ],
                             id="tabs",
                             active_tab="current",
+                            style=custom_css["tabs"],
+                            className="custom-tabs"
                         ),
 
                         html.Div(

@@ -76,8 +76,8 @@ card = dbc.Card(
         dbc.CardHeader(
             dbc.Tabs(
                 [
-                    dbc.Tab(label="Team Messages", tab_id="tab-team-msg"),
-                    dbc.Tab(label="Announcements", tab_id="tab-announcements"),
+                    dbc.Tab(label="|   Team Messages   |", tab_id="tab-team-msg"),
+                    dbc.Tab(label="|   Announcements   |", tab_id="tab-announcements"),
                 ],
                 id="card-tabs",
                 active_tab="tab-team-msg",
