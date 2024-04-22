@@ -19,8 +19,8 @@ from apps import dbconnect as db
 def get_available_years():
     # Query to get unique years from the database
     sql = """
-    SELECT DISTINCT EXTRACT(YEAR FROM unithead_appointment_start) AS year
-    FROM iqateam.acad_unitheads
+    SELECT DISTINCT EXTRACT(YEAR FROM qaofficer_appointment_start) AS year
+    FROM qaofficers.qa_officer
     ORDER BY year DESC
     """
     # Execute the query and fetch the results
@@ -134,62 +134,91 @@ layout = html.Div(
  
 
 
+ 
+
 @app.callback(
     Output('qadirectory_list', 'children'),
     [
         Input('url', 'pathname'),
         Input('qadirectory_filter', 'value'),
-        Input('month_dropdown', 'value'),  # Add input for the month dropdown
-        Input('year_dropdown', 'value')
-    ]
+        Input('month_dropdown', 'value'),
+        Input('year_dropdown', 'value'),
+    ],
 )
-
-
-def qadirectory_loadlist(pathname, searchterm, selected_month, selected_years):
+def qadirectory_loadlist(pathname, searchterm, selected_month, selected_year):
     if pathname == '/qa_directory':
-        # Fetch all data from the database
+        print("Callback executed")
+        
+        # Fetch the data
         sql = """
             SELECT 
-                qaofficer_sname AS Surname,
-                qaofficer_fname AS "First Name",
-                cuposition_name AS Position,
-                qaofficer_upmail AS Email,
-                deg_unit_name AS Department,
-                TO_CHAR(qaofficer_appointment_start, 'MM-DD-YYYY') AS "Start Term",
-                TO_CHAR(qaofficer_appointment_end, 'MM-DD-YYYY') AS "End Term"
+                clusters.cluster_name AS "Cluster",
+                college.college_name AS "College",
+                deg_unit.deg_unit_name AS "Unit",
+                qaofficer_full_name AS "Full Name",
+                qaofficer_upmail AS "UP Mail",
+                fac_posn_name AS "Faculty Position",
+                qaofficer_facadmin_posn AS "Admin Position",
+                qaofficer_staff_posn AS "Staff Position",
+                cuposition_name AS "QA Position",
+                qaofficer_basicpaper AS "With Basic Paper",
+                qaofficer_remarks AS "Remarks",
+                qaofficer_alc AS "ALC",
+                qaofficer_appointment_start AS "Start Term",
+                qaofficer_appointment_end AS "End Term",
+                qaofficer_role AS "CU-Level role"
             FROM 
-                qaofficers.qa_officer
+                qaofficers.qa_officer 
             LEFT JOIN 
-                qaofficers.cuposition ON qa_officer.qaofficer_cuposition_id = cuposition.cuposition_id
+                public.fac_posns ON qaofficer_fac_posn_id = fac_posns.fac_posn_id
             LEFT JOIN 
-                public.deg_unit ON qa_officer.qaofficer_deg_unit_id = deg_unit.deg_unit_id
+                qaofficers.cuposition ON qaofficer_cuposition_id = cuposition.cuposition_id
+            LEFT JOIN 
+                public.clusters ON qaofficer_cluster_id = clusters.cluster_id
+            LEFT JOIN 
+                public.college ON qaofficer_college_id = college.college_id
+            LEFT JOIN 
+                public.deg_unit ON qaofficer_deg_unit_id = deg_unit.deg_unit_id
         """
 
-        cols = ['Surname', 'First Name', 'Position', 'Email', 'Department', 'Start Term', 'End Term']
-
-        df = db.querydatafromdatabase(sql, [], cols)  # No need for values, fetch all data
-
-        cols = ['Surname', 'First Name', 'Position', 'Email', 'Department', 'Start Term', 'End Term']
-
-        df = db.querydatafromdatabase(sql, [], cols)  # No need for values, fetch all data
-
-        # Filter the DataFrame based on the search term
+        cols = [
+            'Cluster', 'College', 'Unit', 'Full Name', 'UP Mail', 'Faculty Position',
+            'Admin Position', 'Staff Position', 'QA Position', 
+            'With Basic Paper', 'Remarks', 'ALC', 'Start Term', 'End Term', 
+            'CU-Level role'
+        ]
+        
+        # Fetch all data
+        df = db.querydatafromdatabase(sql, [], cols)
+        
+        # Print DataFrame to check if data is retrieved correctly
+        print("Data fetched:")
+        print(df.head())  # Display the first few rows of the DataFrame
+        
+        # Check if DataFrame is empty after data retrieval
+        if df.empty:
+            return html.Div("No records to display")
+        
+        # Apply search term filter
         if searchterm:
-            search_cols = ['Surname', 'First Name', 'Position', 'Email', 'Department']
-            df = df[df[search_cols].apply(lambda row: any(searchterm.lower() in str(cell).lower() for cell in row), axis=1)]
-
-        # Apply additional filters if necessary
+            search_cols = ['Full Name', 'UP Mail', 'Faculty Position', 'Unit']
+            df = df[df[search_cols].apply(
+                lambda row: any(searchterm.lower() in str(cell).lower() for cell in row),
+                axis=1
+            )]
+        
+        # Apply additional filters
+        df['Start Term'] = pd.to_datetime(df['Start Term'], errors='coerce')  # Handle errors gracefully
+        
         if selected_month:
-            df['Start Term'] = pd.to_datetime(df['Start Term'])  # Convert to datetime objects
             df = df[df['Start Term'].dt.month == int(selected_month)]
-
-        if selected_years:
-            df = df[df['Start Term'].dt.year.isin(selected_years)]
-
+        
+        if selected_year:
+            df = df[df['Start Term'].dt.year == int(selected_year)]
+        
         # Truncate the 'Start Term' column to ensure it doesn't exceed 10 characters
         df['Start Term'] = df['Start Term'].astype(str).str.slice(0, 10)
-
- 
+        
         # Generate the table from the filtered DataFrame
         if not df.empty:
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')

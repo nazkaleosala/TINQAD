@@ -21,7 +21,7 @@ form = dbc.Form(
                 dbc.Label("Surname", width=4),
                 dbc.Col(
                     dbc.Input(id="qaofficer_sname", type="text"),
-                    width=5,
+                    width=6,
                 ),
             ],
             className="mb-2",
@@ -31,7 +31,7 @@ form = dbc.Form(
                 dbc.Label("First Name", width=4),
                 dbc.Col(
                     dbc.Input(id="qaofficer_fname",type="text"),
-                    width=5,
+                    width=6,
                 ),
             ],
             className="mb-2",
@@ -41,7 +41,7 @@ form = dbc.Form(
                 dbc.Label("Middle Name", width=4),
                 dbc.Col(
                     dbc.Input(id="qaofficer_mname",type="text"),
-                    width=5,
+                    width=6,
                 ),
             ],
             className="mb-2",
@@ -51,7 +51,7 @@ form = dbc.Form(
                 dbc.Label("UP Mail", width=4),
                 dbc.Col(
                     dbc.Input(id="qaofficer_upmail",type="text"),
-                    width=5,
+                    width=6,
                 ),
             ],
             className="mb-2",
@@ -118,6 +118,47 @@ form = dbc.Form(
             ],
             className="mb-4",
         ),
+
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                       "Faculty Rank/Position",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id='qaofficer_fac_posn_id',
+                        placeholder="Select Department",
+                    ),
+                    width=6,
+                ),
+            ],
+            className="mb-4",
+        ),
+        dbc.Row(
+            [
+                dbc.Label("Faculty Admin Position (if any)", width=4),
+                dbc.Col(
+                    dbc.Input(id="qaofficer_facadmin_posn", type="text"),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
+        dbc.Row(
+            [
+                dbc.Label("Admin Staff/REPS Position", width=4),
+                dbc.Col(
+                    dbc.Input(id="qaofficer_staff_posn", type="text"),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
+        
         html.H5("QA INFORMATION", className="form-header fw-bold"),
          
         dbc.Row(
@@ -164,8 +205,9 @@ form = dbc.Form(
                     dbc.Select(
                         id="qaofficer_remarks",
                         options=[
+                            {"label":"With record","value":"No record"},
+                            {"label":"No record","value":"No record"},
                             {"label":"For renewal","value":"For renewal"},
-                            {"label":"No record","value":"No record"}
                         ],
                         placeholder="Select a remark"
                     ),
@@ -178,8 +220,8 @@ form = dbc.Form(
             [
                 dbc.Label("ALC", width=4),
                 dbc.Col(
-                    dbc.Input(id="qaofficer_alc", type="text"),
-                    width=5,
+                    dbc.Input(id="qaofficer_alc", type="number"),
+                    width=3,
                 ),
             ],
             className="mb-2",
@@ -201,6 +243,16 @@ form = dbc.Form(
                 dbc.Col(
                     dbc.Input(type="date", id='qaofficer_appointment_end'),
                     width=4,
+                ),
+            ],
+            className="mb-2",
+        ),
+        dbc.Row(
+            [
+                dbc.Label("Role in the CU-Level QA Committee", width=4),
+                dbc.Col(
+                    dbc.Input(id="qaofficer_role", type="text"),
+                    width=6,
                 ),
             ],
             className="mb-2",
@@ -242,6 +294,30 @@ form = dbc.Form(
     ]
 )
 
+
+
+
+
+# CU dropdown
+@app.callback(
+    Output('qaofficer_fac_posn_id', 'options'),
+    Input('url', 'pathname')
+)
+def populate_cuposition_dropdown(pathname):
+    # Check if the pathname matches if necessary
+    if pathname == '/QAOfficers/qaofficers_profile':
+        sql = """
+        SELECT fac_posn_name as label, fac_posn_id  as value
+        FROM  public.fac_posns 
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        qaofficer_fac_posns_types = df.to_dict('records')
+        return qaofficer_fac_posns_types
+    else:
+        raise PreventUpdate
 
 
 
@@ -402,6 +478,12 @@ layout = html.Div(
         State('qaofficer_mname', 'value'),
         State('qaofficer_sname', 'value'),
         State('qaofficer_upmail', 'value'),
+
+        State('qaofficer_fac_posn_id', 'value'),
+        State('qaofficer_facadmin_posn', 'value'),
+        State('qaofficer_staff_posn', 'value'),
+
+
         State('qaofficer_cuposition_id', 'value'),
         State('qaofficer_basicpaper', 'value'),
         State('qaofficer_remarks', 'value'),   
@@ -410,16 +492,21 @@ layout = html.Div(
         State('qaofficer_appointment_end', 'value'),  
         State('qaofficer_cluster_id', 'value'),      
         State('qaofficer_college_id', 'value'), 
-        State('qaofficer_deg_unit_id', 'value')        
+        State('qaofficer_deg_unit_id', 'value'),
+        State('qaofficer_role', 'value'),
+
     ]
 )
  
 def record_qaofficer_profile(submitbtn, qaofficer_fname, qaofficer_mname, 
                             qaofficer_sname, qaofficer_upmail,
+                            qaofficer_fac_posn_id, qaofficer_facadmin_posn, qaofficer_staff_posn,
                             qaofficer_cuposition_id, qaofficer_basicpaper, 
                             qaofficer_remarks, qaofficer_alc,
                             qaofficer_appointment_start, qaofficer_appointment_end, 
-                            qaofficer_cluster_id, qaofficer_college_id, qaofficer_deg_unit_id):
+                            qaofficer_cluster_id, qaofficer_college_id, 
+                            qaofficer_deg_unit_id, qaofficer_role):
+    
     if not submitbtn:
         raise PreventUpdate
 
@@ -466,6 +553,13 @@ def record_qaofficer_profile(submitbtn, qaofficer_fname, qaofficer_mname,
         alert_text_upmail = 'Check your inputs. Please select a Department.'
         return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
     
+
+    if not qaofficer_fac_posn_id :
+        alert_color_upmail = 'danger'
+        alert_text_upmail = 'Check your inputs. Please select a Faculty Position.'
+        return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
+    
+
     if not qaofficer_cuposition_id :
         alert_color_upmail = 'danger'
         alert_text_upmail = 'Check your inputs. Please add a CU Position.'
@@ -503,20 +597,26 @@ def record_qaofficer_profile(submitbtn, qaofficer_fname, qaofficer_mname,
         sql = """
             INSERT INTO  qaofficers.qa_officer (
                 qaofficer_fname, qaofficer_mname, qaofficer_sname, qaofficer_upmail,
+                qaofficer_fac_posn_id, qaofficer_facadmin_posn, qaofficer_staff_posn,
                 qaofficer_cuposition_id, qaofficer_basicpaper, qaofficer_remarks, qaofficer_alc,
-                qaofficer_appointment_start, qaofficer_appointment_end, qaofficer_cluster_id, qaofficer_college_id, qaofficer_deg_unit_id
+                qaofficer_appointment_start, qaofficer_appointment_end, qaofficer_cluster_id, 
+                qaofficer_college_id, qaofficer_deg_unit_id, qaofficer_role
             )
             VALUES (%s, %s, %s, %s,
+                    %s, %s, %s,
                     %s, %s, %s, %s, 
-                    %s, %s, %s, %s, %s)
+                    %s, %s, %s, %s, %s,
+                    %s)
         
         """
         values = (qaofficer_fname, qaofficer_mname, 
                 qaofficer_sname, qaofficer_upmail,
+                qaofficer_fac_posn_id, qaofficer_facadmin_posn, qaofficer_staff_posn,
                 qaofficer_cuposition_id, qaofficer_basicpaper, 
                 qaofficer_remarks, qaofficer_alc,
                 qaofficer_appointment_start, qaofficer_appointment_end, 
-                qaofficer_cluster_id, qaofficer_college_id, qaofficer_deg_unit_id)
+                qaofficer_cluster_id, qaofficer_college_id, qaofficer_deg_unit_id,
+                qaofficer_role)
 
         db.modifydatabase(sql, values)
         modal_open = True
