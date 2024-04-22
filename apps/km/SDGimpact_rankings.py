@@ -11,146 +11,28 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
-criteria_data = pd.DataFrame({
-    "Criteria Name": ["SAMPLE NAME", "SAMPLE NAME"],
-    "Criteria ID.": ["Criteria 2.1.1", "Criteria 2.1.2"],
-    "Description": ["Sample Description", "Sample Description"]
-})
 
-evidence_data = pd.DataFrame({
-    "Title": ["XXX Building"],
-    "Office": ["IEORD"],
-    "Summary": ["Short Description..."],
-    "Ranking Body": ["THE"],
-    "Applicable Criteria": ["Criteria 1, 2, 3"]
-})
-
-
-criteria_checklist = dbc.Card(
-    [
-        dbc.CardHeader("Manage Approved Evidence", className= "fw-bold"),
+checklist_card = dbc.Col(
+    dbc.Card(
         dbc.CardBody(
-            [
-                dbc.Checklist(
-                    options=[
-                        {"label": f"Criteria {i}", "value": i} for i in range(1, 7)
-                    ],
-                    id="evidence-criteria",
-                    inline=True,
-                    inputClassName="me-1"  # Margin to the right of the checkbox
-                ),
-                # Additional content can be added here
-            ]
-        )
-    ]
+            dcc.Checklist(
+                id='criteria_list',
+                options=[],
+                inline=True,
+                labelStyle={'marginRight': '10px'}  # Adjust the margin as needed
+            )
+        ),
+        style={
+            'border': '1px solid #ccc',  # Optional: custom border styling
+            'padding': '10px',  # Optional: custom padding for the card body
+            'background-color': '#f9f9f9'  # Optional: background color
+        },
+    ),
+    width=12  # Adjust the column width to fit the content
 )
 
-data_revisions = pd.DataFrame({
-    "Title": ["XXX Building"],
-    "Office": ["HRDO"],
-    "Summary": ["Short Description..."],
-    "Action": ["add revision"]
-})
 
-data_checking = pd.DataFrame({
-    "Title": ["XXX Building", "XXX Building", "XXX Building"],
-    "Office": ["IEORD", "IEORD", "IEORD"],
-    "Summary": ["Short Description...", "Short Description...", "Short Description..."],
-    "Action": ["check submission", "check submission", "check submission"]
-})
 
-data_approved = pd.DataFrame({
-    "Title": ["XXX Building"],
-    "Office": ["IEORD"],
-    "Summary": ["Short Description..."],
-    "Action": ["view"]
-})
-
-def create_evidence_table(table_id, data, title):
-    return dbc.Card(
-        [
-            dbc.CardHeader(html.H6(title, className="mb-0", style={'fontWeight': 'bold'})),
-            dbc.CardBody(
-                dash_table.DataTable(
-                    id=table_id,
-                    columns=[{"name": i, "id": i} for i in data.columns],
-                    data=data.to_dict('records'), 
-                    editable=True,  # Set to False if you don't want cells to be editable
-                    row_deletable=True,  # Set to False if you don't want to allow row deletion
-                )
-            ),  
-        ], style={'marginBottom': '20px'} 
-    )
-
-add_criteria_modal = dbc.Modal(
-    [
-        dbc.ModalHeader(html.H4("ADD CRITERIA", className="fw-bold")),
-        dbc.ModalBody(
-            [
-                dbc.Form(
-                    [
-                        dbc.Row(
-                            [
-                                dbc.Label(
-                                    [
-                                        "SDG # ",
-                                        html.Span("*", style={"color": "#F8B237"})
-                                    ],
-                                    width=4
-                                ),
-                                dbc.Col(
-                                    dbc.Textarea(placeholder="Enter SDG #", style={"height": "30px"}),
-                                    width=8,
-                                ),
-                            ],
-                            className="mb-1",
-                        ),
-                        dbc.Row(
-                            [
-                                dbc.Label(
-                                    [
-                                        "Criteria Code ",
-                                        html.Span("*", style={"color": "#F8B237"})
-                                    ],
-                                    width=4
-                                ),
-                                dbc.Col(
-                                    dbc.Textarea(placeholder="Enter Criteria Code", style={"height": "30px"}),
-                                    width=8,
-                                ),
-                            ],
-                            className="mb-1",
-                        ),
-                        dbc.Row(
-                            [
-                                dbc.Label(
-                                    [
-                                        "Description ",
-                                        html.Span("*", style={"color": "#F8B237"})
-                                    ],
-                                    width=4
-                                ),
-                                dbc.Col(
-                                    dbc.Textarea(placeholder="Enter Description", style={"height": "80px"}),
-                                    width=8,
-                                ),
-                            ],
-                            className="mb-3",
-                        ),
-                    ]
-                ),
-            ]
-        ),
-        dbc.ModalFooter(
-            [
-                dbc.Button("Save", id="save-criteria-btn", className="ml-auto"),
-                dbc.Button("Cancel", id="close-criteria-btn", className="ml-auto"),
-            ]
-        ),
-    ],
-    id="add-criteria-modal",
-    centered=True,
-)
 
 layout = html.Div(
     [
@@ -159,118 +41,118 @@ layout = html.Div(
                 dbc.Col(cm.generate_navbar(), width=2),
                 dbc.Col(
                     [
-                        html.H1("ADD CRITERIA"),
-                        html.Hr(),
+                        html.H1("SDG IMPACT RANKINGS"),
+                        html.Hr(), 
 
                         dbc.Row(   
                             [
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "➕ Add criteria", color="primary", 
-                                        href='add_criteria', 
-                                    ),
-                                    width="auto",    
-                                ),
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "📁 Upload CSV File", color="danger",   
-                                    ),
-                                    width="auto",    
-                                )
-                            ],
-                        ),
-
-                        html.Br(),
- 
-                        dbc.Row(   
-                            [
+                                
+                                
                                 dbc.Col(  
                                     dbc.Input(
                                         type='text',
-                                        id='SDGimpactrankings_filter',
-                                        placeholder='🔎 Search by name, email, position, etc',
+                                        id='add_criteria_filter',
+                                        placeholder='🔎 Search by degree program',
                                         className='ml-auto'   
                                     ),
                                     width="8",
                                 ),
+
+                                dbc.Col(   
+                                    dbc.Button(
+                                        "➕ Add Criteria", color="primary", 
+                                        href='/add_criteria', 
+                                    ),
+                                    width="auto",    
+                                    
+                                ),
                             ]
                         ),
-                        
-                        html.Br(),
 
-                        dbc.Row(
-                            [
-                                dbc.Col(
-                                    dash_table.DataTable(
-                                        id='criteria-table',
-                                        columns=[
-                                            {"name": i, "id": i} for i in criteria_data.columns
-                                        ],
-                                        data=criteria_data.to_dict('records'),
-                                        style_header={'fontWeight': 'bold'},
-                                    ),
-                                    width=12
-                                )
-                            ],
-                            className="mb-3",
-                        ),
-
-                        dbc.Row(
-                            [
-                                dbc.Col(
-                                    criteria_checklist, width=12, className="mb-3 ",
-                                ),
-                                dbc.Col(
-                                    [
-                                        dash_table.DataTable(
-                                            id='evidence-table',
-                                            columns=[
-                                                {"name": i, "id": i} for i in evidence_data.columns
-                                            ],
-                                            data=evidence_data.to_dict('records'),
-                                            style_header={'fontWeight': 'bold'},
-                                        )
-                                    ],
-                                    width=12
-                                )
-                            ],
-                            className="mb-3",
+                         
+                        # Placeholder for the users table
+                        html.Div(
+                            id='add_criteria_list', 
+                            style={
+                                'marginTop': '20px',
+                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                            }
                         ),
 
                         html.Div(
                             [
-                                html.Br(),
-                                html.Hr(),
-                                dbc.Row(   
+                                html.Br(),    
+                                # Heading with a button on the same row
+                                dbc.Row(
                                     [
-                                        dbc.Col(   
-                                            html.H5("SUBMITTED EVIDENCES"),
-                                        ), 
-                                        dbc.Col(   
+                                        dbc.Col(
+                                            html.H5(html.B("Manage Approved Evidence")),
+                                            width=8,
+                                        ),
+                                        dbc.Col(
                                             dbc.Button(
-                                                "➕ Add Submission", color="primary", 
-                                                href='/SDGimpactrankings/SDG_submission', 
+                                                "Deselect Criteria Checkboxes",
+                                                id="deselect_button",
+                                                color="danger",
+                                                size="sm",
                                             ),
-                                            width="auto",    
-                                            className="mb-3",
-                                        ), 
-                                        dbc.Col(   
-                                            dbc.Button(
-                                                "✍🏻 Add Revision", color="warning", 
-                                                href='/SDGimpactrankings/SDG_revision', 
-                                            ),
-                                            width="auto",    
-                                            className="mb-3",
-                                        ), 
+                                            width="auto",
+                                            style={"textAlign": "right"},   
+                                        ),
+                                    ],
+                                    justify="between",  
+                                ),
+                                html.Br(),   
+                                
+                                dbc.Row(
+                                    [
+                                        checklist_card,  
                                     ],
                                 ),
-                                create_evidence_table('table-revisions', data_revisions, "Submissions in need of Revisions"),
-                                create_evidence_table('table-checking', data_checking, "Submissions for Checking"),
-                                create_evidence_table('table-approved', data_approved, "Approved Submissions"),
+                                
+                                
+                            ],
+                        ),
+
+
+
+                         html.Div(
+                            [
+                                html.Br(),  
+                                    
+                                dbc.Row(
+                                    [
+                                        
+                                        dbc.Col(
+                                            dbc.Button(
+                                                "➕ Add Submission",
+                                                color="primary",
+                                                href='/SDGimpactrankings/SDG_submission',
+                                            ),
+                                            width="auto",
+                                            className="mb-0",
+                                        ),
+                                        dbc.Col(
+                                            dbc.Button(
+                                                "✍🏻 Add Revision",
+                                                color="warning",
+                                                href='/SDGimpactrankings/SDG_revision',
+                                            ),
+                                            width="auto",
+                                            className="mb-0",
+                                        ),
+                                    ],
+                                    justify="end",  # Ensures heading is on the left and buttons on the right
+                                ),
+                                  
+                                dbc.Col(
+                                            html.H5(html.B("Submitted Evidences")),
+                                            width="auto",  # Auto to keep the heading at the left
+                                        ),
                             ]
                         )
-                    ], 
-                    width=9,  style={'marginLeft': '15px'}
+
+                    ], width=8, style={'marginLeft': '15px'}
                 ),
             ]
         ),
@@ -278,17 +160,116 @@ layout = html.Div(
             [
                 dbc.Col(cm.generate_footer(), width={"size": 12, "offset": 0}),
             ]
-        ),
-        add_criteria_modal,
+        )
     ]
 )
 
+
+
+
+
+
+#eqa types dropdown
 @app.callback(
-    Output("add-criteria-modal", "is_open"),
-    [Input("open-criteria-modal-btn", "n_clicks"), Input("close-criteria-btn", "n_clicks")],
-    [State("add-criteria-modal", "is_open")],
+    Output('criteria_list', 'options'),
+    Input('url', 'pathname')
 )
-def toggle_add_criteria_modal(n1, n2, is_open):
-    if n1 or n2:
-        return not is_open
-    return is_open
+def populate_criteria_list_dropdown(pathname):
+    # Check if the pathname matches if necessary
+    if pathname == '/SDGimpact_rankings':
+        sql ="""
+        SELECT sdgcriteria_code as label, sdgcriteria_id  as value
+        FROM  kmteam.SDGCriteria
+       """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        criteria_list_types = [{'label': row['label'], 'value': row['value']} for _, row in df.iterrows()]
+        return criteria_list_types
+    else:
+        raise PreventUpdate
+
+#eqa deselect
+@app.callback(
+    Output('criteria_list', 'value'),
+    [Input('deselect_button', 'n_clicks')]
+)
+def deselect_all_options(n_clicks):
+    if n_clicks:
+        # Return an empty list to deselect all options
+        return []
+    else:
+        # Return current value if no click event has occurred
+        return dash.no_update
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@app.callback(
+    [
+        Output('add_criteria_list', 'children')
+    ],
+    [
+        Input('url', 'pathname'),
+        Input('add_criteria_filter', 'value'),
+    ]
+)
+
+def add_criteria_list(pathname, searchterm):
+    if pathname == '/SDGimpact_rankings':  # Adjusted URL path
+         
+        sql = """
+            SELECT 
+                sdgcriteria_number AS "Criteria ID.",
+                sdgcriteria_code AS "Criteria Code",
+                sdgcriteria_description AS "Description"
+            FROM 
+                kmteam.SDGCriteria 
+        """
+        cols = ['Criteria ID.' , 'Criteria Code','Description']
+
+        if searchterm:
+            sql += """
+                WHERE 
+                    sdgcriteria_code ILIKE %s OR
+                    CAST(sdgcriteria_number AS VARCHAR) ILIKE %s OR 
+                    sdgcriteria_description ILIKE %s
+            """
+            like_pattern = f"%{searchterm}%"
+            values = [like_pattern, like_pattern, like_pattern]
+        else:
+            values = []
+
+        df = db.querydatafromdatabase(sql, values, cols) 
+
+        # Generate the table from the DataFrame
+        if not df.empty:
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return [table]
+        else:
+            return [html.Div("No records to display")]
+    else:
+        raise PreventUpdate
+    
+
+
+
+
+
+
