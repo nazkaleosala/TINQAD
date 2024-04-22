@@ -83,12 +83,12 @@ def generate_navbar():
                     html.A(html.B('Admin'), id='admin-link', href='/administration_dashboard', className="nav-link"),  
                     html.A('Record Expenses', id='record-expenses-link', href='/record_expenses', className="nav-link"),  
                     html.A('Training Documents', id='training-documents-link', href='/training_documents', className="nav-link"),  
-                    html.A('Generate Report', id='generate-report-link', href='/generate_report', className="nav-link"), 
+                    #html.A('Generate Report', id='generate-report-link', href='/generate_report', className="nav-link"), 
                     html.A('-----------------------------------', style={'color': 'white'} ),  
 
                     #internal qa dashboard
                     html.A(html.B('Internal QA'), id='internal-qa-link', href='/iqa_dashboard', className="nav-link"),  
-                    html.A('iAADs Reports Summary', id='iaads-reports-link', href='/iaads_reports', className="nav-link"),  
+                    #html.A('iAADs Reports Summary', id='iaads-reports-link', href='/iaads_reports', className="nav-link"),  
                     html.A('Acad Heads Directory', id='acad-heads-directory-link', href='/acad_heads_directory', className="nav-link"),  
                     html.A('-----------------------------------', style={'color': 'white'} ),  
 

@@ -142,43 +142,56 @@ layout = html.Div(
         Input('year_dropdown', 'value')
     ]
 )
+
+
+# Function to fetch data and generate the table
 def acadheadsdirectory_loadlist(pathname, searchterm, selected_month, selected_years):
     if pathname == '/acad_heads_directory':
-        # Fetch all data from the database
+        # SQL query to fetch the data from the database
         sql = """
-            SELECT au.unithead_sname AS Surname,
-                au.unithead_fname AS "First Name",
-                cp.cuposition_name AS Position,
-                au.unithead_upmail AS Email,
-                du.deg_unit_name AS Department, 
-                au.unithead_appointment_start AS "Start Term",
-                au.unithead_appointment_end AS "End Term"
-            FROM iqateam.acad_unitheads AS au
-            LEFT JOIN qaofficers.cuposition AS cp ON au.unithead_cuposition_id = cp.cuposition_id
-            LEFT JOIN public.deg_unit AS du ON au.unithead_deg_unit_id = du.deg_unit_id
+            SELECT 
+                clusters.cluster_name AS Cluster,
+                college.college_name AS College,
+                deg_unit.deg_unit_name AS Unit,
+                acad_unitheads.unithead_full_name AS "Full Name",   
+                acad_unitheads.unithead_fname AS "First Name",
+                acad_unitheads.unithead_sname AS "Surname",
+                acad_unitheads.unithead_upmail AS "Up Mail",
+                fac_posns.fac_posn_name AS "Faculty Position",
+                acad_unitheads.unithead_desig AS " Designation",
+                acad_unitheads.unithead_appointment_start AS "Start Term",
+                acad_unitheads.unithead_appointment_end AS "End Term"
+            FROM
+                iqateam.acad_unitheads
+                LEFT JOIN public.clusters ON acad_unitheads.unithead_cluster_id = clusters.cluster_id
+                LEFT JOIN public.college ON acad_unitheads.unithead_college_id = college.college_id
+                LEFT JOIN public.deg_unit ON acad_unitheads.unithead_deg_unit_id = deg_unit.deg_unit_id
+                LEFT JOIN public.fac_posns ON acad_unitheads.unithead_fac_posn_id = fac_posns.fac_posn_id
         """
 
-        cols = ['Surname', 'First Name', 'Position', 'Email', 'Department', 'Start Term', 'End Term']
-
-        df = db.querydatafromdatabase(sql, [], cols)  # No need for values, fetch all data
+        cols = [
+            'Cluster', 'College', 'Unit', 'Full Name', 'First Name', 'Surname', 'Up Mail',
+            'Faculty Position', 'Designation', 'Start Term', 'End Term'
+        ]
+        # Query the database with the correct SQL
+        df = db.querydatafromdatabase(sql, [], cols)  # Fetch all data
 
         # Filter the DataFrame based on the search term
         if searchterm:
-            search_cols = ['Surname', 'First Name', 'Position', 'Email', 'Department']
+            search_cols = ['Full Name','Surname', 'First Name', 'Up Mail', 'Faculty Position', 'Unit']
             df = df[df[search_cols].apply(lambda row: any(searchterm.lower() in str(cell).lower() for cell in row), axis=1)]
 
         # Apply additional filters if necessary
+        df['Start Term'] = pd.to_datetime(df['Start Term'])
+
         if selected_month:
-            df['Start Term'] = pd.to_datetime(df['Start Term'])  # Convert to datetime objects
             df = df[df['Start Term'].dt.month == int(selected_month)]
 
         if selected_years:
             df = df[df['Start Term'].dt.year.isin(selected_years)]
-
+        
         # Truncate the 'Start Term' column to ensure it doesn't exceed 10 characters
         df['Start Term'] = df['Start Term'].astype(str).str.slice(0, 10)
-
- 
 
         # Generate the table from the filtered DataFrame
         if not df.empty:
@@ -188,3 +201,6 @@ def acadheadsdirectory_loadlist(pathname, searchterm, selected_month, selected_y
             return html.Div("No records to display")
     else:
         raise PreventUpdate
+    
+      
+ 

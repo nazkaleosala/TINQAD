@@ -15,7 +15,6 @@ from apps import dbconnect as db
 
 form = dbc.Form(
     [
-        html.H5("PERSONAL INFORMATION", className="form-header fw-bold"),
         dbc.Row(
             [
                 dbc.Label(
@@ -26,7 +25,7 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dbc.Input(id="unithead_sname", type="text"),
-                    width=5,
+                    width=6,
                 ),
             ],
             className="mb-2",
@@ -41,7 +40,7 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dbc.Input(id="unithead_fname",type="text"),
-                    width=5,
+                    width=6,
                 ),
             ],
             className="mb-2",
@@ -56,7 +55,7 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dbc.Input(id="unithead_mname",type="text"),
-                    width=5,
+                    width=6,
                 ),
             ],
             className="mb-2",
@@ -71,7 +70,7 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dbc.Input(id="unithead_upmail",type="text"),
-                    width=5,
+                    width=6,
                 ),
             ],
             className="mb-2",
@@ -138,20 +137,19 @@ form = dbc.Form(
             ],
             className="mb-4",
         ),
-        html.H5("QA INFORMATION", className="form-header fw-bold"),
          
         dbc.Row(
             [
                 dbc.Label(
                     [
-                        "QA Position in the CU ",
+                        "Faculty Rank/Position",
                         html.Span("*", style={"color": "#F8B237"})
                     ],
                     width=4
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='unithead_cuposition_id',
+                        id='unithead_fac_posn_id',
                         placeholder="Select Position",
                     ),
                     width=6,
@@ -164,67 +162,23 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "With Basic Paper as QAO?",
-                         html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    dbc.Select(
-                        id="unithead_basicpaper",
-                        options=[
-                            {"label": "Yes", "value": "Yes"},
-                            {"label": "No", "value": "No"}
-                        ],
-                        placeholder="Please select yes/no"
-                    ),
-                    width=4,
-                ),
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Remarks",
+                        "Official Designation",
                         html.Span("*", style={"color": "#F8B237"})
                     ],
                     width=4),
                 dbc.Col(
-                    dbc.Select(
-                        id="unithead_remarks",
-                        options=[
-                            {"label": "For renewal", "value": "For renewal"},
-                            {"label": "No record", "value": "No record"}
-                        ],
-                        placeholder="Select a remark"
-                    ),
-                    width=4,
-                ),
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "ALC",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    dbc.Input(id="unithead_alc", type="text"),
+                    dbc.Input(id="unithead_desig",type="text"),
                     width=5,
                 ),
             ],
             className="mb-2",
-        ),
+        ), 
          
         dbc.Row(
             [
                 dbc.Label(
                     [
-                        "Start of Term",
+                        "Start of Appointment",
                         html.Span("*", style={"color": "#F8B237"})
                     ],
                     width=4),
@@ -239,7 +193,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "End of Term",
+                        "End of Appointment",
                         html.Span("*", style={"color": "#F8B237"})
                     ],
                     width=4),
@@ -296,22 +250,22 @@ form = dbc.Form(
 
 # CU dropdown
 @app.callback(
-    Output('unithead_cuposition_id', 'options'),
+    Output('unithead_fac_posn_id', 'options'),
     Input('url', 'pathname')
 )
-def populate_cuposition_dropdown(pathname):
+def populate_fac_posn_dropdown(pathname):
     # Check if the pathname matches if necessary
     if pathname == '/acadheadsdirectory/acadheads_profile':
         sql = """
-        SELECT cuposition_name as label, cuposition_id  as value
-        FROM qaofficers.cuposition
+        SELECT fac_posn_name as label, fac_posn_id  as value
+        FROM public.fac_posns
         """
         values = []
         cols = ['label', 'value']
         df = db.querydatafromdatabase(sql, values, cols)
         
-        unithead_cuposition_types = df.to_dict('records')
-        return unithead_cuposition_types
+        unithead_fac_posn_types = df.to_dict('records')
+        return unithead_fac_posn_types
     else:
         raise PreventUpdate
 
@@ -448,10 +402,8 @@ layout = html.Div(
         State('unithead_mname', 'value'),
         State('unithead_sname', 'value'),
         State('unithead_upmail', 'value'),
-        State('unithead_cuposition_id', 'value'),
-        State('unithead_basicpaper', 'value'),
-        State('unithead_remarks', 'value'),   
-        State('unithead_alc', 'value'),      
+        State('unithead_fac_posn_id', 'value'),
+        State('unithead_desig', 'value'),    
         State('unithead_appointment_start', 'value'),
         State('unithead_appointment_end', 'value'),  
         State('unithead_cluster_id', 'value'),      
@@ -462,8 +414,7 @@ layout = html.Div(
  
 def record_acadhead_profile(submitbtn, unithead_fname, unithead_mname, 
                             unithead_sname, unithead_upmail,
-                            unithead_cuposition_id, unithead_basicpaper, 
-                            unithead_remarks, unithead_alc,
+                            unithead_fac_posn_id, unithead_desig, 
                             unithead_appointment_start, unithead_appointment_end, 
                             unithead_cluster_id, unithead_college_id, unithead_deg_unit_id):
     if not submitbtn:
@@ -512,27 +463,16 @@ def record_acadhead_profile(submitbtn, unithead_fname, unithead_mname,
         alert_text_upmail = 'Check your inputs. Please select a Department.'
         return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
     
-    if not unithead_cuposition_id :
+    if not unithead_fac_posn_id :
         alert_color_upmail = 'danger'
-        alert_text_upmail = 'Check your inputs. Please add a CU Position.'
+        alert_text_upmail = 'Check your inputs. Please add a Faculty Position.'
         return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
     
-    if not unithead_basicpaper :
+    if not unithead_desig  :
         alert_color_upmail = 'danger'
-        alert_text_upmail = 'Check your inputs. Please check if there is basic paper.'
+        alert_text_upmail = 'Check your inputs. Please add an Official Designation.'
         return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
-    
-    if not unithead_remarks :
-        alert_color_upmail = 'danger'
-        alert_text_upmail = 'Check your inputs. Please add a remark.'
-        return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
-    
-    if not unithead_alc :
-        alert_color_upmail = 'danger'
-        alert_text_upmail = 'Check your inputs. Please add an ALC.'
-        return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
-    
-    
+     
     if not unithead_appointment_start  :
         alert_color_upmail = 'danger'
         alert_text_upmail = 'Check your inputs. Please add a start date.'
@@ -549,17 +489,17 @@ def record_acadhead_profile(submitbtn, unithead_fname, unithead_mname,
         sql = """
             INSERT INTO iqateam.acad_unitheads (
                 unithead_fname, unithead_mname, unithead_sname, unithead_upmail,
-                unithead_cuposition_id, unithead_basicpaper, unithead_remarks, unithead_alc,
+                unithead_fac_posn_id, unithead_desig, 
                 unithead_appointment_start, unithead_appointment_end, unithead_cluster_id, unithead_college_id, unithead_deg_unit_id
             )
             VALUES (%s, %s, %s, %s,
-                    %s, %s, %s, %s, 
+                    %s, %s,  
                     %s, %s, %s, %s, %s)
         """
         values = (unithead_fname, unithead_mname, 
                 unithead_sname, unithead_upmail,
-                unithead_cuposition_id, unithead_basicpaper, 
-                unithead_remarks, unithead_alc,
+                unithead_fac_posn_id, unithead_desig, 
+                
                 unithead_appointment_start, unithead_appointment_end, 
                 unithead_cluster_id, unithead_college_id, unithead_deg_unit_id)
 
