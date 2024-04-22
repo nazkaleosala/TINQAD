@@ -118,7 +118,9 @@ layout = html.Div(
                             id='manageevidence_list', 
                             style={
                                 'marginTop': '20px',
-                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                                'overflowX': 'auto',# This CSS property adds a horizontal scrollbar
+                                'overflowY': 'auto',   
+                                'maxHeight': '200px',
                             }
                         ),
 
@@ -154,12 +156,61 @@ layout = html.Div(
                                     justify="end",  # Ensures heading is on the left and buttons on the right
                                 ),
                                   
-                                dbc.Col(
-                                            html.H5(html.B("Submitted Evidences")),
-                                            width="auto",  # Auto to keep the heading at the left
-                                        ),
+                                
+
+                                
                             ]
-                        )
+                        ),
+
+                        dbc.Row(dbc.Col(
+                            html.H5("Submissions in need of Revisions"),
+                            width="auto",  # Auto to keep the heading at the left
+                        )),
+
+                        html.Div(
+                            id='revisions_list', 
+                            style={
+                                'marginTop': '20px',
+                                'overflowX': 'auto',# This CSS property adds a horizontal scrollbar
+                                'overflowY': 'auto',   
+                                'maxHeight': '100px',
+                            }
+                        ),
+
+
+                        html.Br(),
+                        dbc.Row(dbc.Col(
+                            html.H5("Submissions for Checking"),
+                            width="auto",  # Auto to keep the heading at the left
+                        )),
+                        html.Div(
+                            id='checking_list', 
+                            style={
+                                'marginTop': '20px',
+                                'overflowX': 'auto',# This CSS property adds a horizontal scrollbar
+                                'overflowY': 'auto',   
+                                'maxHeight': '100px',
+                            }
+                        ),
+                        
+                        html.Br(),
+                        dbc.Row(dbc.Col(
+                            html.H5("Approved Submissions"),
+                            width="auto",  # Auto to keep the heading at the left
+                        )),
+                        html.Div(
+                            id='approved_list', 
+                            style={
+                                'marginTop': '20px',
+                                'overflowX': 'auto',# This CSS property adds a horizontal scrollbar
+                                'overflowY': 'auto',   
+                                'maxHeight': '100px',
+                            }
+                        ),
+
+                        html.Br(),
+                        html.Br(),
+                                
 
                     ], width=8, style={'marginLeft': '15px'}
                 ),
@@ -323,3 +374,128 @@ def manageevidence_list (pathname, criteria_types):
 
 
 
+
+@app.callback(
+    [
+        Output('revisions_list', 'children')
+    ],
+    [
+        Input('url', 'pathname'),  
+    ]
+)
+
+def revisions_list (pathname):
+    if pathname == '/SDGimpact_rankings':  # Adjusted URL path
+         
+        sql = """
+            SELECT 
+                sdg_evidencename AS "Evidence Name",
+                (SELECT office_name FROM maindashboard.offices WHERE office_id = sdg_office_id) AS "Office",
+                sdg_description AS "Description",
+                (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body"
+                 
+                
+            FROM 
+                kmteam.SDGSubmission
+        """
+        cols = ['Evidence Name', 'Office','Description', 'Ranking Body' ]
+
+         
+
+        df = db.querydatafromdatabase(sql, [], cols) 
+
+        # Generate the table from the DataFrame
+        if not df.empty:
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return [table]
+        else:
+            return [html.Div("No records to display")]
+    else:
+        raise PreventUpdate
+    
+
+
+
+
+
+
+
+@app.callback(
+    [
+        Output('checking_list', 'children')
+    ],
+    [
+        Input('url', 'pathname'),  
+    ]
+)
+
+def checking_list (pathname):
+    if pathname == '/SDGimpact_rankings':  # Adjusted URL path
+         
+        sql = """
+            SELECT 
+                sdg_evidencename AS "Evidence Name",
+                (SELECT office_name FROM maindashboard.offices WHERE office_id = sdg_office_id) AS "Office",
+                sdg_description AS "Description",
+                (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body"
+                 
+                
+            FROM 
+                kmteam.SDGSubmission
+        """
+        cols = ['Evidence Name', 'Office','Description', 'Ranking Body' ]
+
+         
+
+        df = db.querydatafromdatabase(sql, [], cols) 
+
+        # Generate the table from the DataFrame
+        if not df.empty:
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return [table]
+        else:
+            return [html.Div("No records to display")]
+    else:
+        raise PreventUpdate
+    
+
+
+
+@app.callback(
+    [
+        Output('approved_list', 'children')
+    ],
+    [
+        Input('url', 'pathname'),  
+    ]
+)
+
+def approved_list (pathname):
+    if pathname == '/SDGimpact_rankings':  # Adjusted URL path
+         
+        sql = """
+            SELECT 
+                sdg_evidencename AS "Evidence Name",
+                (SELECT office_name FROM maindashboard.offices WHERE office_id = sdg_office_id) AS "Office",
+                sdg_description AS "Description",
+                (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body"
+                 
+                
+            FROM 
+                kmteam.SDGSubmission
+        """
+        cols = ['Evidence Name', 'Office','Description', 'Ranking Body' ]
+
+         
+
+        df = db.querydatafromdatabase(sql, [], cols) 
+
+        # Generate the table from the DataFrame
+        if not df.empty:
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return [table]
+        else:
+            return [html.Div("No records to display")]
+    else:
+        raise PreventUpdate
+    
