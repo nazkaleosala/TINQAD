@@ -103,9 +103,9 @@ def generate_navbar():
                     
                     #km team dashboard
                     html.A(html.B('KM Team'), id='km-team-link', href='/km_dashboard', className="nav-link"),  
-                    html.A('THE World Univ Rankings', id='the-world-univ-rankings-link', href='/THEworld_rankings', className="nav-link"),  
+                    #html.A('THE World Univ Rankings', id='the-world-univ-rankings-link', href='/THEworld_rankings', className="nav-link"),  
                     html.A('SDG Impact Rankings', id='sdg-impact-rankings-link', href='/SDGimpact_rankings', className="nav-link"),  
-                    html.A('QS University Rankings', id='qs-university-rankings-link', href='/QSworld_rankings', className="nav-link"),  
+                    #html.A('QS University Rankings', id='qs-university-rankings-link', href='/QSworld_rankings', className="nav-link"),  
                     html.A('-----------------------------------', style={'color': 'white'} ), 
 
                     

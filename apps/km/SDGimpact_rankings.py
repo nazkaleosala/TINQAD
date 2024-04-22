@@ -70,7 +70,7 @@ layout = html.Div(
                         ),
 
                          
-                        # Placeholder for the users table
+                         
                         html.Div(
                             id='add_criteria_list', 
                             style={
@@ -113,6 +113,15 @@ layout = html.Div(
                                 
                             ],
                         ),
+
+                        html.Div(
+                            id='manageevidence_list', 
+                            style={
+                                'marginTop': '20px',
+                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                            }
+                        ),
+
 
 
 
@@ -269,6 +278,47 @@ def add_criteria_list(pathname, searchterm):
     
 
 
+
+
+@app.callback(
+    [
+        Output('manageevidence_list', 'children')
+    ],
+    [
+        Input('url', 'pathname'), 
+        Input('criteria_list', 'value'),
+    ]
+)
+
+def manageevidence_list (pathname, criteria_types):
+    if pathname == '/SDGimpact_rankings':  # Adjusted URL path
+         
+        sql = """
+            SELECT 
+                sdg_evidencename AS "Evidence Name",
+                (SELECT office_name FROM maindashboard.offices WHERE office_id = sdg_office_id) AS "Office",
+                sdg_description AS "Description",
+                (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body",
+                sdg_applycriteria AS "Applicable Criteria"
+                
+            FROM 
+                kmteam.SDGSubmission
+        """
+        cols = ['Evidence Name', 'Office','Description', 'Ranking Body', 'Applicable Criteria']
+
+         
+
+        df = db.querydatafromdatabase(sql, [], cols) 
+
+        # Generate the table from the DataFrame
+        if not df.empty:
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return [table]
+        else:
+            return [html.Div("No records to display")]
+    else:
+        raise PreventUpdate
+    
 
 
 
