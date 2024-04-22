@@ -159,7 +159,7 @@ layout = html.Div(
                 dbc.Col(cm.generate_navbar(), width=2),
                 dbc.Col(
                     [
-                        html.H1("SDG IMPACT RANKINGS"),
+                        html.H1("ADD CRITERIA"),
                         html.Hr(),
 
                         dbc.Row(   
@@ -167,7 +167,7 @@ layout = html.Div(
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add criteria", color="primary", 
-                                        id="open-criteria-modal-btn"
+                                        href='add_criteria', 
                                     ),
                                     width="auto",    
                                 ),

@@ -16,7 +16,7 @@ from apps.maindashboard import homepage, user_profile, register_user, search_use
 from apps.admin import administration_dashboard, record_expenses, training_instructions, training_documents,  generate_report, add_expenses
 from apps.iqa import iqa_dashboard, acad_heads_directory, iaads_reports, acadheads_profile
 from apps.eqa import eqa_dashboard, assessment_reports, assessment_details, accreditation_tracker, program_list, program_details
-from apps.km import km_dashboard, THEworld_rankings, SDGimpact_rankings, QSworld_rankings, SDG_submission, SDG_revision
+from apps.km import km_dashboard, THEworld_rankings, SDGimpact_rankings, QSworld_rankings, SDG_submission, SDG_revision, add_criteria
 from apps.qaofficers import qa_directory, qa_officers, training_list, qaofficers_profile
 
 
@@ -113,6 +113,8 @@ def displaypage (pathname):
             #KM
             elif pathname == '/km_dashboard':
                 returnlayout = km_dashboard.layout 
+            elif pathname == '/add_criteria':
+                returnlayout = add_criteria.layout 
             elif pathname == '/THEworld_rankings':
                 returnlayout = THEworld_rankings.layout 
             elif pathname == '/SDGimpact_rankings':
