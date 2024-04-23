@@ -1,7 +1,7 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-from dash import Dash, html, dcc, Input, Output, State
+from dash import Dash, html, dcc, Input, Output, State, no_update
 
 import dash
 from dash.dependencies import Input, Output, State
@@ -235,6 +235,9 @@ form = dbc.Form(
                 ),
             ),
         
+
+        #COPY PASTE FROM HERE ------------------------------------------------------------------
+        
         html.Br(),
         dbc.Row(
             [ 
@@ -243,37 +246,94 @@ form = dbc.Form(
                     width="auto"
                 ),
                 dbc.Col(
-                    dbc.Button("Save", color="primary", className="me-3", id="save_button", n_clicks=0),
+                    dbc.Button("Save", color="primary",  id="save_button", n_clicks=0),
+                    width="auto"
+                ),
+                dbc.Col(
+                    dbc.Button("Back", color="warning", id="back_button", n_clicks=0, href="/record_expenses"),  
                     width="auto"
                 ),
             ],
             className="mb-2",
             justify="end",
         ),
-
+ 
         dbc.Modal(
             [
                 dbc.ModalHeader(className="bg-success"),
-                dbc.ModalBody(
-                    html.H4('Expense added.'),
-                ),
-                dbc.ModalFooter(
-                    dbc.Button(
-                        "Proceed", id='proceed_button', className='ml-auto'
-                    ), 
-                )
+                dbc.ModalBody(html.H4('Expense added.')),
                  
             ],
             centered=True,
-            id='recordexpenses_successmodal',
-            backdrop=True,  # Allow clicking outside to close the modal
-            className="modal-success"  # You can define this class in your CSS file for additional styling
+            id='recordexpenses_successmodal', #palit ID
+            backdrop=True,   
+            className="modal-success"   
+        ),
+ 
+        dbc.Modal(
+            [
+                dbc.ModalHeader(className="bg-danger"),
+                dbc.ModalBody(
+                    html.H4('Are you sure you want to cancel?')
+                ),
+                dbc.ModalFooter([
+                    dbc.Button("No", id='cancel_no_button',  n_clicks=0),
+                    dbc.Button("Yes", id='cancel_yes_button', n_clicks=0, color="danger"),
+                ]
+                )
+
+            ],
+            centered=True,
+            id='recordexpenses_cancelmodal', #palit ID
+            backdrop=True,
+            className="modal-danger",
         ),
         
     ],
     className="g-2",
 )
 
+
+
+#HANGANG DITO ------------------------------------------------------------------
+
+
+
+@app.callback(
+    [
+        Output('recordexpenses_cancelmodal', 'is_open'),  #edit id
+        Output('exp_payee', 'value'),  # Clear input fields if needed
+        Output('main_expense_id', 'value'),
+        Output('exp_particulars', 'value'),
+        Output('exp_amount', 'value'),
+        Output('exp_status', 'value'),
+        Output('exp_submitted_by', 'value'),
+    ],
+    [
+        Input('cancel_button', 'n_clicks'), 
+        Input('cancel_no_button', 'n_clicks'), 
+        Input('cancel_yes_button', 'n_clicks')
+    ],
+    [State('recordexpenses_cancelmodal', 'is_open')]  #edit id 
+)
+def toggle_cancel_modal(cancel_clicks, no_clicks, yes_clicks, is_open):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return [is_open, no_update, no_update, no_update, no_update, no_update, no_update]
+    
+ 
+    prop_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if prop_id == 'cancel_button':  
+        return [not is_open, no_update, no_update, no_update, no_update, no_update, no_update]
+    elif prop_id == 'cancel_no_button': 
+        return [False, no_update, no_update, no_update, no_update, no_update, no_update]
+    elif prop_id == 'cancel_yes_button': 
+        return [False, '', '', '', '', '', '']
+     
+    return [is_open, no_update, no_update, no_update, no_update, no_update, no_update]
+
+ 
 
 
 
@@ -395,9 +455,7 @@ def format_bur_no(n_blur, bur_no):
     return formatted_bur_no[:13]
  
  
-
-
-
+ 
 
 
 
@@ -426,6 +484,7 @@ layout = html.Div(
                     html.Hr(),
                     dbc.Alert(id='recordexpenses_alert', is_open=False), # For feedback purpose
                     form, 
+                    
                 ],
                 width=8, style={'marginLeft': '15px'}
                 
