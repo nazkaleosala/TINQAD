@@ -110,9 +110,9 @@ def generate_navbar():
 
                     
                     #qa officers
-                    html.A(html.B('QA Officers Dashboard'), id='qa-officers-dashboard-link', href='/qa_officers', className="nav-link"), 
-                    html.A('QA Officers Directory', id='qa-officers-directory-link', href='/qa_directory', className="nav-link"),  
-                    html.A('QA Officers Training List', id='qa-officers-training-list-link', href='/training_list', className="nav-link")   
+                    html.A(html.B('QA Officers Dashboard'), id='qa-officers-dashboard-link', href='/QAOfficers_dashboard', className="nav-link"), 
+                    html.A('QA Officers Directory', id='qa-officers-directory-link', href='/QAOfficers_directory', className="nav-link"),  
+                    html.A('QA Officers Training List', id='qa-officers-training-list-link', href='/QAOfficers/traininglist', className="nav-link")   
 
                 ],
                 vertical=True,  # Set to True for vertical stacking

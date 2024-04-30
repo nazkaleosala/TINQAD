@@ -17,7 +17,7 @@ from apps.admin import administration_dashboard, record_expenses, training_instr
 from apps.iqa import iqa_dashboard, acad_heads_directory, iaads_reports, acadheads_profile
 from apps.eqa import eqa_dashboard, assessment_reports, assessment_details, accreditation_tracker, program_list, program_details
 from apps.km import km_dashboard, THEworld_rankings, SDGimpact_rankings, QSworld_rankings, SDG_submission, SDG_revision, add_criteria
-from apps.qaofficers import qa_directory, qa_officers, training_list, qaofficers_profile
+from apps.qaofficers import qa_directory, qa_officers, training_list, qaofficers_profile, training_details
 
 
 CONTENT_STYLE = {
@@ -131,14 +131,16 @@ def displaypage (pathname):
 
             
             #QA Officers 
-            elif pathname == '/qa_officers':
+            elif pathname == '/QAOfficers_dashboard':
                 returnlayout = qa_officers.layout
             elif pathname == '/QAOfficers/qaofficers_profile':
                 returnlayout = qaofficers_profile.layout
-            elif pathname == '/qa_directory':
+            elif pathname == '/QAOfficers_directory':
                 returnlayout = qa_directory.layout
-            elif pathname == '/training_list':
+            elif pathname == '/QAOfficers/traininglist':
                 returnlayout = training_list.layout
+            elif pathname == '/QAOfficers/addtraining':
+                returnlayout = training_details.layout
 
             else:
                 returnlayout = 'error404'
