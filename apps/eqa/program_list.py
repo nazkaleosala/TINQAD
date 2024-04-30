@@ -32,18 +32,18 @@ layout = html.Div(
                                     ),
                                     width="auto",    
                                 ),
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "📥 Upload CSV File", color="danger",  
-                                    ),
-                                    width="auto",    
-                                ),
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "📁 Export as CSV File", color="secondary",  
-                                    ),
-                                    width="auto",    
-                                ),
+                                #dbc.Col(   
+                                    #dbc.Button(
+                                       # "📥 Upload CSV File", color="danger",  
+                                    #),
+                                    #width="auto",    
+                                #),
+                                #dbc.Col(   
+                                    #dbc.Button(
+                                       # "📁 Export as CSV File", color="secondary",  
+                                   # ),
+                                    #width="auto",    
+                                # ),
                             ],
                              
                             className="align-items-center ",   
@@ -76,7 +76,7 @@ layout = html.Div(
                             }
                         )
 
-                    ], width=8, style={'marginLeft': '15px'}
+                    ], width=9, style={'marginLeft': '15px'}
                 ),
             ]
         ),
@@ -107,15 +107,34 @@ layout = html.Div(
 def programlist_loadlist(pathname, searchterm):
     if pathname == '/program_list': 
         sql = """  
-            
+            SELECT
+                pr_degree_id AS "Degree Program", 
+                c.college_name AS "College",
+                du.deg_unit_name AS "Department",
+                cl.cluster_name AS "Cluster",
+                pt.programtype_name AS "Program Type",
+                ab.body_name AS "Applicable Accreditation Bodies"
+            FROM
+                eqateam.program_list AS pl
+                LEFT JOIN eqateam.program_type pt ON pl.pr_program_type_id = pt.programtype_id
+                LEFT JOIN public.college c ON pl.pr_college_id = c.college_id
+                LEFT JOIN public.deg_unit du ON pl.pr_department_id = du.deg_unit_id
+                LEFT JOIN public.clusters cl ON pl.pr_cluster_id = cl.cluster_id
+                LEFT JOIN public.accreditation_body ab ON pl.pr_accreditation_body_id = ab.accreditation_body_id
+                
         """
-
-        cols = ['Degree Program', 'College', 'Department','Cluster','Program Type', 'Applicable Accreditation Bodies']   
+         
+        cols = ["Degree Program", "College", "Department", "Cluster", "Program Type", "Applicable Accreditation Bodies"]
 
         if searchterm:
             
-            sql += """ WHERE a.unit_head_sname ILIKE %s OR a.unit_head_fname ILIKE %s OR
-                        a.unit_head_full_name ILIKE %s OR d.designation_name ILIKE %s  """
+            sql += """
+                WHERE
+                    pr_degree_id ILIKE %s OR
+                    c.college_name ILIKE %s OR
+                    du.deg_unit_name ILIKE %s OR
+                    cl.cluster_name ILIKE %s
+            """
             like_pattern = f"%{searchterm}%"
             values = [like_pattern, like_pattern, like_pattern, like_pattern]
         else:
