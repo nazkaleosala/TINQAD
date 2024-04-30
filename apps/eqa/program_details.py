@@ -25,25 +25,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='pr_cluster_id  ', 
-                    ),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ), 
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Institute/ Department ",
-                        html.Span("*", style={"color":"#F8B237"})
-                    ],
-                    width=4
-                ),
-                dbc.Col(
-                    dcc.Dropdown(
-                        id='pr_department_id ', 
+                        id='pr_cluster_id', 
                     ),
                     width=6,
                 ),
@@ -68,6 +50,25 @@ form = dbc.Form(
             ],
             className="mb-2",
         ), 
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Institute/ Department ",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id='pr_department_id', 
+                    ),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ), 
+        
         
         dbc.Row(
             [
@@ -78,10 +79,9 @@ form = dbc.Form(
                     ],
                     width=4
                 ),
+                
                 dbc.Col(
-                    dcc.Input(
-                        id='pr_degree_id', 
-                    ),
+                    dbc.Input(id="pr_degree_id", type="text"),
                     width=6,
                 ),
             ],
@@ -100,8 +100,8 @@ form = dbc.Form(
                     ],
                     width=4),
                 dbc.Col(
-                    dbc.Input(type="number", id="degree-count"),
-                    width=4,
+                    dbc.Input(type="number", id="pr_degree_count"),
+                    width=2,
                 ),
             ],
             className="mb-1",
@@ -118,10 +118,11 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='program_type_id', 
+                        id='pr_program_type_id', 
                     ),
-                    width=6,
+                    width=4,
                 ),
+                 
             ],
             className="mb-2",
         ), 
@@ -136,7 +137,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='academic_calendar_type_id ', 
+                        id='academic_calendar_type_id', 
                         options=[
                             {"label": "Semester", "value": "1"},
                             {"label": "Trimester", "value": "2"},
@@ -160,11 +161,6 @@ form = dbc.Form(
                 dbc.Col(
                     dcc.Dropdown(
                         id="pr_accreditation_body_id",
-                        options=[
-                            {"label": "accreditation body 1", "value": "1"},
-                            {"label": "accreditation body 2", "value": "2"},
-                            
-                        ],
                         multi=True  # Allow selecting multiple values
                     ),
                     width=5,
@@ -250,6 +246,7 @@ layout = html.Div(
 
 
 
+
 # Cluster dropdown
 @app.callback(
     Output('pr_cluster_id', 'options'),
@@ -273,7 +270,7 @@ def populate_cluster_dropdown(pathname):
 
 # College dropdown
 @app.callback(
-    Output('pr_college_id ', 'options'),
+    Output('pr_college_id', 'options'),
     Input('pr_cluster_id', 'value')
 )
 def populate_college_dropdown(selected_cluster):
@@ -298,7 +295,7 @@ def populate_college_dropdown(selected_cluster):
 
 # Degree Unit dropdown
 @app.callback(
-    Output('pr_department_id ', 'options'),
+    Output('pr_department_id', 'options'),
     Input('pr_college_id', 'value')
 )
 def populate_dgu_dropdown(selected_college):
@@ -322,19 +319,11 @@ def populate_dgu_dropdown(selected_college):
         # Log the error or handle it appropriately
         return []
     
- 
-
-
-
-
-
-
-
-
 
  
 
-# Cluster dropdown
+
+# Program type dropdown
 @app.callback(
     Output('pr_program_type_id', 'options'),
     Input('url', 'pathname')
@@ -343,17 +332,47 @@ def populate_programtype_dropdown(pathname):
     # Check if the pathname matches if necessary
     if pathname == '/programlist/program_details':
         sql = """
-        SELECT programtype_name as label, programtype_id  as value
+        SELECT programtype_name  as label, programtype_id as value
         FROM eqateam.program_type
         """
         values = []
         cols = ['label', 'value']
         df = db.querydatafromdatabase(sql, values, cols)
         
-        programtype_types = df.to_dict('records')
-        return programtype_types
+        pr_programtype_types = df.to_dict('records')
+        return pr_programtype_types
     else:
         raise PreventUpdate
-    
 
-  
+
+
+
+# Accreditation body dropdown
+@app.callback(
+    Output('pr_accreditation_body_id', 'options'),
+    Input('url', 'pathname')
+)
+def populate_accreditationbody_dropdown(pathname):
+    # Check if the pathname matches if necessary
+    if pathname == '/programlist/program_details':
+        sql = """
+        SELECT body_name as label, accreditation_body_id as value
+        FROM public.accreditation_body
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        accreditationbody_types = df.to_dict('records')
+        return accreditationbody_types
+    else:
+        raise PreventUpdate
+
+
+
+
+
+
+
+
+ 
