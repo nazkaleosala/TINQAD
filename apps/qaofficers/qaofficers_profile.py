@@ -158,7 +158,9 @@ form = dbc.Form(
             ],
             className="mb-2",
         ),
-        
+
+        html.Br(),
+         
         html.H5("QA INFORMATION", className="form-header fw-bold"),
          
         dbc.Row(
@@ -257,6 +259,8 @@ form = dbc.Form(
             ],
             className="mb-2",
         ),
+        html.Br(),
+        html.Br(),
          
         dbc.Row(
             [
