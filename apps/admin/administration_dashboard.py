@@ -46,7 +46,7 @@ def generate_pie_and_bar_chart():
             values=pie_df['total_amount'],
             marker=dict(colors=custom_colors)
         )])
-        pie_fig.update_layout(title='Current Month')
+        pie_fig.update_layout()
         pie_chart = dcc.Graph(figure=pie_fig)
 
     # Fetch data from the database for the bar chart
@@ -64,7 +64,13 @@ def generate_pie_and_bar_chart():
         bar_chart = html.Div("No data available for the bar chart")
     else:
         bar_fig = go.Figure([go.Bar(x=bar_df['month'], y=bar_df['total_amount'])])
-        bar_fig.update_layout(title='Monthly Expenses', xaxis_title='Month', yaxis_title='Expenses')
+        bar_fig.update_layout(
+            title='Monthly Expenses', 
+            xaxis_title='Month', 
+            yaxis_title='Expenses',
+            title_x=0.5,  
+            margin={'l': 50, 'r': 50, 't': 50, 'b': 0}  # Zero bottom margin
+        )
         bar_chart = dcc.Graph(figure=bar_fig)
 
     return dbc.Row(
@@ -74,21 +80,7 @@ def generate_pie_and_bar_chart():
         ]
     )
 
-
-# Assuming commonmodules has a function to generate card-like structures
-def generate_card(header, body):
-    card = dbc.Card(
-        [
-            dbc.CardHeader(header),
-            dbc.CardBody(
-                [
-                    html.P(body, className="card-text"),
-                ]
-            ),
-        ],
-    )
-    return card
-
+ 
 def get_main_expenses():
     df = db.querydatafromdatabase("SELECT * FROM adminteam.main_expenses", (), ['main_expense_id', 'main_expense_name'])
     main_expenses = df.to_records(index=False).tolist()
@@ -146,40 +138,26 @@ layout = html.Div(
                         html.H1("ADMIN DASHBOARD"),
                         html.Hr(),
                         
-                        dbc.Row(
-                            [
-                                # Accounts Card
-                                dbc.Col(
-                                    generate_card(html.P(html.Strong(f"ACCOUNTS {get_year_range()}")), ""),
-                                    width=6
-                                ),
-                                # Budget Card
-                                dbc.Col(
-                                    generate_card(
-                                        html.P(
-                                            [
-                                                html.Span("BUDGET ", style={'font-weight': 'bold'}), 
-                                                html.Span(get_current_month())  
-                                            ]
-                                        ),
-                                        body=""  # You were missing the 'body' argument here
-                                    ), 
-                                    width=6
-                                ),
-                            ],
-                            className="mb-4",
-                        ),
+                         
                         # Spending Overview
                         dbc.Row(
                             [
                                 dbc.Col(
                                     [
-                                        html.H3("SPENDING OVERVIEW", className="mb-3"),
+                                        html.H3(
+                                            [
+                                                html.Strong("Spending Overview"),  # Bold only this part
+                                                f" {get_current_month()} {get_year_range()}",  # Regular text for the rest
+                                            ],
+                                            className="mb-0",  # Remove bottom margin
+                                        ),
                                         generate_pie_and_bar_chart()
                                     ]
                                 )
                             ]
                         ),
+                        html.Br(),
+                        html.Br(),
                         # Add the maintenance and other expenses section
                         dbc.Row(
                             [
@@ -189,6 +167,9 @@ layout = html.Div(
                                 )
                             ]
                         ),
+                        html.Br(),
+                        html.Br(),
+                        html.Br(),
                     ],
                     width=9,
                     style={'marginLeft': '15px'}
