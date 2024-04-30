@@ -125,20 +125,31 @@ layout = html.Div(
     ]
     )
 
-def programlist_loadlist(pathname, searchterm):
-    if pathname == '/training_list': 
-        sql = """  
-            
+def traininglist_loadlist(pathname, searchterm):
+    if pathname == '/QAOfficers/traininglist': 
+        sql = """
+            SELECT 
+                qaofficer_full_name AS Name,
+                qaofficer_role AS "Role",
+                qaofficer_appointment_start AS "Appointment Start",
+                qaofficer_appointment_end AS "Appointment End",
+                qaofficer_facadmin_posn AS "Admin Position",
+                qaofficer_staff_posn AS "Staff Position"
+            FROM qaofficers.qa_officer
         """
+
 
         cols = ['Name', 'Rank/Designation', 'Department','College','Academic Cluster', 'Trainings']   
 
         if searchterm:
-            
-            sql += """ WHERE a.unit_head_sname ILIKE %s OR a.unit_head_fname ILIKE %s OR
-                        a.unit_head_full_name ILIKE %s OR d.designation_name ILIKE %s  """
+            sql += """
+                WHERE
+                    qaofficer_sname ILIKE %s OR
+                    qaofficer_fname ILIKE %s OR
+                    qaofficer_role ILIKE %s
+            """
             like_pattern = f"%{searchterm}%"
-            values = [like_pattern, like_pattern, like_pattern, like_pattern]
+            values = [like_pattern] * 3
         else:
             values = []
 

@@ -146,8 +146,8 @@ layout = html.Div(
     ],
 )
 def qadirectory_loadlist(pathname, searchterm, selected_month, selected_year):
-    if pathname == '/qa_directory':
-        print("Callback executed")
+    if pathname == '/QAOfficers_directory':
+         
         
         # Fetch the data
         sql = """
@@ -191,9 +191,7 @@ def qadirectory_loadlist(pathname, searchterm, selected_month, selected_year):
         # Fetch all data
         df = db.querydatafromdatabase(sql, [], cols)
         
-        # Print DataFrame to check if data is retrieved correctly
-        print("Data fetched:")
-        print(df.head())  # Display the first few rows of the DataFrame
+        
         
         # Check if DataFrame is empty after data retrieval
         if df.empty:
