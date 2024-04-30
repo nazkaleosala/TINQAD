@@ -6,12 +6,73 @@ import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import pandas as pd
+import plotly.graph_objects as go
 
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 from datetime import datetime
 
+
+
+
+def generate_pie_and_bar_chart():
+    # Fetch data from the database for the pie chart
+    pie_sql = """
+        SELECT main_expense_name, SUM(exp_amount) AS total_amount
+        FROM adminteam.expenses AS e
+        LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
+        GROUP BY main_expense_name
+    """
+    pie_df = db.querydatafromdatabase(pie_sql, (), ['main_expense_name', 'total_amount'])
+
+    if pie_df.empty:
+        pie_chart = html.Div("No data available for the pie chart")
+    else:
+        # Set custom legend labels
+        custom_legend_labels = {
+            "Maintenance and Other Operating Expenses (MOOE)": "MOOE",
+            "Training & Workshop Expenses (External)": "Training",
+            "Equipment Outlay": "Equipment"
+        }
+        # Map custom legend labels to main expense names
+        pie_df['legend_labels'] = pie_df['main_expense_name'].map(custom_legend_labels)
+
+        # Define custom colors
+        custom_colors = ['#39B54A', '#F8B237', '#D37157']
+
+        pie_fig = go.Figure(data=[go.Pie(
+            labels=pie_df['legend_labels'],
+            values=pie_df['total_amount'],
+            marker=dict(colors=custom_colors)
+        )])
+        pie_fig.update_layout(title='Current Month')
+        pie_chart = dcc.Graph(figure=pie_fig)
+
+    # Fetch data from the database for the bar chart
+    bar_sql = """
+        SELECT 
+            TO_CHAR(exp_date, 'Month') AS month,
+            SUM(exp_amount) AS total_amount
+        FROM adminteam.expenses
+        GROUP BY TO_CHAR(exp_date, 'Month')
+        ORDER BY TO_DATE(TO_CHAR(exp_date, 'Month'), 'Month')
+    """
+    bar_df = db.querydatafromdatabase(bar_sql, (), ['month', 'total_amount'])
+
+    if bar_df.empty:
+        bar_chart = html.Div("No data available for the bar chart")
+    else:
+        bar_fig = go.Figure([go.Bar(x=bar_df['month'], y=bar_df['total_amount'])])
+        bar_fig.update_layout(title='Monthly Expenses', xaxis_title='Month', yaxis_title='Expenses')
+        bar_chart = dcc.Graph(figure=bar_fig)
+
+    return dbc.Row(
+        [
+            dbc.Col(pie_chart, width=6),  # Equal width for both charts
+            dbc.Col(bar_chart, width=6)   # Equal width for both charts
+        ]
+    )
 
 
 # Assuming commonmodules has a function to generate card-like structures
@@ -114,8 +175,7 @@ layout = html.Div(
                                 dbc.Col(
                                     [
                                         html.H3("SPENDING OVERVIEW", className="mb-3"),
-                                        # The details for spending overview will go here.
-                                        # Using a table or list. For instance, dash_table.DataTable() can be used to create tables.
+                                        generate_pie_and_bar_chart()
                                     ]
                                 )
                             ]
