@@ -71,6 +71,7 @@ layout = html.Div(
                                 )
                             ],
                         ),
+                        html.Br(),
                         dbc.Row(
                             [
                                 dbc.Col(create_card("No. of faculty with QA Training"), width=12),
@@ -86,7 +87,7 @@ layout = html.Div(
  
                          
                     ], 
-                    width=9, style={'marginLeft': '15px'}
+                    width=8, style={'marginLeft': '15px'}
                 ),
             ]
         ),
