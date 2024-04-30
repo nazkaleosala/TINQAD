@@ -61,7 +61,7 @@ layout = html.Div(
                             [
                                 dbc.Col(   
                                     dbc.Button(
-                                        "➕ Add Officer", color="primary", 
+                                        "➕ Add Training", color="primary", 
                                         href='/QAOfficers/addtraining', 
                                     ),
                                     width="auto",    
@@ -129,13 +129,31 @@ def traininglist_loadlist(pathname, searchterm):
     if pathname == '/QAOfficers/traininglist': 
         sql = """
             SELECT 
-                qaofficer_full_name AS Name,
-                qaofficer_role AS "Role",
-                qaofficer_appointment_start AS "Appointment Start",
-                qaofficer_appointment_end AS "Appointment End",
-                qaofficer_facadmin_posn AS "Admin Position",
-                qaofficer_staff_posn AS "Staff Position"
-            FROM qaofficers.qa_officer
+                qo.qaofficer_full_name AS "Name",
+                cp.cuposition_name AS "Rank/Designation",
+                du.deg_unit_name AS "Department",
+                cl.college_name AS "College",
+                clus.cluster_name AS "Academic Cluster",
+                STRING_AGG(qtd.qatr_training_name, ', ') AS "Trainings"
+            FROM 
+                qaofficers.qa_officer AS qo
+            LEFT JOIN 
+                qaofficers.qa_training_details AS qtd
+                ON qo.qaofficer_id = qtd.qatr_officername_id
+            LEFT JOIN 
+                qaofficers.cuposition AS cp
+                ON qo.qaofficer_cuposition_id = cp.cuposition_id
+            LEFT JOIN 
+                public.deg_unit AS du
+                ON qo.qaofficer_deg_unit_id = du.deg_unit_id
+            LEFT JOIN 
+                public.college AS cl
+                ON qo.qaofficer_college_id = cl.college_id
+            LEFT JOIN 
+                public.clusters AS clus
+                ON qo.qaofficer_cluster_id = clus.cluster_id
+            GROUP BY 
+                qo.qaofficer_full_name, cp.cuposition_name, du.deg_unit_name, cl.college_name, clus.cluster_name
         """
 
 

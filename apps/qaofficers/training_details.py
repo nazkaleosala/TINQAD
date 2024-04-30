@@ -30,7 +30,7 @@ form = dbc.Form(
                  
                 dbc.Col(
                     dcc.Dropdown(
-                        id="qatr_officername",
+                        id="qatr_officername_id",
                         placeholder="Select QA Officer",
                     ),
                     width=6,
@@ -162,14 +162,14 @@ form = dbc.Form(
 
 # QA Officer name dropdown
 @app.callback(
-    Output('qatr_officername', 'options'),
+    Output('qatr_officername_id', 'options'),
     Input('url', 'pathname')
 )
 def populate_qaofficername_dropdown(pathname):
     # Check if the pathname matches if necessary
     if pathname == '/QAOfficers/addtraining':
         sql = """
-        SELECT qaofficer_full_name as label, qaofficer_full_name as value
+        SELECT qaofficer_full_name as label, qaofficer_full_name_id as value
         FROM  qaofficers.qa_officer
         """
         values = []
@@ -268,14 +268,14 @@ layout = html.Div(
         Input('save_button', 'n_clicks')
     ],
     [
-        State('qatr_officername', 'value'),
+        State('qatr_officername_id', 'value'),
         State('qatr_training_year', 'value'), 
         State('qatr_training_name', 'value'),
         State('qatr_training_type', 'value') 
     ]
 )
  
-def record_program_details (submitbtn, qatr_officername, qatr_training_year,
+def record_program_details (submitbtn, qatr_officername_id, qatr_training_year,
                             qatr_training_name, qatr_training_type):
     if not submitbtn:
         raise PreventUpdate
@@ -286,7 +286,7 @@ def record_program_details (submitbtn, qatr_officername, qatr_training_year,
     alert_text = ''
 
     # Input validation
-    if not qatr_officername:
+    if not qatr_officername_id:
         alert_color_sname = 'danger'
         alert_text_sname = 'Check your inputs. Please add an Officer name.'
         return [alert_color_sname, alert_text_sname, alert_open, modal_open]
@@ -309,13 +309,13 @@ def record_program_details (submitbtn, qatr_officername, qatr_training_year,
     try:
         sql = """
             INSERT INTO qaofficers.qa_training_details (
-                qatr_officername, qatr_training_year,
+                qatr_officername_id, qatr_training_year,
                 qatr_training_name, qatr_training_type
             )
             VALUES (%s, %s, %s, %s)
         """
         values = (
-            qatr_officername, qatr_training_year,
+            qatr_officername_id, qatr_training_year,
             qatr_training_name, qatr_training_type
         )
  
@@ -363,10 +363,10 @@ def add_new_training_type(n_clicks, new_training_type):
 
 @app.callback(
     Output("training_details_output", "children"),
-    [Input("qatr_officername", "value")],
+    [Input("qatr_officername_id", "value")],
 )
-def fetch_training_details(qatr_officername):
-    if not qatr_officername:
+def fetch_training_details(qatr_officername_id):
+    if not qatr_officername_id:
         raise PreventUpdate
     
     try:
@@ -382,10 +382,10 @@ def fetch_training_details(qatr_officername):
             ON 
                 qtd.qatr_training_type = tt.trainingtype_id
             WHERE 
-                qatr_officername = %s
+                qatr_officername_id = %s
         """
         # Correct function call and appropriate arguments
-        results = db.querydatafromdatabase(sql, (qatr_officername,), ["Year", "Name", "Type"])
+        results = db.querydatafromdatabase(sql, (qatr_officername_id,), ["Year", "Name", "Type"])
         
         if results.empty:
             return "No training details found for this QA officer."
