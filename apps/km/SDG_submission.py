@@ -208,7 +208,7 @@ form = dbc.Form(
             className="mt-3",
         ),
         
-         
+        html.Br(), 
         dbc.Row(
             [
                 dbc.Label(
@@ -481,15 +481,22 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
         alert_text = 'Check your inputs. Please add a Accomplished by.'
         return [alert_color, alert_text, alert_open, modal_open]
     
+
+    if sdg_file_contents is None or sdg_file_names is None:
+        sdg_file_contents = ["1"]
+        sdg_file_names = ["1"]
+
+    # Process the files if there are any
+    file_data = []
     if sdg_file_contents and sdg_file_names:
-        file_data = []
         for content, filename in zip(sdg_file_contents, sdg_file_names):
+            if content == "1" and filename == "1":
+                continue  # Skip default "1" value
             try:
-                # Decode the base64 content
+                # Decode and save the file
                 content_type, content_string = content.split(',')
                 decoded_content = base64.b64decode(content_string)
 
-                # Save the file to the server
                 file_path = os.path.join(UPLOAD_DIRECTORY, filename)
                 with open(file_path, 'wb') as f:
                     f.write(decoded_content)
@@ -505,7 +512,6 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
             except Exception as e:
                 return set_alert(f"Error processing uploaded files: {str(e)}", 'danger')
 
-
     try:
         sql = """
             INSERT INTO kmteam.SDGSubmission (
@@ -520,14 +526,8 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
             )
         """
         values = (
-            sdg_rankingbody,
-            sdg_evidencename,
-            sdg_description,
-            sdg_office_id,
-            sdg_deg_unit_id,
-            sdg_accomplishedby,
-            sdg_datesubmitted,
-            sdg_link,
+            sdg_rankingbody, sdg_evidencename, sdg_description, sdg_office_id,
+            sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, sdg_link,
             json.dumps(sdg_applycriteria) if sdg_applycriteria else None,
             file_data[0]["path"] if file_data else None,
             file_data[0]["name"] if file_data else None,

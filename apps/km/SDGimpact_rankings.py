@@ -229,7 +229,7 @@ layout = html.Div(
 
 
 
-#eqa types dropdown
+#criteria list dropdown
 @app.callback(
     Output('criteria_list', 'options'),
     Input('url', 'pathname')
@@ -330,7 +330,7 @@ def add_criteria_list(pathname, searchterm):
 
 
 
-
+#dito ka
 @app.callback(
     [
         Output('manageevidence_list', 'children')
@@ -341,7 +341,7 @@ def add_criteria_list(pathname, searchterm):
     ]
 )
 
-def manageevidence_list (pathname, criteria_types):
+def update_manageevidence_list (pathname, selected_criteria):
     if pathname == '/SDGimpact_rankings':  # Adjusted URL path
          
         sql = """
@@ -350,25 +350,41 @@ def manageevidence_list (pathname, criteria_types):
                 (SELECT office_name FROM maindashboard.offices WHERE office_id = sdg_office_id) AS "Office",
                 sdg_description AS "Description",
                 (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body",
-                sdg_applycriteria AS "Applicable Criteria"
-                
-            FROM 
+                (
+                    SELECT json_agg(sdgcriteria_code)
+                    FROM kmteam.SDGCriteria
+                    WHERE sdgcriteria_id IN (
+                        SELECT CAST(jsonb_array_elements_text(sdg_applycriteria) AS INTEGER)
+                    )
+                ) AS "Applicable Criteria"
+            FROM  
                 kmteam.SDGSubmission
         """
-        cols = ['Evidence Name', 'Office','Description', 'Ranking Body', 'Applicable Criteria']
+        if selected_criteria:
+            # Subquery to extract individual criteria IDs and check for overlap with selected criteria
+            sql += """
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM jsonb_array_elements_text(sdg_applycriteria) AS e
+                    WHERE CAST(e AS INTEGER) = ANY(%s)
+                )
+            """
+            params = [selected_criteria]
+        else:
+            params = []
 
-         
+        cols = ["Evidence Name", "Office", "Description", "Ranking Body", "Applicable Criteria"]
 
-        df = db.querydatafromdatabase(sql, [], cols) 
+        df = db.querydatafromdatabase(sql, params, cols)
 
-        # Generate the table from the DataFrame
         if not df.empty:
+            df["Applicable Criteria"] = df["Applicable Criteria"].apply(
+                lambda x: ", ".join(x) if x else "None"
+            )
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
-            return [html.Div("No records to display")]
-    else:
-        raise PreventUpdate
+            return [html.Div("No records under this criteria")]
     
 
 
