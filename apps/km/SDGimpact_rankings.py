@@ -212,7 +212,7 @@ layout = html.Div(
                         html.Br(),
                                 
 
-                    ], width=8, style={'marginLeft': '15px'}
+                    ], width=9, style={'marginLeft': '15px'}
                 ),
             ]
         ),

@@ -204,6 +204,6 @@ def recordexpenses_loadlist(pathname, searchterm, active_tab):
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return table
         else:
-            return html.Div("No records to display")
+            return html.Div("No records yet this month")
     else:
         raise PreventUpdate

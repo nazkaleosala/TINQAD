@@ -56,7 +56,7 @@ layout = html.Div(
                             }
                         )
 
-                    ], width=8, style={'marginLeft': '15px'}
+                    ], width=9, style={'marginLeft': '15px'}
                 ),
             ]
         ),

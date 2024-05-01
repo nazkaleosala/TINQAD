@@ -137,6 +137,9 @@ def displaypage (pathname):
                 returnlayout = qaofficers_profile.layout  
             elif pathname == '/QAOfficers/addtraining':
                 returnlayout = training_details.layout
+                
+            elif pathname == '/QAOfficers_directory':
+                returnlayout = qa_directory.layout
 
             else:
                 returnlayout = 'error404'
