@@ -163,12 +163,12 @@ layout = html.Div(
                         ),
 
                         dbc.Row(dbc.Col(
-                            html.H5("Submissions in need of Revisions"),
+                            html.H5("Submissions for Checking"),
                             width="auto",  # Auto to keep the heading at the left
                         )),
 
                         html.Div(
-                            id='revisions_list', 
+                            id='checking_list', 
                             style={
                                 'marginTop': '20px',
                                 'overflowX': 'auto',# This CSS property adds a horizontal scrollbar
@@ -180,11 +180,11 @@ layout = html.Div(
 
                         html.Br(),
                         dbc.Row(dbc.Col(
-                            html.H5("Submissions for Checking"),
+                            html.H5("Submissions in need of Revisions"),
                             width="auto",  # Auto to keep the heading at the left
                         )),
                         html.Div(
-                            id='checking_list', 
+                            id='revisions_list', 
                             style={
                                 'marginTop': '20px',
                                 'overflowX': 'auto',# This CSS property adds a horizontal scrollbar

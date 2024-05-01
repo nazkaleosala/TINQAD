@@ -158,6 +158,31 @@ form = dbc.Form(
             className="mb-3"
         ),
 
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Check Status ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id='sdg_status', 
+                        options=[
+                            {"label": "Pending", "value": "pending"},
+                            {"label": "Approved", "value": "approved"},
+                            {"label": "Rejected", "value": "rejected"},
+                        ],
+                        value='pending',
+                    ),
+                    width=5,
+                ),
+            ],
+            className="mb-3"
+        ),
+
           
 
         dbc.Row(
@@ -435,15 +460,16 @@ layout = html.Div(
         State('sdg_deg_unit_id', 'value'),
         State('sdg_accomplishedby', 'value'),
         State('sdg_datesubmitted', 'date'), 
+        State('sdg_status', 'date'), 
+
         State('sdg_file', 'contents'),
         State('sdg_file', 'filename'),  
- 
         State('sdg_link', 'value'), 
         State('sdg_applycriteria', 'value'), 
     ]
 )
 def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_description,
-                        sdg_office_id, sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted,
+                        sdg_office_id, sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, sdg_status,
                         sdg_file_contents, sdg_file_names, sdg_link, sdg_applycriteria
                             ):
     if not submitbtn:
@@ -517,17 +543,17 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
             INSERT INTO kmteam.SDGSubmission (
                 sdg_rankingbody, sdg_evidencename,
                 sdg_description, sdg_office_id, sdg_deg_unit_id,
-                sdg_accomplishedby, sdg_datesubmitted,
+                sdg_accomplishedby, sdg_datesubmitted, sdg_status,
                 sdg_link, sdg_applycriteria,
                 sdg_file_path, sdg_file_name, sdg_file_type, sdg_file_size
             )
             VALUES (
-                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
             )
         """
         values = (
             sdg_rankingbody, sdg_evidencename, sdg_description, sdg_office_id,
-            sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, sdg_link,
+            sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, sdg_status, sdg_link,
             json.dumps(sdg_applycriteria) if sdg_applycriteria else None,
             file_data[0]["path"] if file_data else None,
             file_data[0]["name"] if file_data else None,
