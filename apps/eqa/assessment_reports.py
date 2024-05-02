@@ -27,13 +27,20 @@ layout = html.Div(
                             [
                                 dbc.Col(   
                                     dbc.Button(
-                                        "➕ Add New", color="primary", 
+                                        "➕ Add New Assessment", color="primary", 
                                         href='/assessmentreports/assessment_details', 
                                     ),
                                     width="auto",    
                                     
                                 ),
-                                
+                                dbc.Col(   
+                                    dbc.Button(
+                                        "➕ Add New SAR", color="warning", 
+                                        href='/assessmentreports/sar_details', 
+                                    ),
+                                    width="auto",    
+                                    
+                                ),
                                 dbc.Col(  
                                     dbc.Input(
                                         type='text',
@@ -41,7 +48,7 @@ layout = html.Div(
                                         placeholder='🔎 Search by degree program',
                                         className='ml-auto'   
                                     ),
-                                    width="8",
+                                    width="6",
                                 ),
                             ]
                         ),

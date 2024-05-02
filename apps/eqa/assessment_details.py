@@ -25,22 +25,6 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Department", 
-                         html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    dbc.Input(id="arep_dept", type="text"),
-                    width=5,
-                ),
-                 
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
                         "Degree Program Title ", 
                          html.Span("*", style={"color": "#F8B237"})
                     ],
@@ -49,7 +33,7 @@ form = dbc.Form(
                     dcc.Dropdown(
                         id='arep_degree_programs_id', 
                     ),
-                    width=6,
+                    width=8,
                 ),
                  
             ],
@@ -65,11 +49,12 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     html.P(id="arep_college_text"),
-                    width=5,
+                    width=6,
                 ), 
             ],
             className="mb-2",
         ),
+         
         
         dbc.Row(
             [
@@ -81,7 +66,7 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dbc.Input(id="arep_title", type="text"),
-                    width=5,
+                    width=8,
                 ),
             ],
             className="mb-2",
@@ -134,14 +119,10 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dbc.Select(
-                        id="arep_assessedby",
-                        options=[
-                            {"label":"Engineering Accreditation Commission","value":"Engineering Accreditation Commission"},
-                            {"label":"International Accreditation","value":"International Accreditation"},
-                            {"label":"Local Accreditation","value":"Local Accreditation"},
-                        ],
+                        id="arep_assessedby", 
+                        placeholder="Select Accreditation Body",
                     ),
-                    width=6,
+                    width=8,
                 ),
             ],
             className="mb-2",
@@ -154,7 +135,7 @@ form = dbc.Form(
                     [
                         dbc.Label(
                             [
-                                "Is there a scheduled assessment date? ",
+                                "Set assessment date? ",
                                 html.Span("*", style={"color": "#F8B237"})
                             ], 
                             width=4),
@@ -604,7 +585,7 @@ def update_qao_fields(qao_present):
 
 
 
-
+#college appear
 @app.callback(
     Output('arep_college_text', 'children'),
     [Input('arep_degree_programs_id', 'value')]
@@ -623,6 +604,7 @@ def update_college_text(selected_degree_program):
                 return "No college found for this degree program"
         except Exception as e:
             return "An error occurred while fetching the college: {}".format(str(e))
+
 
  
 
@@ -811,6 +793,30 @@ def populate_approvedeqa_dropdown(pathname):
 
 
 
+#accreditation body dropdown
+@app.callback(
+    Output('arep_assessedby', 'options'),
+    Input('url', 'pathname')
+)
+def populate_reporttype_dropdown(pathname):
+    # Check if the pathname matches if necessary
+    if pathname == '/assessmentreports/assessment_details':
+        sql ="""
+        SELECT body_name as label, accreditation_body_id  as value
+        FROM public.accreditation_body
+       """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        accreditation_body = df.to_dict('records')
+        return accreditation_body
+    else:
+        raise PreventUpdate
+
+
+
+
 #report types dropdown
 @app.callback(
     Output('arep_report_type', 'options'),
@@ -831,6 +837,8 @@ def populate_reporttype_dropdown(pathname):
         return report_types
     else:
         raise PreventUpdate
+
+
 
 
 
