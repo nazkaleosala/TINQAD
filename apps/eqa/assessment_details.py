@@ -798,7 +798,7 @@ def populate_approvedeqa_dropdown(pathname):
     Output('arep_assessedby', 'options'),
     Input('url', 'pathname')
 )
-def populate_reporttype_dropdown(pathname):
+def populate_accreditationbody_dropdown(pathname):
     # Check if the pathname matches if necessary
     if pathname == '/assessmentreports/assessment_details':
         sql ="""

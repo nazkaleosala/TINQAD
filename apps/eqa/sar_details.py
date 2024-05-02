@@ -62,7 +62,7 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dbc.Input(id="sarep_title", type="text"),
-                    width=8,
+                    width=7,
                 ),
             ],
             className="mb-2",
@@ -118,7 +118,7 @@ form = dbc.Form(
                         id="sarep_assessedby", 
                         placeholder="Select Accreditation Body",
                     ),
-                    width=8,
+                    width=7,
                 ),
             ],
             className="mb-2",
@@ -384,8 +384,6 @@ layout = html.Div(
 
 
 
-
-
 @app.callback(
     [
         Output('sarep_alert', 'color'),
@@ -393,11 +391,9 @@ layout = html.Div(
         Output('sarep_alert', 'is_open'),
         Output('sarep_successmodal', 'is_open')
     ],
+    [Input('save_button', 'n_clicks')],
     [
-        Input('save_button', 'n_clicks')
-    ],
-    [
-        State('sarep_degree_programs_id', 'value'), 
+        State('sarep_degree_programs_id', 'value'),
         State('sarep_title', 'value'),
         State('sarep_currentdate', 'value'),
         State('sarep_approv_eqa', 'value'),
@@ -411,58 +407,59 @@ layout = html.Div(
         State('sarep_review_status', 'value'),
         State('sarep_notes', 'value'),
         State('sarep_sarscore', 'value'),
-        
     ]
 )
- 
-def record_assessment_details (submitbtn, sarep_degree_programs_id, sarep_title, sarep_currentdate, 
-                               sarep_approv_eqa, sarep_assessedby, sarep_qscheddate, sarep_sched_assessdate, 
-                               sarep_link, sarep_pdf, sarep_checkstatus, sarep_datereviewed, 
-                               sarep_review_status, sarep_notes, sarep_sarscore):
+def record_assessment_details(
+    submitbtn, sarep_degree_programs_id, sarep_title, sarep_currentdate,
+    sarep_approv_eqa, sarep_assessedby, sarep_qscheddate, sarep_sched_assessdate,
+    sarep_link, sarep_pdf, sarep_checkstatus, sarep_datereviewed, 
+    sarep_review_status, sarep_notes, sarep_sarscore
+):
     if not submitbtn:
         raise PreventUpdate
-
-    alert_open = True  # Set alert_open to True by default
+    
+    alert_open = True
     modal_open = False
-    alert_color = ''
-    alert_text = ''
-
-    # Input validation
+    alert_color = 'danger'
+    alert_text = 'Please check your inputs.'
+    
+    # Validation
     if not sarep_degree_programs_id:
-        alert_color_sname = 'danger'
-        alert_text_sname = 'Check your inputs. Please add a Degree Program Title.'
-        return [alert_color_sname, alert_text_sname, alert_open, modal_open]
-     
-    # Default values
-    sarep_pdf = None
- 
-    try:
-        sql ="""
-            INSERT INTO eqateam.assess_report (
-                sarep_degree_programs_id, sarep_title,sarep_currentdate,
-                sarep_approv_eqa,sarep_assessedby, sarep_qscheddate,
-                sarep_sched_assessdate, sarep_link, sarep_pdf,
-                sarep_checkstatus,sarep_datereviewed,  sarep_review_status, sarep_notes,
-                sarep_sarscore, 
-            )
-            VALUES (%s, %s, %s, %s,
-                    %s, %s, %s, %s, %s, 
-                    %s, %s, %s, %s, %s)
-           """
-        values = (sarep_degree_programs_id, sarep_title,sarep_currentdate,
-                sarep_approv_eqa,sarep_assessedby, sarep_qscheddate,
-                sarep_sched_assessdate, sarep_link, sarep_pdf,
-                sarep_checkstatus,sarep_datereviewed,  sarep_review_status, sarep_notes,
-                sarep_sarscore)
+        alert_text = 'Check your inputs. Please add a Degree Program Title.'
+        return [alert_color, alert_text, alert_open, modal_open]
 
+    # Default values
+    sarep_pdf = None  # Ensure it’s being set to None if not provided
+
+    try:
+        sql = """
+            INSERT INTO eqateam.sar_report (
+                sarep_degree_programs_id, sarep_title, sarep_currentdate,
+                sarep_approv_eqa, sarep_assessedby, sarep_qscheddate,
+                sarep_sched_assessdate, sarep_link, sarep_pdf,
+                sarep_checkstatus, sarep_datereviewed, sarep_review_status, 
+                sarep_notes, sarep_sarscore
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        values = (
+            sarep_degree_programs_id, sarep_title, sarep_currentdate,
+            sarep_approv_eqa, sarep_assessedby, sarep_qscheddate,
+            sarep_sched_assessdate, sarep_link, sarep_pdf, 
+            sarep_checkstatus, sarep_datereviewed, sarep_review_status,
+            sarep_notes, sarep_sarscore
+        )
+        
         db.modifydatabase(sql, values)
         modal_open = True
+        alert_color = 'success'
+        alert_text = 'Data saved successfully!'
+        
     except Exception as e:
         alert_color = 'danger'
-        alert_text = 'An error occurred while saving the data.'
-
+        alert_text = 'An error occurred while saving the data: ' + str(e)
+    
     return [alert_color, alert_text, alert_open, modal_open]
-
   
 
 
@@ -661,6 +658,31 @@ def toggle_fields(check_status):
             className="mb-2",
         )
     ]
+
+
+
+
+#accreditation body dropdown
+@app.callback(
+    Output('sarep_assessedby', 'options'),
+    Input('url', 'pathname')
+)
+def populate_accreditationbody_dropdown(pathname):
+    # Check if the pathname matches if necessary
+    if pathname == '/assessmentreports/sar_details':
+        sql ="""
+        SELECT body_name as label, accreditation_body_id  as value
+        FROM public.accreditation_body
+       """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        accreditation_body = df.to_dict('records')
+        return accreditation_body
+    else:
+        raise PreventUpdate
+
 
 
  
