@@ -152,13 +152,14 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
                 sarep_currentdate AS "Date", 
                 dp.degree_name AS "Degree Program",
                 sarep_title AS "Assessment Title",
-                sarep_approv_eqa AS "EQA Type"
+                sarep_approv_eqa AS "EQA Type",
+                sarep_checkstatus AS "Status"
             FROM 
                 eqateam.sar_report AS ar
             LEFT JOIN 
                 public.degree_programs AS dp ON ar.sarep_degree_programs_id = dp.degree_id 
         """
-        cols = ['Date', 'Degree Program', 'Assessment Title', 'EQA Type']
+        cols = ['Date', 'Degree Program', 'Assessment Title', 'EQA Type' , 'Status']
 
     elif active_tab == "others":
         sql = """
