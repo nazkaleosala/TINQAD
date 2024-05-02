@@ -14,8 +14,6 @@ from apps import dbconnect as db
 from datetime import datetime
 
 
-
-
 def generate_pie_and_bar_chart():
     # Fetch data from the database for the pie chart
     pie_sql = """
@@ -44,9 +42,13 @@ def generate_pie_and_bar_chart():
         pie_fig = go.Figure(data=[go.Pie(
             labels=pie_df['legend_labels'],
             values=pie_df['total_amount'],
-            marker=dict(colors=custom_colors)
+            marker=dict(colors=custom_colors),
+            hole=0.4  # Adjust the value to change the size of the hole
         )])
-        pie_fig.update_layout()
+        pie_fig.update_layout(
+            title=f"{get_current_month()} {get_year_range()}",  # Title with month and year
+            title_font=dict(size=18)  # Fixed font size for the title
+        )
         pie_chart = dcc.Graph(figure=pie_fig)
 
     # Fetch data from the database for the bar chart
@@ -69,7 +71,11 @@ def generate_pie_and_bar_chart():
             xaxis_title='Month', 
             yaxis_title='Expenses',
             title_x=0.5,  
-            margin={'l': 50, 'r': 50, 't': 50, 'b': 0}  # Zero bottom margin
+            margin={'l': 50, 'r': 50, 't': 100, 'b': 0},  # Zero bottom margin
+            height=400  # Set the height of the bar graph
+        )
+        bar_fig.update_layout(
+            title_font=dict(size=18)  # Fixed font size for the title
         )
         bar_chart = dcc.Graph(figure=bar_fig)
 
@@ -140,19 +146,18 @@ layout = html.Div(
                         
                          
                         # Spending Overview
-                        dbc.Row(
+                        dbc.Card(
                             [
-                                dbc.Col(
-                                    [
-                                        html.H3(
-                                            [
-                                                html.Strong("Spending Overview"),  # Bold only this part
-                                                f" {get_current_month()} {get_year_range()}",  # Regular text for the rest
-                                            ],
-                                            className="mb-0",  # Remove bottom margin
-                                        ),
-                                        generate_pie_and_bar_chart()
-                                    ]
+                                dbc.CardHeader(
+                                    html.H3(
+                                        [
+                                            html.Strong("Spending Overview"),  # Bold only this part
+                                        ],
+                                        className="mb-0",  # Remove bottom margin
+                                    )
+                                ),
+                                dbc.CardBody(
+                                    generate_pie_and_bar_chart()
                                 )
                             ]
                         ),
@@ -161,9 +166,9 @@ layout = html.Div(
                         # Add the maintenance and other expenses section
                         dbc.Row(
                             [
-                                dbc.Col(
+                                dbc.CardHeader(html.H3("Expense Types", className="mb-0")),
+                                dbc.CardBody(
                                     expensetypes,
-                                    width=12
                                 )
                             ]
                         ),
