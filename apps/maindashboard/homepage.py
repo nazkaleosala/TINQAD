@@ -177,12 +177,7 @@ def fetch_team_messages(pathname):
 
 
 # -----------------------------------Announcements Content  
-announcements_content = html.Div([
-    announcements_display,
-    html.Div(id="announcement-input-area", children=announcement_input_div)
-])
-
-announcements_footer = html.Div()
+ 
 
 
 
@@ -246,7 +241,7 @@ def update_card_content(active_tab):
     if active_tab == "tab-team-msg":
         return team_messages_content, team_messages_footer
     elif active_tab == "tab-announcements":
-        return announcements_content, announcements_footer
+        return team_messages_content, team_messages_footer
     else:
         return "Tab not found", None  # Fallback case
  
