@@ -71,7 +71,9 @@ layout = html.Div(
                                     id='recordexpenses_list', 
                                     style={
                                         'marginTop': '20px',
-                                        'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                                        'overflowX': 'auto',# This CSS property adds a horizontal scrollbar
+                                        'overflowY': 'auto',   
+                                        'maxHeight': '250px',
                                     }
                                 )
                             ],
@@ -194,7 +196,7 @@ def recordexpenses_loadlist(pathname, searchterm, active_tab):
                 like_pattern = f"%{searchterm}%"
                 values = [like_pattern, like_pattern, like_pattern]
             else:
-                values = []
+                values = [] 
 
         df = db.querydatafromdatabase(sql, values, cols) 
 

@@ -144,24 +144,16 @@ layout = html.Div(
                         html.H1("ADMIN DASHBOARD"),
                         html.Hr(),
                         
-                         
                         # Spending Overview
-                        dbc.Card(
+                        dbc.Row(
                             [
-                                dbc.CardHeader(
-                                    html.H3(
-                                        [
-                                            html.Strong("Spending Overview"),  # Bold only this part
-                                        ],
-                                        className="mb-0",  # Remove bottom margin
-                                    )
-                                ),
+                                dbc.CardHeader(html.H3("Spending Overview", className="mb-0")),
                                 dbc.CardBody(
                                     generate_pie_and_bar_chart()
                                 )
                             ]
-                        ),
-                        html.Br(),
+                        ), 
+                        
                         html.Br(),
                         # Add the maintenance and other expenses section
                         dbc.Row(

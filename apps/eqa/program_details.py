@@ -18,14 +18,49 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Degree Program Title",
+                        "Select Degree Program",
                         html.Span("*", style={"color":"#F8B237"})
                     ],
                     width=4
                 ),
                 
                 dbc.Col(
-                    dbc.Input(id="pr_degree_id", type="text"),
+                    dbc.Input(id="pro_degree_title", type="text", placeholder= "Bachelor of Science in Industrial Engineering"),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
+        
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Degree Program Shortname",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
+                
+                dbc.Col(
+                    dbc.Input(id="pro_degree_shortname", type="text", placeholder= "BS Industrial Engineering"),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Degree Program Initials",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
+                
+                dbc.Col(
+                    dbc.Input(id="pro_degree_initials", type="text", placeholder= "BS IE"),
                     width=6,
                 ),
             ],
@@ -42,7 +77,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='pr_cluster_id', 
+                        id='pro_cluster_id', 
                     ),
                     width=6,
                 ),
@@ -60,7 +95,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='pr_college_id', 
+                        id='pro_college_id', 
                     ),
                     width=6,
                 ),
@@ -78,7 +113,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='pr_department_id', 
+                        id='pro_department_id', 
                     ),
                     width=6,
                 ),
@@ -101,7 +136,7 @@ form = dbc.Form(
                     ],
                     width=4),
                 dbc.Col(
-                    dbc.Input(type="number", id="pr_degree_count"),
+                    dbc.Input(type="number", id="pro_degree_count"),
                     width=2,
                 ),
             ],
@@ -119,7 +154,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='pr_program_type_id', 
+                        id='pro_program_type_id', 
                     ),
                     width=4,
                 ),
@@ -138,7 +173,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='academic_calendar_type_id', 
+                        id='pro_calendar_type_id', 
                         options=[
                             {"label": "Semester", "value": "1"},
                             {"label": "Trimester", "value": "2"},
@@ -161,7 +196,7 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dcc.Dropdown(
-                        id="pr_accreditation_body_id",
+                        id="pro_accreditation_body_id",
                         multi=True  # Allow selecting multiple values
                     ),
                     width=5,
@@ -221,7 +256,7 @@ form = dbc.Form(
                  
             ],
             centered=True,
-            id='pr_alert_successmodal',
+            id='pro_alert_successmodal',
             backdrop=True,   
             className="modal-success"  
         ),
@@ -256,7 +291,7 @@ layout = html.Div(
                     [
                         html.H1("ADD NEW PROGRAM"),
                         html.Hr(),
-                        dbc.Alert(id='pr_alert', is_open=False), # For feedback purpose
+                        dbc.Alert(id='pro_alert', is_open=False), # For feedback purpose
                         form, 
                         html.Br(),
                          
@@ -280,109 +315,105 @@ layout = html.Div(
 
 
 
-
-
+import logging
 
 @app.callback(
     [
-        Output('pr_alert', 'color'),
-        Output('pr_alert', 'children'),
-        Output('pr_alert', 'is_open'),
-        Output('pr_alert_successmodal', 'is_open')
+        Output('pro_alert', 'color'),
+        Output('pro_alert', 'children'),
+        Output('pro_alert', 'is_open'),
+        Output('pro_alert_successmodal', 'is_open')
     ],
+    [Input('save_button', 'n_clicks')],
     [
-        Input('save_button', 'n_clicks')
-    ],
-    [
-        State('pr_degree_id', 'value'),
-        State('pr_cluster_id', 'value'), 
-        State('pr_college_id', 'value'),
-        State('pr_department_id', 'value'),
-        State('pr_degree_count', 'value'),
-        State('pr_program_type_id', 'value'),
-        State('academic_calendar_type_id', 'value'),
-        State('pr_accreditation_body_id', 'value')
+        State('pro_degree_title', 'value'),
+        State('pro_degree_shortname', 'value'),
+        State('pro_degree_initials', 'value'),
+        State('pro_cluster_id', 'value'),
+        State('pro_college_id', 'value'),
+        State('pro_department_id', 'value'),
+        State('pro_degree_count', 'value'),
+        State('pro_program_type_id', 'value'),
+        State('pro_calendar_type_id', 'value'),
+        State('pro_accreditation_body_id', 'value')  # List of selected values
     ]
 )
- 
-def record_program_details (submitbtn, 
-                            pr_degree_id ,
-                            pr_cluster_id ,
-                            pr_college_id ,
-                            pr_department_id ,
-                            pr_degree_count ,
-                            pr_program_type_id ,
-                            academic_calendar_type_id , 
-                            pr_accreditation_body_id):
+def record_program_details(
+    submitbtn,
+    pro_degree_title,
+    pro_degree_shortname,
+    pro_degree_initials,
+    pro_cluster_id,
+    pro_college_id,
+    pro_department_id,
+    pro_degree_count,
+    pro_program_type_id,
+    pro_calendar_type_id,
+    pro_accreditation_body_id
+):
     if not submitbtn:
         raise PreventUpdate
 
-    alert_open = True  # Set alert_open to True by default
+    alert_color = 'danger'
+    alert_text = 'An error occurred while saving the data. Please try again.'
+    alert_open = True
     modal_open = False
-    alert_color = ''
-    alert_text = ''
 
-    # Input validation
-    if not pr_degree_id:
-        alert_color_sname = 'danger'
-        alert_text_sname = 'Check your inputs. Please add a Degree Program Title.'
-        return [alert_color_sname, alert_text_sname, alert_open, modal_open]
-    
-    if not pr_cluster_id:
-        alert_color_sname = 'danger'
-        alert_text_sname = 'Check your inputs. Please add a Cluster.'
-        return [alert_color_sname, alert_text_sname, alert_open, modal_open]
-    
-    if not pr_college_id:
-        alert_color_sname = 'danger'
-        alert_text_sname = 'Check your inputs. Please add a College.'
-        return [alert_color_sname, alert_text_sname, alert_open, modal_open]
-     
-    if not pr_department_id:
-        alert_color_sname = 'danger'
-        alert_text_sname = 'Check your inputs. Please add a Department.'
-        return [alert_color_sname, alert_text_sname, alert_open, modal_open]
-    
-    if not pr_degree_count:
-        alert_color_sname = 'danger'
-        alert_text_sname = 'Check your inputs. Please add a Degree count.'
-        return [alert_color_sname, alert_text_sname, alert_open, modal_open]
-    
-    if not pr_program_type_id:
-        alert_color_sname = 'danger'
-        alert_text_sname = 'Check your inputs. Please add a Program Type.'
-        return [alert_color_sname, alert_text_sname, alert_open, modal_open]
- 
+    # Ensure required fields are filled
+    if not all([pro_degree_title, pro_degree_shortname, pro_degree_initials]):
+        return [alert_color, "Missing required fields.", alert_open, modal_open]
+
     try:
-        sql = """
-            INSERT INTO eqateam.program_list (
-                pr_degree_id, pr_cluster_id,
-                pr_college_id, pr_department_id,
-                pr_degree_count, pr_program_type_id,
-                academic_calendar_type_id,
-                pr_accreditation_body_id
+        # Insert into `program_details` and get the generated `programdetails_id`
+        insert_program_sql = """
+            INSERT INTO eqateam.program_details (
+                pro_degree_title, pro_degree_shortname,
+                pro_degree_initials, pro_cluster_id,
+                pro_college_id, pro_department_id,
+                pro_degree_count, pro_program_type_id,
+                pro_calendar_type_id
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING programdetails_id   
         """
-        values = (
-            pr_degree_id, pr_cluster_id,
-            pr_college_id, pr_department_id,
-            pr_degree_count, pr_program_type_id,
-            academic_calendar_type_id,
-            pr_accreditation_body_id
+        program_values = (
+            pro_degree_title,
+            pro_degree_shortname,
+            pro_degree_initials,
+            pro_cluster_id,
+            pro_college_id,
+            pro_department_id,
+            pro_degree_count,
+            pro_program_type_id,
+            pro_calendar_type_id
         )
- 
 
-        db.modifydatabase(sql, values)
+        # Get the generated ID from `program_details`
+        programdetails_id = db.modifydatabase(insert_program_sql, program_values)
+
+        # Insert into the linking table using the correct ID
+        insert_accreditation_sql = """
+            INSERT INTO eqateam.program_accreditation (programdetails_id, accreditation_body_id)
+            VALUES (%s, %s)
+        """
+        
+        # Insert each selected accreditation body into `program_accreditation`
+        for accreditation_id in pro_accreditation_body_id:
+            db.modifydatabase(insert_accreditation_sql, (programdetails_id, accreditation_id))
+
+        alert_color = 'success'
+        alert_text = 'Data saved successfully!'
+        alert_open = False
         modal_open = True
+
     except Exception as e:
+        logging.error("Error while saving program details: %s", str(e))
         alert_color = 'danger'
-        alert_text = 'An error occurred while saving the data.'
+        alert_text = "An error occurred: " + str(e)
+        alert_open = True
+        modal_open = False
 
     return [alert_color, alert_text, alert_open, modal_open]
-
-  
-
 
 
 
@@ -420,7 +451,7 @@ def new_accreditation_details(addbtn, new_accreditation_body_id):
 
 # Cluster dropdown
 @app.callback(
-    Output('pr_cluster_id', 'options'),
+    Output('pro_cluster_id', 'options'),
     Input('url', 'pathname')
 )
 def populate_cluster_dropdown(pathname):
@@ -434,15 +465,15 @@ def populate_cluster_dropdown(pathname):
         cols = ['label', 'value']
         df = db.querydatafromdatabase(sql, values, cols)
         
-        pr_cluster_types = df.to_dict('records')
-        return pr_cluster_types
+        pro_cluster_types = df.to_dict('records')
+        return pro_cluster_types
     else:
         raise PreventUpdate
 
 # College dropdown
 @app.callback(
-    Output('pr_college_id', 'options'),
-    Input('pr_cluster_id', 'value')
+    Output('pro_college_id', 'options'),
+    Input('pro_cluster_id', 'value')
 )
 def populate_college_dropdown(selected_cluster):
     if selected_cluster is None:
@@ -458,16 +489,16 @@ def populate_college_dropdown(selected_cluster):
         cols = ['label', 'value']
         df = db.querydatafromdatabase(sql, values, cols)
         
-        pr_college_options = df.to_dict('records')
-        return pr_college_options
+        pro_college_options = df.to_dict('records')
+        return pro_college_options
     except Exception as e:
         # Log the error or handle it appropriately
         return [] 
 
 # Degree Unit dropdown
 @app.callback(
-    Output('pr_department_id', 'options'),
-    Input('pr_college_id', 'value')
+    Output('pro_department_id', 'options'),
+    Input('pro_college_id', 'value')
 )
 def populate_dgu_dropdown(selected_college):
     if selected_college is None:
@@ -484,8 +515,8 @@ def populate_dgu_dropdown(selected_college):
         cols = ['label', 'value']
         df = db.querydatafromdatabase(sql, values, cols)
         
-        pr_dgu_options = df.to_dict('records')
-        return pr_dgu_options
+        pro_dgu_options = df.to_dict('records')
+        return pro_dgu_options
     except Exception as e:
         # Log the error or handle it appropriately
         return []
@@ -496,7 +527,7 @@ def populate_dgu_dropdown(selected_college):
 
 # Program type dropdown
 @app.callback(
-    Output('pr_program_type_id', 'options'),
+    Output('pro_program_type_id', 'options'),
     Input('url', 'pathname')
 )
 def populate_programtype_dropdown(pathname):
@@ -510,8 +541,8 @@ def populate_programtype_dropdown(pathname):
         cols = ['label', 'value']
         df = db.querydatafromdatabase(sql, values, cols)
         
-        pr_programtype_types = df.to_dict('records')
-        return pr_programtype_types
+        pro_programtype_types = df.to_dict('records')
+        return pro_programtype_types
     else:
         raise PreventUpdate
 
@@ -520,7 +551,7 @@ def populate_programtype_dropdown(pathname):
 
 # Accreditation body dropdown
 @app.callback(
-    Output('pr_accreditation_body_id', 'options'),
+    Output('pro_accreditation_body_id', 'options'),
     Input('url', 'pathname')
 )
 def populate_accreditationbody_dropdown(pathname):
