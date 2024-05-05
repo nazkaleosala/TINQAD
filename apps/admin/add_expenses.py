@@ -98,8 +98,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Particulars ",
-                        html.Span("*", style={"color": "#F8B237"})
+                        "Particulars ")
                     ],
                     width=4
                 ),
