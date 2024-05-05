@@ -3,6 +3,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_table
 import dash
+import psycopg2
 from dash.dependencies import Input, Output, State
 from dash.dependencies import MATCH
 from dash.exceptions import PreventUpdate
@@ -16,59 +17,201 @@ from dash import ALL, no_update
 
 from datetime import datetime
 
-# Components for the message functionality
-add_message_button = dbc.Button(
-    "Add Message",
-    id="show-input-button",
-    className="mt-2",
-    style={"backgroundColor": "#0A4323", "borderColor": "#0A4323", "display": "block"}
-)
 
-message_input_div = html.Div(
+
+
+
+
+
+
+ 
+ 
+
+#----------------------------------- Team Messages Content
+team_messages_content = html.Div(
     [
-        dbc.Textarea(
-            id="message-input",
-            placeholder="Type a message...",
-            style={"resize": "vertical"},  # Allow vertical resizing
-            rows=5  # Set the initial number of rows
-        ),
-        dbc.Row(
+        html.Div(id="teammsgs_display"),  # Display for team messages
+        html.Div(
             [
-                dbc.Col(html.Div(), width="auto"),  # Empty column to push buttons to the right
-                dbc.Col(
+                dbc.Textarea(
+                    id="teammsgs_content",
+                    placeholder="Type a message...",
+                    style={"resize": "vertical"},
+                    rows=5,
+                ),
+                dbc.Row(
                     [
-                        dbc.Button("Post", id="post-message-button", color="success", className="mr-1 mt-2"),
-                        dbc.Button("Cancel", id="cancel-message-button", color="secondary", className="mt-2", style={"margin-left": "5px"}),  # Add margin to the left for spacing
+                        dbc.Col(
+                            dbc.Button("Post", id="teammsgspost_button", color="success", className="mt-2"),
+                            width="auto",
+                        ),
+                        dbc.Col(
+                            dbc.Button("Cancel", id="teammsgscancel_button", color="warning", className="mt-2"),
+                            width="auto",
+                        ),
                     ],
-                    width="auto",
+                    style={"justify-content": "flex-end"},
                 ),
             ],
-            style={"margin-top": "5px", "justify-content": "flex-end"}  # Align buttons to the right
-        )
-    ],
-    id="message-input-div",
-    style={"display": "none"}  # Hidden initially
+            id="teammsgs_id",
+            style={"display": "none"},  # Initially hidden
+        ),
+    ]
 )
-messages_display = html.Div(id="messages-display", children="No team messages")
+
+team_messages_footer = html.Div(
+    [
+        dbc.Button(
+            "Add Message",
+            id="teammsgs_footer_button",
+            className="mt-2",
+            color="success",
+        ),
+    ],
+    className="d-flex justify-content-end",
+)
+app.layout = html.Div([team_messages_content, team_messages_footer, dcc.Location(id="url", refresh=False)])
+
+# Callback to toggle the textarea visibility
+@app.callback(
+    Output("teammsgs_id", "style"),
+    [Input("teammsgs_footer_button", "n_clicks")],
+    [State("teammsgs_id", "style")],
+)
+def toggle_textarea(n_clicks, current_style):
+    if not n_clicks:
+        raise PreventUpdate
+    
+    return {"display": "block" if current_style["display"] == "none" else "none"}
+
+# Callback to insert a new message into the database
+@app.callback(
+    Output("teammsgs_status", "children"),  # Status display for the post action
+    [Input("teammsgspost_button", "n_clicks")],
+    [State("teammsgs_content", "value")],
+)
+def insert_team_message(n_clicks, message_content):
+    if not n_clicks:
+        raise PreventUpdate
+
+    try:
+        sql = """
+            INSERT INTO maindashboard.teammessages (teammsgs_content, teammsgs_user)
+            VALUES (%s, NULL)
+        """
+        
+        values = (message_content, )
+
+        # Insert the message into the database
+        db.modifydatabase(sql, values)
+        
+        return ["Message posted successfully!"]
+
+    except Exception as e:
+        return [f"Error: {str(e)}"]
+
+# Callback to fetch team messages on page load or navigation
+@app.callback(
+    Output("teammsgs_display", "children"),  # Use separate outputs
+    [Input("url", "pathname")],  # Ensure you have dcc.Location for URL tracking
+)
+def fetch_team_messages(pathname):
+    if pathname != "/homepage":
+        raise PreventUpdate
+    
+    try:
+        sql = """
+            SELECT teammsgs_content, teammsgs_user, teammsgs_timestamp
+            FROM maindashboard.teammessages
+            ORDER BY teammsgs_timestamp DESC
+        """
+        
+        # Pass required values and column names
+        values = ()
+        dfcolumns = ["teammsgs_content", "teammsgs_user", "teammsgs_timestamp"]
+
+        df = db.querydatafromdatabase(sql, values, dfcolumns)
+
+        if df.empty:
+            return [html.Div("No records to display")]
+
+        formatted_messages = []
+        # Iterate through each row in the DataFrame
+        for row in df.itertuples(index=False):
+            # Unpack the row into expected number of variables
+            content = getattr(row, "teammsgs_content")
+            user = getattr(row, "teammsgs_user")
+            timestamp = getattr(row, "teammsgs_timestamp")
+
+            formatted_messages.append(
+                html.Div(
+                    [
+                        html.P(content),  # The main message content
+                        html.Small(
+                            f"{user or 'Anonymous'}, {timestamp}",
+                            style={
+                                "text-align": "right",
+                                "font-style": "italic",
+                                "margin-top": "5px",  # Add a small margin for separation
+                            },
+                        ),  # User and timestamp with desired styling
+                    ],
+                    style={"margin-bottom": "10px"},  # Spacing between messages
+                )
+            )
+        
+        return formatted_messages  # Return list of formatted messages
+
+    except Exception as e:
+        return [html.Div(f"Error retrieving messages: {str(e)}")]
 
 
-all_messages = []
-MAX_MESSAGES = 100
 
-# Team Messages Content
-team_messages_content = html.Div([
-    messages_display,
-    html.Div(id="message-input-area", children=message_input_div)
-])
 
-team_messages_footer = html.Div([add_message_button], className="d-flex justify-content-end")
 
-# Announcements Content (adjust as needed)
+
+
+
+
+
+# -----------------------------------Announcements Content  
 announcements_content = html.Div([
     html.P("Announcements content goes here...")  # Placeholder, replace with actual content
 ])
 
 announcements_footer = html.Div()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 card = dbc.Card(
@@ -103,101 +246,7 @@ def update_card_content(active_tab):
         return announcements_content, announcements_footer
     else:
         return "Tab not found", None  # Fallback case
-
-@app.callback(
-    [Output('message-input-div', 'style'),
-     Output('show-input-button', 'style')],
-    [Input('show-input-button', 'n_clicks'),
-     Input('cancel-message-button', 'n_clicks')],
-    prevent_initial_call=True
-)
-def toggle_input_area(show_clicks, cancel_clicks):
-    # Toggle the visibility based on which button was clicked
-    if show_clicks and cancel_clicks:
-        # If both buttons have been clicked, check which was clicked last
-        if show_clicks > cancel_clicks:
-            # If "Add Message" was clicked after "Cancel", show the input area
-            return {"display": "block"}, {"display": "none"}
-        else:
-            # Otherwise, hide the input area
-            return {"display": "none"}, {"display": "block"}
-    elif show_clicks:
-        # If only "Add Message" was clicked, show the input area
-        return {"display": "block"}, {"display": "none"}
-    elif cancel_clicks:
-        # If only "Cancel" was clicked, hide the input area
-        return {"display": "none"}, {"display": "block"}
-
-    # Default state if none of the buttons have been clicked
-    return {"display": "none"}, {"display": "block"}
-
-#Post message    
-@app.callback(
-    [Output('messages-display', 'children'), 
-     Output('message-input', 'value')],  # Add an output for the message input
-    [Input('post-message-button', 'n_clicks')],
-    [State('message-input', 'value'), 
-     State('messages-display', 'children')],
-    prevent_initial_call=True
-)
-def post_message(n_clicks, message, displayed_messages):
-    if not message:
-        return dash.no_update, message 
-
-    timestamp = datetime.now().strftime("%d %B %Y, %I:%M:%S %p")
-    message_id = f"message-{n_clicks}"
-
-    # Create a text-based "Delete" link
-    delete_link = html.A(
-        html.Img(
-            src=app.get_asset_url("icons/delete_icon.png"),  
-            style={"height": "20px", "width": "20px"}  # Adjust the size as needed
-        ),
-        href="#",
-        id={"type": "delete", "index": message_id},
-        style={"cursor": "pointer", "display": "block", "text-align": "right"}
-    )
-
-    # Construct the formatted message with the Delete link on the right
-    formatted_message = html.Div([
-        dbc.Row([
-            dbc.Col([
-                html.Div(message, id={"type": "message-text", "index": message_id}),
-                dbc.Textarea(id={"type": "edit-message-input", "index": message_id}, style={"display": "none"}, value=message),
-                html.P("Last updated: " + timestamp, style={'fontSize': 'small', 'color': '#888888'})
-            ], width=10),
-            dbc.Col(delete_link, width=2, className="text-right")  # Place the delete link in its own column
-        ]),
-        html.Hr()  # Horizontal line separator
-    ], id={"type": "message-container", "index": message_id})
-
-    new_message = [formatted_message]
-    # Check if there are existing messages
-    if displayed_messages and displayed_messages != "No team messages":
-        updated_messages = displayed_messages + new_message
-    else:
-        updated_messages = new_message
-
-    return updated_messages, ""
-
-
-#Delete
-def generate_delete_callback(index):
-    @app.callback(
-        Output({'type': 'message-container', 'index': index}, 'style'),
-        [Input({'type': 'delete', 'index': index}, 'n_clicks')],
-        prevent_initial_call=True
-    )
-    def delete_message(n_clicks):
-        if n_clicks is None:
-            raise PreventUpdate
-        # Hide the message container
-        return {"display": "none"}
-
-# Generate callbacks for each message
-for i in range(MAX_MESSAGES):  # Replace MAX_MESSAGES with the maximum expected number of messages
-    generate_delete_callback(f"message-{i}")
-
+ 
  
  
 timeline_card = dbc.Card(

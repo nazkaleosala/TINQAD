@@ -133,7 +133,7 @@ layout = html.Div(
                 dbc.Col(cm.generate_navbar(), width=2),
                 dbc.Col(
                     [
-                        html.H1("PROFILE"),
+                        html.H1("ADD CRITERIA"),
                         html.Hr(),
                         html.Br(),
                         form,
