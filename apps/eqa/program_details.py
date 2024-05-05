@@ -364,7 +364,38 @@ def record_program_details(
         return [alert_color, "Missing required fields.", alert_open, modal_open]
 
     try:
-        # Insert into `program_details` and get the generated `programdetails_id`
+        check_existing_title_sql = """
+            SELECT 1 
+            FROM eqateam.program_details 
+            WHERE pro_degree_title = %s
+        """
+        existing_title = db.querydatafromdatabase(check_existing_title_sql, (pro_degree_title,), ["exists"])
+
+        check_existing_shortname_sql = """
+            SELECT 1 
+            FROM eqateam.program_details 
+            WHERE pro_degree_shortname = %s
+        """
+        existing_shortname = db.querydatafromdatabase(check_existing_shortname_sql, (pro_degree_shortname,), ["exists"])
+
+        check_existing_initials_sql = """
+            SELECT 1 
+            FROM eqateam.program_details 
+            WHERE pro_degree_initials = %s
+        """
+        existing_initials = db.querydatafromdatabase(check_existing_initials_sql, (pro_degree_initials,), ["exists"])
+
+        # Construct an alert text based on which fields already exist
+        if not existing_title.empty:
+            alert_text = 'Degree Program Title already exists. Please use a different title.'
+        elif not existing_shortname.empty:
+            alert_text = 'Degree Program Shortname already exists. Please use a different shortname.'
+        elif not existing_initials.empty:
+            alert_text = 'Degree Program Initials already exists. Please use different initials.'
+
+        if not existing_title.empty or not existing_shortname.empty or not existing_initials.empty:
+            return [alert_color, alert_text, True, False]
+
         insert_program_sql = """
             INSERT INTO eqateam.program_details (
                 pro_degree_title, pro_degree_shortname,
@@ -387,6 +418,13 @@ def record_program_details(
             pro_program_type_id,
             pro_calendar_type_id
         )
+
+        # Retrieve the generated `programdetails_id` from the DataFrame
+        result_df = db.querydatafromdatabase(insert_program_sql, program_values, ["programdetails_id"])
+
+        if result_df.empty or "programdetails_id" not in result_df.columns:
+            raise Exception("Failed to retrieve programdetails_id")
+ 
 
         # Get the generated ID from `program_details`
         programdetails_id = db.modifydatabase(insert_program_sql, program_values)
