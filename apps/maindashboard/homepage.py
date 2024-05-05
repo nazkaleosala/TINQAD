@@ -14,27 +14,36 @@ from app import app
 from apps import dbconnect as db
 
 from dash import ALL, no_update
-
-from datetime import datetime
-
-
+from datetime import datetime, timedelta
+import calendar
 
 
 
 
 
 
-
-
- 
- 
+# Function to get the start and end of the current week
+def get_month_range():
+    today = datetime.today()
+    # Get the first day of the current month
+    start_of_month = datetime(today.year, today.month, 1)
+    # Get the last day of the current month
+    end_of_month = datetime(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
+    return start_of_month, end_of_month
 
 #----------------------------------- Team Messages Content
 team_messages_content = html.Div(
     [
-        html.Div(id="teammsgs_display"),  # Display for team messages
+        html.Div(id="teammsgs_display",
+                 style={
+                    'overflowX': 'auto', 
+                    'overflowY': 'auto',   
+                    'maxHeight': '200px',
+                    }),  
+        
         html.Div(
             [
+                html.Div(id="teammsgs_status"),  
                 dbc.Textarea(
                     id="teammsgs_content",
                     placeholder="Type a message...",
@@ -88,7 +97,7 @@ def toggle_textarea(n_clicks, current_style):
 
 # Callback to insert a new message into the database
 @app.callback(
-    Output("teammsgs_status", "children"),  # Status display for the post action
+    Output("teammsgs_status", "children"),   
     [Input("teammsgspost_button", "n_clicks")],
     [State("teammsgs_content", "value")],
 )
@@ -112,35 +121,45 @@ def insert_team_message(n_clicks, message_content):
     except Exception as e:
         return [f"Error: {str(e)}"]
 
-# Callback to fetch team messages on page load or navigation
+
+
+
+
+
+
+
+
 @app.callback(
-    Output("teammsgs_display", "children"),  # Use separate outputs
-    [Input("url", "pathname")],  # Ensure you have dcc.Location for URL tracking
+    Output("teammsgs_display", "children"),
+    [Input("url", "pathname")],   
 )
 def fetch_team_messages(pathname):
     if pathname != "/homepage":
         raise PreventUpdate
-    
+
     try:
+         
+        start_of_month, end_of_month = get_month_range()
+        
+         
         sql = """
             SELECT teammsgs_content, teammsgs_user, teammsgs_timestamp
             FROM maindashboard.teammessages
+            WHERE teammsgs_timestamp BETWEEN %s AND %s
             ORDER BY teammsgs_timestamp DESC
         """
-        
-        # Pass required values and column names
-        values = ()
+
+         
+        values = (start_of_month, end_of_month)
         dfcolumns = ["teammsgs_content", "teammsgs_user", "teammsgs_timestamp"]
 
         df = db.querydatafromdatabase(sql, values, dfcolumns)
 
         if df.empty:
-            return [html.Div("No records to display")]
+            return [html.Div("No messages this week")]
 
-        formatted_messages = []
-        # Iterate through each row in the DataFrame
-        for row in df.itertuples(index=False):
-            # Unpack the row into expected number of variables
+        formatted_messages = [] 
+        for row in df.itertuples(index=False): 
             content = getattr(row, "teammsgs_content")
             user = getattr(row, "teammsgs_user")
             timestamp = getattr(row, "teammsgs_timestamp")
@@ -154,15 +173,15 @@ def fetch_team_messages(pathname):
                             style={
                                 "text-align": "right",
                                 "font-style": "italic",
-                                "margin-top": "5px",  # Add a small margin for separation
                             },
-                        ),  # User and timestamp with desired styling
+                        ),  
+                        html.Hr(),
                     ],
-                    style={"margin-bottom": "10px"},  # Spacing between messages
+                    style={"margin-bottom": "10px"},  
                 )
             )
         
-        return formatted_messages  # Return list of formatted messages
+        return formatted_messages  
 
     except Exception as e:
         return [html.Div(f"Error retrieving messages: {str(e)}")]
