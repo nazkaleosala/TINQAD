@@ -24,6 +24,8 @@ from datetime import datetime
 
 
 
+
+
  
  
 
@@ -176,7 +178,8 @@ def fetch_team_messages(pathname):
 
 # -----------------------------------Announcements Content  
 announcements_content = html.Div([
-    html.P("Announcements content goes here...")  # Placeholder, replace with actual content
+    announcements_display,
+    html.Div(id="announcement-input-area", children=announcement_input_div)
 ])
 
 announcements_footer = html.Div()
