@@ -72,9 +72,14 @@ layout = html.Div(
                             id='programlist_list', 
                             style={
                                 'marginTop': '20px',
-                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                                'overflowX': 'auto', 
+                                'overflowY': 'auto',   
+                                'maxHeight': '1000px',
                             }
-                        )
+                        ),
+
+                        html.Br(),
+                        html.Br(),
 
                     ], width=9, style={'marginLeft': '15px'}
                 ),
@@ -106,43 +111,57 @@ layout = html.Div(
 
 def programlist_loadlist(pathname, searchterm):
     if pathname == '/program_list': 
-        sql = """  
+        base_sql = """  
             SELECT
-                pr_degree_id AS "Degree Program", 
+                pd.pro_degree_shortname AS "Degree Program",
                 c.college_name AS "College",
                 du.deg_unit_name AS "Department",
                 cl.cluster_name AS "Cluster",
                 pt.programtype_name AS "Program Type",
-                ab.body_name AS "Applicable Accreditation Bodies"
+                STRING_AGG(ab.body_name, ', ') AS "Applicable Accreditation Bodies"
             FROM
-                eqateam.program_list AS pl
-                LEFT JOIN eqateam.program_type pt ON pl.pr_program_type_id = pt.programtype_id
-                LEFT JOIN public.college c ON pl.pr_college_id = c.college_id
-                LEFT JOIN public.deg_unit du ON pl.pr_department_id = du.deg_unit_id
-                LEFT JOIN public.clusters cl ON pl.pr_cluster_id = cl.cluster_id
-                LEFT JOIN public.accreditation_body ab ON pl.pr_accreditation_body_id = ab.accreditation_body_id
-                
+                eqateam.program_details pd
+                INNER JOIN public.college c ON pd.pro_college_id = c.college_id
+                INNER JOIN public.deg_unit du ON pd.pro_department_id = du.deg_unit_id
+                INNER JOIN public.clusters cl ON pd.pro_cluster_id = cl.cluster_id
+                INNER JOIN eqateam.program_type pt ON pd.pro_program_type_id = pt.programtype_id
+                LEFT JOIN eqateam.program_accreditation pa ON pd.programdetails_id = pa.programdetails_id
+                LEFT JOIN public.accreditation_body ab ON pa.accreditation_body_id = ab.accreditation_body_id
+            WHERE
+                1 = 1
+            GROUP BY
+                pd.pro_degree_shortname,
+                c.college_name,
+                du.deg_unit_name,
+                cl.cluster_name,
+                pt.programtype_name
         """
-         
-        cols = ["Degree Program", "College", "Department", "Cluster", "Program Type", "Applicable Accreditation Bodies"]
+
+        additional_conditions = ""
+        values = []
 
         if searchterm:
-            
-            sql += """
-                WHERE
-                    pr_degree_id ILIKE %s OR
-                    c.college_name ILIKE %s OR
-                    du.deg_unit_name ILIKE %s OR
-                    cl.cluster_name ILIKE %s
-            """
             like_pattern = f"%{searchterm}%"
-            values = [like_pattern, like_pattern, like_pattern, like_pattern]
-        else:
-            values = []
+            additional_conditions += """
+                AND (
+                    pd.pro_degree_shortname ILIKE %s
+                    OR c.college_name ILIKE %s
+                    OR du.deg_unit_name ILIKE %s
+                    OR cl.cluster_name ILIKE %s
+                )
+            """
+            values.extend([like_pattern, like_pattern, like_pattern, like_pattern])
 
-        df = db.querydatafromdatabase(sql, values, cols) 
+        final_sql = base_sql + additional_conditions + """
+            ORDER BY
+                pd.pro_degree_shortname
+        """
 
-        # Generate the table from the DataFrame
+        cols = ["Degree Program", "College", "Department", "Cluster", "Program Type", "Applicable Accreditation Bodies"]
+
+
+        df = db.querydatafromdatabase(final_sql, values, cols)
+
         if not df.empty:
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]

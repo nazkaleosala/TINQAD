@@ -73,7 +73,7 @@ layout = html.Div(
                                         'marginTop': '20px',
                                         'overflowX': 'auto',# This CSS property adds a horizontal scrollbar
                                         'overflowY': 'auto',   
-                                        'maxHeight': '250px',
+                                        'maxHeight': '1000px',
                                     }
                                 )
                             ],
