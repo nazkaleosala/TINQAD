@@ -16,6 +16,8 @@ from dash import ALL, no_update
 
 from datetime import datetime
 
+
+
 # Components for the message functionality
 add_message_button = dbc.Button(
     "Add Message",
@@ -63,12 +65,57 @@ team_messages_content = html.Div([
 
 team_messages_footer = html.Div([add_message_button], className="d-flex justify-content-end")
 
+
+
+
 # Announcements Content (adjust as needed)
+add_announcement_button = dbc.Button(
+    "Add Announcement",
+    id="show-announcement-input-button",
+    className="mt-2",
+    style={"backgroundColor": "#0A4323", "borderColor": "#0A4323", "display": "block"}
+)
+
+announcement_input_div = html.Div(
+    [
+        dbc.Textarea(
+            id="announcement-input",
+            placeholder="Type an announcement...",
+            style={"resize": "vertical"},  # Allow vertical resizing
+            rows=5  # Set the initial number of rows
+        ),
+        dbc.Row(
+            [
+                dbc.Col(html.Div(), width="auto"),  # Empty column to push buttons to the right
+                dbc.Col(
+                    [
+                        dbc.Button("Post", id="post-announcement-button", color="success", className="mr-1 mt-2"),
+                        dbc.Button("Cancel", id="cancel-announcement-button", color="secondary", className="mt-2", style={"margin-left": "5px"}),  # Add margin to the left for spacing
+                    ],
+                    width="auto",
+                ),
+            ],
+            style={"margin-top": "5px", "justify-content": "flex-end"}  # Align buttons to the right
+        )
+    ],
+    id="announcement-input-div",
+    style={"display": "none"}  # Hidden initially
+)
+
+announcements_display = html.Div(id="announcements-display", children="No announcements")
+
+# Announcements Content
 announcements_content = html.Div([
-    html.P("Announcements content goes here...")  # Placeholder, replace with actual content
+    announcements_display,
+    html.Div(id="announcement-input-area", children=announcement_input_div)
 ])
 
-announcements_footer = html.Div()
+announcements_footer = html.Div([add_announcement_button], className="d-flex justify-content-end")
+
+all_announcements = []
+MAX_ANNOUNCEMENTS = 100
+
+
 
 
 card = dbc.Card(
@@ -104,6 +151,8 @@ def update_card_content(active_tab):
     else:
         return "Tab not found", None  # Fallback case
 
+
+
 @app.callback(
     [Output('message-input-div', 'style'),
      Output('show-input-button', 'style')],
@@ -111,13 +160,13 @@ def update_card_content(active_tab):
      Input('cancel-message-button', 'n_clicks')],
     prevent_initial_call=True
 )
-def toggle_input_area(show_clicks, cancel_clicks):
+def toggle_message_input_area(show_clicks, cancel_clicks):
     # Toggle the visibility based on which button was clicked
     if show_clicks and cancel_clicks:
         # If both buttons have been clicked, check which was clicked last
         if show_clicks > cancel_clicks:
             # If "Add Message" was clicked after "Cancel", show the input area
-            return {"display": "block"}, {"display": "none"}
+            return {"display": "block"}, {"display": "none"},
         else:
             # Otherwise, hide the input area
             return {"display": "none"}, {"display": "block"}
@@ -180,7 +229,6 @@ def post_message(n_clicks, message, displayed_messages):
 
     return updated_messages, ""
 
-
 #Delete
 def generate_delete_callback(index):
     @app.callback(
@@ -198,6 +246,103 @@ def generate_delete_callback(index):
 for i in range(MAX_MESSAGES):  # Replace MAX_MESSAGES with the maximum expected number of messages
     generate_delete_callback(f"message-{i}")
 
+
+
+
+# Callback to toggle input area visibility for announcements
+@app.callback(
+    [Output('announcement-input-div', 'style'),
+     Output('show-announcement-input-button', 'style')],
+    [Input('show-announcement-input-button', 'n_clicks'),
+     Input('cancel-announcement-button', 'n_clicks')],
+    prevent_initial_call=True
+)
+def toggle_announcement_input_area(show_clicks, cancel_clicks):
+    # Toggle the visibility based on which button was clicked
+    if show_clicks and cancel_clicks:
+        # If both buttons have been clicked, check which was clicked last
+        if show_clicks > cancel_clicks:
+            # If "Add Announcement" was clicked after "Cancel", show the input area
+            return {"display": "block"}, {"display": "none"}
+        else:
+            # Otherwise, hide the input area
+            return {"display": "none"}, {"display": "block"}
+    elif show_clicks:
+        # If only "Add Announcement" was clicked, show the input area
+        return {"display": "block"}, {"display": "none"}
+    elif cancel_clicks:
+        # If only "Cancel" was clicked, hide the input area
+        return {"display": "none"}, {"display": "block"}
+
+    # Default state if none of the buttons have been clicked
+    return {"display": "none"}, {"display": "block"}
+
+# Post announcement
+@app.callback(
+    [Output('announcements-display', 'children'), 
+     Output('announcement-input', 'value')],
+    [Input('post-announcement-button', 'n_clicks')],
+    [State('announcement-input', 'value'), 
+     State('announcements-display', 'children')],
+    prevent_initial_call=True
+)
+
+def post_announcement(n_clicks, announcement, displayed_announcements):
+    if not announcement:
+        return dash.no_update, announcement 
+
+    timestamp = datetime.now().strftime("%d %B %Y, %I:%M:%S %p")
+    announcement_id = f"announcement-{n_clicks}"
+
+    # Create a text-based "Delete" link
+    delete_link = html.A(
+        html.Img(
+            src=app.get_asset_url("icons/delete_icon.png"),  
+            style={"height": "20px", "width": "20px"}  # Adjust the size as needed
+        ),
+        href="#",
+        id={"type": "delete-announcement", "index": announcement_id},
+        style={"cursor": "pointer", "display": "block", "text-align": "right"}
+    )
+
+    # Construct the formatted announcement with the Delete link on the right
+    formatted_announcement = html.Div([
+        dbc.Row([
+            dbc.Col([
+                html.Div(announcement, id={"type": "announcement-text", "index": announcement_id}),
+                dbc.Textarea(id={"type": "edit-announcement-input", "index": announcement_id}, style={"display": "none"}, value=announcement),
+                html.P("Last updated: " + timestamp, style={'fontSize': 'small', 'color': '#888888'})
+            ], width=10),
+            dbc.Col(delete_link, width=2, className="text-right")  # Place the delete link in its own column
+        ]),
+        html.Hr()  # Horizontal line separator
+    ], id={"type": "announcement-container", "index": announcement_id})
+
+    new_announcement = [formatted_announcement]
+    # Check if there are existing announcements
+    if displayed_announcements and displayed_announcements != "No announcements":
+        updated_announcements = displayed_announcements + new_announcement
+    else:
+        updated_announcements = new_announcement
+
+    return updated_announcements, ""
+
+#Delete announcement
+def generate_delete_announcement_callback(index):
+    @app.callback(
+        Output({'type': 'announcement-container', 'index': index}, 'style'),
+        [Input({'type': 'delete-announcement', 'index': index}, 'n_clicks')],
+        prevent_initial_call=True
+    )
+    def delete_announcement(n_clicks):
+        if n_clicks is None:
+            raise PreventUpdate
+        # Hide the announcement container
+        return {"display": "none"}
+
+# Generate callbacks for each announcement
+for i in range(MAX_ANNOUNCEMENTS):  # Replace MAX_ANNOUNCEMENTS with the maximum expected number of announcements
+    generate_delete_announcement_callback(f"announcement-{i}")
  
  
 timeline_card = dbc.Card(
