@@ -187,8 +187,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Training Venue/Location ",
-                        html.Span("*", style={"color": "#F8B237"})
+                        "Training Venue/Location "
                     ],
                     width=4
                 ),
@@ -324,8 +323,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Other Receipts ",
-                        html.Span("*", style={"color": "#F8B237"})
+                        "Other Receipts "
                     ],
                     width=6
                 ),
