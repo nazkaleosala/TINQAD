@@ -97,8 +97,8 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Sex Assigned at Birth ",
-                        html.Span("*", style={"color": "#F8B237"})
+                        "Sex Assigned at Birth "
+                        
                     ],
                     width=4),
                 dbc.Col(
@@ -118,8 +118,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Birthday ",
-                        html.Span("*", style={"color": "#F8B237"})
+                        "Birthday "
                     ],
                     width=4),
                 dbc.Col(
@@ -133,8 +132,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Phone Number ",
-                        html.Span("*", style={"color": "#F8B237"})
+                        "Phone Number "
                     ], 
                     width=4),
                 dbc.Col(
