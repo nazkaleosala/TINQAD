@@ -149,8 +149,7 @@ form = dbc.Form(
            [
                dbc.Label(
                    [
-                       "Date of Departure ",
-                        html.Span("*", style={"color": "#F8B237"})
+                       "Date of Departure "
                    ],
                    width=4
                ),
@@ -168,8 +167,7 @@ form = dbc.Form(
            [
                dbc.Label(
                    [
-                       "Date of Return ",
-                        html.Span("*", style={"color": "#F8B237"})
+                       "Date of Return "
                    ],
                    width=4
                ),
