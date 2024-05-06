@@ -109,7 +109,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Lived Name ")
+                        "Lived Name "
                     ],
                     width=4),
                 dbc.Col(dbc.Input(type="text" ), width=8),
