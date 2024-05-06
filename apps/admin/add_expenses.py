@@ -98,7 +98,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Particulars ")
+                        "Particulars "
                     ],
                     width=4
                 ),
