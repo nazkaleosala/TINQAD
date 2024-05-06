@@ -155,10 +155,14 @@ layout = html.Div(
                         html.Div(
                             id='qaotraininglist_list', 
                             style={
-                                'marginTop': '20px',
-                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                            'overflowX': 'auto', 
+                            'overflowY': 'auto',   
+                            'maxHeight': '200px',
                             }
-                        )
+                        ),
+
+                        html.Br(),
+                        html.Br(),
                         
                     ], 
                     width=9, style={'marginLeft': '15px'}
