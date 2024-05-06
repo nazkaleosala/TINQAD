@@ -18,7 +18,6 @@ from dash.dash_table.Format import Group
 
 
 
-
 layout = html.Div(
     [
         dbc.Row(
@@ -42,7 +41,7 @@ layout = html.Div(
                                     ),
                                     html.Hr(),
                                     html.Div(
-                                        id="trinstructions_content",
+                                        id="trinstructions_display",
                                         style={
                                             "border": "1px solid #ccc",
                                             "padding": "10px",
@@ -50,19 +49,48 @@ layout = html.Div(
                                             "minHeight": "150px",
                                             "overflowY": "auto",
                                             "white-space": "pre-wrap",
-                                        },
-                                        contentEditable=False,
+                                        }, 
                                     ),
+                                    
+                                    html.Div(
+                                        [
+                                            html.Div(id="trinstructions_status"),
+                                            html.Br(),
+                                            
+                                            dbc.Textarea(
+                                                id="trinstructions_content",
+                                                placeholder="Type a message...",
+                                                style={"resize": "vertical"},
+                                                rows=5,
+                                            ),
+                                            html.Br(),
+                                            dbc.Row(
+                                                [
+                                                    dbc.Col(
+                                                        dbc.Button("Save", id="save_button", color="primary", className="mt-2"),
+                                                        width="auto",
+                                                    ),
+                                                    dbc.Col(
+                                                        dbc.Button("Cancel", id="cancel_button", color="secondary", className="mt-2"),
+                                                        width="auto",
+                                                    ),
+                                                ],
+                                                style={"justify-content": "flex-end"},
+                                            ),
+                                        ],
+                                        id="trinstructions_id",
+                                        style={"display": "none"},
+                                    ),
+
                                     html.Br(),
                                     html.Div(
                                         [
                                             dbc.Button("Edit", id="edit_button", n_clicks=0, color="link"),
-                                            dbc.Button("Proceed", id="proceed_button", color="primary", href="/training/training_documents"),
-                                            dbc.Button("Save", id="save_button", n_clicks=0, style={"display": "none"}),
-                                            dbc.Button("Cancel", id="cancel_button", n_clicks=0, style={"display": "none"}),
+                                            dbc.Button("Proceed", id="proceed_button", color="primary", href="/training/training_documents"), 
                                         ],
                                         style={"display": "flex", "justify-content": "flex-end", "gap": "10px"},
                                     ),
+                                     
                                 ],
                             ),
                         ],
@@ -81,35 +109,92 @@ layout = html.Div(
     ],
 )
 
+
  
- 
+
+  
+    
+# Callback to fetch announcements and display them
 @app.callback(
-    Output("trinstructions_content", "children"),
+    Output("trinstructions_display", "children"),
     [Input("url", "pathname")],   
 )
-def fetch_instructions(pathname):
+def fetch_announcements(pathname):
     if pathname != "/training_documents":
         raise PreventUpdate
 
     try:
         sql = """
-        SELECT trinstructions_content
-        FROM adminteam.training_instructions
-        ORDER BY trinstructions_id DESC
-        LIMIT 1;
+            SELECT trinstructions_content
+            FROM adminteam.training_instructions
+            ORDER BY trinstructions_id DESC
+            LIMIT 1;
         """
-        values = ()
-        dfcolumns = ["trinstructions_content"]  # expected column name
 
+        values = ()
+        dfcolumns = ["trinstructions_content"]  
         df = db.querydatafromdatabase(sql, values, dfcolumns)
 
         if df.empty:
-            return ["No training instructions available."]
+            return "No announcements this month"   
 
-        # Retrieve the training instruction content
         instruction_content = df.loc[0, "trinstructions_content"]
+        return instruction_content  
 
-        return [html.Div(instruction_content, contentEditable=False)]
-   
     except Exception as e:
-        return [html.Div(f"Error retrieving training instructions: {str(e)}")]
+        return f"Error retrieving announcements: {str(e)}"   
+
+
+
+ 
+
+# Corrected callback for inserting instructions
+@app.callback(
+    Output("trinstructions_status", "children"),
+    [Input("save_button", "n_clicks")],
+    [State("trinstructions_content", "value")],   
+)
+def insert_instructions(n_clicks, trinstructions_content):
+    if n_clicks is None or trinstructions_content is None:
+        raise PreventUpdate
+
+    try:
+        sql = """
+            INSERT INTO adminteam.training_instructions (trinstructions_content)
+            VALUES (%s)   
+        """
+
+        db.modifydatabase(sql, (trinstructions_content,))  
+        return ["Instructions updated successfully!"]
+
+    except Exception as e:
+        return [(f"Error: {str(e)}")]   
+    
+
+
+# Callback to toggle text area visibility when Edit or Cancel is clicked
+@app.callback(
+    Output("trinstructions_id", "style"),  # The div that contains the text area and buttons
+    [Input("edit_button", "n_clicks"), Input("cancel_button", "n_clicks")],  # Edit and Cancel buttons
+    [State("trinstructions_id", "style")],  # Current style
+)
+def toggle_text_area_visibility(edit_clicks, cancel_clicks, current_style):
+    ctx = callback_context
+
+    # Determine which button was last clicked
+    if not ctx.triggered:
+        raise PreventUpdate
+
+    # Get the ID of the last triggered component
+    trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    # If Edit was clicked, set style to 'block'
+    if trigger_id == "edit_button" and edit_clicks > 0:
+        return {"display": "block"}
+
+    # If Cancel was clicked, set style to 'none'
+    elif trigger_id == "cancel_button" and cancel_clicks > 0:
+        return {"display": "none"}
+
+    # If no relevant action, prevent update
+    raise PreventUpdate

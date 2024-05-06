@@ -18,7 +18,7 @@ from datetime import datetime, timedelta
 import calendar
 
 
-
+from dash import Output, Input, State, callback_context
 
 
  
@@ -84,17 +84,43 @@ team_messages_footer = html.Div(
 )
 app.layout = html.Div([team_messages_content, team_messages_footer, dcc.Location(id="url", refresh=False)])
 
-# Callback to toggle the textarea visibility
+
+
+
+# Callback to control visibility of the message input area
 @app.callback(
     Output("teammsgs_id", "style"),
-    [Input("teammsgs_footer_button", "n_clicks")],
-    [State("teammsgs_id", "style")],
+    [Input("teammsgs_footer_button", "n_clicks"), 
+     Input("teammsgscancel_button", "n_clicks")],   
+    [State("teammsgs_id", "style")],   
 )
-def toggle_textarea(n_clicks, current_style):
-    if not n_clicks:
+def toggle_message_input_area(add_clicks, cancel_clicks, current_style):
+    ctx = callback_context
+
+    add_clicks = add_clicks or 0   
+    cancel_clicks = cancel_clicks or 0  
+ 
+    if not ctx.triggered:
         raise PreventUpdate
-    
-    return {"display": "block" if current_style["display"] == "none" else "none"}
+ 
+    trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
+ 
+    if trigger_id == "teammsgs_footer_button" and add_clicks > 0:
+        return {"display": "block"}   
+ 
+    elif trigger_id == "teammsgscancel_button" and cancel_clicks > 0:
+        return {"display": "none"}   
+ 
+    raise PreventUpdate
+
+
+
+
+
+
+
+
+
 
 # Callback to insert a new message into the database
 @app.callback(
@@ -245,17 +271,37 @@ announcement_footer = html.Div(
 
 app.layout = html.Div([announcement_content, announcement_footer, dcc.Location(id="url", refresh=False)])
 
-# Callback to toggle the textarea visibility
+
+
 @app.callback(
     Output("anmsgs_id", "style"),
-    [Input("anmsgs_footer_button", "n_clicks")],
-    [State("anmsgs_id", "style")],
+    [Input("anmsgs_footer_button", "n_clicks"), 
+     Input("anmsgscancel_button", "n_clicks")],
+    [State("anmsgs_id", "style")],  
 )
-def toggle_announcementtextarea(n_clicks, current_style):
-    if not n_clicks:
+def toggle_announcement_form(footer_clicks, cancel_clicks, current_style):
+    ctx = callback_context  
+
+    footer_clicks = footer_clicks or 0
+    cancel_clicks = cancel_clicks or 0
+
+    if not ctx.triggered:
         raise PreventUpdate
 
-    return {"display": "block" if current_style["display"] == "none" else "none"}
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if trigger_id == "anmsgs_footer_button" and footer_clicks > 0:
+        return {"display": "block"}
+
+    elif trigger_id == "anmsgscancel_button" and cancel_clicks > 0:
+        return {"display": "none"}
+
+    raise PreventUpdate
+
+
+
+
+
 
 # Callback to insert a new message into the database
 @app.callback(
@@ -344,11 +390,7 @@ def fetch_announcements(pathname):
 
 
 
-
-
-
-
-
+ 
 
 
 
