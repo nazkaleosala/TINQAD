@@ -120,7 +120,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Sex Assigned at Birth ")
+                        "Sex Assigned at Birth "
                     ],
                     width=4),
                 dbc.Col(
@@ -140,7 +140,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Birthday ")
+                        "Birthday "
                     ],
                     width=4),
                 dbc.Col(dbc.Input(type="text" ), width=8),
@@ -152,7 +152,7 @@ form = dbc.Form(
                [
                 dbc.Label(
                     [
-                        "Phone Number ")
+                        "Phone Number "
                     ],
                     width=4),
                 dbc.Col(
@@ -208,7 +208,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Present Housing")
+                        "Present Housing"
                     ],
                     width=4),
                 dbc.Col(dbc.Input(type="text"), width=8),
