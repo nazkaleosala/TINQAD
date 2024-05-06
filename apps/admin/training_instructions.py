@@ -83,11 +83,9 @@ layout = html.Div(
 
  
  
-
-# Fetch content from the database
 @app.callback(
     Output("trinstructions_content", "children"),
-    [Input("url", "pathname")],
+    [Input("url", "pathname")],   
 )
 def fetch_instructions(pathname):
     if pathname != "/training_documents":
@@ -100,13 +98,18 @@ def fetch_instructions(pathname):
         ORDER BY trinstructions_id DESC
         LIMIT 1;
         """
-        df = db.querydatafromdatabase(sql, (), ["trinstructions_content"])
+        values = ()
+        dfcolumns = ["trinstructions_content"]  # expected column name
+
+        df = db.querydatafromdatabase(sql, values, dfcolumns)
 
         if df.empty:
             return ["No training instructions available."]
 
+        # Retrieve the training instruction content
         instruction_content = df.loc[0, "trinstructions_content"]
-        return [html.Div(instruction_content)]
+
+        return [html.Div(instruction_content, contentEditable=False)]
+   
     except Exception as e:
-        print(f"Error retrieving instructions: {str(e)}")
-        return [html.Div("Error loading instructions.")]
+        return [html.Div(f"Error retrieving training instructions: {str(e)}")]

@@ -552,8 +552,8 @@ def populate_qatrainings_dropdown(pathname):
     # Check if the pathname matches if necessary
     if pathname == '/training/training_documents':
         sql = """
-        SELECT qa_training_name as label, qa_training_id  as value
-        FROM public.qa_training
+        SELECT trainingtype_name as label, trainingtype_id as value
+        FROM qaofficers.training_type
         """
         values = []
         cols = ['label', 'value']
