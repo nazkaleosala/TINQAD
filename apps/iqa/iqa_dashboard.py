@@ -44,7 +44,7 @@ def generate_acadhead_card():
     # Generate card layout
     card = dbc.Card(
         [
-            dbc.CardHeader(html.H3("Academic Unit Heads", className="mb-0")),
+            dbc.CardHeader(html.H3("Academic Unit Heads")), 
             dbc.CardBody(
                 [
                     dbc.Row(
@@ -116,7 +116,7 @@ def generate_acadhead_card():
                     ),
                     html.Br()
                 ],
-                className="align-items-center",
+                className="mb-3",
                 style={'overflowY': 'scroll'}  # Align items vertically in the body
             )
         ],
@@ -144,7 +144,7 @@ def generate_qaofficers_card():
     # Generate card layout
     card = dbc.Card(
         [
-            dbc.CardHeader(html.H3("QA Officers", className="mb-0")),
+            dbc.CardHeader(html.H3("QA Officers")),
             dbc.CardBody(
                 [
                     dbc.Row(
@@ -241,7 +241,7 @@ def generate_qaofficers_card():
                     ),
                     html.Br()
                 ],
-                className="align-items-center",
+                className="mb-3",
                 style={'overflowY': 'scroll'}  # Align items vertically in the body
             )
         ],
@@ -265,18 +265,17 @@ layout = html.Div(
 
                         dbc.Row(
                             [
-                                generate_acadhead_card()
+                                dbc.Col(generate_acadhead_card(), width=12),
                             ]
-                        ), 
+                        ),
 
                         html.Br(),
 
                         dbc.Row(
                             [
-                                generate_qaofficers_card()
+                                dbc.Col(generate_qaofficers_card(), width=12),
                             ]
-                        ), 
-
+                        ),
                     ],
                     width=9,
                     style={'marginLeft': '15px'}
