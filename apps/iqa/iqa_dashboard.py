@@ -120,7 +120,7 @@ def generate_acadhead_card():
                 style={'overflowY': 'scroll'}  # Align items vertically in the body
             )
         ],
-        style={'minHeight': '150px','maxHeight': '400px', 'overflowY': 'scroll'}
+        style={'minHeight': '100px','maxHeight': '300px', 'overflowY': 'scroll'}
     )
     return card
 
@@ -245,7 +245,7 @@ def generate_qaofficers_card():
                 style={'overflowY': 'scroll'}  # Align items vertically in the body
             )
         ],
-        style={'minHeight': '150px', 'maxHeight': '400px', 'overflowY': 'scroll'}
+        style={'minHeight': '100px', 'maxHeight': '300px', 'overflowY': 'scroll'}
     )
     return card
 
