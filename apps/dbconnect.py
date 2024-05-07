@@ -31,6 +31,17 @@ def querydatafromdatabase(sql, values, dfcolumns):
     db.close()
     return rows
 
+def query_single_value(sql):
+    try:
+        db = getdblocation()
+        cur = db.cursor()
+        cur.execute(sql)
+        result = cur.fetchone()[0]
+        db.close()
+        return result
+    except psycopg2.Error as e:
+        print("Error executing SQL query:", e)
+        return None
 
 def get_college(selected_degree_program):
     try:
