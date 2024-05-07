@@ -63,10 +63,22 @@ def generate_acadhead_card():
                                     "textAlign": "center",
                                     "marginLeft": "-10px" 
                                 }
-                            )
+                            ),
+                            
                         ]
                     ),
-                    html.Br(),
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                html.A(
+                                    dbc.Button("More details..", color="link"),
+                                    href="/dashboard/more_details",
+                                    style={"text-align": "right"}
+                                ),
+                                width={"size": 2, "offset": 10}  # Adjust width and offset for alignment
+                            ),
+                        ],
+                    ),
                     dbc.Row(
                         [
                             dbc.Col(
@@ -104,9 +116,11 @@ def generate_acadhead_card():
                     ),
                     html.Br()
                 ],
-                className="align-items-center"  # Align items vertically in the body
+                className="align-items-center",
+                style={'overflowY': 'scroll'}  # Align items vertically in the body
             )
-        ]
+        ],
+        style={'maxHeight': '300px', 'overflowY': 'scroll'}
     )
     return card
 
@@ -152,7 +166,18 @@ def generate_qaofficers_card():
                             )
                         ]
                     ),
-                    html.Br(),
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                html.A(
+                                    dbc.Button("More details..", color="link"),
+                                    href="/dashboard/more_details",
+                                    style={"text-align": "right"}
+                                ),
+                                width={"size": 2, "offset": 10}  # Adjust width and offset for alignment
+                            ),
+                        ],
+                    ),
                     dbc.Row(
                         [
                             dbc.Col(
@@ -216,9 +241,11 @@ def generate_qaofficers_card():
                     ),
                     html.Br()
                 ],
-                className="align-items-center"  # Align items vertically in the body
+                className="align-items-center",
+                style={'overflowY': 'scroll'}  # Align items vertically in the body
             )
-        ]
+        ],
+        style={'maxHeight': '300px', 'overflowY': 'scroll'}
     )
     return card
 
