@@ -12,6 +12,9 @@ from app import app
 from apps import dbconnect as db
 from datetime import datetime
 
+# Define interval time (in milliseconds) for auto-updates
+interval_time = 60000  # 1 minute
+
 # Function to fetch the total count from the database for Academic Unit Heads
 def get_total_count_acad_unitheads():
     sql = "SELECT COUNT(*) FROM iqateam.acad_unitheads"
@@ -252,6 +255,7 @@ def generate_qaofficers_card():
 # Define layout
 layout = html.Div(
     [
+        dcc.Interval(id='interval-component', interval=interval_time, n_intervals=0),  # Interval component for auto-updates
         dbc.Row(
             [
                 dbc.Col(
@@ -295,3 +299,37 @@ layout = html.Div(
         )
     ]
 )
+
+# Callback function to update the content of the cards
+@app.callback(
+    Output('acad_unitheads_table', 'data'),
+    Output('qa_officers_table', 'data'),
+    Input('interval-component', 'n_intervals')
+)
+def update_cards(n):
+    # SQL query to fetch data for Academic Unit Heads
+    acad_sql = """
+    SELECT c.college_name AS college,
+           COUNT(*) AS term_expiry
+    FROM iqateam.acad_unitheads a
+    JOIN public.college c ON a.unithead_college_id = c.college_id
+    WHERE a.unithead_appointment_end < CURRENT_DATE + INTERVAL '2 months'
+    GROUP BY a.unithead_college_id, c.college_name;
+    """
+    # SQL query to fetch data for QA Officers
+    qa_sql = """
+    SELECT c.college_name AS college,
+           COUNT(*) AS qa_officers,
+           SUM(CASE WHEN qaofficer_basicpaper = 'Yes' THEN 1 ELSE 0 END) AS approved_papers,
+           SUM(CASE WHEN qaofficer_appointment_end < CURRENT_DATE + INTERVAL '2 months' THEN 1 ELSE 0 END) AS expiring,
+           SUM(CASE WHEN qaofficer_remarks = 'For renewal' THEN 1 ELSE 0 END) AS renewal,
+           SUM(CASE WHEN qaofficer_remarks = 'No record' THEN 1 ELSE 0 END) AS no_record
+    FROM qaofficers.qa_officer q
+    JOIN public.college c ON q.qaofficer_college_id = c.college_id
+    GROUP BY q.qaofficer_college_id, c.college_name;
+    """
+    # Execute the queries and fetch data
+    acad_data = db.querydatafromdatabase(acad_sql, [], ['college', 'term_expiry'])
+    qa_data = db.querydatafromdatabase(qa_sql, [], ['college', 'qa_officers', 'approved_papers', 'expiring', 'renewal', 'no_record'])
+    
+    return acad_data.to_dict('records'), qa_data.to_dict('records')
