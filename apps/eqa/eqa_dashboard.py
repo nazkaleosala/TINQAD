@@ -13,27 +13,85 @@ from apps import dbconnect as db
 
 import plotly.graph_objs as go
 
-def create_card(title, content=None):
-    return dbc.Card(
-        [
-            dbc.CardHeader(title),
-            dbc.CardBody(content if content else "")
-        ],
-        className="mb-3",  # Add space below each card
-    )
- 
-def create_table(headers, id):
-    return dash_table.DataTable(
-        id=id,
-        columns=[{"name": i, "id": i} for i in headers],
-        style_header={'fontWeight': 'bold'}, 
-    )
 
 def generate_donut_chart(labels, values):
     # Define color scale for the pie chart
     colors = ['#F8B237', '#E4E4E4', '#39B54A']
     trace = go.Pie(labels=labels, values=values, hole=0.4, marker=dict(colors=colors))
     return {'data': [trace], 'layout': go.Layout(title='', showlegend=False)}
+
+def generate_assessment_schedule_card():
+    sql = """
+        SELECT 
+            dp.degree_name AS program_name, 
+            ae.approv_eqa_name AS assessment_type, 
+            sr.sarep_sched_assessdate AS assessment_sched_date
+        FROM eqateam.sar_report sr
+        JOIN public.degree_programs dp 
+        ON sr.sarep_degree_programs_id = dp.degree_id
+        JOIN eqateam.approv_eqa ae 
+        ON sr.sarep_approv_eqa = ae.approv_eqa_id
+        """
+    assessmentsched_data = db.querydatafromdatabase(sql, [], ['program_name', 'assessment_type', 'assessment_sched_date'])
+    
+    # Add index to data
+    assessmentsched_data['index'] = range(1, len(assessmentsched_data) + 1)
+    
+    card = dbc.Card(
+        [
+            dbc.CardHeader(html.H3("Assessment Schedule")),
+            dbc.CardBody(
+                [
+                    dbc.Row(
+                        [
+                            dbc.Col(                
+                                dash_table.DataTable(
+                                    id='ass-sched-table',
+                                    columns=[
+                                        {'name': 'Index', 'id': 'index'},
+                                        {'name': 'Program Name', 'id': 'program_name'},
+                                        {'name': 'Type of Assessment', 'id': 'assessment_type'},
+                                        {'name': 'Scheduled Assessment Date', 'id': 'assessment_sched_date'}
+                                    ],
+                                    data=assessmentsched_data.to_dict('records'),
+                                    style_cell={
+                                        'fontFamily': 'Arial', 
+                                        'fontSize': '14px',
+                                        'textAlign': 'left', 
+                                        'whiteSpace': 'normal',
+                                        'paddingLeft': '15px', 
+                                        'overflow': 'hidden',  
+                                        'textOverflow': 'ellipsis' 
+                                    },
+                                    style_header={
+                                        'fontWeight': 'bold',
+                                        'textAlign': 'center',
+                                        'paddingLeft': '-15px',
+                                        'height': '50px'
+                                    },
+                                    style_table={'overflowX': 'auto', 'maxWidth': '100%'},
+                                    style_data_conditional=[
+                                        {
+                                            'if': {'column_id': 'index', 'column_id': 'days_left'},
+                                            'textAlign': 'center',
+                                            'paddingLeft': '-15px',
+                                        }
+                                    ]
+                                ),
+                                width=12
+                            )
+                        ]
+                    ),
+                    html.Br(),
+                ],
+                className="mb-3",
+                style={'overflowY': 'scroll'}  # Align items vertically in the body
+            ),
+            dbc.CardFooter(id='acadhead-row-count')
+        ],
+        style={'minHeight': '100px','maxHeight': '400px', 'overflowY': 'scroll'}
+    )
+    return card
 
 layout = html.Div(
     [
@@ -137,31 +195,16 @@ layout = html.Div(
                         ),
                         dbc.Row(
                             [
-                                dbc.Col(
-                                    dbc.Card(
-                                        [
-                                            dbc.CardHeader(
-                                                html.H3(
-                                                    [
-                                                        html.Strong("Assessment Schedule"),  # Bold only this part
-                                                    ],
-                                                    className="mb-0",  # Remove bottom margin
-                                                    style={'fontSize': '1.5rem'}  # Adjust font size
-                                                )
-                                            ),
-                                            dbc.CardBody(
-                                                create_table(headers=["Program Name", "Type of Assessment", "Scheduled Assessment Date"], id="assessment-schedule-table")
-                                            ),
-                                        ]
-                                    ),
-                                    width=12
-                                ),
+                                dbc.Col(generate_assessment_schedule_card(), width=12)
                             ]
                         ),
                     ]
                 ),
             ]
         ),
+        html.Br(),
+        html.Br(),
+        html.Br(),
         dbc.Row (
             [
                 dbc.Col(
@@ -177,8 +220,21 @@ layout = html.Div(
     [Input('donut-chart', 'id')]
 )
 def update_donut_chart(id):
-    # Assuming you have a function to retrieve data from the database
-    # and format it as required
+    # Fetch data from the database
+    sql = """
+    SELECT sarep_checkstatus
+    FROM eqateam.sar_report
+    """
+    df = db.querydatafromdatabase(sql, [], ['sarep_checkstatus'])
+
+    # Calculate counts for different statuses
+    for_checking_count = df[df['sarep_checkstatus'] == 'For Checking'].shape[0]
+    already_checked_count = df[df['sarep_checkstatus'] == 'Already Checked'].shape[0]
+    null_count = df['sarep_checkstatus'].isnull().sum()
+
+    # Generate labels and values for the donut chart
     labels = ['For Checking', 'Already Checked', 'No Status Yet']
-    values = [30, 40, 30]  # Example data, replace with data from database
+    values = [for_checking_count, already_checked_count, null_count]
+
+    # Return the updated donut chart
     return generate_donut_chart(labels, values)
