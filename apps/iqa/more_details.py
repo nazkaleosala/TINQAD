@@ -135,7 +135,7 @@ def generate_qaofficers_card():
                                 dash_table.DataTable(
                                     id='qa-officer-table',
                                     columns=[
-                                        {'name': 'Index', 'id': 'Index'},
+                                        {'name': 'Index', 'id': 'index'},
                                         {'name': 'Cluster', 'id': 'cluster'},
                                         {'name': 'Academic Unit', 'id': 'academic_unit'},
                                         {'name': 'Degree Granting Unit', 'id': 'degree_granting_unit'},
