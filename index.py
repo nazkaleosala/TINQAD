@@ -19,7 +19,7 @@ from apps.eqa import eqa_dashboard, assessment_reports, assessment_details, accr
 from apps.km import km_dashboard, THEworld_rankings, SDGimpact_rankings, QSworld_rankings, SDG_submission, SDG_revision, add_criteria
 from apps.qaofficers import qa_directory, training_list, qaofficers_profile, training_details, view_list
 
-
+ 
 CONTENT_STYLE = {
     "margin-top": "4em",
     "margin-left": "1em",
