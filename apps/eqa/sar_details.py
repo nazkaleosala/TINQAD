@@ -193,8 +193,29 @@ form = dbc.Form(
                     ],  
                     width=4),
                 dbc.Col(
-                    dbc.Input(id="sarep_pdf", type="text"),
-                    width=5,
+                    dcc.Upload(
+                        id='sarep_pdf',
+                        children=html.Div(
+                            [
+                            html.Img(src=app.get_asset_url('icons/add_file.png'), style={'height': '15px', 'marginRight': '5px'}),
+                            "add file"
+                        ],
+                        style={
+                            'display': 'flex',
+                            'alignItems': 'center'
+                        }
+                    ),
+                    style={
+                        'width': '100%', 'minHeight': '40px',  # Adjust height as needed
+                        'borderWidth': '1px', 'borderStyle': 'solid',
+                        'borderRadius': '5px', 'textAlign': 'center',
+                        'display': 'flex',
+                        'alignItems': 'center', 'justifyContent': 'center',
+                        'borderColor': '#CCCCCC'
+                    },
+                    multiple=True
+                    ),
+                    width=4
                 ),
             ],
             className="mb-2",
@@ -303,6 +324,7 @@ form = dbc.Form(
             className="mb-1",
             id='already-checked'
         ),
+        html.Br(),
  
  
         dbc.Row(
@@ -368,6 +390,8 @@ layout = html.Div(
                 ),   
             ]
         ),
+        html.Br(),
+        html.Br(),
         
 
         dbc.Row (

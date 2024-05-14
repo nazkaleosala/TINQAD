@@ -324,8 +324,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Other Receipts ",
-                        html.Span("*", style={"color": "#F8B237"})
+                        "Other Receipts "
                     ],
                     width=6
                 ),
