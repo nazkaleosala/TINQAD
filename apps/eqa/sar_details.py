@@ -328,13 +328,14 @@ form = dbc.Form(
  
  
         dbc.Row(
-            [
+            [ 
+                
                 dbc.Col(
-                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
+                    dbc.Button("Save", color="primary",  id="save_button", n_clicks=0),
                     width="auto"
                 ),
-                 dbc.Col(
-                    dbc.Button("Register SAR", color="primary", className="me-3", id="save_button", n_clicks=0),
+                dbc.Col(
+                    dbc.Button("Cancel", color="warning", id="cancel_button", n_clicks=0, href="/assessment_reports"),  
                     width="auto"
                 ),
             ],

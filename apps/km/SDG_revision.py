@@ -159,7 +159,7 @@ layout = html.Div(
                                     width="auto"
                                 ),
                                 dbc.Col(
-                                    dbc.Button("Cancel", color="danger"),
+                                    dbc.Button("Cancel", color="warning", id="cancel_button", n_clicks=0, href="/SDGimpact_rankings"),  
                                     width="auto"
                                 ),
                             ],

@@ -216,19 +216,20 @@ form = dbc.Form(
             className="mb-2",
         ),
         dbc.Row(
-            [
+            [ 
+                
                 dbc.Col(
-                    dbc.Button("Cancel", color="secondary"), 
+                    dbc.Button("Save", color="primary",  id="save_button", n_clicks=0),
                     width="auto"
                 ),
-                 dbc.Col(
-                    dbc.Button("Save", color="primary", className="me-3"),  
+                dbc.Col(
+                    dbc.Button("Cancel", color="warning", id="cancel_button", n_clicks=0, href="/search_users"),  
                     width="auto"
                 ),
             ],
             className="mb-2",
             justify="end",
-        )
+        ),
         
     ],
     className="g-2",

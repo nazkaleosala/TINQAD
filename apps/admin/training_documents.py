@@ -392,13 +392,14 @@ form = dbc.Form(
 
         html.Br(),
         dbc.Row(
-            [
+            [ 
+                
                 dbc.Col(
-                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
+                    dbc.Button("Save", color="primary",  id="save_button", n_clicks=0),
                     width="auto"
                 ),
                 dbc.Col(
-                    dbc.Button("Save", color="primary", className="me-3", id="save_button", n_clicks=0),
+                    dbc.Button("Cancel", color="warning", id="cancel_button", n_clicks=0, href="/training_documents"),  
                     width="auto"
                 ),
             ],
