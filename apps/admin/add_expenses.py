@@ -276,41 +276,7 @@ form = dbc.Form(
 
 
 
-@app.callback(
-    [
-        Output('recordexpenses_cancelmodal', 'is_open'),  #edit id
-        Output('exp_payee', 'value'),  # Clear input fields if needed
-        Output('main_expense_id', 'value'),
-        Output('exp_particulars', 'value'),
-        Output('exp_amount', 'value'),
-        Output('exp_status', 'value'),
-        Output('exp_submitted_by', 'value'),
-    ],
-    [
-        Input('cancel_button', 'n_clicks'), 
-        Input('cancel_no_button', 'n_clicks'), 
-        Input('cancel_yes_button', 'n_clicks')
-    ],
-    [State('recordexpenses_cancelmodal', 'is_open')]  #edit id 
-)
-def toggle_cancel_modal(cancel_clicks, no_clicks, yes_clicks, is_open):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return [is_open, no_update, no_update, no_update, no_update, no_update, no_update]
-    
- 
-    prop_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
-    if prop_id == 'cancel_button':  
-        return [not is_open, no_update, no_update, no_update, no_update, no_update, no_update]
-    elif prop_id == 'cancel_no_button': 
-        return [False, no_update, no_update, no_update, no_update, no_update, no_update]
-    elif prop_id == 'cancel_yes_button': 
-        return [False, '', '', '', '', '', '']
-     
-    return [is_open, no_update, no_update, no_update, no_update, no_update, no_update]
-
- 
 
 
 
