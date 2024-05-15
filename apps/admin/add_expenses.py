@@ -196,7 +196,7 @@ form = dbc.Form(
         dbc.Row(
                 dbc.Col(
                     dcc.Upload(
-                        id='upload-receipt',
+                        id='upload_receipt',
                         children=html.Div(
                             [
                                 html.Img(
@@ -233,9 +233,12 @@ form = dbc.Form(
                     style={'marginBottom': '1rem'}
                 ),
             ),
-        
-
-        #COPY PASTE FROM HERE ------------------------------------------------------------------
+          
+        dbc.Row(
+            [dbc.Col(id="expense_name_output",style={"color": "#F8B237"}, width=8)],  # Output area for uploaded file names
+            className="mt-2",
+        ),
+  
         
         html.Br(),
         dbc.Row(
@@ -271,8 +274,29 @@ form = dbc.Form(
 )
 
 
+ 
 
-#HANGANG DITO ------------------------------------------------------------------
+
+# Callback to display the names of the uploaded files
+@app.callback(
+    Output("expense_name_output", "children"),
+    [Input("upload_receipt", "filename")],  # Use filename to get uploaded file names
+)
+def display_uploaded_files(filenames):
+    if not filenames:
+        return "No files uploaded"
+    
+    if isinstance(filenames, list): 
+        file_names_str = ", ".join(filenames)
+        return f"Uploaded files: {file_names_str}"
+ 
+    return f"Uploaded file: {filenames}"
+
+
+
+
+
+
 
 
 
@@ -301,7 +325,7 @@ def populate_mainexpenses_dropdown(pathname):
         return main_expense_types
     else:
         raise PreventUpdate
-
+ 
 
 #amount
 locale.setlocale(locale.LC_ALL, '')
@@ -311,6 +335,9 @@ locale.setlocale(locale.LC_ALL, '')
     Input('exp_amount', 'value')
 )
 def update_amount_copy(value):
+    if value is None:
+        return None  # Return None if value is None
+
     try:
         # Try to convert the input value to a float
         float_value = float(value.replace(',', ''))

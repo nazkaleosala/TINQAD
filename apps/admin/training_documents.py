@@ -244,7 +244,12 @@ form = dbc.Form(
                     width=6
                 ),
             ],
-            className="mb-2",
+            className="mb-1",
+        ),
+        dbc.Row(
+            [dbc.Label("",width=6),
+             dbc.Col(id="parti_attendance_cert_output",style={"color": "#F8B237"}, width="auto")],  # Output area for uploaded file names
+            className="mt-0",
         ),
         dbc.Row(
             [
@@ -280,7 +285,12 @@ form = dbc.Form(
                     width=6
                 ),
             ],
-            className="mb-2",
+            className="mb-1",
+        ),
+        dbc.Row(
+            [dbc.Label("",width=6),
+            dbc.Col(id="official_receipt_output",style={"color": "#F8B237"}, width="auto")],  # Output area for uploaded file names
+            className="mt-0",
         ),
 
         dbc.Row(
@@ -317,7 +327,12 @@ form = dbc.Form(
                     width=6
                 ),
             ],
-            className="mb-2",
+            className="mb-1",
+        ),
+        dbc.Row(
+            [dbc.Label("",width=6),
+            dbc.Col(id="official_travel_report_output",style={"color": "#F8B237"}, width="auto")],  # Output area for uploaded file names
+            className="mt-0",
         ),
 
         dbc.Row(
@@ -353,7 +368,12 @@ form = dbc.Form(
                     width=6
                 ),
             ],
-            className="mb-2",
+            className="mb-1",
+        ),
+        dbc.Row(
+            [dbc.Label("",width=6),
+             dbc.Col(id="other_receipts_output",style={"color": "#F8B237"}, width="auto")],  # Output area for uploaded file names
+            className="mt-0",
         ),
 
         dbc.Row(
@@ -387,7 +407,13 @@ form = dbc.Form(
                     width=6
                 ),
             ],
-            className="mb-4",
+            className="mb-1",
+        ),
+
+        dbc.Row(
+            [dbc.Label("",width=6),
+             dbc.Col(id="receiving_copy_output",style={"color": "#F8B237"}, width="auto")],  
+            className="mt-0",
         ),
 
         html.Br(),
@@ -426,14 +452,102 @@ form = dbc.Form(
             className="modal-success"  # You can define this class in your CSS file for additional styling
         ),
 
-
-
-
-
-
    ],
    className="g-2",
 )
+
+
+
+
+
+
+# Callback to display the names of the uploaded files
+@app.callback(
+    Output("parti_attendance_cert_output", "children"),
+    [Input("parti_attendance_cert", "filename")],  # Use filename to get uploaded file names
+)
+def display_partiattendence_files(filenames):
+    if not filenames:
+        return "No files uploaded"
+    
+    if isinstance(filenames, list): 
+        file_names_str = ", ".join(filenames)
+        return f"Uploaded files: {file_names_str}"
+ 
+    return f"Uploaded file: {filenames}"
+
+
+ 
+@app.callback(
+    Output("official_receipt_output", "children"),
+    [Input("official_receipt", "filename")],  # Use filename to get uploaded file names
+)
+def display_receipt_files(filenames):
+    if not filenames:
+        return "No files uploaded"
+    
+    if isinstance(filenames, list): 
+        file_names_str = ", ".join(filenames)
+        return f"Uploaded files: {file_names_str}"
+ 
+    return f"Uploaded file: {filenames}"
+
+ 
+@app.callback(
+    Output("official_travel_report_output", "children"),
+    [Input("official_travel_report", "filename")],  # Use filename to get uploaded file names
+)
+def display_travelreport_files(filenames):
+    if not filenames:
+        return "No files uploaded"
+    
+    if isinstance(filenames, list): 
+        file_names_str = ", ".join(filenames)
+        return f"Uploaded files: {file_names_str}"
+ 
+    return f"Uploaded file: {filenames}"
+
+ 
+
+ 
+@app.callback(
+    Output("other_receipts_output", "children"),
+    [Input("other_receipts", "filename")],  # Use filename to get uploaded file names
+)
+def display_otherreport_files(filenames):
+    if not filenames:
+        return "No files uploaded"
+    
+    if isinstance(filenames, list): 
+        file_names_str = ", ".join(filenames)
+        return f"Uploaded files: {file_names_str}"
+ 
+    return f"Uploaded file: {filenames}"
+
+ 
+@app.callback(
+    Output("receiving_copy_output", "children"),
+    [Input("receiving_copy", "filename")],  # Use filename to get uploaded file names
+)
+def display_receivingcopy_files(filenames):
+    if not filenames:
+        return "No files uploaded"
+    
+    if isinstance(filenames, list): 
+        file_names_str = ", ".join(filenames)
+        return f"Uploaded files: {file_names_str}"
+ 
+    return f"Uploaded file: {filenames}"
+
+ 
+
+
+
+
+
+
+
+
 
 
 
@@ -515,7 +629,7 @@ def populate_college_dropdown(selected_cluster):
 
 # dgu dropdown
 @app.callback(
-    Output('deg_unit_id', 'options'),
+    Output('deg_unit_id', 'options'), 
     Input('college_id', 'value')
 )
 def populate_dgu_dropdown(selected_college):
