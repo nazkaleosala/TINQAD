@@ -9,13 +9,11 @@ import pandas as pd
 
 from apps import commonmodules as cm
 from app import app
-from apps import dbconnect as db 
+from apps import dbconnect as db
 import json
 
 import base64
 import os
-
- 
 
 # Using the corrected path
 UPLOAD_DIRECTORY = r"C:\Users\Naomi A. Takagaki\OneDrive\Documents\TINQAD\assets\database"
@@ -23,37 +21,9 @@ UPLOAD_DIRECTORY = r"C:\Users\Naomi A. Takagaki\OneDrive\Documents\TINQAD\assets
 # Ensure the directory exists or create it
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
-
-ranking_options = [
-    {"label": "THE World Rankings", "value": 1},
-    {"label": "QS World University Rankings", "value": 2},
-    {"label": "Academic Ranking of World Universities", "value": 3},
-    # Add more options as needed
-]
-  
-
-
 # Form layout with improvements
 form = dbc.Form(
     [
-        # SDG Number Selector
-        dbc.Row(
-            [
-                dbc.Label(
-                    ["Ranking Body", html.Span("*", style={"color": "#F8B237"})],
-                    width=4,
-                ),
-                dbc.Col(
-                    dbc.Select(
-                        id='sdg_rankingbody', 
-                        options=ranking_options,
-                        value=1,
-                    ),
-                    width=5,
-                ), 
-            ],
-            className="mb-1",
-        ),
         dbc.Row(
             [
                 dbc.Label(
@@ -64,10 +34,10 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dbc.Input(type="text", id="sdg_evidencename",  placeholder="Enter Evidence Name"),
-                    width=5,
+                    width=6,
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         dbc.Row(
             [
@@ -79,12 +49,33 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dbc.Textarea(id="sdg_description",placeholder="Enter Description"),
-                    width=5,
+                    width=6,
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
-        html.P("Please pick either Office OR a Department", style={"color": "red"}),
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Please indicate ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id='selection_type',
+                        options=[
+                            {"label": "Office", "value": "office"},
+                            {"label": "Department", "value": "department"},
+                        ],
+                        placeholder="Select Office or Department"
+                    ),
+                    width=4,
+                ),
+            ],
+            className="mb-2",
+        ),
         dbc.Row(
             [
                 dbc.Label(
@@ -96,30 +87,32 @@ form = dbc.Form(
                 dbc.Col(
                     dcc.Dropdown(
                         id='sdg_office_id', 
+                        disabled=True
                     ),
-                    width=5,
+                    width=6,
                 ),
                  
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         dbc.Row(
             [
                 dbc.Label(
                     [
-                        "Department",
+                        "Department ",
                         html.Span("*", style={"color": "#F8B237"})
                     ],
                     width=4),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='sdg_deg_unit_id', 
+                        id='sdg_deg_unit_id',
+                        disabled=True 
                     ),
-                    width=5,
+                    width=6,
                 ),
                  
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         dbc.Row(
             [
@@ -131,10 +124,10 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dbc.Input(type="text", id="sdg_accomplishedby", placeholder="Name Surname" ),  # Pre-filled as per image
-                    width=5,
+                    width=4,
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
          
         dbc.Row(
@@ -152,10 +145,10 @@ form = dbc.Form(
                         date=str(pd.to_datetime("today").date()),  # Today's date by default 
                         clearable=True,
                     ),
-                    width=5,
+                    width=4,
                 ),
             ],
-            className="mb-3"
+            className="mb-2"
         ),
 
         dbc.Row(
@@ -177,13 +170,35 @@ form = dbc.Form(
                         ],
                         value='pending',
                     ),
-                    width=5,
+                    width=4,
                 ),
             ],
-            className="mb-3"
+            className="mb-2"
         ),
 
-          
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Submission Type ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id='submission_type',
+                        options=[
+                            {"label": "File", "value": "file"},
+                            {"label": "Link", "value": "link"},
+                            {"label": "Both File and Link", "value": "both"},
+                        ],
+                        placeholder="Select Submission Type"
+                    ),
+                    width=4,
+                ),
+            ],
+            className="mb-2",
+        ),
 
         dbc.Row(
             [
@@ -221,16 +236,16 @@ form = dbc.Form(
                         },
                         multiple=True,  # Enable multiple file uploads
                     ),
-                    width=5,
+                    width=6,
                 ),
                 
             ],
-            className="mb-3",
+            className="mb-2",
         ),
 
         dbc.Row(
             [dbc.Col(id="file_name_output",style={"color": "#F8B237"}, width=8)],  # Output area for uploaded file names
-            className="mt-3",
+            className="mt-2",
         ),
         
         html.Br(), 
@@ -244,10 +259,10 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dbc.Input(type="text",id="sdg_link", placeholder="Enter Link"),
-                    width=5,
+                    width=6,
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         dbc.Row(
             [
@@ -263,10 +278,10 @@ form = dbc.Form(
                         value=[],  # Initial empty value, can be pre-filled if desired
                         inline=True
                     ),
-                    width=5,
+                    width=6,
                 ),
             ],
-            className="mb-3",
+            className="mb-2",
         ),
         
         # Cancel and Save Buttons
@@ -305,10 +320,7 @@ form = dbc.Form(
     className="g-2",
 )
 
- 
-
-
-#office dropdown
+# office dropdown
 @app.callback(
     Output('sdg_office_id', 'options'),
     Input('url', 'pathname')
@@ -329,10 +341,7 @@ def populate_office_dropdown(pathname):
     else:
         raise PreventUpdate
 
-
-
-
-#depts dropdown
+# depts dropdown
 @app.callback(
     Output('sdg_deg_unit_id', 'options'),
     Input('url', 'pathname')
@@ -352,9 +361,8 @@ def populate_depts_dropdown(pathname):
         return depts_types
     else:
         raise PreventUpdate
- 
 
-#sdg criteria checklist
+# sdg criteria checklist
 @app.callback(
     Output('sdg_applycriteria', 'options'),
     Input('url', 'pathname')
@@ -375,10 +383,33 @@ def populate_applycriteria_dropdown(pathname):
     else:
         raise PreventUpdate
 
+# Callback to handle enabling/disabling office and department dropdowns based on selection_type
+@app.callback(
+    [Output('sdg_office_id', 'disabled'),
+     Output('sdg_deg_unit_id', 'disabled')],
+    [Input('selection_type', 'value')]
+)
+def toggle_dropdowns(selection_type):
+    if selection_type == 'office':
+        return False, True  # Enable Office, Disable Department
+    elif selection_type == 'department':
+        return True, False  # Disable Office, Enable Department
+    return True, True  # Disable both by default
 
-
-
-
+# Callback to handle enabling/disabling file and link submissions based on submission_type
+@app.callback(
+    [Output('sdg_file', 'disabled'),
+     Output('sdg_link', 'disabled')],
+    [Input('submission_type', 'value')]
+)
+def toggle_submissions(submission_type):
+    if submission_type == 'file':
+        return False, True  # Enable File, Disable Link
+    elif submission_type == 'link':
+        return True, False  # Disable File, Enable Link
+    elif submission_type == 'both':
+        return False, False  # Enable both
+    return True, True  # Disable both by default
 
 # Callback to display the names of the uploaded files
 @app.callback(
@@ -393,15 +424,9 @@ def display_uploaded_files(filenames):
         # If multiple files are uploaded, join their names
         file_names_str = ", ".join(filenames)
         return f"Uploaded files: {file_names_str}"
-    
-    # If it's a single file, just return the filename
+
+    # For single file upload, return the file name directly
     return f"Uploaded file: {filenames}"
-
-
-
-
-
-
 
 
 # Layout for the Dash app
@@ -435,13 +460,6 @@ layout = html.Div(
     ]
 )
 
-
-
-
-
-
-
-
 @app.callback(
     [
         Output('sdgsubmission_alert', 'color'),
@@ -461,7 +479,6 @@ layout = html.Div(
         State('sdg_accomplishedby', 'value'),
         State('sdg_datesubmitted', 'date'), 
         State('sdg_status', 'date'), 
-
         State('sdg_file', 'contents'),
         State('sdg_file', 'filename'),  
         State('sdg_link', 'value'), 
@@ -481,7 +498,6 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
     alert_color = ""
     alert_text = ""
 
- 
     if not sdg_rankingbody:
         alert_open = True
         alert_color = 'danger'
@@ -493,7 +509,6 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
         alert_color = 'danger'
         alert_text = 'Check your inputs. Please add an Evidence Name.'
         return [alert_color, alert_text, alert_open, modal_open]
- 
 
     if not (sdg_office_id or sdg_deg_unit_id):
         alert_open = True
@@ -506,7 +521,6 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
         alert_color = 'danger'
         alert_text = 'Check your inputs. Please add a Accomplished by.'
         return [alert_color, alert_text, alert_open, modal_open]
-    
 
     if sdg_file_contents is None or sdg_file_names is None:
         sdg_file_contents = ["1"]
@@ -569,10 +583,6 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
 
     return [alert_color, alert_text, alert_open, modal_open]
 
-
 # Helper function for setting alerts
 def set_alert(message, color):
     return [color, message, True, False]
-
-
- 

@@ -31,10 +31,10 @@ form = dbc.Form(
                     width=4,
                 ),
                 dbc.Col(
-                    dbc.Select(
+                    dbc.Input(
                         id="sdgcriteria_number",
-                        options=[{"label": "Goal 1: No Poverty", "value": "1"}],
                         placeholder="Enter SDG #",
+                        type="text",
                     ),
                     width=8,
                 ),
