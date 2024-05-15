@@ -192,21 +192,7 @@ layout = html.Div(
                                 'maxHeight': '100px',
                             }
                         ),
-                        
-                        html.Br(),
-                        dbc.Row(dbc.Col(
-                            html.H5("Approved Submissions"),
-                            width="auto",  # Auto to keep the heading at the left
-                        )),
-                        html.Div(
-                            id='approved_list', 
-                            style={
-                                'marginTop': '20px',
-                                'overflowX': 'auto',# This CSS property adds a horizontal scrollbar
-                                'overflowY': 'auto',   
-                                'maxHeight': '100px',
-                            }
-                        ),
+                         
 
                         html.Br(),
                         html.Br(),
@@ -329,8 +315,7 @@ def add_criteria_list(pathname, searchterm):
     
 
 
-
-#dito ka
+ 
 @app.callback(
     [
         Output('manageevidence_list', 'children')
@@ -359,6 +344,8 @@ def update_manageevidence_list (pathname, selected_criteria):
                 ) AS "Applicable Criteria"
             FROM  
                 kmteam.SDGSubmission
+            WHERE
+                sdg_checkstatus = '2'   
         """
         if selected_criteria:
             # Subquery to extract individual criteria IDs and check for overlap with selected criteria
@@ -407,27 +394,34 @@ def checking_list (pathname):
                 sdg_evidencename AS "Evidence Name",
                 (SELECT office_name FROM maindashboard.offices WHERE office_id = sdg_office_id) AS "Office",
                 sdg_description AS "Description",
-                (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body"
-            FROM 
+                (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body",
+                (
+                    SELECT json_agg(sdgcriteria_code)
+                    FROM kmteam.SDGCriteria
+                    WHERE sdgcriteria_id IN (
+                        SELECT CAST(jsonb_array_elements_text(sdg_applycriteria) AS INTEGER)
+                    )
+                ) AS "Applicable Criteria"
+            FROM  
                 kmteam.SDGSubmission
             WHERE
                 sdg_checkstatus = '1'   
         """
-        cols = ['Evidence Name', 'Office','Description', 'Ranking Body' ] 
+        cols = ['Evidence Name', 'Office','Description', 'Ranking Body' , "Applicable Criteria"] 
 
         df = db.querydatafromdatabase(sql, [], cols) 
 
         # Generate the table from the DataFrame
         if not df.empty:
+            df["Applicable Criteria"] = df["Applicable Criteria"].apply(
+                lambda x: ", ".join(x) if x else "None"
+            )
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
-            return [html.Div("No records to display")]
-    else:
-        raise PreventUpdate
+            return [html.Div("No submissions for checking")]
     
-
-
+ 
 
 
 
@@ -453,26 +447,32 @@ def revisions_list (pathname):
                 sdg_evidencename AS "Evidence Name",
                 (SELECT office_name FROM maindashboard.offices WHERE office_id = sdg_office_id) AS "Office",
                 sdg_description AS "Description",
-                (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body"
-                 
-                
-            FROM 
+                (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body",
+                (
+                    SELECT json_agg(sdgcriteria_code)
+                    FROM kmteam.SDGCriteria
+                    WHERE sdgcriteria_id IN (
+                        SELECT CAST(jsonb_array_elements_text(sdg_applycriteria) AS INTEGER)
+                    )
+                ) AS "Applicable Criteria"
+            FROM  
                 kmteam.SDGSubmission
+            WHERE
+                sdg_checkstatus = '3'   
         """
-        cols = ['Evidence Name', 'Office','Description', 'Ranking Body' ]
-
-         
+        cols = ['Evidence Name', 'Office','Description', 'Ranking Body' , "Applicable Criteria"] 
 
         df = db.querydatafromdatabase(sql, [], cols) 
 
         # Generate the table from the DataFrame
         if not df.empty:
+            df["Applicable Criteria"] = df["Applicable Criteria"].apply(
+                lambda x: ", ".join(x) if x else "None"
+            )
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
-            return [html.Div("No records to display")]
-    else:
-        raise PreventUpdate
+            return [html.Div("No submissions for revision")]
     
 
 
@@ -480,44 +480,5 @@ def revisions_list (pathname):
 
 
 
-
-
-
-@app.callback(
-    [
-        Output('approved_list', 'children')
-    ],
-    [
-        Input('url', 'pathname'),  
-    ]
-)
-
-def approved_list (pathname):
-    if pathname == '/SDGimpact_rankings':  # Adjusted URL path
-         
-        sql = """
-            SELECT 
-                sdg_evidencename AS "Evidence Name",
-                (SELECT office_name FROM maindashboard.offices WHERE office_id = sdg_office_id) AS "Office",
-                sdg_description AS "Description",
-                (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body"
-                 
-                
-            FROM 
-                kmteam.SDGSubmission
-        """
-        cols = ['Evidence Name', 'Office','Description', 'Ranking Body' ]
-
-         
-
-        df = db.querydatafromdatabase(sql, [], cols) 
-
-        # Generate the table from the DataFrame
-        if not df.empty:
-            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
-            return [table]
-        else:
-            return [html.Div("No records to display")]
-    else:
-        raise PreventUpdate
+ 
     
