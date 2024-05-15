@@ -53,7 +53,7 @@ def displaypage (pathname):
     ctx = dash.callback_context
     if ctx.triggered:
         eventid = ctx.triggered[0]['prop_id'].split('.')[0]
-        if eventid == 'url':
+        if eventid == 'url': 
             if pathname == '/' or pathname == '/home':
                 returnlayout = home.layout
 
