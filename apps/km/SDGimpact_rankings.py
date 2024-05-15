@@ -162,35 +162,52 @@ layout = html.Div(
                             ]
                         ),
 
-                        dbc.Row(dbc.Col(
-                            html.H5("Submissions for Checking"),
-                            width="auto",  # Auto to keep the heading at the left
-                        )),
+                        html.Br(), 
 
-                        html.Div(
-                            id='checking_list', 
-                            style={
-                                'marginTop': '20px',
-                                'overflowX': 'auto',# This CSS property adds a horizontal scrollbar
-                                'overflowY': 'auto',   
-                                'maxHeight': '100px',
-                            }
+                        dbc.Row(
+                            dbc.Col(
+                                dbc.Card(
+                                    [
+                                        dbc.CardHeader("Submissions for Checking"),
+                                        dbc.CardBody(
+                                            html.Div(
+                                                id='checking_list', 
+                                                style={
+                                                    'marginTop': '20px',
+                                                    'overflowX': 'auto',
+                                                    'overflowY': 'auto',
+                                                    'maxHeight': '300px', 
+                                                }
+                                            )
+                                        )
+                                    ],
+                                    color="light"
+                                ),
+                                width="12"
+                            )
                         ),
-
-
                         html.Br(),
-                        dbc.Row(dbc.Col(
-                            html.H5("Submissions in need of Revisions"),
-                            width="auto",  # Auto to keep the heading at the left
-                        )),
-                        html.Div(
-                            id='revisions_list', 
-                            style={
-                                'marginTop': '20px',
-                                'overflowX': 'auto',# This CSS property adds a horizontal scrollbar
-                                'overflowY': 'auto',   
-                                'maxHeight': '100px',
-                            }
+                        dbc.Row(
+                            dbc.Col(
+                                dbc.Card(
+                                    [
+                                        dbc.CardHeader("Submissions in need of Revisions"),
+                                        dbc.CardBody(
+                                            html.Div(
+                                                id='revisions_list', 
+                                                style={
+                                                    'marginTop': '20px',
+                                                    'overflowX': 'auto',
+                                                    'overflowY': 'auto',
+                                                    'maxHeight': '300px',
+                                                }
+                                            )
+                                        )
+                                    ],
+                                    color="light"
+                                ),
+                                width="12"
+                            )
                         ),
                          
 
