@@ -322,13 +322,7 @@ layout = html.Div(
                         
                         dbc.Row(
                             [
-                                dbc.Col(create_card(
-                                    dbc.Col(
-                                    [
-                                        "Recent Activities", 
-                                    ]
-                                )
-                                ), width=7),
+                                 
 
                                 dbc.Col(create_card(
                                     dbc.Col("Ranking Body Categories"),

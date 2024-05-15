@@ -36,15 +36,7 @@ facultytrainedcard = dbc.Card(
                 dbc.Col(  
                     html.H5(html.B("No. of faculty with QA Training")),  
                 ), 
-                dbc.Col( 
-                    dcc.Dropdown(
-                        id='training_type_dropdown',   
-                        options=training_types,      
-                        placeholder="Select training type",   
-                        clearable=True,   
-                    ),
-                    width=4,   
-                ),
+                 
             ],
             className="my-2"  
         ),

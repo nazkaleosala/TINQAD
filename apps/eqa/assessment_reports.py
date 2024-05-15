@@ -166,13 +166,15 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
             SELECT 
                 arep_currentdate AS "Date",
                 dp.degree_name AS "Degree Program",
-                arep_title AS "Assessment Title"
+                arep_title AS "Assessment Title",
+                arep_approv_eqa AS "EQA Type",
+                arep_checkstatus AS "Status"
             FROM 
                 eqateam.assess_report AS ar
             LEFT JOIN 
                 public.degree_programs AS dp ON ar.arep_degree_programs_id = dp.degree_id 
         """
-        cols = ['Date', 'Degree Program', 'Assessment Title']
+        cols = ['Date', 'Degree Program', 'Assessment Title', 'EQA Type' , 'Status']
 
     else:
         # If the active_tab is unexpected, raise PreventUpdate or return a default response
