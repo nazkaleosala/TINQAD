@@ -11,6 +11,11 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
+import psycopg2
+import json
+import logging
+
+
 form = dbc.Form(
     [
          
@@ -204,6 +209,7 @@ form = dbc.Form(
             ],
             className="mb-1",
         ),
+        
 
         dbc.Row(
             [
@@ -313,10 +319,7 @@ layout = html.Div(
 )
 
 
-
-
-import logging
-
+ 
 @app.callback(
     [
         Output('pro_alert', 'color'),
@@ -335,7 +338,7 @@ import logging
         State('pro_degree_count', 'value'),
         State('pro_program_type_id', 'value'),
         State('pro_calendar_type_id', 'value'),
-        State('pro_accreditation_body_id', 'value')  # List of selected values
+        State('pro_accreditation_body_id', 'value')  # JSON string input
     ]
 )
 def record_program_details(
@@ -354,10 +357,11 @@ def record_program_details(
     if not submitbtn:
         raise PreventUpdate
 
-    alert_color = 'danger'
-    alert_text = 'An error occurred while saving the data. Please try again.'
-    alert_open = True
+    # Default values
+    alert_open = False
     modal_open = False
+    alert_color = ""
+    alert_text = ""
 
     # Ensure required fields are filled
     if not all([pro_degree_title, pro_degree_shortname, pro_degree_initials]):
@@ -396,18 +400,19 @@ def record_program_details(
         if not existing_title.empty or not existing_shortname.empty or not existing_initials.empty:
             return [alert_color, alert_text, True, False]
 
-        insert_program_sql = """
+        sql = """
             INSERT INTO eqateam.program_details (
                 pro_degree_title, pro_degree_shortname,
                 pro_degree_initials, pro_cluster_id,
                 pro_college_id, pro_department_id,
                 pro_degree_count, pro_program_type_id,
-                pro_calendar_type_id
+                pro_calendar_type_id, pro_accreditation_body_id
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING programdetails_id   
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+             
         """
-        program_values = (
+
+        values = (
             pro_degree_title,
             pro_degree_shortname,
             pro_degree_initials,
@@ -416,42 +421,26 @@ def record_program_details(
             pro_department_id,
             pro_degree_count,
             pro_program_type_id,
-            pro_calendar_type_id
+            pro_calendar_type_id, 
+            json.dumps(pro_accreditation_body_id) if pro_accreditation_body_id else None,
         )
-
-        # Retrieve the generated `programdetails_id` from the DataFrame
-        result_df = db.querydatafromdatabase(insert_program_sql, program_values, ["programdetails_id"])
-
-        if result_df.empty or "programdetails_id" not in result_df.columns:
-            raise Exception("Failed to retrieve programdetails_id")
- 
-
-        # Get the generated ID from `program_details`
-        programdetails_id = db.modifydatabase(insert_program_sql, program_values)
-
-        # Insert into the linking table using the correct ID
-        insert_accreditation_sql = """
-            INSERT INTO eqateam.program_accreditation (programdetails_id, accreditation_body_id)
-            VALUES (%s, %s)
-        """
-        
-        # Insert each selected accreditation body into `program_accreditation`
-        for accreditation_id in pro_accreditation_body_id:
-            db.modifydatabase(insert_accreditation_sql, (programdetails_id, accreditation_id))
-
-        alert_color = 'success'
-        alert_text = 'Data saved successfully!'
-        alert_open = False
+            
+            
+        db.modifydatabase(sql, values)
         modal_open = True
 
     except Exception as e:
-        logging.error("Error while saving program details: %s", str(e))
-        alert_color = 'danger'
-        alert_text = "An error occurred: " + str(e)
-        alert_open = True
-        modal_open = False
+        return set_alert("An error occurred while saving the data: " + str(e), 'danger')
 
     return [alert_color, alert_text, alert_open, modal_open]
+
+
+# Helper function for setting alerts
+def set_alert(message, color):
+    return [color, message, True, False]
+
+
+
 
 
 

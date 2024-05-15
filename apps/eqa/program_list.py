@@ -97,8 +97,6 @@ layout = html.Div(
 
 
 
-
-
 @app.callback(
     [
         Output('programlist_list', 'children')
@@ -107,60 +105,57 @@ layout = html.Div(
         Input('url', 'pathname'),
         Input('programlist_filter', 'value'),
     ]
-    )
-
+)
 def programlist_loadlist(pathname, searchterm):
-    if pathname == '/program_list': 
+    if pathname == '/program_list':
         base_sql = """  
             SELECT
                 pd.pro_degree_shortname AS "Degree Program",
                 c.college_name AS "College",
-                du.deg_unit_name AS "Department",
-                cl.cluster_name AS "Cluster",
+                du.deg_unit_shortname AS "Department",
+                cl.cluster_shortname AS "Cluster",
                 pt.programtype_name AS "Program Type",
-                STRING_AGG(ab.body_name, ', ') AS "Applicable Accreditation Bodies"
+                string_agg(ab_id, ', ') AS "Applicable Accreditation Body ID"
             FROM
                 eqateam.program_details pd
                 INNER JOIN public.college c ON pd.pro_college_id = c.college_id
                 INNER JOIN public.deg_unit du ON pd.pro_department_id = du.deg_unit_id
                 INNER JOIN public.clusters cl ON pd.pro_cluster_id = cl.cluster_id
-                INNER JOIN eqateam.program_type pt ON pd.pro_program_type_id = pt.programtype_id
-                LEFT JOIN eqateam.program_accreditation pa ON pd.programdetails_id = pa.programdetails_id
-                LEFT JOIN public.accreditation_body ab ON pa.accreditation_body_id = ab.accreditation_body_id
+                INNER JOIN eqateam.program_type pt ON pd.pro_program_type_id = pt.programtype_id,
+                LATERAL (
+                    SELECT jsonb_array_elements_text(pd.pro_accreditation_body_id) AS ab_id
+                ) AS j
             WHERE
                 1 = 1
-            GROUP BY
-                pd.pro_degree_shortname,
-                c.college_name,
-                du.deg_unit_name,
-                cl.cluster_name,
-                pt.programtype_name
         """
 
-        additional_conditions = ""
         values = []
-
         if searchterm:
             like_pattern = f"%{searchterm}%"
-            additional_conditions += """
+            additional_conditions = """
                 AND (
                     pd.pro_degree_shortname ILIKE %s
                     OR c.college_name ILIKE %s
-                    OR du.deg_unit_name ILIKE %s
-                    OR cl.cluster_name ILIKE %s
+                    OR du.deg_unit_shortname ILIKE %s
+                    OR cl.cluster_shortname ILIKE %s
                 )
             """
             values.extend([like_pattern, like_pattern, like_pattern, like_pattern])
+            base_sql += additional_conditions
 
-        final_sql = base_sql + additional_conditions + """
-            ORDER BY
-                pd.pro_degree_shortname
-        """
+        final_sql = base_sql + " GROUP BY pd.pro_degree_shortname, c.college_name, du.deg_unit_shortname, cl.cluster_shortname, pt.programtype_name ORDER BY pd.pro_degree_shortname"
 
-        cols = ["Degree Program", "College", "Department", "Cluster", "Program Type", "Applicable Accreditation Bodies"]
+        # Print the final SQL query and values for debugging
+        print("Final SQL Query:", final_sql)
+        print("Values:", values)
 
+        cols = ["Degree Program", "College", "Department", "Cluster", "Program Type", "Applicable Accreditation Body ID"]
 
         df = db.querydatafromdatabase(final_sql, values, cols)
+
+        # Print the resulting DataFrame for debugging
+        print("Resulting DataFrame:")
+        print(df)
 
         if not df.empty:
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
