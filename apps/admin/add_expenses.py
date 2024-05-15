@@ -240,10 +240,7 @@ form = dbc.Form(
         html.Br(),
         dbc.Row(
             [ 
-                dbc.Col(
-                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
-                    width="auto"
-                ),
+                
                 dbc.Col(
                     dbc.Button("Save", color="primary",  id="save_button", n_clicks=0),
                     width="auto"
@@ -267,26 +264,7 @@ form = dbc.Form(
             id='recordexpenses_successmodal', #palit ID
             backdrop=True,   
             className="modal-success"   
-        ),
- 
-        dbc.Modal(
-            [
-                dbc.ModalHeader(className="bg-danger"),
-                dbc.ModalBody(
-                    html.H4('Are you sure you want to cancel?')
-                ),
-                dbc.ModalFooter([
-                    dbc.Button("No", id='cancel_no_button',  n_clicks=0),
-                    dbc.Button("Yes", id='cancel_yes_button', n_clicks=0, color="danger"),
-                ]
-                )
-
-            ],
-            centered=True,
-            id='recordexpenses_cancelmodal', #palit ID
-            backdrop=True,
-            className="modal-danger",
-        ),
+        )
         
     ],
     className="g-2",
@@ -298,41 +276,7 @@ form = dbc.Form(
 
 
 
-@app.callback(
-    [
-        Output('recordexpenses_cancelmodal', 'is_open'),  #edit id
-        Output('exp_payee', 'value'),  # Clear input fields if needed
-        Output('main_expense_id', 'value'),
-        Output('exp_particulars', 'value'),
-        Output('exp_amount', 'value'),
-        Output('exp_status', 'value'),
-        Output('exp_submitted_by', 'value'),
-    ],
-    [
-        Input('cancel_button', 'n_clicks'), 
-        Input('cancel_no_button', 'n_clicks'), 
-        Input('cancel_yes_button', 'n_clicks')
-    ],
-    [State('recordexpenses_cancelmodal', 'is_open')]  #edit id 
-)
-def toggle_cancel_modal(cancel_clicks, no_clicks, yes_clicks, is_open):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return [is_open, no_update, no_update, no_update, no_update, no_update, no_update]
-    
- 
-    prop_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
-    if prop_id == 'cancel_button':  
-        return [not is_open, no_update, no_update, no_update, no_update, no_update, no_update]
-    elif prop_id == 'cancel_no_button': 
-        return [False, no_update, no_update, no_update, no_update, no_update, no_update]
-    elif prop_id == 'cancel_yes_button': 
-        return [False, '', '', '', '', '', '']
-     
-    return [is_open, no_update, no_update, no_update, no_update, no_update, no_update]
-
- 
 
 
 
