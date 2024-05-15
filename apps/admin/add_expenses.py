@@ -240,10 +240,7 @@ form = dbc.Form(
         html.Br(),
         dbc.Row(
             [ 
-                dbc.Col(
-                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
-                    width="auto"
-                ),
+                
                 dbc.Col(
                     dbc.Button("Save", color="primary",  id="save_button", n_clicks=0),
                     width="auto"
@@ -267,26 +264,7 @@ form = dbc.Form(
             id='recordexpenses_successmodal', #palit ID
             backdrop=True,   
             className="modal-success"   
-        ),
- 
-        dbc.Modal(
-            [
-                dbc.ModalHeader(className="bg-danger"),
-                dbc.ModalBody(
-                    html.H4('Are you sure you want to cancel?')
-                ),
-                dbc.ModalFooter([
-                    dbc.Button("No", id='cancel_no_button',  n_clicks=0),
-                    dbc.Button("Yes", id='cancel_yes_button', n_clicks=0, color="danger"),
-                ]
-                )
-
-            ],
-            centered=True,
-            id='recordexpenses_cancelmodal', #palit ID
-            backdrop=True,
-            className="modal-danger",
-        ),
+        )
         
     ],
     className="g-2",
