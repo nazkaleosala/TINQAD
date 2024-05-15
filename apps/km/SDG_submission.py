@@ -21,9 +21,36 @@ UPLOAD_DIRECTORY = r"C:\Users\Naomi A. Takagaki\OneDrive\Documents\TINQAD\assets
 # Ensure the directory exists or create it
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
+
+
+
+ranking_options = [
+    {"label": "THE World Rankings", "value": 1},
+    {"label": "QS World University Rankings", "value": 2},
+    {"label": "Academic Ranking of World Universities", "value": 3},
+    # Add more options as needed
+]
+  
 # Form layout with improvements
 form = dbc.Form(
     [
+        dbc.Row(
+            [
+                dbc.Label(
+                    ["Ranking Body", html.Span("*", style={"color": "#F8B237"})],
+                    width=4,
+                ),
+                dbc.Col(
+                    dbc.Select(
+                        id='sdg_rankingbody', 
+                        options=ranking_options,
+                        value=1,
+                    ),
+                    width=5,
+                ), 
+            ],
+            className="mb-1",
+        ),
         dbc.Row(
             [
                 dbc.Label(
@@ -81,7 +108,7 @@ form = dbc.Form(
                 dbc.Label(
                     [
                         "Office ",
-                        html.Span("*", style={"color": "#F8B237"})
+                         
                     ],
                     width=4),
                 dbc.Col(
@@ -100,7 +127,7 @@ form = dbc.Form(
                 dbc.Label(
                     [
                         "Department ",
-                        html.Span("*", style={"color": "#F8B237"})
+                         
                     ],
                     width=4),
                 dbc.Col(
@@ -162,18 +189,14 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='sdg_status', 
-                        options=[
-                            {"label": "Pending", "value": "pending"},
-                            {"label": "Approved", "value": "approved"},
-                            {"label": "Rejected", "value": "rejected"},
-                        ],
+                        id='sdg_checkstatus',  
                         value='pending',
                     ),
-                    width=4,
+                    width=5,
                 ),
+ 
             ],
-            className="mb-2"
+            className="mb-3"
         ),
 
         dbc.Row(
@@ -205,7 +228,7 @@ form = dbc.Form(
                 dbc.Label(
                     [
                         "File Submissions ",
-                        html.Span("*", style={"color": "#F8B237"}),
+                        
                     ],
                     width=4,
                 ),
@@ -253,8 +276,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Link Submissions ",
-                        html.Span("*", style={"color": "#F8B237"})
+                        "Link Submissions ", 
                     ],
                     width=4),
                 dbc.Col(
@@ -362,6 +384,39 @@ def populate_depts_dropdown(pathname):
     else:
         raise PreventUpdate
 
+
+
+
+
+
+
+#Check Status dropdown
+@app.callback(
+    Output('sdg_checkstatus', 'options'),
+    Input('url', 'pathname')
+)
+def populate_status_dropdown(pathname):
+    # Check if the pathname matches if necessary
+    if pathname == '/SDGimpactrankings/SDG_submission':
+        sql ="""
+        SELECT checkstatus_name as label, checkstatus_id  as value
+        FROM  kmteam.checkstatus
+       """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        checkstatus_types = [{'label': row['label'], 'value': row['value']} for _, row in df.iterrows()]
+        return checkstatus_types
+    else:
+        raise PreventUpdate
+
+
+
+
+
+
+
 # sdg criteria checklist
 @app.callback(
     Output('sdg_applycriteria', 'options'),
@@ -460,6 +515,10 @@ layout = html.Div(
     ]
 )
 
+
+
+
+
 @app.callback(
     [
         Output('sdgsubmission_alert', 'color'),
@@ -477,8 +536,8 @@ layout = html.Div(
         State('sdg_office_id', 'value'),
         State('sdg_deg_unit_id', 'value'),
         State('sdg_accomplishedby', 'value'),
-        State('sdg_datesubmitted', 'date'), 
-        State('sdg_status', 'date'), 
+        State('sdg_datesubmitted', 'value'), 
+        State('sdg_checkstatus', 'value'), 
         State('sdg_file', 'contents'),
         State('sdg_file', 'filename'),  
         State('sdg_link', 'value'), 
@@ -486,7 +545,7 @@ layout = html.Div(
     ]
 )
 def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_description,
-                        sdg_office_id, sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, sdg_status,
+                        sdg_office_id, sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, sdg_checkstatus,
                         sdg_file_contents, sdg_file_names, sdg_link, sdg_applycriteria
                             ):
     if not submitbtn:
@@ -498,6 +557,7 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
     alert_color = ""
     alert_text = ""
 
+ 
     if not sdg_rankingbody:
         alert_open = True
         alert_color = 'danger'
@@ -509,6 +569,7 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
         alert_color = 'danger'
         alert_text = 'Check your inputs. Please add an Evidence Name.'
         return [alert_color, alert_text, alert_open, modal_open]
+ 
 
     if not (sdg_office_id or sdg_deg_unit_id):
         alert_open = True
@@ -521,6 +582,7 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
         alert_color = 'danger'
         alert_text = 'Check your inputs. Please add a Accomplished by.'
         return [alert_color, alert_text, alert_open, modal_open]
+    
 
     if sdg_file_contents is None or sdg_file_names is None:
         sdg_file_contents = ["1"]
@@ -557,7 +619,7 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
             INSERT INTO kmteam.SDGSubmission (
                 sdg_rankingbody, sdg_evidencename,
                 sdg_description, sdg_office_id, sdg_deg_unit_id,
-                sdg_accomplishedby, sdg_datesubmitted, sdg_status,
+                sdg_accomplishedby, sdg_datesubmitted, sdg_checkstatus,
                 sdg_link, sdg_applycriteria,
                 sdg_file_path, sdg_file_name, sdg_file_type, sdg_file_size
             )
@@ -567,7 +629,7 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
         """
         values = (
             sdg_rankingbody, sdg_evidencename, sdg_description, sdg_office_id,
-            sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, sdg_status, sdg_link,
+            sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, sdg_checkstatus, sdg_link,
             json.dumps(sdg_applycriteria) if sdg_applycriteria else None,
             file_data[0]["path"] if file_data else None,
             file_data[0]["name"] if file_data else None,
@@ -583,6 +645,10 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
 
     return [alert_color, alert_text, alert_open, modal_open]
 
+
 # Helper function for setting alerts
 def set_alert(message, color):
     return [color, message, True, False]
+
+
+ 
