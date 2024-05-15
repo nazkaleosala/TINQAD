@@ -390,6 +390,51 @@ def update_manageevidence_list (pathname, selected_criteria):
 
 
 
+@app.callback(
+    [
+        Output('checking_list', 'children')
+    ],
+    [
+        Input('url', 'pathname'),  
+    ]
+)
+
+def checking_list (pathname):
+    if pathname == '/SDGimpact_rankings':  # Adjusted URL path
+         
+        sql = """
+            SELECT 
+                sdg_evidencename AS "Evidence Name",
+                (SELECT office_name FROM maindashboard.offices WHERE office_id = sdg_office_id) AS "Office",
+                sdg_description AS "Description",
+                (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body"
+            FROM 
+                kmteam.SDGSubmission
+            WHERE
+                sdg_checkstatus = '1'   
+        """
+        cols = ['Evidence Name', 'Office','Description', 'Ranking Body' ] 
+
+        df = db.querydatafromdatabase(sql, [], cols) 
+
+        # Generate the table from the DataFrame
+        if not df.empty:
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return [table]
+        else:
+            return [html.Div("No records to display")]
+    else:
+        raise PreventUpdate
+    
+
+
+
+
+
+
+
+
+
 
 @app.callback(
     [
@@ -435,45 +480,6 @@ def revisions_list (pathname):
 
 
 
-
-@app.callback(
-    [
-        Output('checking_list', 'children')
-    ],
-    [
-        Input('url', 'pathname'),  
-    ]
-)
-
-def checking_list (pathname):
-    if pathname == '/SDGimpact_rankings':  # Adjusted URL path
-         
-        sql = """
-            SELECT 
-                sdg_evidencename AS "Evidence Name",
-                (SELECT office_name FROM maindashboard.offices WHERE office_id = sdg_office_id) AS "Office",
-                sdg_description AS "Description",
-                (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body"
-                 
-                
-            FROM 
-                kmteam.SDGSubmission
-        """
-        cols = ['Evidence Name', 'Office','Description', 'Ranking Body' ]
-
-         
-
-        df = db.querydatafromdatabase(sql, [], cols) 
-
-        # Generate the table from the DataFrame
-        if not df.empty:
-            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
-            return [table]
-        else:
-            return [html.Div("No records to display")]
-    else:
-        raise PreventUpdate
-    
 
 
 
