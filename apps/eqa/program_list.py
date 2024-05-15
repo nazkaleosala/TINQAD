@@ -69,7 +69,7 @@ layout = html.Div(
                                 'marginTop': '20px',
                                 'overflowX': 'auto', 
                                 'overflowY': 'auto',   
-                                'maxHeight': '1000px',
+                                'maxHeight': '800px',
                             }
                         ),
 

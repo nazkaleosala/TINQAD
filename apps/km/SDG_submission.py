@@ -25,7 +25,7 @@ os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 
 ranking_options = [
-    {"label": "THE World Rankings", "value": 1},
+    {"label": "THE Impact Rankings", "value": 1},
     {"label": "QS World University Rankings", "value": 2},
     {"label": "Academic Ranking of World Universities", "value": 3},
     # Add more options as needed
