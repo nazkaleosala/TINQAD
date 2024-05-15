@@ -32,6 +32,15 @@ layout = html.Div(
                                     ),
                                     width="auto",    
                                 ),
+                                dbc.Col(  
+                                    dbc.Input(
+                                        type='text',
+                                        id='programlist_filter',
+                                        placeholder='🔎 Search by Degree Program, College, Department, Cluster',
+                                        className='ml-auto'   
+                                    ),
+                                    width="8",
+                                ),
                                 #dbc.Col(   
                                     #dbc.Button(
                                        # "📥 Upload CSV File", color="danger",  
@@ -53,21 +62,7 @@ layout = html.Div(
                                    }
                         ),
 
-
-                        dbc.Row(   
-                            [
-                                dbc.Col(  
-                                    dbc.Input(
-                                        type='text',
-                                        id='programlist_filter',
-                                        placeholder='🔎 Search by name, email, position, etc',
-                                        className='ml-auto'   
-                                    ),
-                                    width="8",
-                                ),
-                            ]
-                        ),
-
+ 
                         html.Div(
                             id='programlist_list', 
                             style={
@@ -94,9 +89,6 @@ layout = html.Div(
 )
 
 
-
-
-
 @app.callback(
     [
         Output('programlist_list', 'children')
@@ -108,28 +100,33 @@ layout = html.Div(
 )
 def programlist_loadlist(pathname, searchterm):
     if pathname == '/program_list':
-        base_sql = """  
+        sql = """  
             SELECT
                 pd.pro_degree_shortname AS "Degree Program",
                 c.college_name AS "College",
                 du.deg_unit_shortname AS "Department",
                 cl.cluster_shortname AS "Cluster",
                 pt.programtype_name AS "Program Type",
-                string_agg(ab_id, ', ') AS "Applicable Accreditation Body ID"
+                (
+                   
+                    SELECT json_agg(ab.body_name)
+                    FROM public.accreditation_body ab
+                    WHERE ab.accreditation_body_id IN (
+                        SELECT CAST(jsonb_array_elements_text(pd.pro_accreditation_body_id) AS INTEGER)
+                        FROM eqateam.program_details
+                    )
+                ) AS "Applicable Accreditation Body"
+                 
             FROM
                 eqateam.program_details pd
                 INNER JOIN public.college c ON pd.pro_college_id = c.college_id
                 INNER JOIN public.deg_unit du ON pd.pro_department_id = du.deg_unit_id
                 INNER JOIN public.clusters cl ON pd.pro_cluster_id = cl.cluster_id
-                INNER JOIN eqateam.program_type pt ON pd.pro_program_type_id = pt.programtype_id,
-                LATERAL (
-                    SELECT jsonb_array_elements_text(pd.pro_accreditation_body_id) AS ab_id
-                ) AS j
-            WHERE
-                1 = 1
+                INNER JOIN eqateam.program_type pt ON pd.pro_program_type_id = pt.programtype_id
         """
-
+ 
         values = []
+
         if searchterm:
             like_pattern = f"%{searchterm}%"
             additional_conditions = """
@@ -141,26 +138,19 @@ def programlist_loadlist(pathname, searchterm):
                 )
             """
             values.extend([like_pattern, like_pattern, like_pattern, like_pattern])
-            base_sql += additional_conditions
+            sql += additional_conditions
 
-        final_sql = base_sql + " GROUP BY pd.pro_degree_shortname, c.college_name, du.deg_unit_shortname, cl.cluster_shortname, pt.programtype_name ORDER BY pd.pro_degree_shortname"
-
-        # Print the final SQL query and values for debugging
-        print("Final SQL Query:", final_sql)
-        print("Values:", values)
-
-        cols = ["Degree Program", "College", "Department", "Cluster", "Program Type", "Applicable Accreditation Body ID"]
+        final_sql = sql + " ORDER BY pd.pro_degree_shortname"
+         
+        cols = ["Degree Program", "College", "Department", "Cluster", "Program Type", "Applicable Accreditation Body"]
 
         df = db.querydatafromdatabase(final_sql, values, cols)
-
-        # Print the resulting DataFrame for debugging
-        print("Resulting DataFrame:")
-        print(df)
-
+ 
         if not df.empty:
+            df["Applicable Accreditation Body"] = df["Applicable Accreditation Body"].apply(
+                lambda x: ", ".join(x) if x else "None"
+            )
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
-            return [html.Div("No records to display")]
-    else:
-        raise PreventUpdate
+            return [html.Div("No records under this criteria")]
