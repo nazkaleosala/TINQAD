@@ -267,11 +267,11 @@ form = dbc.Form(
         ),
 
         dbc.Row(
-            [dbc.Col(id="file_name_output",style={"color": "#F8B237"}, width=8)],  # Output area for uploaded file names
-            className="mt-2",
+            [dbc.Label("",width=6),
+             dbc.Col(id="sdg_file_output",style={"color": "#F8B237"}, width="auto")],  # Output area for uploaded file names
+            className="mt-0",
         ),
-        
-        html.Br(), 
+
         dbc.Row(
             [
                 dbc.Label(
@@ -469,7 +469,7 @@ def toggle_submissions(submission_type):
 
 # Callback to display the names of the uploaded files
 @app.callback(
-    Output("file_name_output", "children"),
+    Output("sdg_file_output", "children"),
     [Input("sdg_file", "filename")],  # Use filename to get uploaded file names
 )
 def display_uploaded_files(filenames):
