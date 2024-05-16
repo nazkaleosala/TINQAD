@@ -157,7 +157,7 @@ def acadheadsdirectory_loadlist(pathname, searchterm, selected_month, selected_y
                 acad_unitheads.unithead_fname AS "First Name",
                 acad_unitheads.unithead_sname AS "Surname",
                 acad_unitheads.unithead_upmail AS "Up Mail",
-                fac_posns.fac_posn_name AS "Faculty Position",
+                acad_unitheads.unithead_fac_posn AS "Faculty Position",
                 acad_unitheads.unithead_desig AS " Designation",
                 acad_unitheads.unithead_appointment_start AS "Start Term",
                 acad_unitheads.unithead_appointment_end AS "End Term"
@@ -166,7 +166,7 @@ def acadheadsdirectory_loadlist(pathname, searchterm, selected_month, selected_y
                 LEFT JOIN public.clusters ON acad_unitheads.unithead_cluster_id = clusters.cluster_id
                 LEFT JOIN public.college ON acad_unitheads.unithead_college_id = college.college_id
                 LEFT JOIN public.deg_unit ON acad_unitheads.unithead_deg_unit_id = deg_unit.deg_unit_id
-                LEFT JOIN public.fac_posns ON acad_unitheads.unithead_fac_posn_id = fac_posns.fac_posn_id
+                 
         """
 
         cols = [

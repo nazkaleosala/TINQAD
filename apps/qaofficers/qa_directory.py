@@ -157,7 +157,7 @@ def qadirectory_loadlist(pathname, searchterm, selected_month, selected_year):
                 deg_unit.deg_unit_name AS "Unit",
                 qaofficer_full_name AS "Full Name",
                 qaofficer_upmail AS "UP Mail",
-                fac_posn_name AS "Faculty Position",
+                qaofficer_fac_posn AS "Faculty Position",
                 qaofficer_facadmin_posn AS "Admin Position",
                 qaofficer_staff_posn AS "Staff Position",
                 cuposition_name AS "QA Position",
@@ -168,9 +168,7 @@ def qadirectory_loadlist(pathname, searchterm, selected_month, selected_year):
                 qaofficer_appointment_end AS "End Term",
                 qaofficer_role AS "CU-Level role"
             FROM 
-                qaofficers.qa_officer 
-            LEFT JOIN 
-                public.fac_posns ON qaofficer_fac_posn_id = fac_posns.fac_posn_id
+                qaofficers.qa_officer  
             LEFT JOIN 
                 qaofficers.cuposition ON qaofficer_cuposition_id = cuposition.cuposition_id
             LEFT JOIN 

@@ -90,7 +90,7 @@ layout = html.Div(
     ]
 )
 def traininglist_loadlist(pathname, searchterm):
-    if pathname == '/training/training_documents':
+    if pathname == '/view/training_record':
         sql = """
             SELECT 
                 td.complete_name AS "QAO Name",
@@ -111,39 +111,23 @@ def traininglist_loadlist(pathname, searchterm):
                 qaofficers.training_type qt ON td.qa_training_id = qt.trainingtype_id
         """
 
-        values = []
+        cols = ["QAO Name","Faculty Position","Cluster","College","QA Training", "Departure Date", "Return Date","Venue"]
 
-        if searchterm:
+        if searchterm: 
+            sql += """ WHERE td.complete_name ILIKE %s OR td.fac_posn ILIKE  %s OR qt.trainingtype_name ILIKE %s OR 
+                clu.cluster_name ILIKE %s  """
             like_pattern = f"%{searchterm}%"
-            additional_conditions = """
-            WHERE 
-                complete_name ILIKE %s OR
-                fac_posn ILIKE %s OR
-                cluster_id ILIKE %s OR
-                college_id ILIKE %s
-            """
-            values.extend([like_pattern, like_pattern, like_pattern, like_pattern])
-            sql += additional_conditions
+            values = [like_pattern, like_pattern, like_pattern, like_pattern]
+        else:
+            values = []
 
-        final_sql = sql + " ORDER BY complete_name"
+        df = db.querydatafromdatabase(sql, values, cols) 
 
-        cols = [
-            "QAO Name",
-            "Faculty Position",
-            "Cluster",
-            "College",
-            "QA Training",
-            "Departure Date",
-            "Return Date",
-            "Venue"
-        ]
-
-        df = db.querydatafromdatabase(final_sql, values, cols)
-
-        if not df.empty:
-            df["Departure Date"] = df["Departure Date"].dt.strftime("%Y-%m-%d")
-            df["Return Date"] = df["Return Date"].dt.strftime("%Y-%m-%d")
+        # Generate the table from the DataFrame
+        if not df.empty:  # Check if the DataFrame is not empty
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
-            return [html.Div("No records under this criteria")]
+            return [html.Div("No records to display")]
+    else:
+        raise PreventUpdate

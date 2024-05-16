@@ -149,7 +149,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='unithead_fac_posn_id',
+                        id='unithead_fac_posn_name',
                         placeholder="Select Position",
                     ),
                     width=4,
@@ -255,14 +255,14 @@ form = dbc.Form(
 
 # CU dropdown
 @app.callback(
-    Output('unithead_fac_posn_id', 'options'),
+    Output('unithead_fac_posn_name', 'options'),
     Input('url', 'pathname')
 )
 def populate_fac_posn_dropdown(pathname):
     # Check if the pathname matches if necessary
     if pathname == '/acadheadsdirectory/acadheads_profile':
         sql = """
-        SELECT fac_posn_name as label, fac_posn_id  as value
+        SELECT fac_posn_name as label, fac_posn_name  as value
         FROM public.fac_posns
         """
         values = []
@@ -407,7 +407,7 @@ layout = html.Div(
         State('unithead_mname', 'value'),
         State('unithead_sname', 'value'),
         State('unithead_upmail', 'value'),
-        State('unithead_fac_posn_id', 'value'),
+        State('unithead_fac_posn_name', 'value'),
         State('unithead_fac_posn_number', 'value'),
         State('unithead_desig', 'value'),    
         State('unithead_appointment_start', 'value'),
@@ -420,7 +420,7 @@ layout = html.Div(
  
 def record_acadhead_profile(submitbtn, unithead_fname, unithead_mname, 
                             unithead_sname, unithead_upmail,
-                            unithead_fac_posn_id, unithead_fac_posn_number, unithead_desig, 
+                            unithead_fac_posn_name, unithead_fac_posn_number, unithead_desig, 
                             unithead_appointment_start, unithead_appointment_end, 
                             unithead_cluster_id, unithead_college_id, unithead_deg_unit_id):
     if not submitbtn:
@@ -469,7 +469,7 @@ def record_acadhead_profile(submitbtn, unithead_fname, unithead_mname,
         alert_text_upmail = 'Check your inputs. Please select a Department.'
         return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
     
-    if not unithead_fac_posn_id :
+    if not unithead_fac_posn_name :
         alert_color_upmail = 'danger'
         alert_text_upmail = 'Check your inputs. Please add a Faculty Position.'
         return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
@@ -495,7 +495,7 @@ def record_acadhead_profile(submitbtn, unithead_fname, unithead_mname,
         sql = """
             INSERT INTO iqateam.acad_unitheads (
                 unithead_fname, unithead_mname, unithead_sname, unithead_upmail,
-                unithead_fac_posn_id, unithead_fac_posn_number, unithead_desig, 
+                unithead_fac_posn_name, unithead_fac_posn_number, unithead_desig, 
                 unithead_appointment_start, unithead_appointment_end, unithead_cluster_id, unithead_college_id, unithead_deg_unit_id
             )
             VALUES (%s, %s, %s, %s,
@@ -504,7 +504,7 @@ def record_acadhead_profile(submitbtn, unithead_fname, unithead_mname,
         """
         values = (unithead_fname, unithead_mname, 
                 unithead_sname, unithead_upmail,
-                unithead_fac_posn_id, unithead_fac_posn_number, unithead_desig, 
+                unithead_fac_posn_name, unithead_fac_posn_number, unithead_desig, 
                 
                 unithead_appointment_start, unithead_appointment_end, 
                 unithead_cluster_id, unithead_college_id, unithead_deg_unit_id)

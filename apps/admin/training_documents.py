@@ -44,7 +44,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dbc.Select(
-                        id='fac_posn_id',
+                        id='fac_posn_name',
                         options=[],
                         placeholder="Select position",
                     ),
@@ -557,7 +557,7 @@ def display_receivingcopy_files(filenames):
 
 #faculty positions dropdown
 @app.callback(
-    Output('fac_posn_id', 'options'),
+    Output('fac_posn_name', 'options'),
     Input('url', 'pathname')
 )
 
@@ -565,7 +565,7 @@ def populate_facultypositions_dropdown(pathname):
     # Check if the pathname matches if necessary
     if pathname == '/add/training_documents':
         sql = """
-        SELECT fac_posn_name as label, fac_posn_id  as value
+        SELECT fac_posn_name as label, fac_posn_name  as value
         FROM public.fac_posns
         """
         values = []
@@ -737,7 +737,7 @@ layout = html.Div(
     ],
     [
         State('complete_name', 'value'),
-        State('fac_posn_id', 'value'),
+        State('fac_posn_name', 'value'),
         State('fac_posn_number', 'value'),
         State('cluster_id', 'value'),
         State('college_id', 'value'),
@@ -756,7 +756,7 @@ layout = html.Div(
  
 
 
-def record_training_documents (submitbtn, complete_name, fac_posn_id, fac_posn_number,
+def record_training_documents (submitbtn, complete_name, fac_posn_name, fac_posn_number,
                                cluster_id, college_id, deg_unit_id, qa_training_id, 
                                departure_date, return_date, venue, parti_attendance_cert, 
                                official_receipt, official_travel_report, other_receipts, receiving_copy):
@@ -775,7 +775,7 @@ def record_training_documents (submitbtn, complete_name, fac_posn_id, fac_posn_n
         alert_text = 'Check your inputs. Please add a Name.'
         return [alert_color, alert_text, alert_open, modal_open]
 
-    if not fac_posn_id:
+    if not fac_posn_name:
         alert_open = True
         alert_color = 'danger'
         alert_text = 'Check your inputs. Please add a Position Type.'
@@ -840,7 +840,7 @@ def record_training_documents (submitbtn, complete_name, fac_posn_id, fac_posn_n
     try:
         sql = """
             INSERT INTO adminteam.training_documents (
-                complete_name, fac_posn_id, fac_posn_number, cluster_id, college_id, deg_unit_id, 
+                complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id, 
                 qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
                 official_receipt, official_travel_report, other_receipts, receiving_copy
             )
@@ -850,7 +850,7 @@ def record_training_documents (submitbtn, complete_name, fac_posn_id, fac_posn_n
                 %s, %s, %s, %s, %s
             )
         """
-        values = (complete_name, fac_posn_id, fac_posn_number, cluster_id, college_id, deg_unit_id, 
+        values = (complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id, 
                   qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
                   official_receipt, official_travel_report, other_receipts, receiving_copy)
         

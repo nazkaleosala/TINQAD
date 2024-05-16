@@ -82,7 +82,7 @@ def searchusers_loaduserlist(pathname, searchterm):
             SELECT 
                 u.user_sname AS "Surname", 
                 u.user_fname AS "First Name", 
-                o.office_name AS "Dept",  -- Joining to get office_name
+                o.office_name AS "Dept",  
                 u.user_position AS "Position", 
                 u.user_email AS "Email",  
                 u.user_phone_num AS "Phone"

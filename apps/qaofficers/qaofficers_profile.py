@@ -130,7 +130,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='qaofficer_fac_posn_id',
+                        id='qaofficer_fac_posn_name',
                         placeholder="Select Department",
                     ),
                     width=4,
@@ -310,14 +310,14 @@ form = dbc.Form(
 
 # CU dropdown
 @app.callback(
-    Output('qaofficer_fac_posn_id', 'options'),
+    Output('qaofficer_fac_posn_name', 'options'),
     Input('url', 'pathname')
 )
 def populate_cuposition_dropdown(pathname):
     # Check if the pathname matches if necessary
     if pathname == '/QAOfficers/qaofficers_profile':
         sql = """
-        SELECT fac_posn_name as label, fac_posn_id  as value
+        SELECT fac_posn_name as label, fac_posn_name  as value
         FROM  public.fac_posns 
         """
         values = []
@@ -489,7 +489,7 @@ layout = html.Div(
         State('qaofficer_sname', 'value'),
         State('qaofficer_upmail', 'value'),
 
-        State('qaofficer_fac_posn_id', 'value'),
+        State('qaofficer_fac_posn_name', 'value'),
         State('qaofficer_fac_posn_number', 'value'),
         State('qaofficer_facadmin_posn', 'value'),
         State('qaofficer_staff_posn', 'value'),
@@ -511,7 +511,7 @@ layout = html.Div(
  
 def record_qaofficer_profile(submitbtn, qaofficer_fname, qaofficer_mname, 
                             qaofficer_sname, qaofficer_upmail,
-                            qaofficer_fac_posn_id, qaofficer_fac_posn_number,
+                            qaofficer_fac_posn_name, qaofficer_fac_posn_number,
                             qaofficer_facadmin_posn, qaofficer_staff_posn,
                             qaofficer_cuposition_id, qaofficer_basicpaper, 
                             qaofficer_remarks, qaofficer_alc,
@@ -566,7 +566,7 @@ def record_qaofficer_profile(submitbtn, qaofficer_fname, qaofficer_mname,
         return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
     
 
-    if not qaofficer_fac_posn_id :
+    if not qaofficer_fac_posn_name :
         alert_color_upmail = 'danger'
         alert_text_upmail = 'Check your inputs. Please select a Faculty Position.'
         return [alert_color_upmail, alert_text_upmail, alert_open, modal_open]
@@ -609,7 +609,7 @@ def record_qaofficer_profile(submitbtn, qaofficer_fname, qaofficer_mname,
         sql = """
             INSERT INTO  qaofficers.qa_officer (
                 qaofficer_fname, qaofficer_mname, qaofficer_sname, qaofficer_upmail,
-                qaofficer_fac_posn_id, qaofficer_fac_posn_number, qaofficer_facadmin_posn, qaofficer_staff_posn,
+                qaofficer_fac_posn_name, qaofficer_fac_posn_number, qaofficer_facadmin_posn, qaofficer_staff_posn,
                 qaofficer_cuposition_id, qaofficer_basicpaper, qaofficer_remarks, qaofficer_alc,
                 qaofficer_appointment_start, qaofficer_appointment_end, qaofficer_cluster_id, 
                 qaofficer_college_id, qaofficer_deg_unit_id, qaofficer_role
@@ -623,7 +623,7 @@ def record_qaofficer_profile(submitbtn, qaofficer_fname, qaofficer_mname,
         """
         values = (qaofficer_fname, qaofficer_mname, 
                 qaofficer_sname, qaofficer_upmail,
-                qaofficer_fac_posn_id, qaofficer_fac_posn_number,
+                qaofficer_fac_posn_name, qaofficer_fac_posn_number,
                 qaofficer_facadmin_posn, qaofficer_staff_posn,
                 qaofficer_cuposition_id, qaofficer_basicpaper, 
                 qaofficer_remarks, qaofficer_alc,
