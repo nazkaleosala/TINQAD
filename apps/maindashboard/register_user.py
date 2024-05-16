@@ -72,6 +72,31 @@ layout = html.Div(
                         dbc.Alert(id='registeruser_alert', is_open=False),  
                         html.Div(id='user_form'), 
                         html.Br(),
+
+                        html.Div(
+                            dbc.Row(
+                                [
+                                    dbc.Label("Wish to delete?", width=4),
+                                    dbc.Col(
+                                        dbc.Checklist(
+                                            id='registeruser_removerecord',
+                                            options=[
+                                                {
+                                                    'label': "Mark for Deletion",
+                                                    'value': 1
+                                                }
+                                            ], 
+                                            style={'fontWeight':'bold'},
+                                        ),
+                                        width=5,
+                                    ),
+                                ],
+                                className="mb-3",
+                            ),
+                            id='registeruser_removerecord_div'
+                        ),
+
+                        html.Br(),
                         dbc.Row(
                             [ 
                                 dbc.Col(
@@ -87,6 +112,8 @@ layout = html.Div(
                             justify="end",
                         ),
 
+                        
+
                         dbc.Modal(
                             [
                                 dbc.ModalHeader(className="bg-success"),
@@ -96,7 +123,7 @@ layout = html.Div(
                                 ),
                                 dbc.ModalFooter(
                                     dbc.Button(
-                                        "Proceed", href='/homepage', id='registeruser_btn_modal'
+                                        "Proceed", href='/search_users', id='registeruser_btn_modal'
                                     ), 
                                 )
                                 
@@ -373,6 +400,7 @@ def update_form_and_fields(user_type):
     [
         Output('user_office', 'options'),
         Output('registeruser_toload', 'data'),
+        Output('registeruser_removerecord_div', 'style'),
     ],
     [
         Input('url', 'pathname')
@@ -399,10 +427,11 @@ def registeruser_loaddropdown(pathname, search):
         parsed = urlparse(search)
         create_mode = parse_qs(parsed.query)['mode'][0]
         to_load = 1 if create_mode == 'edit' else 0
+        removediv_style = {'display': 'none'} if not to_load else None
     
     else:
         raise PreventUpdate
-    return [office_options, to_load]
+    return [office_options, to_load, removediv_style]
 
 
 
@@ -424,6 +453,7 @@ def registeruser_loaddropdown(pathname, search):
     [
         Input('registeruser_save_button', 'n_clicks'),
         Input('registeruser_btn_modal', 'n_clicks'),
+        Input('registeruser_removerecord', 'value'),  # Add this Input for the checkbox
     ],
     [
         State('user_fname', 'value'),
@@ -439,10 +469,10 @@ def registeruser_loaddropdown(pathname, search):
         State('user_email', 'value'),
         State('user_password', 'value'),
         State('confirm_password', 'value'),
-        State('url', 'search')
+        State('url', 'search'),
     ]
 )
-def register_user(submitbtn, closebtn, 
+def register_user(submitbtn, closebtn, removerecord,
                   fname, mname, sname, livedname, 
                   sex, bday, phone_num, id_num, 
                   office, position, email, password, confirm_password,
@@ -488,20 +518,18 @@ def register_user(submitbtn, closebtn,
                             user_fname, user_mname, user_sname, user_livedname, 
                             user_sex, user_bday, user_phone_num, user_id_num, 
                             user_office, user_position, user_email, user_password, 
-                            user_access_type, user_acc_status, user_profile_pic
+                            user_access_type, user_acc_status, user_profile_pic, user_del_ind
                         )
                         VALUES (
                             %s, %s, %s, %s, 
                             %s, %s, %s, %s, 
                             %s, %s, %s, %s, 
-                            %s, %s, %s
+                            %s, %s, %s, %s
                         )
                     """
                     
                     hashed_password = hash_password(password)
-                    fname  = "Office Account"
-                    mname  = "Office Account"
-                    sname  = "Office Account"
+                    
                     user_access_type = 1
                     user_acc_status = 1
                     user_profile_pic = None  
@@ -510,13 +538,13 @@ def register_user(submitbtn, closebtn,
                         fname, mname, sname, livedname, 
                         sex, bday, phone_num, id_num, 
                         office, position, email, hashed_password, 
-                        user_access_type, user_acc_status, user_profile_pic
+                        user_access_type, user_acc_status, user_profile_pic, False
                     )
 
                     db.modifydatabase(sql, values) 
                     modal_open = True
-                    feedback_message = html.H5("User registered successfully.")
-                    return [None, None, None, modal_open, feedback_message, None]
+                    feedbackmessage = html.H5("User registered successfully.")
+                    okay_href = "/search_users" 
                     
                 elif create_mode == 'edit':
                     parsed = urlparse(search)
@@ -531,16 +559,18 @@ def register_user(submitbtn, closebtn,
                             user_phone_num = %s, 
                             user_position = %s,
                             user_email = %s,
-                            user_password = %s
-                      
+                            user_password = %s,
+                            user_del_ind = %s
                         WHERE 
                             user_id = %s
                     """
-                    values = [livedname, sex, bday,phone_num, position, email, password, userid]
+                    to_delete = bool(removerecord) 
+                    
+                    values = [livedname, sex, bday,phone_num, position, email, password, to_delete, userid]
                     db.modifydatabase(sqlcode, values)
                     
                     feedbackmessage = html.H5("Account has been updated." )
-                    okay_href = "/homepage"
+                    okay_href = "/search_users"
                     modal_open = True
 
                 else:
@@ -555,9 +585,7 @@ def register_user(submitbtn, closebtn,
     else:
         raise PreventUpdate
 
-    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href ]  
-
-
+    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href ]
 
 
 
@@ -578,7 +606,7 @@ def register_user(submitbtn, closebtn,
         Output('user_id_num', 'value'),
         Output('user_office', 'value'),
         Output('user_position', 'value'),
-        Output('user_email', 'value'),
+        Output('user_email', 'value'), 
     ],
     [  
         Input('registeruser_toload', 'modified_timestamp')
@@ -596,9 +624,9 @@ def registeruser_loadprofile(timestamp, toload, search):
         sql = """
             SELECT 
                 user_fname, user_mname,  user_sname, 
-                user_livedname,   user_sex, 
-                user_bday,  user_phone_num,  user_id_num,  user_office, 
-                user_position,   user_email
+                user_livedname, user_sex, user_bday, user_phone_num,  
+                user_id_num,  user_office, 
+                user_position,user_email 
             FROM maindashboard.users
             WHERE user_id = %s
         """
@@ -607,7 +635,7 @@ def registeruser_loadprofile(timestamp, toload, search):
         cols = [
             'fname', 'mname', 'sname', 'lname', 'sex', 
             'bday', 'phone', 'id_num', 'officeid', 'position', 
-            'email'
+            'email',  
         ]
 
          
@@ -624,7 +652,7 @@ def registeruser_loadprofile(timestamp, toload, search):
         id_num = df['id_num'][0]
         officeid = int(df['officeid'][0])
         position = df['position'][0]
-        email = df['email'][0] 
+        email = df['email'][0]  
         
         return [fname, mname, sname, lname, sex, bday, phone, id_num, officeid, position, email]
     
