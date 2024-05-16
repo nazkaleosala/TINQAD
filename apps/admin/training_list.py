@@ -20,7 +20,7 @@ layout = html.Div(
                 dbc.Col(cm.generate_navbar(), width=2),
                 dbc.Col(
                     [
-                        html.H1("PROGRAM LIST"),
+                        html.H1("TRAINING LIST"),
                         html.Hr(),
                         
                         dbc.Row(   
