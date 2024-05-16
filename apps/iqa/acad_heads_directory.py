@@ -150,8 +150,8 @@ def acadheadsdirectory_loadlist(pathname, searchterm, selected_month, selected_y
         # SQL query to fetch the data from the database
         sql = """
             SELECT 
-                clusters.cluster_name AS Cluster,
-                college.college_name AS College,
+                clusters.cluster_shortname AS Cluster,
+                college.college_shortname AS College,
                 deg_unit.deg_unit_name AS Unit,
                 acad_unitheads.unithead_full_name AS "Full Name",   
                 acad_unitheads.unithead_fname AS "First Name",

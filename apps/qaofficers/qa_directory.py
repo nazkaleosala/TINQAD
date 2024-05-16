@@ -152,8 +152,8 @@ def qadirectory_loadlist(pathname, searchterm, selected_month, selected_year):
         # Fetch the data
         sql = """
             SELECT 
-                clusters.cluster_name AS "Cluster",
-                college.college_name AS "College",
+                clusters.cluster_shortname AS "Cluster",
+                college.college_shortname AS "College",
                 deg_unit.deg_unit_name AS "Unit",
                 qaofficer_full_name AS "Full Name",
                 qaofficer_upmail AS "UP Mail",
