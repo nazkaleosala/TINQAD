@@ -84,6 +84,7 @@ def searchusers_loaduserlist(pathname, searchterm):
         # Updated SQL query to join with the offices table
         sql = """  
             SELECT 
+                u.user_id AS "ID",
                 u.user_sname AS "Surname", 
                 u.user_fname AS "First Name", 
                 o.office_name AS "Dept",  
@@ -92,23 +93,37 @@ def searchusers_loaduserlist(pathname, searchterm):
                 u.user_phone_num AS "Phone"
             FROM maindashboard.users u
             LEFT JOIN maindashboard.offices o ON u.user_office = o.office_id
+            WHERE 
+                NOT user_del_ind
         """
 
-        cols = ['Surname', 'First Name', 'Dept', 'Position', 'Email', 'Phone']
+        cols = ['ID','Surname', 'First Name', 'Dept', 'Position', 'Email', 'Phone']
 
         if searchterm:
-            # Add a WHERE clause with ILIKE to filter the results
-            sql += """ WHERE u.user_sname ILIKE %s OR u.user_fname ILIKE  %s OR u.user_position ILIKE %s OR 
-                o.office_name ILIKE %s  """
+            sql += """ AND (u.user_sname ILIKE %s OR u.user_fname ILIKE  %s OR u.user_position ILIKE %s OR 
+                o.office_name ILIKE %s) """
             like_pattern = f"%{searchterm}%"
             values = [like_pattern, like_pattern, like_pattern, like_pattern]
         else:
             values = []
 
-        df = db.querydatafromdatabase(sql, values, cols) 
+        df = db.querydatafromdatabase(sql, values, cols)
 
-        # Generate the table from the DataFrame
-        if not df.empty:  # Check if the DataFrame is not empty
+        if df.shape[0] > 0:
+            buttons = []
+            for user_id in df['ID']:
+                buttons.append(
+                    html.Div(
+                        dbc.Button('Edit',
+                                   href=f'register_user?mode=edit&id={user_id}',
+                                   size='sm', color='warning'),
+                        style={'text-align': 'center'}
+                    )
+                )
+            df['Action'] = buttons
+
+            df = df[['Surname', 'First Name', 'Dept', 'Position', 'Email', 'Phone', 'Action']]
+
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:

@@ -20,8 +20,7 @@ import re
 from urllib.parse import urlparse, parse_qs
 
 
-def hash_password(password):
-    # Convert the password to bytes if it's a string
+def hash_password(password): 
     password_bytes = password.encode('utf-8')
 
     # Generate a salt
@@ -29,37 +28,12 @@ def hash_password(password):
 
     # Generate the hashed password
     hashed_password = bcrypt.hashpw(password_bytes, salt)
-
     return hashed_password
 
   
 
-#offices dropdown
-@app.callback(
-    Output('user_office', 'options'),
-    Input('url', 'pathname')
-)
-
-def populate_offices_dropdown(pathname):
-    # Check if the pathname matches if necessary
-    if pathname == '/register_user':
-        sql = """
-        SELECT office_name as label, office_id as value
-        FROM maindashboard.offices
-        """
-        values = []
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        
-        office_options = df.to_dict('records')
-        return office_options
-    else:
-        raise PreventUpdate
-
  
-
-
-# Define your app layout
+ 
 layout = html.Div(
     [
         dbc.Row(
@@ -70,6 +44,12 @@ layout = html.Div(
                 ),
                 dbc.Col(
                     [
+                        html.Div(  
+                            [
+                                dcc.Store(id='registeruser_toload', storage_type='memory', data=0),
+                            ]
+                        ),
+                        
                         html.H1("REGISTER NEW USER"),
                         html.Hr(),
                         dbc.Row(
@@ -89,7 +69,7 @@ layout = html.Div(
                             ],
                             className="mb-2",
                         ), 
-                        dbc.Alert(id='registeruser_alert', is_open=False), # For feedback purpose
+                        dbc.Alert(id='registeruser_alert', is_open=False),  
                         html.Div(id='user_form'), 
                         html.Br(),
                         dbc.Row(
@@ -389,6 +369,41 @@ def update_form_and_fields(user_type):
  
  
 
+@app.callback(
+    [
+        Output('user_office', 'options'),
+        Output('registeruser_toload', 'data'),
+    ],
+    [
+        Input('url', 'pathname')
+    ],
+    [
+        State('url', 'search')  
+    ]
+)
+
+def registeruser_loaddropdown(pathname, search):
+    if pathname == '/register_user':
+        sql = """
+            SELECT office_name as label, office_id as value
+            FROM maindashboard.offices
+            
+            WHERE office_del_ind = False
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        office_options = df.to_dict('records')
+        
+        
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query)['mode'][0]
+        to_load = 1 if create_mode == 'edit' else 0
+    
+    else:
+        raise PreventUpdate
+    return [office_options, to_load]
+
 
 
 
@@ -510,3 +525,76 @@ def register_user(submitbtn, closebtn,
                     raise PreventUpdate
 
     return [None, None, None, False, None, None]
+
+
+
+
+
+
+
+
+
+@app.callback(
+    [
+        Output('user_fname', 'value'),
+        Output('user_mname', 'value'),
+        Output('user_sname', 'value'),
+        Output('user_livedname', 'value'),
+        Output('user_sex', 'value'),
+        Output('user_bday', 'value'),
+        Output('user_phone_num', 'value'),
+        Output('user_id_num', 'value'),
+        Output('user_office', 'value'),
+        Output('user_position', 'value'),
+        Output('user_email', 'value'),
+    ],
+    [  
+        Input('registeruser_toload', 'modified_timestamp')
+    ],
+    [
+        State('registeruser_toload', 'data'),
+        State('url', 'search')
+    ]
+)
+def registeruser_loadprofile(timestamp, toload, search):
+    if toload:
+        parsed = urlparse(search)
+        userid = parse_qs(parsed.query)['id'][0]
+
+        sql = """
+            SELECT 
+                user_fname, user_mname,  user_sname, 
+                user_livedname,   user_sex, 
+                user_bday,  user_phone_num,  user_id_num,  user_office, 
+                user_position,   user_email
+            FROM maindashboard.users
+            WHERE user_id = %s
+        """
+        values = [userid]
+
+        cols = [
+            'fname', 'mname', 'sname', 'lname', 'sex', 
+            'bday', 'phone', 'id_num', 'officeid', 'position', 
+            'email'
+        ]
+
+         
+        df = db.querydatafromdatabase(sql, values, cols)
+
+        
+        fname = df['fname'][0]
+        mname = df['mname'][0]
+        sname = df['sname'][0]
+        lname = df['lname'][0]
+        sex = df['sex'][0]
+        bday = df['bday'][0]
+        phone = df['phone'][0]
+        id_num = df['id_num'][0]
+        officeid = int(df['officeid'][0])
+        position = df['position'][0]
+        email = df['email'][0] 
+        
+        return [fname, mname, sname, lname, sex, bday, phone, id_num, officeid, position, email]
+    
+    else:
+        raise PreventUpdate
