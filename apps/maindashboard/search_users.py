@@ -10,7 +10,11 @@ import pandas as pd
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
- 
+
+
+
+
+
 layout = html.Div(
     [
         dbc.Row(
@@ -25,7 +29,7 @@ layout = html.Div(
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add New", color="primary", 
-                                        href='/register_user', 
+                                        href='/register_user?mode=add', 
                                     ),
                                     width="auto",    
                                 ),

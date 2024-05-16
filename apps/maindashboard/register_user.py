@@ -17,6 +17,9 @@ from datetime import datetime
 import bcrypt 
 import re
 
+from urllib.parse import urlparse, parse_qs
+
+
 def hash_password(password):
     # Convert the password to bytes if it's a string
     password_bytes = password.encode('utf-8')
@@ -92,11 +95,11 @@ layout = html.Div(
                         dbc.Row(
                             [ 
                                 dbc.Col(
-                                    dbc.Button("Save", color="primary",  id="save_button", n_clicks=0),
+                                    dbc.Button("Save", color="primary",  id="registeruser_save_button", n_clicks=0),
                                     width="auto"
                                 ),
                                 dbc.Col(
-                                    dbc.Button("Cancel", color="warning", id="cancel_button", n_clicks=0, href="/search_users"),  
+                                    dbc.Button("Cancel", color="warning", id="registeruser_cancel_button", n_clicks=0, href="/search_users"),  
                                     width="auto"
                                 ),
                             ],
@@ -108,11 +111,12 @@ layout = html.Div(
                             [
                                 dbc.ModalHeader(className="bg-success"),
                                 dbc.ModalBody(
-                                    html.H4('User registered successfully.'),
+                                    ['User registered successfully.'
+                                    ],id='registeruser_feedback_message'
                                 ),
                                 dbc.ModalFooter(
                                     dbc.Button(
-                                        "Proceed", id='proceed_button', className='ml-auto'
+                                        "Proceed", href='/homepage', id='registeruser_btn_modal'
                                     ), 
                                 )
                                 
@@ -392,112 +396,117 @@ def update_form_and_fields(user_type):
 
 
 
-
-
 @app.callback(
     [
         Output('registeruser_alert', 'color'),
         Output('registeruser_alert', 'children'),
         Output('registeruser_alert', 'is_open'),
-        Output('registeruser_successmodal', 'is_open')
+
+        Output('registeruser_successmodal', 'is_open'),
+        Output('registeruser_feedback_message', 'children'),
+        Output('registeruser_btn_modal', 'href'),
     ],
     [
-        Input('save_button', 'n_clicks')
+        Input('registeruser_save_button', 'n_clicks'),
+        Input('registeruser_btn_modal', 'n_clicks'),
     ],
     [
         State('user_fname', 'value'),
         State('user_mname', 'value'),
         State('user_sname', 'value'),
         State('user_livedname', 'value'),
-        State('user_sex', 'value'),    
+        State('user_sex', 'value'),
         State('user_bday', 'value'),
         State('user_phone_num', 'value'),
         State('user_id_num', 'value'),
         State('user_office', 'value'),
         State('user_position', 'value'),
         State('user_email', 'value'),
-        State('user_password', 'value'),  
-        State('confirm_password', 'value')  
+        State('user_password', 'value'),
+        State('confirm_password', 'value'),
+        State('url', 'search')
     ]
 )
- 
-
-def register_user(submitbtn, fname, mname, sname, livedname, 
+def register_user(submitbtn, closebtn, 
+                  fname, mname, sname, livedname, 
                   sex, bday, phone_num, id_num, 
-                  office, position, email, password, confirm_password):
+                  office, position, email, password, confirm_password,
+                  search):
+    
     ctx = dash.callback_context
-    # Check if the callback was triggered by the 'save_button'
-    if not ctx.triggered:
-        raise PreventUpdate
+    
+    if ctx.triggered:
+        eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+        if eventid == 'registeruser_save_button' and submitbtn:
+        
+            alert_open = False
+            modal_open = False
+            alert_color = ''
+            alert_text = ''
 
-    eventid = ctx.triggered[0]['prop_id'].split('.')[0]
-    if eventid != 'save_button' or not submitbtn:
-        raise PreventUpdate
+            if not password:
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please add a password.'
+                return [alert_color, alert_text, alert_open, modal_open, None, None]
 
-    # Initialize the alert variables
-    alert_open = False
-    modal_open = False
-    alert_color = ''
-    alert_text = ''
+            if not confirm_password:
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please confirm your password.'
+                return [alert_color, alert_text, alert_open, modal_open, None, None]
 
-    # Validate password and confirmation password
-    if not password:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a password.'
-        return [alert_color, alert_text, alert_open, modal_open]
+            if password != confirm_password:
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Passwords do not match. Please try again.'
+                return [alert_color, alert_text, alert_open, modal_open, None, None]
+            
+            else: 
+                parsed = urlparse(search)
+                create_mode = parse_qs(parsed.query)['mode'][0]
+                 
+                if create_mode == 'add':
+                    
+                    sql = """
+                        INSERT INTO maindashboard.users (
+                            user_fname, user_mname, user_sname, user_livedname, 
+                            user_sex, user_bday, user_phone_num, user_id_num, 
+                            user_office, user_position, user_email, user_password, 
+                            user_access_type, user_acc_status, user_profile_pic
+                        )
+                        VALUES (
+                            %s, %s, %s, %s, 
+                            %s, %s, %s, %s, 
+                            %s, %s, %s, %s, 
+                            %s, %s, %s
+                        )
+                    """
+                    
+                    hashed_password = hash_password(password)
+                    fname  = "Office Account"
+                    mname  = "Office Account"
+                    sname  = "Office Account"
+                    user_access_type = 1
+                    user_acc_status = 1
+                    user_profile_pic = None  
 
-    if not confirm_password:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please confirm your password.'
-        return [alert_color, alert_text, alert_open, modal_open]
+                    values = (
+                        fname, mname, sname, livedname, 
+                        sex, bday, phone_num, id_num, 
+                        office, position, email, hashed_password, 
+                        user_access_type, user_acc_status, user_profile_pic
+                    )
 
-    if password != confirm_password:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Passwords do not match. Please try again.'
-        return [alert_color, alert_text, alert_open, modal_open]
+                    db.modifydatabase(sql, values) 
+                    modal_open = True
+                    feedback_message = html.H5("User registered successfully.")
+                    return [None, None, None, modal_open, feedback_message, None]
+                    
+                elif create_mode == 'edit':
+                    pass
 
-    # Hash the password
-    hashed_password = hash_password(password)
+                else:
+                    raise PreventUpdate
 
-
-    # Default values
-    fname  = "Office Account"
-    mname  = "Office Account"
-    sname  = "Office Account"
-    user_access_type = 1
-    user_acc_status = 1
-    user_profile_pic = None  # This will be interpreted as NULL in SQL
-
-
-    # SQL query to insert data
-    sql = """
-        INSERT INTO maindashboard.users (
-            user_fname, user_mname, user_sname, user_livedname, 
-            user_sex, user_bday, user_phone_num, user_id_num, 
-            user_office, user_position, user_email, user_password, 
-            user_access_type, user_acc_status, user_profile_pic
-        )
-        VALUES (
-            %s, %s, %s, %s, 
-            %s, %s, %s, %s, 
-            %s, %s, %s, %s, 
-            %s, %s, %s
-        )
-    """
- 
-    values = (
-        fname, mname, sname, livedname, 
-        sex, bday, phone_num, id_num, 
-        office, position, email, hashed_password, 
-        user_access_type, user_acc_status, user_profile_pic
-    )
-
-    db.modifydatabase(sql, values)
-    # If this is successful, we want the successmodal to show
-    modal_open = True
-
-    return [alert_color, alert_text, alert_open, modal_open] 
-
+    return [None, None, None, False, None, None]
