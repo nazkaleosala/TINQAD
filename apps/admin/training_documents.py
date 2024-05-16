@@ -50,6 +50,10 @@ form = dbc.Form(
                     ),
                     width=5,
                 ),
+                dbc.Col(
+                    dbc.Input(id="fac_posn_number", type="text", placeholder="#"),
+                    width=1,
+                ),
             ],
             className="mb-2",
         ),
@@ -734,6 +738,7 @@ layout = html.Div(
     [
         State('complete_name', 'value'),
         State('fac_posn_id', 'value'),
+        State('fac_posn_number', 'value'),
         State('cluster_id', 'value'),
         State('college_id', 'value'),
         State('deg_unit_id', 'value'),
@@ -751,7 +756,7 @@ layout = html.Div(
  
 
 
-def record_training_documents (submitbtn, complete_name, fac_posn_id, 
+def record_training_documents (submitbtn, complete_name, fac_posn_id, fac_posn_number,
                                cluster_id, college_id, deg_unit_id, qa_training_id, 
                                departure_date, return_date, venue, parti_attendance_cert, 
                                official_receipt, official_travel_report, other_receipts, receiving_copy):
@@ -835,17 +840,17 @@ def record_training_documents (submitbtn, complete_name, fac_posn_id,
     try:
         sql = """
             INSERT INTO adminteam.training_documents (
-                complete_name, fac_posn_id, cluster_id, college_id, deg_unit_id, 
+                complete_name, fac_posn_id, fac_posn_number, cluster_id, college_id, deg_unit_id, 
                 qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
                 official_receipt, official_travel_report, other_receipts, receiving_copy
             )
             VALUES (
                 %s, %s, %s, %s, %s, 
                 %s, %s, %s, %s, %s, 
-                %s, %s, %s, %s
+                %s, %s, %s, %s, %s
             )
         """
-        values = (complete_name, fac_posn_id, cluster_id, college_id, deg_unit_id, 
+        values = (complete_name, fac_posn_id, fac_posn_number, cluster_id, college_id, deg_unit_id, 
                   qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
                   official_receipt, official_travel_report, other_receipts, receiving_copy)
         

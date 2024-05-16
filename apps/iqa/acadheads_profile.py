@@ -152,7 +152,11 @@ form = dbc.Form(
                         id='unithead_fac_posn_id',
                         placeholder="Select Position",
                     ),
-                    width=6,
+                    width=4,
+                ),
+                dbc.Col(
+                    dbc.Input(id="unithead_fac_posn_number", type="text", placeholder="#"),
+                    width=1,
                 ),
             ],
             className="mb-2",
@@ -404,6 +408,7 @@ layout = html.Div(
         State('unithead_sname', 'value'),
         State('unithead_upmail', 'value'),
         State('unithead_fac_posn_id', 'value'),
+        State('unithead_fac_posn_number', 'value'),
         State('unithead_desig', 'value'),    
         State('unithead_appointment_start', 'value'),
         State('unithead_appointment_end', 'value'),  
@@ -415,7 +420,7 @@ layout = html.Div(
  
 def record_acadhead_profile(submitbtn, unithead_fname, unithead_mname, 
                             unithead_sname, unithead_upmail,
-                            unithead_fac_posn_id, unithead_desig, 
+                            unithead_fac_posn_id, unithead_fac_posn_number, unithead_desig, 
                             unithead_appointment_start, unithead_appointment_end, 
                             unithead_cluster_id, unithead_college_id, unithead_deg_unit_id):
     if not submitbtn:
@@ -490,16 +495,16 @@ def record_acadhead_profile(submitbtn, unithead_fname, unithead_mname,
         sql = """
             INSERT INTO iqateam.acad_unitheads (
                 unithead_fname, unithead_mname, unithead_sname, unithead_upmail,
-                unithead_fac_posn_id, unithead_desig, 
+                unithead_fac_posn_id, unithead_fac_posn_number, unithead_desig, 
                 unithead_appointment_start, unithead_appointment_end, unithead_cluster_id, unithead_college_id, unithead_deg_unit_id
             )
             VALUES (%s, %s, %s, %s,
-                    %s, %s,  
+                    %s, %s, %s,
                     %s, %s, %s, %s, %s)
         """
         values = (unithead_fname, unithead_mname, 
                 unithead_sname, unithead_upmail,
-                unithead_fac_posn_id, unithead_desig, 
+                unithead_fac_posn_id, unithead_fac_posn_number, unithead_desig, 
                 
                 unithead_appointment_start, unithead_appointment_end, 
                 unithead_cluster_id, unithead_college_id, unithead_deg_unit_id)

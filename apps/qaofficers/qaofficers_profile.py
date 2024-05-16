@@ -133,7 +133,11 @@ form = dbc.Form(
                         id='qaofficer_fac_posn_id',
                         placeholder="Select Department",
                     ),
-                    width=6,
+                    width=4,
+                ),
+                dbc.Col(
+                    dbc.Input(id="qaofficer_fac_posn_number", type="text", placeholder="#"),
+                    width=1,
                 ),
             ],
             className="mb-4",
@@ -486,6 +490,7 @@ layout = html.Div(
         State('qaofficer_upmail', 'value'),
 
         State('qaofficer_fac_posn_id', 'value'),
+        State('qaofficer_fac_posn_number', 'value'),
         State('qaofficer_facadmin_posn', 'value'),
         State('qaofficer_staff_posn', 'value'),
 
@@ -506,7 +511,8 @@ layout = html.Div(
  
 def record_qaofficer_profile(submitbtn, qaofficer_fname, qaofficer_mname, 
                             qaofficer_sname, qaofficer_upmail,
-                            qaofficer_fac_posn_id, qaofficer_facadmin_posn, qaofficer_staff_posn,
+                            qaofficer_fac_posn_id, qaofficer_fac_posn_number,
+                            qaofficer_facadmin_posn, qaofficer_staff_posn,
                             qaofficer_cuposition_id, qaofficer_basicpaper, 
                             qaofficer_remarks, qaofficer_alc,
                             qaofficer_appointment_start, qaofficer_appointment_end, 
@@ -603,13 +609,13 @@ def record_qaofficer_profile(submitbtn, qaofficer_fname, qaofficer_mname,
         sql = """
             INSERT INTO  qaofficers.qa_officer (
                 qaofficer_fname, qaofficer_mname, qaofficer_sname, qaofficer_upmail,
-                qaofficer_fac_posn_id, qaofficer_facadmin_posn, qaofficer_staff_posn,
+                qaofficer_fac_posn_id, qaofficer_fac_posn_number, qaofficer_facadmin_posn, qaofficer_staff_posn,
                 qaofficer_cuposition_id, qaofficer_basicpaper, qaofficer_remarks, qaofficer_alc,
                 qaofficer_appointment_start, qaofficer_appointment_end, qaofficer_cluster_id, 
                 qaofficer_college_id, qaofficer_deg_unit_id, qaofficer_role
             )
             VALUES (%s, %s, %s, %s,
-                    %s, %s, %s,
+                    %s, %s, %s, %s,
                     %s, %s, %s, %s, 
                     %s, %s, %s, %s, %s,
                     %s)
@@ -617,7 +623,8 @@ def record_qaofficer_profile(submitbtn, qaofficer_fname, qaofficer_mname,
         """
         values = (qaofficer_fname, qaofficer_mname, 
                 qaofficer_sname, qaofficer_upmail,
-                qaofficer_fac_posn_id, qaofficer_facadmin_posn, qaofficer_staff_posn,
+                qaofficer_fac_posn_id, qaofficer_fac_posn_number,
+                qaofficer_facadmin_posn, qaofficer_staff_posn,
                 qaofficer_cuposition_id, qaofficer_basicpaper, 
                 qaofficer_remarks, qaofficer_alc,
                 qaofficer_appointment_start, qaofficer_appointment_end, 
