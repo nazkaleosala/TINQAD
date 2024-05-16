@@ -29,6 +29,37 @@ training_types = [
     {'label': 'UP System External Reviewers Training', 'value': 'External Reviewers'},
 ]
 
+# Define interval time (in milliseconds) for auto-updates
+interval_time = 60000  # 1 minute
+
+
+# Function to fetch the total count of Arts and Letters QA Officers
+def get_total_asl():
+    sql = "SELECT COUNT(*) FROM qaofficers.qa_officer WHERE qaofficer_cluster_id = 1"
+    total_count = db.query_single_value(sql)
+    return total_count
+
+# Function to fetch the total count of Management and Economics QA Officers
+def get_total_mae():
+    sql = "SELECT COUNT(*) FROM qaofficers.qa_officer WHERE qaofficer_cluster_id = 2"
+    total_count = db.query_single_value(sql)
+    return total_count
+
+# Function to fetch the total count of Scienece and Technology QA Officers
+def get_total_sat():
+    sql = "SELECT COUNT(*) FROM qaofficers.qa_officer WHERE qaofficer_cluster_id = 3"
+    total_count = db.query_single_value(sql)
+    return total_count
+
+# Function to fetch the total count of Social Scieneces and Law Qa Officers
+def get_total_ssl():
+    sql = "SELECT COUNT(*) FROM qaofficers.qa_officer WHERE qaofficer_cluster_id = 4"
+    total_count = db.query_single_value(sql)
+    return total_count
+
+
+
+
 facultytrainedcard = dbc.Card(
     dbc.CardBody([
         dbc.Row(
@@ -36,19 +67,47 @@ facultytrainedcard = dbc.Card(
                 dbc.Col(  
                     html.H5(html.B("No. of faculty with QA Training")),  
                 ), 
-                 
             ],
             className="my-2"  
         ),
         dbc.Row(
             [
                 dbc.Col( 
-                     #insert html.div here
+                    html.Div(
+                        [
+                            html.Div([
+                                html.Div(
+                                    html.Span(get_total_asl(), style={"font-weight": "bold", "font-size": "24px", "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                    style={'width': '70px', 'height': '70px', 'borderRadius': '10px', 'backgroundColor': '#f8d7da', 'padding': '10px', 'margin': 'auto', 'display': 'flex', 'justify-content': 'center', 'align-items': 'center'}),
+                                html.Div("Arts and Letters", style={'textAlign': 'center'})
+                            ], style={'margin': '10px'}),
+                            html.Div([
+                                html.Div(
+                                    html.Span(get_total_mae(), style={"font-weight": "bold", "font-size": "24px", "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                    style={'width': '70px', 'height': '70px', 'borderRadius': '10px', 'backgroundColor': '#cce5ff', 'padding': '10px', 'margin': 'auto', 'display': 'flex', 'justify-content': 'center', 'align-items': 'center'}),
+                                html.Div("Management and Economics", style={'textAlign': 'center'})
+                            ], style={'margin': '10px'}),
+                            html.Div([
+                                html.Div(
+                                    html.Span(get_total_sat(), style={"font-weight": "bold", "font-size": "24px", "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                    style={'width': '70px', 'height': '70px', 'borderRadius': '10px', 'backgroundColor': '#d4edda', 'padding': '10px', 'margin': 'auto', 'display': 'flex', 'justify-content': 'center', 'align-items': 'center'}),
+                                html.Div("Science and Technology", style={'textAlign': 'center'})
+                            ], style={'margin': '10px'}),
+                            html.Div([
+                                html.Div(
+                                    html.Span(get_total_ssl(), style={"font-weight": "bold", "font-size": "24px", "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                    style={'width': '70px', 'height': '70px', 'borderRadius': '10px', 'backgroundColor': '#fff3cd', 'padding': '10px', 'margin': 'auto', 'display': 'flex', 'justify-content': 'center', 'align-items': 'center'}),
+                                html.Div("Social Sciences and Law", style={'textAlign': 'center'})
+                            ], style={'margin': '10px'}),
+                        ],
+                        style={'display': 'flex', 'justifyContent': 'space-between'}  # Flexbox style
+                    )
                 )
             ]
         )
     ]),
     className="mb-3",  # Optional margin for spacing between cards
+    style={'margin': '10 10px'}  # Add left and right margins to the card
 )
 
 trainedofficerscard = dbc.Card(
@@ -95,6 +154,7 @@ trainedofficerscard = dbc.Card(
 
 layout = html.Div(
     [
+        dcc.Interval(id='interval-component', interval=interval_time, n_intervals=0),  # Interval component for auto-updates
         dbc.Row(
             [
                 dbc.Col(
@@ -298,3 +358,4 @@ def traininglist_loadlist(pathname, searchterm):
             return [html.Div("No records to display")]
     else:
         raise PreventUpdate
+    
