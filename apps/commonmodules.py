@@ -83,6 +83,7 @@ def generate_navbar():
                     html.A(html.B('Admin'), id='admin-link', href='/administration_dashboard', className="nav-link"),  
                     html.A('Record Expenses', id='record-expenses-link', href='/record_expenses', className="nav-link"),  
                     html.A('Training Documents', id='training-documents-link', href='/training_documents', className="nav-link"),  
+                    html.A('View Training List', id='view-training-documents-link', href='/view/training_list', className="nav-link"),  
                     #html.A('Generate Report', id='generate-report-link', href='/generate_report', className="nav-link"), 
                     html.A('-----------------------------------', style={'color': 'white'} ),  
 
