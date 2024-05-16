@@ -519,12 +519,44 @@ def register_user(submitbtn, closebtn,
                     return [None, None, None, modal_open, feedback_message, None]
                     
                 elif create_mode == 'edit':
-                    pass
+                    parsed = urlparse(search)
+                    userid = parse_qs(parsed.query)['id'][0]
+                    
+                    sqlcode = """
+                        UPDATE maindashboard.users
+                        SET
+                            user_livedname = %s,
+                            user_sex = %s,
+                            user_bday = %s,
+                            user_phone_num = %s, 
+                            user_position = %s,
+                            user_email = %s,
+                            user_password = %s
+                      
+                        WHERE 
+                            user_id = %s
+                    """
+                    values = [livedname, sex, bday,phone_num, position, email, password, userid]
+                    db.modifydatabase(sqlcode, values)
+                    
+                    feedbackmessage = html.H5("Account has been updated." )
+                    okay_href = "/homepage"
+                    modal_open = True
 
                 else:
                     raise PreventUpdate
 
-    return [None, None, None, False, None, None]
+            return [alert_color, alert_text, alert_open, modal_open,
+                    feedbackmessage, okay_href]
+
+
+        else:
+            raise PreventUpdate
+    else:
+        raise PreventUpdate
+
+    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href ]  
+
 
 
 
