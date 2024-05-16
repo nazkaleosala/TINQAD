@@ -150,7 +150,7 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
         sql = """
             SELECT 
                 sarep_currentdate AS "Date", 
-                dp.degree_name AS "Degree Program",
+                dp.pro_degree_title  AS "Degree Program",
                 sarep_title AS "Assessment Title",
                 sarep_approv_eqa AS "EQA Type",
                 sarep_checkstatus AS "Status"
@@ -165,7 +165,7 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
         sql = """
             SELECT 
                 arep_currentdate AS "Date",
-                dp.degree_name AS "Degree Program",
+                dp.pro_degree_title  AS "Degree Program",
                 arep_title AS "Assessment Title",
                 arep_approv_eqa AS "EQA Type",
                 arep_checkstatus AS "Status"
