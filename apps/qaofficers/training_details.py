@@ -169,7 +169,7 @@ def populate_qaofficername_dropdown(pathname):
     # Check if the pathname matches if necessary
     if pathname == '/QAOfficers/addtraining':
         sql = """
-        SELECT qaofficer_full_name as label, qaofficer_full_name_id as value
+        SELECT qaofficer_full_name as label, qaofficer_id as value
         FROM  qaofficers.qa_officer
         """
         values = []
