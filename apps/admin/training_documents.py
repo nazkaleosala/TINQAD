@@ -445,7 +445,7 @@ form = dbc.Form(
                 ),
                 dbc.ModalFooter(
                     dbc.Button(
-                        "Proceed", id='proceed_button', className='ml-auto'
+                        "Proceed", id='train_proceed_button', className='ml-auto'
                     ), 
                 )
                  
@@ -864,3 +864,13 @@ def record_training_documents (submitbtn, complete_name, fac_posn_name, fac_posn
 
     return [alert_color, alert_text, alert_open, modal_open]
 
+
+@app.callback(
+    Output('train_proceed_button', 'href'),
+    [Input('train_proceed_button', 'n_clicks')]
+)
+def redirect_to_program_list(n_clicks):
+    if not n_clicks:
+        raise PreventUpdate
+    
+    return '/view/training_record'
