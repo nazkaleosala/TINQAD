@@ -15,6 +15,7 @@ from apps import dbconnect as db
 
 from datetime import datetime
 import bcrypt 
+import re
 
 def hash_password(password):
     # Convert the password to bytes if it's a string
@@ -27,291 +28,6 @@ def hash_password(password):
     hashed_password = bcrypt.hashpw(password_bytes, salt)
 
     return hashed_password
-
-form = dbc.Form(
-    [
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "First Name ", 
-                        html.Span("*", style={"color": "#F8B237"})
-                    ], 
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="text", id='user_fname'),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Middle Name ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ], 
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="text", id='user_mname'),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-
-        # Surname
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Surname ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ], 
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="text", id='user_sname'),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-
-        # Lived Name
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Lived Name ",
-                    ], 
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="text", id='user_livedname'),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Sex Assigned at Birth "
-                        
-                    ],
-                    width=4),
-                dbc.Col(
-                    dbc.Select(
-                        id='user_sex',
-                        options=[ 
-                            {'label': 'Female', 'value': '2'},
-                            {'label': 'Male', 'value': '1'}, 
-                        ]
-                    ),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Birthday "
-                    ],
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="date", id='user_bday'),
-                    width=4,
-                ),
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Phone Number "
-                    ], 
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="text", id='user_phone_num'),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "ID Number ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="text", id='user_id_num'),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-      
-
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Office ",
-                        html.Span("*", style={"color":"#F8B237"})
-                    ],
-                    width=4
-                ),
-                dbc.Col(
-                    dcc.Dropdown(
-                        id='user_office',
-                        placeholder="Select Office",
-                    ),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-
-
-
-
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Position ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ], 
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="text", id='user_position'),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Email Address ",
-                         html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="text", id='user_email'),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Password ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="password", id='user_password'),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
- 
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Confirm Password ",
-                         html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="password", id = 'confirm_password', placeholder = 'Confirm password' ),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-
-        # Access Type
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Access Type ",
-                         html.Span("*", style={"color": "#F8B237"})
-                    ],width=4),
-                dbc.Col(
-                    dbc.Select(
-                        id='user_access_type',
-                        options=[ 
-                            {'label': 'Basic Access', 'value': '1'},
-                            {'label': 'Full Access', 'value': '2'}, 
-                        ]
-                    ),
-                    width=6,
-                ),
-            ],
-            className="mb-2",
-        ),
-
-        
-        
- 
- 
- 
-        html.Br(),
-        dbc.Row(
-            [ 
-    
-                dbc.Col(
-                    dbc.Button("Save", color="primary",  id="save_button", n_clicks=0),
-                    width="auto"
-                ),
-                dbc.Col(
-                    dbc.Button("Cancel", color="warning", id="cancel_button", n_clicks=0, href="/search_users"),  
-                    width="auto"
-                ),
-            ],
-            className="mb-2",
-            justify="end",
-        ),
-
-        dbc.Modal(
-            [
-                dbc.ModalHeader(className="bg-success"),
-                dbc.ModalBody(
-                    html.H4('User registered successfully.'),
-                ),
-                dbc.ModalFooter(
-                    dbc.Button(
-                        "Proceed", id='proceed_button', className='ml-auto'
-                    ), 
-                )
-                 
-            ],
-            centered=True,
-            id='registeruser_successmodal',
-            backdrop=True,  # Allow clicking outside to close the modal
-            className="modal-success"  # You can define this class in your CSS file for additional styling
-        ),
-        
-    ],
-    className="g-2",
-)
 
   
 
@@ -337,83 +53,12 @@ def populate_offices_dropdown(pathname):
     else:
         raise PreventUpdate
 
+ 
 
 
-
-
-#cancel button callback
-cancel_modal = dbc.Modal(
-    [
-        dbc.ModalHeader(className="bg-warning"),
-        dbc.ModalBody([
-            html.P("Are you sure you want to cancel? "),
-        ]),
-        dbc.ModalFooter(
-            [
-                dbc.Button("Close", id="close_modal", className="mr-2", n_clicks=0),
-                dbc.Button("Confirm Cancellation", color="danger", id="confirm_cancel", n_clicks=0),
-            ],
-            className="justify-content-end"
-        )
-    ],
-    id="cancel_modal",
-    is_open=False,  # Starts hidden
-)
-
-@app.callback(
-    Output("cancel_modal", "is_open"),
-    [Input("cancel_button", "n_clicks"), Input("close_modal", "n_clicks"), Input("confirm_cancel", "n_clicks")],
-    [State("cancel_modal", "is_open")],
-)
-def toggle_modal(cancel_click, close_click, confirm_click, is_open):
-    if cancel_click or close_click or confirm_click:
-        return not is_open
-    return is_open
-
-@app.callback(
-    Output('dummy-div', 'children'),
-    [Input('confirm_cancel', 'n_clicks')],
-    prevent_initial_call=True
-)
-def refresh_on_confirm(n_clicks):
-    return dash.no_update
-
-@app.callback(
-    Output('url', 'pathname'),
-    [Input('confirm_cancel', 'n_clicks')],
-    prevent_initial_call=True
-)
-def redirect_to_searchusers(n_clicks):
-    if n_clicks:
-        return '/search_users'
-    raise PreventUpdate
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Define your app layout
 layout = html.Div(
     [
-         
-        
         dbc.Row(
             [
                 dbc.Col(
@@ -421,17 +66,69 @@ layout = html.Div(
                     width=2 
                 ),
                 dbc.Col(
-                [
-                    html.H1("CREATE NEW USER"),
-                    html.Hr(),
-                    dbc.Alert(id='registeruser_alert', is_open=False), # For feedback purpose
-                    form, 
-                ],
-                width=8, style={'marginLeft': '15px'}
-                
-                )
+                    [
+                        html.H1("REGISTER NEW USER"),
+                        html.Hr(),
+                        dbc.Row(
+                            [
+                                dbc.Label("Select user type", width="auto"),
+                                dbc.Col(
+                                    dcc.Dropdown(
+                                        id='user_type_dropdown',
+                                        options=[
+                                            {"label": "Full User Profile", "value": 1},
+                                            {"label": "Office User Profile", "value": 2},
+                                        ],
+                                        value=2
+                                    ),
+                                    width=4
+                                )
+                            ],
+                            className="mb-2",
+                        ), 
+                        dbc.Alert(id='registeruser_alert', is_open=False), # For feedback purpose
+                        html.Div(id='user_form'), 
+                        html.Br(),
+                        dbc.Row(
+                            [ 
+                                dbc.Col(
+                                    dbc.Button("Save", color="primary",  id="save_button", n_clicks=0),
+                                    width="auto"
+                                ),
+                                dbc.Col(
+                                    dbc.Button("Cancel", color="warning", id="cancel_button", n_clicks=0, href="/search_users"),  
+                                    width="auto"
+                                ),
+                            ],
+                            className="mb-2",
+                            justify="end",
+                        ),
+
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader(className="bg-success"),
+                                dbc.ModalBody(
+                                    html.H4('User registered successfully.'),
+                                ),
+                                dbc.ModalFooter(
+                                    dbc.Button(
+                                        "Proceed", id='proceed_button', className='ml-auto'
+                                    ), 
+                                )
+                                
+                            ],
+                            centered=True,
+                            id='registeruser_successmodal',
+                            backdrop=True,   
+                            className="modal-success"    
+                        ),
+                    ],
+                    width=8, style={'marginLeft': '15px'}
+                    
+                ) 
             ]
         ),
+        
         dbc.Row (
             [
                 dbc.Col(
@@ -442,6 +139,256 @@ layout = html.Div(
         html.Div(id='dummy-div', style={'display': 'none'})
     ]
 )
+
+# Define callback to enable/disable input fields based on user type selection
+@app.callback(
+    Output('user_form', 'children'),
+    Output('user_form', 'disabled'),
+    [Input('user_type_dropdown', 'value')]
+)
+def update_form_and_fields(user_type):
+    form_disabled = user_type != 1
+    form_content = [
+            dbc.Row(
+                [
+                    dbc.Label(
+                        [
+                            "First Name ", 
+                            html.Span("*", style={"color": "#F8B237"})
+                        ], 
+                        width=4),
+                    dbc.Col(
+                        dbc.Input(type="text", id='user_fname', disabled=form_disabled),
+                        width=6,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            dbc.Row(
+                [
+                    dbc.Label(
+                        [
+                            "Middle Name ",
+                            html.Span("*", style={"color": "#F8B237"})
+                        ], 
+                        width=4),
+                    dbc.Col(
+                        dbc.Input(type="text", id='user_mname', disabled=form_disabled),
+                        width=6,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            dbc.Row(
+                [
+                    dbc.Label(
+                        [
+                            "Surname ",
+                            html.Span("*", style={"color": "#F8B237"})
+                        ], 
+                        width=4),
+                    dbc.Col(
+                        dbc.Input(type="text", id='user_sname', disabled=form_disabled),
+                        width=6,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            dbc.Row(
+                [
+                    dbc.Label(
+                        [
+                            "Lived Name ",
+                        ], 
+                        width=4),
+                    dbc.Col(
+                        dbc.Input(type="text", id='user_livedname', disabled=form_disabled),
+                        width=4,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            
+            dbc.Row(
+                [
+                    dbc.Label(
+                        [
+                            "Sex Assigned at Birth "
+                            
+                        ],
+                        width=4),
+                    dbc.Col(
+                        dbc.Select(
+                            id='user_sex',
+                            options=[ 
+                                {'label': 'Female', 'value': '2'},
+                                {'label': 'Male', 'value': '1'}, 
+                            ], 
+                            disabled=form_disabled
+                        ),
+                        width=4,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            dbc.Row(
+                [
+                    dbc.Label(
+                        [
+                            "Birthday "
+                        ],
+                        width=4),
+                    dbc.Col(
+                        dbc.Input(type="date", id='user_bday', disabled=form_disabled),
+                        width=4,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            dbc.Row(
+                [
+                    dbc.Label(
+                        [
+                            "Phone Number "
+                        ], 
+                        width=4),
+                    dbc.Col(
+                        dbc.Input(type="text", id='user_phone_num', placeholder="0000 000 0000", maxLength=13, disabled=form_disabled),
+                        width=4,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            dbc.Row(
+                [
+                    dbc.Label(
+                        [
+                            "ID Number ",
+                            html.Span("*", style={"color": "#F8B237"})
+                        ],
+                        width=4),
+                    dbc.Col(
+                        dbc.Input(type="text", id='user_id_num', placeholder="0000 00000", disabled=form_disabled),
+                        width=4,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            dbc.Row(
+                [
+                    dbc.Label(
+                        [
+                            "Office ",
+                            html.Span("*", style={"color":"#F8B237"})
+                        ],
+                        width=4
+                    ),
+                    dbc.Col(
+                        dcc.Dropdown(
+                            id='user_office',
+                            placeholder="Select Office", 
+                            
+                        ),
+                        width=6,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            dbc.Row(
+                [
+                    dbc.Label(
+                        [
+                            "Position ",
+                            html.Span("*", style={"color": "#F8B237"})
+                        ], 
+                        width=4),
+                    dbc.Col(
+                        dbc.Input(type="text", id='user_position'),
+                        width=6,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            dbc.Row(
+                [
+                    dbc.Label(
+                        [
+                            "Email Address ",
+                            html.Span("*", style={"color": "#F8B237"})
+                        ],
+                        width=4),
+                    dbc.Col(
+                        dbc.Input(type="text", id='user_email'),
+                        width=6,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            dbc.Row(
+                [
+                    dbc.Label(
+                        [
+                            "Password ",
+                            html.Span("*", style={"color": "#F8B237"})
+                        ],
+                        width=4),
+                    dbc.Col(
+                        dbc.Input(type="password", id='user_password'),
+                        width=5,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            dbc.Row(
+                [
+                    dbc.Label(
+                        [
+                            "Confirm Password ",
+                            html.Span("*", style={"color": "#F8B237"})
+                        ],
+                        width=4),
+                    dbc.Col(
+                        dbc.Input(type="password", id = 'confirm_password', placeholder = 'Confirm password' ),
+                        width=5,
+                    ),
+                ],
+                className="mb-2",
+            ),
+            # Access Type
+            dbc.Row(
+                [
+                    dbc.Label(
+                        [
+                            "Access Type ",
+                            html.Span("*", style={"color": "#F8B237"})
+                        ],width=4),
+                    dbc.Col(
+                        dbc.Select(
+                            id='user_access_type',
+                            options=[ 
+                                {'label': 'Basic Access', 'value': '1'},
+                                {'label': 'Full Access', 'value': '2'}, 
+                            ], 
+                            value='1',
+                            disabled=form_disabled
+                        ),
+                        width=4,
+                    ),
+                ],
+                className="mb-2",
+            ),
+
+
+    ]
+    return form_content, form_disabled
+
+ 
+ 
+
+
+
+
+
 
 
 
@@ -517,6 +464,9 @@ def register_user(submitbtn, fname, mname, sname, livedname,
 
 
     # Default values
+    fname  = "Office Account"
+    mname  = "Office Account"
+    sname  = "Office Account"
     user_access_type = 1
     user_acc_status = 1
     user_profile_pic = None  # This will be interpreted as NULL in SQL
@@ -551,4 +501,3 @@ def register_user(submitbtn, fname, mname, sname, livedname,
 
     return [alert_color, alert_text, alert_open, modal_open] 
 
- 
