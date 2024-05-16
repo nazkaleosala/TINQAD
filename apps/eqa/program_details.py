@@ -598,3 +598,12 @@ def populate_accreditationbody_dropdown(pathname):
     else:
         raise PreventUpdate
 
+@app.callback(
+    Output('proceed_button', 'href'),
+    [Input('proceed_button', 'n_clicks')]
+)
+def redirect_to_program_list(n_clicks):
+    if not n_clicks:
+        raise PreventUpdate
+    
+    return '/program_list'
