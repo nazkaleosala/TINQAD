@@ -563,7 +563,7 @@ def display_receivingcopy_files(filenames):
 
 def populate_facultypositions_dropdown(pathname):
     # Check if the pathname matches if necessary
-    if pathname == '/training/training_documents':
+    if pathname == '/add/training_documents':
         sql = """
         SELECT fac_posn_name as label, fac_posn_id  as value
         FROM public.fac_posns
@@ -589,7 +589,7 @@ def populate_facultypositions_dropdown(pathname):
 
 def populate_cluster_dropdown(pathname):
     # Check if the pathname matches if necessary
-    if pathname == '/training/training_documents':
+    if pathname == '/add/training_documents':
         sql = """
         SELECT cluster_name as label, cluster_id  as value
         FROM public.clusters
@@ -668,7 +668,7 @@ def populate_dgu_dropdown(selected_college):
 )
 def populate_qatrainings_dropdown(pathname):
     # Check if the pathname matches if necessary
-    if pathname == '/training/training_documents':
+    if pathname == '/add/training_documents':
         sql = """
         SELECT trainingtype_name as label, trainingtype_id as value
         FROM qaofficers.training_type

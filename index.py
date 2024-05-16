@@ -13,7 +13,7 @@ from apps import home
 
 
 from apps.maindashboard import homepage, user_profile, register_user, search_users, password, about_TINQAD
-from apps.admin import administration_dashboard, record_expenses, training_instructions, training_documents, training_list, add_expenses
+from apps.admin import administration_dashboard, record_expenses, training_instructions, training_documents, add_expenses, training_record
 from apps.iqa import iqa_dashboard, more_details, acad_heads_directory, acadheads_profile
 from apps.eqa import eqa_dashboard, assessment_reports, assessment_details, accreditation_tracker, program_list, program_details, sar_details
 from apps.km import km_dashboard, THEworld_rankings, SDGimpact_rankings, QSworld_rankings, SDG_submission, SDG_revision, add_criteria
@@ -82,8 +82,8 @@ def displaypage (pathname):
                 returnlayout = training_instructions.layout
             elif pathname == '/add/training_documents':
                 returnlayout = training_documents.layout
-            elif pathname == '/view/training_list':
-                returnlayout = training_list.layout
+            elif pathname == '/view/training_record':
+                returnlayout = training_record.layout
                 
             #IQA
             elif pathname == '/iqa_dashboard':
@@ -131,7 +131,7 @@ def displaypage (pathname):
             
             #QA Officers 
             elif pathname == '/QAOfficers_dashboard':
-                returnlayout = training_list.layout
+                returnlayout = training_record.layout
             elif pathname == '/QAOfficers/qaofficers_profile':
                 returnlayout = qaofficers_profile.layout  
             elif pathname == '/QAOfficers/addtraining':
