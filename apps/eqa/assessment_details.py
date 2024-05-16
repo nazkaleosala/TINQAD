@@ -757,8 +757,8 @@ def populate_degprog_dropdown(pathname):
     # Check if the pathname matches if necessary
     if pathname == '/assessmentreports/assessment_details':
         sql ="""
-        SELECT degree_name as label, degree_id as value
-        FROM public.degree_programs
+        SELECT pro_degree_title as label, programdetails_id as value
+        FROM eqateam.program_details
        """
         values = []
         cols = ['label', 'value']
