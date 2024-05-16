@@ -157,7 +157,7 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
             FROM 
                 eqateam.sar_report AS ar
             LEFT JOIN 
-                public.degree_programs AS dp ON ar.sarep_degree_programs_id = dp.degree_id 
+                eqateam.program_details AS dp ON ar.sarep_degree_programs_id = dp.programdetails_id 
         """
         cols = ['Date', 'Degree Program', 'Assessment Title', 'EQA Type' , 'Status']
 
@@ -172,7 +172,7 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
             FROM 
                 eqateam.assess_report AS ar
             LEFT JOIN 
-                public.degree_programs AS dp ON ar.arep_degree_programs_id = dp.degree_id 
+                eqateam.program_details AS dp ON ar.arep_degree_programs_id = dp.programdetails_id 
         """
         cols = ['Date', 'Degree Program', 'Assessment Title', 'EQA Type' , 'Status']
 
