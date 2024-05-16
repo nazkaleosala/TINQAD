@@ -166,6 +166,29 @@ form = dbc.Form(
                 ),
 
          
+         dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Submission Type ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id='submission_type',
+                        options=[
+                            {"label": "File", "value": "file"},
+                            {"label": "Link", "value": "link"},
+                            {"label": "Both File and Link", "value": "both"},
+                        ],
+                        placeholder="Select Submission Type"
+                    ),
+                    width=4,
+                ),
+            ],
+            className="mb-2",
+        ),
 
         
         dbc.Row(
@@ -221,7 +244,12 @@ form = dbc.Form(
             className="mb-2",
         ),
 
-        
+        dbc.Row(
+            [dbc.Label("",width=6),
+             dbc.Col(id="sarep_pdf_output",style={"color": "#F8B237"}, width="4")],  # Output area for uploaded file names
+            className="mt-2",
+        ),
+
         dbc.Row(
             [
                 dbc.Label(
@@ -351,7 +379,7 @@ form = dbc.Form(
                 ),
                 dbc.ModalFooter(
                     dbc.Button(
-                      "Proceed", id='proceed_button', className='ml-auto'
+                      "Proceed", id='sar_proceed_button', className='ml-auto'
                     ), 
                 )
                  
@@ -710,7 +738,45 @@ def populate_accreditationbody_dropdown(pathname):
         raise PreventUpdate
 
 
+# Callback to handle enabling/disabling file and link submissions based on submission_type
+@app.callback(
+    [Output('sarep_pdf', 'disabled'),
+     Output('sarep_link', 'disabled')],
+    [Input('submission_type', 'value')]
+)
+def toggle_submissions(submission_type):
+    if submission_type == 'file':
+        return False, True  # Enable File, Disable Link
+    elif submission_type == 'link':
+        return True, False  # Disable File, Enable Link
+    elif submission_type == 'both':
+        return False, False  # Enable both
+    return True, True  # Disable both by default
 
+
+@app.callback(
+    Output("sarep_pdf_output", "children"),
+    [Input("sarep_pdf", "filename")],  # Use filename to get uploaded file names
+)
+def display_otherreport_files(filenames):
+    if not filenames:
+        return "No files uploaded"
+    
+    if isinstance(filenames, list): 
+        file_names_str = ", ".join(filenames)
+        return f"Uploaded files: {file_names_str}"
+ 
+    return f"Uploaded file: {filenames}"
+
+@app.callback(
+    Output('sar_proceed_button', 'href'),
+    [Input('sar_proceed_button', 'n_clicks')]
+)
+def redirect_to_program_list(n_clicks):
+    if not n_clicks:
+        raise PreventUpdate
+    
+    return '/assessment_reports'
  
 
 
