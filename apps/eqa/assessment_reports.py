@@ -150,14 +150,14 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
         sql = """
             SELECT 
                 sarep_currentdate AS "Date", 
-                dp.degree_name AS "Degree Program",
+                dp.pro_degree_title  AS "Degree Program",
                 sarep_title AS "Assessment Title",
                 sarep_approv_eqa AS "EQA Type",
                 sarep_checkstatus AS "Status"
             FROM 
                 eqateam.sar_report AS ar
             LEFT JOIN 
-                public.degree_programs AS dp ON ar.sarep_degree_programs_id = dp.degree_id 
+                eqateam.program_details AS dp ON ar.sarep_degree_programs_id = dp.programdetails_id 
         """
         cols = ['Date', 'Degree Program', 'Assessment Title', 'EQA Type' , 'Status']
 
@@ -165,14 +165,14 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
         sql = """
             SELECT 
                 arep_currentdate AS "Date",
-                dp.degree_name AS "Degree Program",
+                dp.pro_degree_title  AS "Degree Program",
                 arep_title AS "Assessment Title",
                 arep_approv_eqa AS "EQA Type",
                 arep_checkstatus AS "Status"
             FROM 
                 eqateam.assess_report AS ar
             LEFT JOIN 
-                public.degree_programs AS dp ON ar.arep_degree_programs_id = dp.degree_id 
+                eqateam.program_details AS dp ON ar.arep_degree_programs_id = dp.programdetails_id 
         """
         cols = ['Date', 'Degree Program', 'Assessment Title', 'EQA Type' , 'Status']
 
