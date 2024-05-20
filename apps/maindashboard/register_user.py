@@ -453,7 +453,7 @@ def registeruser_loaddropdown(pathname, search):
     [
         Input('registeruser_save_button', 'n_clicks'),
         Input('registeruser_btn_modal', 'n_clicks'),
-        Input('registeruser_removerecord', 'value'),  # Add this Input for the checkbox
+        Input('registeruser_removerecord', 'value'),   
     ],
     [
         State('user_fname', 'value'),

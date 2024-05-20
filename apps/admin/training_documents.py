@@ -1,7 +1,6 @@
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_bootstrap_components as dbc
-import dash_table
+import dash_bootstrap_components as dbc 
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -421,45 +420,7 @@ form = dbc.Form(
             className="mt-0",
         ),
 
-        html.Br(),
-        dbc.Row(
-            [ 
-                
-                dbc.Col(
-                    dbc.Button("Save", color="primary",  id="trainingdocuments_save_button", n_clicks=0),
-                    width="auto"
-                ),
-                dbc.Col(
-                    dbc.Button("Cancel", color="warning", id="trainingdocuments_cancel_button", n_clicks=0, href="/training_documents"),  
-                    width="auto"
-                ),
-            ],
-            className="mb-2",
-            justify="end",
-        ),
-
         
-        dbc.Modal(
-            [
-                dbc.ModalHeader(className="bg-success"),
-                dbc.ModalBody(
-                    ['User registered successfully.'
-                    ],id='trainingdocuments_feedback_message'
-                ),
-
-                dbc.ModalFooter(
-                    dbc.Button(
-                        "Proceed", href='/training_documents', id='trainingdocuments_btn_modal'
-                        ), 
-                    ),
-                 
-                 
-            ],
-            centered=True,
-            id='trainingdocuments_successmodal',
-            backdrop=True,  
-            className="modal-success"   
-        ),
 
    ],
    className="g-2",
@@ -716,6 +677,46 @@ layout = html.Div(
                         ),
                         id='trainingdocuments_removerecord_div'
                     ),
+
+                    html.Br(),
+                    dbc.Row(
+                        [ 
+                            
+                            dbc.Col(
+                                dbc.Button("Save", color="primary",  id="trainingdocuments_save_button", n_clicks=0),
+                                width="auto"
+                            ),
+                            dbc.Col(
+                                dbc.Button("Cancel", color="warning", id="trainingdocuments_cancel_button", n_clicks=0, href="/training_documents"),  
+                                width="auto"
+                            ),
+                        ],
+                        className="mb-2",
+                        justify="end",
+                    ),
+
+                    
+                    dbc.Modal(
+                        [
+                            dbc.ModalHeader(className="bg-success"),
+                            dbc.ModalBody(
+                                ['User registered successfully.'
+                                ],id='trainingdocuments_feedback_message'
+                            ),
+
+                            dbc.ModalFooter(
+                                dbc.Button(
+                                    "Proceed", href='/training_documents', id='trainingdocuments_btn_modal'
+                                    ), 
+                                ),
+                            
+                            
+                        ],
+                        centered=True,
+                        id='trainingdocuments_successmodal',
+                        backdrop=True,  
+                        className="modal-success"   
+                    ),
                      
                 ],
                 width=8, style={'marginLeft': '15px'}
@@ -779,6 +780,8 @@ def trainingdocuments_loaddropdown(pathname, search):
     return [cluster_options, to_load, removediv_style]
 
 
+
+
 @app.callback(
     [
         Output('trainingdocuments_alert', 'color'),
@@ -792,7 +795,7 @@ def trainingdocuments_loaddropdown(pathname, search):
     [
         Input('trainingdocuments_save_button', 'n_clicks'),
         Input('trainingdocuments_btn_modal', 'n_clicks'),
-        Input('trainingdocuments_removerecord', 'value'), 
+        Input('trainingdocuments_removerecord', 'value'),
     ],
     [
         State('complete_name', 'value'),
@@ -805,89 +808,91 @@ def trainingdocuments_loaddropdown(pathname, search):
         State('departure_date', 'date'),
         State('return_date', 'date'),
         State('venue', 'value'),
-        State('parti_attendance_cert', 'filename'),  
-        State('official_receipt', 'filename'),      
-        State('official_travel_report', 'filename'), 
-        State('other_receipts', 'filename'),         
+        State('parti_attendance_cert', 'filename'),
+        State('official_receipt', 'filename'),
+        State('official_travel_report', 'filename'),
+        State('other_receipts', 'filename'),
         State('receiving_copy', 'filename'),
-        State('url', 'search'),          
+        State('url', 'search'),
     ]
 )
- 
 
 
-def record_training_documents (submitbtn, closebtn, removerecord, 
-                               complete_name, fac_posn_name, fac_posn_number,
-                               cluster_id, college_id, deg_unit_id, qa_training_id, 
-                               departure_date, return_date, venue, parti_attendance_cert, 
-                               official_receipt, official_travel_report, other_receipts, receiving_copy,
-                               search):
+def record_training_documents(submitbtn, closebtn, removerecord,
+                              complete_name, fac_posn_name, fac_posn_number,
+                              cluster_id, college_id, deg_unit_id, qa_training_id,
+                              departure_date, return_date, venue, parti_attendance_cert,
+                              official_receipt, official_travel_report, other_receipts, receiving_copy,
+                              search):
     
-    ctx = dash.callback_context
+        ctx = dash.callback_context
     
-    if ctx.triggered:
+        if not ctx.triggered:
+            raise PreventUpdate
+        
         eventid = ctx.triggered[0]['prop_id'].split('.')[0]
         if eventid == 'trainingdocuments_save_button' and submitbtn:
+    
         
             alert_open = False
             modal_open = False
             alert_color = ''
             alert_text = ''
      
-            # Input validation
+             
             if not complete_name:
                 alert_open = True
                 alert_color = 'danger'
                 alert_text = 'Check your inputs. Please add a Name.'
-                return [alert_color, alert_text, alert_open, modal_open]
+                return [alert_color, alert_text, alert_open, modal_open, None, None]
 
             if not fac_posn_name:
                 alert_open = True
                 alert_color = 'danger'
                 alert_text = 'Check your inputs. Please add a Position Type.'
-                return [alert_color, alert_text, alert_open, modal_open]
+                return [alert_color, alert_text, alert_open, modal_open, None, None]
             
             if not cluster_id:
                 alert_open = True
                 alert_color = 'danger'
                 alert_text = 'Check your inputs. Please add a Cluster type.'
-                return [alert_color, alert_text, alert_open, modal_open]
+                return [alert_color, alert_text, alert_open, modal_open, None, None]
             
             if not college_id:
                 alert_open = True
                 alert_color = 'danger'
                 alert_text = 'Check your inputs. Please add a College.'
-                return [alert_color, alert_text, alert_open, modal_open]
+                return [alert_color, alert_text, alert_open, modal_open, None, None]
             
             if not deg_unit_id:
                 alert_open = True
                 alert_color = 'danger'
                 alert_text = 'Check your inputs. Please add a Department.'
-                return [alert_color, alert_text, alert_open, modal_open]
+                return [alert_color, alert_text, alert_open, modal_open, None, None]
             
             if not qa_training_id:
                 alert_open = True
                 alert_color = 'danger'
                 alert_text = 'Check your inputs. Please add a QA training.'
-                return [alert_color, alert_text, alert_open, modal_open]
+                return [alert_color, alert_text, alert_open, modal_open, None, None]
             
             if not departure_date:
                 alert_open = True
                 alert_color = 'danger'
                 alert_text = 'Check your inputs. Please add a Departure date.'
-                return [alert_color, alert_text, alert_open, modal_open]
+                return [alert_color, alert_text, alert_open, modal_open, None, None]
             
             if not return_date:
                 alert_open = True
                 alert_color = 'danger'
                 alert_text = 'Check your inputs. Please add a Return date.'
-                return [alert_color, alert_text, alert_open, modal_open]
+                return [alert_color, alert_text, alert_open, modal_open, None, None]
             
             if not venue:
                 alert_open = True
                 alert_color = 'danger'
                 alert_text = 'Check your inputs. Please add a Venue.'
-                return [alert_color, alert_text, alert_open, modal_open]
+                return [alert_color, alert_text, alert_open, modal_open, None, None]
             
 
             # Set default values for non-nullable fields
@@ -900,77 +905,148 @@ def record_training_documents (submitbtn, closebtn, removerecord,
             if not other_receipts:
                 other_receipts = b''
      
-            else: 
-                parsed = urlparse(search)
-                create_mode = parse_qs(parsed.query)['mode'][0]
+            parsed = urlparse(search)
+            create_mode = parse_qs(parsed.query)['mode'][0]
                     
-                if create_mode == 'add':
+            if create_mode == 'add':
                         
                     sql = """
                         INSERT INTO adminteam.training_documents (
-                            complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id, 
+                            complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id,
                             qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
-                            official_receipt, official_travel_report, other_receipts, receiving_copy
+                            official_receipt, official_travel_report, other_receipts, receiving_copy, train_docs_del_ind 
                         )
                         VALUES (
                                 %s, %s, %s, %s, %s, 
                                 %s, %s, %s, %s, %s, 
-                                %s, %s, %s, %s, %s
+                                %s, %s, %s, %s, %s, %s
                             )
                         """
     
                     values = (complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id, 
-                            qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
-                            official_receipt, official_travel_report, other_receipts, receiving_copy)
+                        qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
+                        official_receipt, official_travel_report, other_receipts, receiving_copy, False
+                    )
             
                     db.modifydatabase(sql, values) 
                     modal_open = True
                     feedbackmessage = html.H5("Training document registered successfully.")
-                    okay_href = "/training_record" 
+                    okay_href = "/view/training_record" 
                         
-                elif create_mode == 'edit':
-                    parsed = urlparse(search)
-                    userid = parse_qs(parsed.query)['id'][0]
-            
-                    sqlcode = """
-                            UPDATE adminteam.training_documents
-                            SET
-                                complete_name = %s,
-                                fac_posn_name = %s,
-                                fac_posn_number = %s,
-                                qa_training_id = %s, 
-                                departure_date = %s,
-                                return_date = %s,
-                                venue = %s,
-                                exp_del_ind = %s 
-                            WHERE 
-                                user_id = %s
-                        """
-                    to_delete = bool(removerecord) 
+            elif create_mode == 'edit':
+                parsed = urlparse(search)
+                trainingdocumentsid = parse_qs(parsed.query)['id'][0]
+                
+                sqlcode = """
+                    UPDATE adminteam.training_documents
+                    SET
+                        complete_name = %s,
+                        fac_posn_name = %s,
+                        fac_posn_number = %s,
+                        qa_training_id = %s, 
+                        departure_date = %s,
+                        return_date = %s,
+                        venue = %s,
+                        train_docs_del_ind = %s 
+                    WHERE 
+                        training_documents_id  = %s
+                """
+                to_delete = bool(removerecord) 
                         
-                    values = [complete_name, fac_posn_name, fac_posn_number,qa_training_id, departure_date, return_date, venue, to_delete, userid]
-                    db.modifydatabase(sqlcode, values)
-                        
-                    feedbackmessage = html.H5("Document has been updated." )
-                    okay_href = "/training_record"
-                    modal_open = True
+                values = [complete_name, fac_posn_name, fac_posn_number, qa_training_id, departure_date, return_date, venue, to_delete, trainingdocumentsid]
+                db.modifydatabase(sqlcode, values)
+                    
+                feedbackmessage = html.H5("Document has been updated." )
+                okay_href = "/training_record"
+                modal_open = True
 
-                else:
-                    raise PreventUpdate
+            else:
+                raise PreventUpdate
 
-            return [alert_color, alert_text, alert_open, modal_open,
-                        feedbackmessage, okay_href]
-
+            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
 
         else:
             raise PreventUpdate
-    else:
-        raise PreventUpdate
-
-    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href ]
-            
         
  
+
+
+
+
+@app.callback(
+    [
+        Output('complete_name', 'value'),
+        Output('fac_posn_name', 'value'),
+        Output('fac_posn_number', 'value'),
+        Output('cluster_id', 'value'),
+        Output('college_id', 'value'),
+        Output('deg_unit_id', 'value'),
+        Output('qa_training_id', 'value'),
+        Output('departure_date', 'date'),
+        Output('return_date', 'date'),
+        Output('venue', 'value'),
+        Output('parti_attendance_cert', 'filename'),
+        Output('official_receipt', 'filename'),
+        Output('official_travel_report', 'filename'),
+        Output('other_receipts', 'filename'),
+        Output('receiving_copy', 'filename'),
+        Output('url', 'search'),
+    ],
+    [  
+        Input('trainingdocuments_toload', 'modified_timestamp')
+    ],
+    [
+        State('trainingdocuments_toload', 'data'),
+        State('url', 'search')
+    ]
+)
+def trainingdocuments_loadprofile(timestamp, toload, search):
+    if toload:
+        parsed = urlparse(search)
+        trainingdocumentsid = parse_qs(parsed.query)['id'][0]
+ 
+        sql = """
+            SELECT 
+                complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id,
+                qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
+                official_receipt, official_travel_report, other_receipts, receiving_copy
+            FROM adminteam.training_documents
+            WHERE training_documents_id = %s
+        """
+        values = [trainingdocumentsid]
+
+        cols = [
+            'complete_name', 'fac_posn_name', 'fac_posn_number', 'cluster_id', 'college_id', 'deg_unit_id',
+            'qa_training_id', 'departure_date', 'return_date', 'venue', 'parti_attendance_cert', 
+            'official_receipt', 'official_travel_report', 'other_receipts', 'receiving_copy' 
+        ]
+
+         
+        df = db.querydatafromdatabase(sql, values, cols)
+
+        
+        complete_name = df['complete_name'][0]
+        fac_posn_name = df['fac_posn_name'][0]
+        fac_posn_number = df['fac_posn_number'][0]
+        cluster_id = int(df['cluster_id'][0])
+        college_id = int(df['college_id'][0])
+        deg_unit_id = int(df['deg_unit_id'][0])
+        qa_training_id = int(df['qa_training_id'][0])
+        departure_date = df['departure_date'][0]
+        return_date = int(df['return_date'][0])
+        venue = df['venue'][0]
+        parti_attendance_cert = df['parti_attendance_cert'][0]  
+        official_receipt = df['official_receipt'][0]
+        official_travel_report = df['official_travel_report'][0]
+        other_receipts = df['other_receipts'][0]
+        receiving_copy = df['receiving_copy'][0] 
+        
+        return [complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id, 
+                            qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
+                            official_receipt, official_travel_report, other_receipts, receiving_copy]
+    
+    else:
+        raise PreventUpdate
 
 
 

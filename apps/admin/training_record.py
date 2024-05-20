@@ -36,7 +36,7 @@ layout = html.Div(
                                     dbc.Input(
                                         type='text',
                                         id='traininglist_filter',
-                                        placeholder='🔎 Search by ',
+                                        placeholder='🔎 Search by Name, Faculty Position, Training Type, Cluster',
                                         className='ml-auto'   
                                     ),
                                     width="8",
@@ -93,6 +93,7 @@ def traininglist_loadlist(pathname, searchterm):
     if pathname == '/view/training_record':
         sql = """
             SELECT 
+                td.training_documents_id AS "ID",
                 td.complete_name AS "QAO Name",
                 td.fac_posn AS "Faculty Position",
                 clu.cluster_name AS "Cluster",
@@ -114,7 +115,7 @@ def traininglist_loadlist(pathname, searchterm):
         
         """
 
-        cols = ["QAO Name","Faculty Position","Cluster","College","QA Training", "Departure Date", "Return Date","Venue"]
+        cols = ["ID","QAO Name","Faculty Position","Cluster","College","QA Training", "Departure Date", "Return Date","Venue"]
 
         if searchterm: 
             sql += """ WHERE td.complete_name ILIKE %s OR td.fac_posn ILIKE  %s OR qt.trainingtype_name ILIKE %s OR 
@@ -122,13 +123,13 @@ def traininglist_loadlist(pathname, searchterm):
             like_pattern = f"%{searchterm}%"
             values = [like_pattern, like_pattern, like_pattern, like_pattern]
         else:
-            values = []
+            values = [] 
 
         df = db.querydatafromdatabase(sql, values, cols) 
 
         if df.shape[0] > 0:
             buttons = []
-            for training_documents_id in df['ID']:
+            for training_documents_id in df["ID"]:
                 buttons.append(
                     html.Div(
                         dbc.Button('Edit',

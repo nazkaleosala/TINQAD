@@ -46,12 +46,14 @@ layout = html.Div(
                             className="align-items-center",   
                             justify="between",  
                         ),
-                        # Placeholder for the users table
+                         
                         html.Div(
                             id='searchusers_list', 
                             style={
                                 'marginTop': '20px',
-                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                                'overflowX': 'auto',
+                                'overflowY': 'auto',   
+                                'maxHeight': '800px',   
                             }
                         )
                     ], 
