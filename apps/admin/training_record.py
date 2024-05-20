@@ -28,7 +28,7 @@ layout = html.Div(
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add Training Document", color="primary", 
-                                        href='/add/training_documents', 
+                                        href='/training_documents?mode=add',  
                                     ),
                                     width="auto",    
                                 ),
@@ -109,6 +109,9 @@ def traininglist_loadlist(pathname, searchterm):
                 public.college col ON td.college_id = col.college_id
             LEFT JOIN 
                 qaofficers.training_type qt ON td.qa_training_id = qt.trainingtype_id
+            WHERE 
+                NOT train_docs_del_ind
+        
         """
 
         cols = ["QAO Name","Faculty Position","Cluster","College","QA Training", "Departure Date", "Return Date","Venue"]
@@ -123,11 +126,25 @@ def traininglist_loadlist(pathname, searchterm):
 
         df = db.querydatafromdatabase(sql, values, cols) 
 
-        # Generate the table from the DataFrame
-        if not df.empty:  # Check if the DataFrame is not empty
+        if df.shape[0] > 0:
+            buttons = []
+            for training_documents_id in df['ID']:
+                buttons.append(
+                    html.Div(
+                        dbc.Button('Edit',
+                                   href=f'training_documents?mode=edit&id={training_documents_id}',
+                                   size='sm', color='warning'),
+                        style={'text-align': 'center'}
+                    )
+                )
+            df['Action'] = buttons
+
+            df = df[["QAO Name","Faculty Position","Cluster","College","QA Training", "Departure Date", "Return Date","Venue", "Action"]]
+
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
             return [html.Div("No records to display")]
     else:
         raise PreventUpdate
+    

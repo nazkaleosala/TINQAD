@@ -86,7 +86,7 @@ layout = html.Div(
                                     html.Div(
                                         [
                                             dbc.Button("Edit", id="edit_button", n_clicks=0, color="link"),
-                                            dbc.Button("Proceed", id="proceed_button", color="primary", href="/add/training_documents"), 
+                                            dbc.Button("Proceed", id="proceed_button", color="primary", href="/training_documents"), 
                                         ],
                                         style={"display": "flex", "justify-content": "flex-end", "gap": "10px"},
                                     ),

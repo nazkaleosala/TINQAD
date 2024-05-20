@@ -12,6 +12,7 @@ from app import app
 from apps import dbconnect as db
 
 
+from urllib.parse import urlparse, parse_qs
 
 
 form = dbc.Form(
@@ -425,11 +426,11 @@ form = dbc.Form(
             [ 
                 
                 dbc.Col(
-                    dbc.Button("Save", color="primary",  id="save_button", n_clicks=0),
+                    dbc.Button("Save", color="primary",  id="trainingdocuments_save_button", n_clicks=0),
                     width="auto"
                 ),
                 dbc.Col(
-                    dbc.Button("Cancel", color="warning", id="cancel_button", n_clicks=0, href="/training_documents"),  
+                    dbc.Button("Cancel", color="warning", id="trainingdocuments_cancel_button", n_clicks=0, href="/training_documents"),  
                     width="auto"
                 ),
             ],
@@ -437,23 +438,27 @@ form = dbc.Form(
             justify="end",
         ),
 
+        
         dbc.Modal(
             [
                 dbc.ModalHeader(className="bg-success"),
                 dbc.ModalBody(
-                    html.H4('Training document added.'),
+                    ['User registered successfully.'
+                    ],id='trainingdocuments_feedback_message'
                 ),
+
                 dbc.ModalFooter(
                     dbc.Button(
-                        "Proceed", id='train_proceed_button', className='ml-auto'
-                    ), 
-                )
+                        "Proceed", href='/training_documents', id='trainingdocuments_btn_modal'
+                        ), 
+                    ),
+                 
                  
             ],
             centered=True,
             id='trainingdocuments_successmodal',
-            backdrop=True,  # Allow clicking outside to close the modal
-            className="modal-success"  # You can define this class in your CSS file for additional styling
+            backdrop=True,  
+            className="modal-success"   
         ),
 
    ],
@@ -563,7 +568,7 @@ def display_receivingcopy_files(filenames):
 
 def populate_facultypositions_dropdown(pathname):
     # Check if the pathname matches if necessary
-    if pathname == '/add/training_documents':
+    if pathname == '/training_documents':
         sql = """
         SELECT fac_posn_name as label, fac_posn_name  as value
         FROM public.fac_posns
@@ -581,27 +586,6 @@ def populate_facultypositions_dropdown(pathname):
 
 
 
-#cluster dropdown
-@app.callback(
-    Output('cluster_id', 'options'),
-    Input('url', 'pathname')
-)
-
-def populate_cluster_dropdown(pathname):
-    # Check if the pathname matches if necessary
-    if pathname == '/add/training_documents':
-        sql = """
-        SELECT cluster_name as label, cluster_id  as value
-        FROM public.clusters
-        """
-        values = []
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        
-        cluster_types = df.to_dict('records')
-        return cluster_types
-    else:
-        raise PreventUpdate
 
 
 #college dropdown
@@ -668,7 +652,7 @@ def populate_dgu_dropdown(selected_college):
 )
 def populate_qatrainings_dropdown(pathname):
     # Check if the pathname matches if necessary
-    if pathname == '/add/training_documents':
+    if pathname == '/training_documents':
         sql = """
         SELECT trainingtype_name as label, trainingtype_id as value
         FROM qaofficers.training_type
@@ -698,10 +682,41 @@ layout = html.Div(
                 ),
                 dbc.Col(
                 [
+                    html.Div(  
+                            [
+                                dcc.Store(id='trainingdocuments_toload', storage_type='memory', data=0),
+                            ]
+                        ),
+
                     html.H1("ADD TRAINING DOCUMENTS DETAILS"),
                     html.Hr(),
                     dbc.Alert(id='trainingdocuments_alert', is_open=False), # For feedback purpose
                     form, 
+                    
+                    html.Br(),   
+                    html.Div(
+                        dbc.Row(
+                            [
+                                dbc.Label("Wish to delete?", width=4),
+                                dbc.Col(
+                                    dbc.Checklist(
+                                        id='trainingdocuments_removerecord',
+                                        options=[
+                                            {
+                                                'label': "Mark for Deletion",
+                                                'value': 1
+                                            }
+                                        ], 
+                                        style={'fontWeight':'bold'},
+                                    ),
+                                    width=5,
+                                ),
+                            ],
+                            className="mb-3",
+                        ),
+                        id='trainingdocuments_removerecord_div'
+                    ),
+                     
                 ],
                 width=8, style={'marginLeft': '15px'}
                 
@@ -727,13 +742,57 @@ layout = html.Div(
 
 @app.callback(
     [
+        Output('cluster_id', 'options'),
+        Output('trainingdocuments_toload', 'data'),
+        Output('trainingdocuments_removerecord_div', 'style'),
+    ],
+    [
+        Input('url', 'pathname')
+    ],
+    [
+        State('url', 'search')  
+    ]
+)
+
+
+def trainingdocuments_loaddropdown(pathname, search):
+    if pathname == '/training_documents':
+        sql = """
+            SELECT cluster_name as label, cluster_id  as value
+            FROM public.clusters
+            
+            WHERE cluster_del_ind = False
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        cluster_options = df.to_dict('records')
+        
+        
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query)['mode'][0]
+        to_load = 1 if create_mode == 'edit' else 0
+        removediv_style = {'display': 'none'} if not to_load else None
+    
+    else:
+        raise PreventUpdate
+    return [cluster_options, to_load, removediv_style]
+
+
+@app.callback(
+    [
         Output('trainingdocuments_alert', 'color'),
         Output('trainingdocuments_alert', 'children'),
         Output('trainingdocuments_alert', 'is_open'),
-        Output('trainingdocuments_successmodal', 'is_open')
+
+        Output('trainingdocuments_successmodal', 'is_open'),
+        Output('trainingdocuments_feedback_message', 'children'),
+        Output('trainingdocuments_btn_modal', 'href'),
     ],
     [
-        Input('save_button', 'n_clicks')
+        Input('trainingdocuments_save_button', 'n_clicks'),
+        Input('trainingdocuments_btn_modal', 'n_clicks'),
+        Input('trainingdocuments_removerecord', 'value'), 
     ],
     [
         State('complete_name', 'value'),
@@ -750,127 +809,169 @@ layout = html.Div(
         State('official_receipt', 'filename'),      
         State('official_travel_report', 'filename'), 
         State('other_receipts', 'filename'),         
-        State('receiving_copy', 'filename')          
+        State('receiving_copy', 'filename'),
+        State('url', 'search'),          
     ]
 )
  
 
 
-def record_training_documents (submitbtn, complete_name, fac_posn_name, fac_posn_number,
+def record_training_documents (submitbtn, closebtn, removerecord, 
+                               complete_name, fac_posn_name, fac_posn_number,
                                cluster_id, college_id, deg_unit_id, qa_training_id, 
                                departure_date, return_date, venue, parti_attendance_cert, 
-                               official_receipt, official_travel_report, other_receipts, receiving_copy):
-    if not submitbtn:
-        raise PreventUpdate
-
-    alert_open = False
-    modal_open = False
-    alert_color = ''
-    alert_text = ''
-
-    # Input validation
-    if not complete_name:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a Name.'
-        return [alert_color, alert_text, alert_open, modal_open]
-
-    if not fac_posn_name:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a Position Type.'
-        return [alert_color, alert_text, alert_open, modal_open]
+                               official_receipt, official_travel_report, other_receipts, receiving_copy,
+                               search):
     
-    if not cluster_id:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a Cluster type.'
-        return [alert_color, alert_text, alert_open, modal_open]
+    ctx = dash.callback_context
     
-    if not college_id:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a College.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not deg_unit_id:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a Department.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not qa_training_id:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a QA training.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not departure_date:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a Departure date.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not return_date:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a Return date.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not venue:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a Venue.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-
-     # Set default values for non-nullable fields
-    if not parti_attendance_cert:
-        parti_attendance_cert = b''  # Empty bytes
-    if not official_receipt:
-        official_receipt = b''  
-    if not official_travel_report:
-        official_travel_report = b'' 
-    if not other_receipts:
-        other_receipts = b''
+    if ctx.triggered:
+        eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+        if eventid == 'trainingdocuments_save_button' and submitbtn:
+        
+            alert_open = False
+            modal_open = False
+            alert_color = ''
+            alert_text = ''
      
- 
- 
+            # Input validation
+            if not complete_name:
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please add a Name.'
+                return [alert_color, alert_text, alert_open, modal_open]
 
-    try:
-        sql = """
-            INSERT INTO adminteam.training_documents (
-                complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id, 
-                qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
-                official_receipt, official_travel_report, other_receipts, receiving_copy
-            )
-            VALUES (
-                %s, %s, %s, %s, %s, 
-                %s, %s, %s, %s, %s, 
-                %s, %s, %s, %s, %s
-            )
-        """
-        values = (complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id, 
-                  qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
-                  official_receipt, official_travel_report, other_receipts, receiving_copy)
-        
-        
-        db.modifydatabase(sql, values)
-        modal_open = True
-    except Exception as e:
-        alert_color = 'danger'
-        alert_text = 'An error occurred while saving the data.'
-        alert_open = True
+            if not fac_posn_name:
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please add a Position Type.'
+                return [alert_color, alert_text, alert_open, modal_open]
+            
+            if not cluster_id:
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please add a Cluster type.'
+                return [alert_color, alert_text, alert_open, modal_open]
+            
+            if not college_id:
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please add a College.'
+                return [alert_color, alert_text, alert_open, modal_open]
+            
+            if not deg_unit_id:
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please add a Department.'
+                return [alert_color, alert_text, alert_open, modal_open]
+            
+            if not qa_training_id:
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please add a QA training.'
+                return [alert_color, alert_text, alert_open, modal_open]
+            
+            if not departure_date:
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please add a Departure date.'
+                return [alert_color, alert_text, alert_open, modal_open]
+            
+            if not return_date:
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please add a Return date.'
+                return [alert_color, alert_text, alert_open, modal_open]
+            
+            if not venue:
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please add a Venue.'
+                return [alert_color, alert_text, alert_open, modal_open]
+            
 
-    return [alert_color, alert_text, alert_open, modal_open]
-
-
-@app.callback(
-    Output('train_proceed_button', 'href'),
-    [Input('train_proceed_button', 'n_clicks')]
-)
-def redirect_to_program_list(n_clicks):
-    if not n_clicks:
-        raise PreventUpdate
+            # Set default values for non-nullable fields
+            if not parti_attendance_cert:
+                parti_attendance_cert = b''  # Empty bytes
+            if not official_receipt:
+                official_receipt = b''  
+            if not official_travel_report:
+                official_travel_report = b'' 
+            if not other_receipts:
+                other_receipts = b''
+     
+            else: 
+                parsed = urlparse(search)
+                create_mode = parse_qs(parsed.query)['mode'][0]
+                    
+                if create_mode == 'add':
+                        
+                    sql = """
+                        INSERT INTO adminteam.training_documents (
+                            complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id, 
+                            qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
+                            official_receipt, official_travel_report, other_receipts, receiving_copy
+                        )
+                        VALUES (
+                                %s, %s, %s, %s, %s, 
+                                %s, %s, %s, %s, %s, 
+                                %s, %s, %s, %s, %s
+                            )
+                        """
     
-    return '/view/training_record'
+                    values = (complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id, 
+                            qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
+                            official_receipt, official_travel_report, other_receipts, receiving_copy)
+            
+                    db.modifydatabase(sql, values) 
+                    modal_open = True
+                    feedbackmessage = html.H5("Training document registered successfully.")
+                    okay_href = "/training_record" 
+                        
+                elif create_mode == 'edit':
+                    parsed = urlparse(search)
+                    userid = parse_qs(parsed.query)['id'][0]
+            
+                    sqlcode = """
+                            UPDATE adminteam.training_documents
+                            SET
+                                complete_name = %s,
+                                fac_posn_name = %s,
+                                fac_posn_number = %s,
+                                qa_training_id = %s, 
+                                departure_date = %s,
+                                return_date = %s,
+                                venue = %s,
+                                exp_del_ind = %s 
+                            WHERE 
+                                user_id = %s
+                        """
+                    to_delete = bool(removerecord) 
+                        
+                    values = [complete_name, fac_posn_name, fac_posn_number,qa_training_id, departure_date, return_date, venue, to_delete, userid]
+                    db.modifydatabase(sqlcode, values)
+                        
+                    feedbackmessage = html.H5("Document has been updated." )
+                    okay_href = "/training_record"
+                    modal_open = True
+
+                else:
+                    raise PreventUpdate
+
+            return [alert_color, alert_text, alert_open, modal_open,
+                        feedbackmessage, okay_href]
+
+
+        else:
+            raise PreventUpdate
+    else:
+        raise PreventUpdate
+
+    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href ]
+            
+        
+ 
+
+
+
+

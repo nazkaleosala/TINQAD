@@ -78,9 +78,9 @@ def displaypage (pathname):
                 returnlayout = record_expenses.layout
             elif pathname == '/record_expenses/add_expense':
                 returnlayout = add_expenses.layout
-            elif pathname == '/training_documents':
+            elif pathname == '/training_instructions':
                 returnlayout = training_instructions.layout
-            elif pathname == '/add/training_documents':
+            elif pathname == '/training_documents':
                 returnlayout = training_documents.layout
             elif pathname == '/view/training_record':
                 returnlayout = training_record.layout
