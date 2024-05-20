@@ -931,7 +931,7 @@ def record_training_documents(submitbtn, closebtn, removerecord,
                     db.modifydatabase(sql, values) 
                     modal_open = True
                     feedbackmessage = html.H5("Training document registered successfully.")
-                    okay_href = "/view/training_record" 
+                    okay_href = "/training_record" 
                         
             elif create_mode == 'edit':
                 parsed = urlparse(search)

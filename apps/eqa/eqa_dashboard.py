@@ -210,7 +210,7 @@ layout = html.Div(
                                             ),
                                             dbc.CardBody(
                                                 [
-                                                    html.P("40/100 programs assessed", className="card-text"),
+                                                     
                                                     dbc.Row(
                                                         [
                                                             dbc.Col(

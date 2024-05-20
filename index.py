@@ -82,7 +82,7 @@ def displaypage (pathname):
                 returnlayout = training_instructions.layout
             elif pathname == '/training_documents':
                 returnlayout = training_documents.layout
-            elif pathname == '/view/training_record':
+            elif pathname == '/training_record':
                 returnlayout = training_record.layout
                 
             #IQA

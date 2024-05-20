@@ -90,7 +90,7 @@ layout = html.Div(
     ]
 )
 def traininglist_loadlist(pathname, searchterm):
-    if pathname == '/view/training_record':
+    if pathname == '/training_record':
         sql = """
             SELECT 
                 td.training_documents_id AS "ID",
