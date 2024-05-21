@@ -87,19 +87,22 @@ def searchusers_loaduserlist(pathname, searchterm):
         sql = """  
             SELECT 
                 u.user_id AS "ID",
+                u.user_id_num AS "ID number",
                 u.user_sname AS "Surname", 
                 u.user_fname AS "First Name", 
+                u.user_livedname AS "Nickname",
                 o.office_name AS "Dept",  
                 u.user_position AS "Position", 
                 u.user_email AS "Email",  
-                u.user_phone_num AS "Phone"
+                u.user_phone_num AS "Phone",
+                u.user_bday AS "Birthday" 
             FROM maindashboard.users u
             LEFT JOIN maindashboard.offices o ON u.user_office = o.office_id
             WHERE 
                 NOT user_del_ind
         """
 
-        cols = ['ID','Surname', 'First Name', 'Dept', 'Position', 'Email', 'Phone']
+        cols = ['ID','ID number','Surname', 'First Name', 'Nickname','Dept', 'Position', 'Email', 'Phone', 'Birthday']
 
         if searchterm:
             sql += """ AND (u.user_sname ILIKE %s OR u.user_fname ILIKE  %s OR u.user_position ILIKE %s OR 
@@ -124,7 +127,7 @@ def searchusers_loaduserlist(pathname, searchterm):
                 )
             df['Action'] = buttons
 
-            df = df[['Surname', 'First Name', 'Dept', 'Position', 'Email', 'Phone', 'Action']]
+            df = df[['ID number','Surname', 'First Name', 'Nickname','Dept', 'Position', 'Email', 'Phone', 'Birthday', 'Action']]
 
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]

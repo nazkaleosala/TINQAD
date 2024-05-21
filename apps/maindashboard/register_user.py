@@ -220,28 +220,7 @@ def update_form_and_fields(user_type):
                 className="mb-2",
             ),
             
-            dbc.Row(
-                [
-                    dbc.Label(
-                        [
-                            "Sex Assigned at Birth "
-                            
-                        ],
-                        width=4),
-                    dbc.Col(
-                        dbc.Select(
-                            id='user_sex',
-                            options=[ 
-                                {'label': 'Female', 'value': '2'},
-                                {'label': 'Male', 'value': '1'}, 
-                            ], 
-                            disabled=form_disabled
-                        ),
-                        width=4,
-                    ),
-                ],
-                className="mb-2",
-            ),
+            
             dbc.Row(
                 [
                     dbc.Label(
@@ -460,7 +439,6 @@ def registeruser_loaddropdown(pathname, search):
         State('user_mname', 'value'),
         State('user_sname', 'value'),
         State('user_livedname', 'value'),
-        State('user_sex', 'value'),
         State('user_bday', 'value'),
         State('user_phone_num', 'value'),
         State('user_id_num', 'value'),
@@ -473,8 +451,7 @@ def registeruser_loaddropdown(pathname, search):
     ]
 )
 def register_user(submitbtn, closebtn, removerecord,
-                  fname, mname, sname, livedname, 
-                  sex, bday, phone_num, id_num, 
+                  fname, mname, sname, livedname,  bday, phone_num, id_num, 
                   office, position, email, password, confirm_password,
                   search):
     
@@ -516,15 +493,15 @@ def register_user(submitbtn, closebtn, removerecord,
                     sql = """
                         INSERT INTO maindashboard.users (
                             user_fname, user_mname, user_sname, user_livedname, 
-                            user_sex, user_bday, user_phone_num, user_id_num, 
+                            user_bday, user_phone_num, user_id_num, 
                             user_office, user_position, user_email, user_password, 
-                            user_access_type, user_acc_status, user_profile_pic, user_del_ind
+                            user_access_type, user_acc_status, user_del_ind
                         )
                         VALUES (
+                            %s, %s, %s, 
                             %s, %s, %s, %s, 
                             %s, %s, %s, %s, 
-                            %s, %s, %s, %s, 
-                            %s, %s, %s, %s
+                            %s, %s, %s
                         )
                     """
                     
@@ -532,13 +509,12 @@ def register_user(submitbtn, closebtn, removerecord,
                     
                     user_access_type = 1
                     user_acc_status = 1
-                    user_profile_pic = None  
 
                     values = (
                         fname, mname, sname, livedname, 
-                        sex, bday, phone_num, id_num, 
+                        bday, phone_num, id_num, 
                         office, position, email, hashed_password, 
-                        user_access_type, user_acc_status, user_profile_pic, False
+                        user_access_type, user_acc_status, False
                     )
 
                     db.modifydatabase(sql, values) 
@@ -554,7 +530,6 @@ def register_user(submitbtn, closebtn, removerecord,
                         UPDATE maindashboard.users
                         SET
                             user_livedname = %s,
-                            user_sex = %s,
                             user_bday = %s,
                             user_phone_num = %s, 
                             user_position = %s,
@@ -566,7 +541,7 @@ def register_user(submitbtn, closebtn, removerecord,
                     """
                     to_delete = bool(removerecord) 
                     
-                    values = [livedname, sex, bday,phone_num, position, email, password, to_delete, userid]
+                    values = [livedname, bday,phone_num, position, email, password, to_delete, userid]
                     db.modifydatabase(sqlcode, values)
                     
                     feedbackmessage = html.H5("Account has been updated." )
@@ -600,7 +575,6 @@ def register_user(submitbtn, closebtn, removerecord,
         Output('user_mname', 'value'),
         Output('user_sname', 'value'),
         Output('user_livedname', 'value'),
-        Output('user_sex', 'value'),
         Output('user_bday', 'value'),
         Output('user_phone_num', 'value'),
         Output('user_id_num', 'value'),
@@ -624,7 +598,7 @@ def registeruser_loadprofile(timestamp, toload, search):
         sql = """
             SELECT 
                 user_fname, user_mname,  user_sname, 
-                user_livedname, user_sex, user_bday, user_phone_num,  
+                user_livedname, user_bday, user_phone_num,  
                 user_id_num,  user_office, 
                 user_position,user_email 
             FROM maindashboard.users
@@ -633,7 +607,7 @@ def registeruser_loadprofile(timestamp, toload, search):
         values = [userid]
 
         cols = [
-            'fname', 'mname', 'sname', 'lname', 'sex', 
+            'fname', 'mname', 'sname', 'lname', 
             'bday', 'phone', 'id_num', 'officeid', 'position', 
             'email',  
         ]
@@ -646,7 +620,6 @@ def registeruser_loadprofile(timestamp, toload, search):
         mname = df['mname'][0]
         sname = df['sname'][0]
         lname = df['lname'][0]
-        sex = df['sex'][0]
         bday = df['bday'][0]
         phone = df['phone'][0]
         id_num = df['id_num'][0]
@@ -654,7 +627,7 @@ def registeruser_loadprofile(timestamp, toload, search):
         position = df['position'][0]
         email = df['email'][0]  
         
-        return [fname, mname, sname, lname, sex, bday, phone, id_num, officeid, position, email]
+        return [fname, mname, sname, lname, bday, phone, id_num, officeid, position, email]
     
     else:
         raise PreventUpdate
