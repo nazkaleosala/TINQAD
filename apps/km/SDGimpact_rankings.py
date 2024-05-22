@@ -138,7 +138,7 @@ layout = html.Div(
                                             dbc.Button(
                                                 "➕ Add Submission",
                                                 color="primary",
-                                                href='/SDGimpactrankings/SDG_submission',
+                                                href='/SDGimpactrankings/SDG_submission?mode=add',
                                             ),
                                             width="auto",
                                             className="mb-0",
@@ -147,7 +147,7 @@ layout = html.Div(
                                             dbc.Button(
                                                 "✍🏻 Add Revision",
                                                 color="warning",
-                                                href='/SDGimpactrankings/SDG_revision',
+                                                href='/SDGimpactrankings/SDG_revision?mode=add',
                                             ),
                                             width="auto",
                                             className="mb-0",
@@ -408,6 +408,7 @@ def checking_list (pathname):
          
         sql = """
             SELECT 
+                sdgsubmission_id AS "ID", 
                 sdg_evidencename AS "Evidence Name",
                 (SELECT office_name FROM maindashboard.offices WHERE office_id = sdg_office_id) AS "Office",
                 sdg_description AS "Description",
@@ -423,12 +424,22 @@ def checking_list (pathname):
                 kmteam.SDGSubmission
             WHERE
                 sdg_checkstatus = '1'   
+                AND sdg_del_ind IS FALSE
         """
-        cols = ['Evidence Name', 'Office','Description', 'Ranking Body' , "Applicable Criteria"] 
+        cols = ['ID', 'Evidence Name', 'Office', 'Description', 'Ranking Body', "Applicable Criteria"]
 
-        df = db.querydatafromdatabase(sql, [], cols) 
+        df = db.querydatafromdatabase(sql, [], cols)
 
-        # Generate the table from the DataFrame
+        if df.shape[0] > 0:
+            df["Action"] = df["ID"].apply(
+                lambda x: html.Div(
+                    dbc.Button('Edit', href=f'SDGimpactrankings/SDG_submission?mode=edit&id={x}', size='sm', color='warning'),
+                    style={'text-align': 'center'}
+                )
+            )
+
+            df = df[['Evidence Name', 'Office', 'Description', 'Ranking Body', "Applicable Criteria", 'Action']]
+
         if not df.empty:
             df["Applicable Criteria"] = df["Applicable Criteria"].apply(
                 lambda x: ", ".join(x) if x else "None"
@@ -437,9 +448,8 @@ def checking_list (pathname):
             return [table]
         else:
             return [html.Div("No submissions for checking")]
-    
- 
-
+    else:
+        raise PreventUpdate
 
 
 
