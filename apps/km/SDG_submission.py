@@ -14,6 +14,7 @@ import json
 
 import base64
 import os
+from urllib.parse import urlparse, parse_qs
 
 # Using the corrected path
 UPLOAD_DIRECTORY = r"C:\Users\Naomi A. Takagaki\OneDrive\Documents\TINQAD\assets\database"
@@ -21,15 +22,9 @@ UPLOAD_DIRECTORY = r"C:\Users\Naomi A. Takagaki\OneDrive\Documents\TINQAD\assets
 # Ensure the directory exists or create it
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
+ 
 
-
-
-ranking_options = [
-    {"label": "THE Impact Rankings", "value": 1},
-    {"label": "QS World University Rankings", "value": 2},
-    {"label": "Academic Ranking of World Universities", "value": 3},
-    # Add more options as needed
-]
+ 
   
 # Form layout with improvements
 form = dbc.Form(
@@ -42,9 +37,9 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dbc.Select(
-                        id='sdg_rankingbody', 
-                        options=ranking_options,
+                        id='sdg_rankingbody',  
                         value=1,
+                        disabled=False
                     ),
                     width=5,
                 ), 
@@ -60,7 +55,8 @@ form = dbc.Form(
                     ],
                     width=4),
                 dbc.Col(
-                    dbc.Input(type="text", id="sdg_evidencename",  placeholder="Enter Evidence Name"),
+                    dbc.Input(type="text", id="sdg_evidencename",  
+                              placeholder="Enter Evidence Name", disabled=False ),
                     width=6,
                 ),
             ],
@@ -75,7 +71,8 @@ form = dbc.Form(
                     ],
                     width=4),
                 dbc.Col(
-                    dbc.Textarea(id="sdg_description",placeholder="Enter Description"),
+                    dbc.Textarea(id="sdg_description",placeholder="Enter Description", 
+                                disabled=False ),
                     width=6,
                 ),
             ],
@@ -96,7 +93,9 @@ form = dbc.Form(
                             {"label": "Office", "value": "office"},
                             {"label": "Department", "value": "department"},
                         ],
-                        placeholder="Select Office or Department"
+                        placeholder="Select Office or Department",
+                        disabled=False
+                        
                     ),
                     width=4,
                 ),
@@ -150,7 +149,10 @@ form = dbc.Form(
                     ],
                     width=4),
                 dbc.Col(
-                    dbc.Input(type="text", id="sdg_accomplishedby", placeholder="Name Surname" ),  # Pre-filled as per image
+                    dbc.Input(type="text", id="sdg_accomplishedby", 
+                              placeholder="Name Surname" ,
+                              disabled=False), 
+                              
                     width=4,
                 ),
             ],
@@ -171,6 +173,8 @@ form = dbc.Form(
                         id='sdg_datesubmitted',
                         date=str(pd.to_datetime("today").date()),  # Today's date by default 
                         clearable=True,
+                        disabled=False
+                        
                     ),
                     width=4,
                 ),
@@ -191,6 +195,8 @@ form = dbc.Form(
                     dcc.Dropdown(
                         id='sdg_checkstatus',  
                         value='pending',
+                        disabled=False
+                        
                     ),
                     width=5,
                 ),
@@ -215,7 +221,9 @@ form = dbc.Form(
                             {"label": "Link", "value": "link"},
                             {"label": "Both File and Link", "value": "both"},
                         ],
-                        placeholder="Select Submission Type"
+                        placeholder="Select Submission Type",
+                        disabled=False
+                        
                     ),
                     width=4,
                 ),
@@ -258,6 +266,8 @@ form = dbc.Form(
                             "justifyContent": "center",
                         },
                         multiple=True,  # Enable multiple file uploads
+                        disabled=False
+                        
                     ),
                     width=6,
                 ),
@@ -280,7 +290,8 @@ form = dbc.Form(
                     ],
                     width=4),
                 dbc.Col(
-                    dbc.Input(type="text",id="sdg_link", placeholder="Enter Link"),
+                    dbc.Input(type="text",id="sdg_link", placeholder="Enter Link",
+                              disabled=False),
                     width=6,
                 ),
             ],
@@ -298,47 +309,15 @@ form = dbc.Form(
                     dbc.Checklist(
                         id="sdg_applycriteria", 
                         value=[],  # Initial empty value, can be pre-filled if desired
-                        inline=True
+                        inline=True, 
+                        
                     ),
                     width=6,
                 ),
             ],
             className="mb-2",
         ),
-        
-        # Cancel and Save Buttons
-        dbc.Row(
-            [ 
-                
-                dbc.Col(
-                    dbc.Button("Save", color="primary",  id="save_button", n_clicks=0),
-                    width="auto"
-                ),
-                dbc.Col(
-                    dbc.Button("Cancel", color="warning", id="cancel_button", n_clicks=0, href="/SDGimpact_rankings"),  
-                    width="auto"
-                ),
-            ],
-            className="mb-2",
-            justify="end",
-        ),
-
-        # Success Modal
-        dbc.Modal(
-            [
-                dbc.ModalHeader(className="bg-success"),
-                dbc.ModalBody(
-                    html.H4("Criteria added."),
-                ),
-                dbc.ModalFooter(
-                    dbc.Button("Proceed", id="proceed_button", className="ml-auto"),
-                ),
-            ],
-            centered=True,
-            id="sdgsubmission_successmodal",
-            backdrop=True,
-            className="modal-success",
-        ),
+         
     ],
     className="g-2",
 )
@@ -493,11 +472,77 @@ layout = html.Div(
                 dbc.Col(cm.generate_navbar(), width=2),
                 dbc.Col(
                     [
+                        html.Div(  
+                            [
+                                dcc.Store(id='sdgsubmission_toload', storage_type='memory', data=0),
+                            ]
+                        ),
+                        
                         html.H1("ADD NEW SDG SUBMISSION"),
                         html.Hr(),
                         html.Br(),
                         dbc.Alert(id="sdgsubmission_alert", is_open=False),  # Alert for feedback
                         form,
+                        html.Br(),
+
+                        html.Div(
+                            dbc.Row(
+                                [
+                                    dbc.Label("Wish to delete?", width=3),
+                                    dbc.Col(
+                                        dbc.Checklist(
+                                            id='sdgsubmission_removerecord',
+                                            options=[
+                                                {
+                                                    'label': "Mark for Deletion",
+                                                    'value': 1
+                                                }
+                                            ], 
+                                            style={'fontWeight':'bold'},
+                                        ),
+                                        width=5,
+                                    ),
+                                ],
+                                className="mb-3",
+                            ),
+                            id='sdgsubmission_removerecord_div'
+                        ),
+
+                        html.Br(),
+                        dbc.Row(
+                            [ 
+                                dbc.Col(
+                                    dbc.Button("Save", color="primary",  id="sdgsubmission_save_button", n_clicks=0),
+                                    width="auto"
+                                ),
+                                dbc.Col(
+                                    dbc.Button("Cancel", color="warning", id="sdgsubmission_cancel_button", n_clicks=0, href="/SDGimpact_rankings"),  
+                                    width="auto"
+                                ),
+                            ],
+                            className="mb-2",
+                            justify="end",
+                        ),
+
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader(className="bg-success"),
+                                dbc.ModalBody(
+                                    ['New evidence submitted successfully.'
+                                    ],id='sdgsubmission_feedback_message'
+                                ),
+                                dbc.ModalFooter(
+                                    dbc.Button(
+                                        "Proceed", href='/SDGimpact_rankings', id='sdgsubmission_btn_modal'
+                                    ), 
+                                )
+                                
+                            ],
+                            centered=True,
+                            id='sdgsubmission_successmodal',
+                            backdrop=True,   
+                            className="modal-success"    
+                        ), 
                         
                     ],
                     width=8,
@@ -522,13 +567,58 @@ layout = html.Div(
 
 @app.callback(
     [
+        Output('sdg_rankingbody', 'options'),
+        Output('sdgsubmission_toload', 'data'),
+        Output('sdgsubmission_removerecord_div', 'style'),
+    ],
+    [
+        Input('url', 'pathname')
+    ],
+    [
+        State('url', 'search')  
+    ]
+)
+
+def ranking_body_loaddropdown(pathname, search):
+    if pathname == '/SDGimpactrankings/SDG_submission':
+        sql = """
+            SELECT ranking_body_name  as label, ranking_body_id  as value
+            FROM kmteam.ranking_body
+            
+            WHERE ranking_body_expense_del_ind = False
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        ranking_body_options = df.to_dict('records')
+        
+        
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query)['mode'][0]
+        to_load = 1 if create_mode == 'edit' else 0
+        removediv_style = {'display': 'none'} if not to_load else None
+    
+    else:
+        raise PreventUpdate
+    return [ranking_body_options, to_load, removediv_style]
+
+
+
+
+
+@app.callback(
+    [
         Output('sdgsubmission_alert', 'color'),
         Output('sdgsubmission_alert', 'children'),
         Output('sdgsubmission_alert', 'is_open'),
-        Output('sdgsubmission_successmodal', 'is_open')
+        Output('sdgsubmission_successmodal', 'is_open'),
+        Output('sdgsubmission_feedback_message', 'children'),
+        Output('sdgsubmission_btn_modal', 'href')
     ],
     [
-        Input('save_button', 'n_clicks')
+        Input('sdgsubmission_save_button', 'n_clicks'),
+        Input('sdgsubmission_btn_modal', 'n_clicks'),
+        Input('sdgsubmission_removerecord', 'value')
     ],
     [
         State('sdg_rankingbody', 'value'),
@@ -543,79 +633,93 @@ layout = html.Div(
         State('sdg_file', 'filename'),  
         State('sdg_link', 'value'), 
         State('sdg_applycriteria', 'value'), 
+        State('url', 'search')
     ]
 )
-def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_description,
-                        sdg_office_id, sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, sdg_checkstatus,
-                        sdg_file_contents, sdg_file_names, sdg_link, sdg_applycriteria
-                            ):
-    if not submitbtn:
+def record_SDGsubmission(submitbtn, closebtn, removerecord,
+                         sdg_rankingbody, sdg_evidencename, sdg_description,
+                         sdg_office_id, sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, sdg_checkstatus,
+                         sdg_file_contents, sdg_file_names, sdg_link, sdg_applycriteria,
+                         search):
+    
+    ctx = dash.callback_context 
+
+    if not ctx.triggered:
         raise PreventUpdate
 
-    # Default values
+    eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+    if eventid != 'sdgsubmission_save_button' or not submitbtn:
+        raise PreventUpdate
+
     alert_open = False
     modal_open = False
-    alert_color = ""
-    alert_text = ""
+    alert_color = ''
+    alert_text = ''
+    feedbackmessage = None
+    okay_href = None
 
- 
-    if not sdg_rankingbody:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a Ranking Body.'
-        return [alert_color, alert_text, alert_open, modal_open]
+    parsed = urlparse(search)
+    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
 
-    if not sdg_evidencename:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add an Evidence Name.'
-        return [alert_color, alert_text, alert_open, modal_open]
- 
+    if create_mode == 'add':
+        # Validation logic only for "add" mode
+        if not sdg_rankingbody:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = 'Check your inputs. Please add a Ranking Body.'
+            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
 
-    if not (sdg_office_id or sdg_deg_unit_id):
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Please provide an Office ID or a Degree Unit ID.'
-        return [alert_color, alert_text, alert_open, modal_open]
+        if not sdg_evidencename:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = 'Check your inputs. Please add an Evidence Name.'
+            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
 
-    if not sdg_accomplishedby:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a Accomplished by.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
+        if not (sdg_office_id or sdg_deg_unit_id):
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = 'Please provide an Office ID or a Degree Unit ID.'
+            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
 
-    if sdg_file_contents is None or sdg_file_names is None:
-        sdg_file_contents = ["1"]
-        sdg_file_names = ["1"]
+        if not sdg_accomplishedby:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = 'Check your inputs. Please add an Accomplished by.'
+            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
 
-    # Process the files if there are any
-    file_data = []
-    if sdg_file_contents and sdg_file_names:
-        for content, filename in zip(sdg_file_contents, sdg_file_names):
-            if content == "1" and filename == "1":
-                continue  # Skip default "1" value
-            try:
-                # Decode and save the file
-                content_type, content_string = content.split(',')
-                decoded_content = base64.b64decode(content_string)
+        if sdg_file_contents is None or sdg_file_names is None:
+            sdg_file_contents = ["1"]
+            sdg_file_names = ["1"]
 
-                file_path = os.path.join(UPLOAD_DIRECTORY, filename)
-                with open(file_path, 'wb') as f:
-                    f.write(decoded_content)
+        # Process the files if there are any
+        file_data = []
+        if sdg_file_contents and sdg_file_names:
+            for content, filename in zip(sdg_file_contents, sdg_file_names):
+                if content == "1" and filename == "1":
+                    continue  # Skip default "1" value
+                try:
+                    # Decode and save the file
+                    content_type, content_string = content.split(',')
+                    decoded_content = base64.b64decode(content_string)
 
-                file_info = {
-                    "path": file_path,
-                    "name": filename,
-                    "type": content_type,
-                    "size": len(decoded_content),
-                }
-                file_data.append(file_info)
+                    file_path = os.path.join(UPLOAD_DIRECTORY, filename)
+                    with open(file_path, 'wb') as f:
+                        f.write(decoded_content)
 
-            except Exception as e:
-                return set_alert(f"Error processing uploaded files: {str(e)}", 'danger')
+                    file_info = {
+                        "path": file_path,
+                        "name": filename,
+                        "type": content_type,
+                        "size": len(decoded_content),
+                    }
+                    file_data.append(file_info)
 
-    try:
+                except Exception as e:
+                    alert_open = True
+                    alert_color = 'danger'
+                    alert_text = f'Error processing file: {e}'
+                    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+
         sql = """
             INSERT INTO kmteam.SDGSubmission (
                 sdg_rankingbody, sdg_evidencename,
@@ -628,6 +732,7 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
                 %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
             )
         """
+
         values = (
             sdg_rankingbody, sdg_evidencename, sdg_description, sdg_office_id,
             sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, sdg_checkstatus, sdg_link,
@@ -640,16 +745,146 @@ def record_SDGsubmission(submitbtn, sdg_rankingbody, sdg_evidencename, sdg_descr
 
         db.modifydatabase(sql, values)
         modal_open = True
+        feedbackmessage = html.H5("New evidence submitted successfully.")
+        okay_href = "/SDGimpact_rankings"
 
-    except Exception as e:
-        return set_alert("An error occurred while saving the data: " + str(e), 'danger')
+    elif create_mode == 'edit':
+        # Update existing user record
+        sdgsubmissionid = parse_qs(parsed.query).get('id', [None])[0]
+        
+        if sdgsubmissionid is None:
+            raise PreventUpdate
+        
+        sqlcode = """
+            UPDATE kmteam.SDGSubmission
+            SET
+                sdg_checkstatus = %s,
+                sdg_del_ind = %s
 
-    return [alert_color, alert_text, alert_open, modal_open]
+            WHERE 
+                sdgsubmission_id = %s
+        """
+        to_delete = bool(removerecord) 
+
+        values = [sdg_checkstatus, to_delete, sdgsubmissionid]
+        db.modifydatabase(sqlcode, values)
+
+        feedbackmessage = html.H5("Status has been updated.")
+        okay_href = "/SDGimpact_rankings"
+        modal_open = True
+
+    else:
+        raise PreventUpdate
+
+    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
 
 
-# Helper function for setting alerts
-def set_alert(message, color):
-    return [color, message, True, False]
+
 
 
  
+
+    
+
+@app.callback(
+    [ 
+        Output('sdg_rankingbody', 'value'),
+        Output('sdg_evidencename', 'value'),
+        Output('sdg_description', 'value'),
+        Output('sdg_office_id', 'value'),
+        Output('sdg_deg_unit_id', 'value'),
+        Output('sdg_accomplishedby', 'value'),
+        Output('sdg_datesubmitted', 'value'), 
+        Output('sdg_checkstatus', 'value'), 
+        Output('sdg_file', 'filename'),  
+        Output('sdg_link', 'value'), 
+        Output('sdg_applycriteria', 'value'), 
+    ],
+    [  
+        Input('sdgsubmission_toload', 'modified_timestamp')
+    ],
+    [
+        State('sdgsubmission_toload', 'data'),
+        State('url', 'search')
+    ]
+)
+def sdgsubmission_loadprofile(timestamp, toload, search):
+    if toload:
+        parsed = urlparse(search)
+        sdgsubmissionid = parse_qs(parsed.query)['id'][0]
+
+        sql = """
+            SELECT 
+                sdg_rankingbody, sdg_evidencename,
+                sdg_description, sdg_office_id, sdg_deg_unit_id,
+                sdg_accomplishedby, sdg_datesubmitted, sdg_checkstatus,
+                sdg_file_name, 
+                sdg_link, sdg_applycriteria 
+            FROM kmteam.SDGSubmission
+            WHERE sdgsubmission_id = %s
+        """
+        values = [sdgsubmissionid]
+
+        cols = [
+                'sdg_rankingbody', 'sdg_evidencename',
+                'sdg_description', 'sdg_office_id', 'sdg_deg_unit_id',
+                'sdg_accomplishedby', 'sdg_datesubmitted', 'sdg_checkstatus',
+                'sdg_file_name' , 
+                'sdg_link', 'sdg_applycriteria',
+                
+        ]
+
+         
+        df = db.querydatafromdatabase(sql, values, cols)
+
+        
+        sdg_rankingbody = int(df['sdg_rankingbody'][0])
+        sdg_evidencename = df['sdg_evidencename'][0]
+        sdg_description = df['sdg_description'][0]
+        sdg_office_id = df['sdg_office_id'][0]
+
+        sdg_deg_unit_id = df['sdg_deg_unit_id'][0]
+        sdg_accomplishedby = df['sdg_accomplishedby'][0]
+        sdg_datesubmitted = df['sdg_datesubmitted'][0]
+        sdg_checkstatus = df['sdg_checkstatus'][0]
+        
+        sdg_file_name = df['sdg_file_name'][0] 
+
+        sdg_link = df['sdg_link'][0]
+        sdg_applycriteria = df['sdg_applycriteria'][0]  
+        
+ 
+
+        
+        return [sdg_rankingbody, sdg_evidencename, sdg_description, 
+                sdg_office_id, sdg_deg_unit_id, sdg_accomplishedby, 
+                sdg_datesubmitted, sdg_checkstatus, sdg_file_name, 
+                sdg_link, sdg_applycriteria, 
+                ]
+    
+    else:
+        raise PreventUpdate
+
+
+
+
+@app.callback(
+    [ 
+        Output('sdg_rankingbody', 'disabled'),
+        Output('sdg_evidencename', 'disabled'),
+        Output('sdg_description', 'disabled'), 
+        Output('sdg_accomplishedby', 'disabled'),
+        Output('sdg_datesubmitted', 'disabled'),
+        Output('selection_type', 'disabled'),
+        Output('submission_type', 'disabled'),
+  
+    ],
+    [Input('url', 'search')]
+)
+def sdg_inputs_disabled(search):
+    if search:
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+        if create_mode == 'edit':
+            return [True] * 7
+    return [False] * 7
