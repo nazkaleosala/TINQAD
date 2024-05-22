@@ -257,7 +257,7 @@ form = dbc.Form(
                 ),
                 dbc.ModalFooter(
                     dbc.Button(
-                      "Proceed", id='proceed_button', className='ml-auto'
+                      "Proceed", id='prog_proceed_button', className='ml-auto'
                     ), 
                 )
                  
@@ -599,8 +599,8 @@ def populate_accreditationbody_dropdown(pathname):
         raise PreventUpdate
 
 @app.callback(
-    Output('proceed_button', 'href'),
-    [Input('proceed_button', 'n_clicks')]
+    Output('prog_proceed_button', 'href'),
+    [Input('prog_proceed_button', 'n_clicks')]
 )
 def redirect_to_program_list(n_clicks):
     if not n_clicks:
