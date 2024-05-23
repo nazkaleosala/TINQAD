@@ -92,7 +92,7 @@ def displaypage (pathname):
                 returnlayout = more_details.layout  
             elif pathname == '/acad_heads_directory':
                 returnlayout = acad_heads_directory.layout
-            elif pathname == '/acadheadsdirectory/acadheads_profile':
+            elif pathname == '/acadheads_profile':
                 returnlayout = acadheads_profile.layout
             
             
