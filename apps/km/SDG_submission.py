@@ -66,7 +66,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Description ",
+                        "Description about the evidence ",
                         html.Span("*", style={"color": "#F8B237"})
                     ],
                     width=4),
@@ -194,16 +194,38 @@ form = dbc.Form(
                 dbc.Col(
                     dcc.Dropdown(
                         id='sdg_checkstatus',  
-                        value='pending',
+                        options=[
+                            {"label": "Pending", "value": '1'},
+                            {"label": "Approved", "value": '2'},
+                            {"label": "For Revisions", "value": '3'},
+                              
+                        ],
+                        value='1',
                         disabled=False
                         
                     ),
-                    width=5,
+                    width=4,
                 ),
  
             ],
             className="mb-3"
         ),
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Notes for revision",
+                    ],
+                    width=4),
+                dbc.Col(
+                    dbc.Textarea(id="sdg_notes",placeholder="Enter notes for revision", 
+                                disabled=True ),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
+        
 
         dbc.Row(
             [
@@ -220,6 +242,7 @@ form = dbc.Form(
                             {"label": "File", "value": "file"},
                             {"label": "Link", "value": "link"},
                             {"label": "Both File and Link", "value": "both"},
+                            
                         ],
                         placeholder="Select Submission Type",
                         disabled=False
@@ -322,6 +345,7 @@ form = dbc.Form(
     className="g-2",
 )
 
+
 # office dropdown
 @app.callback(
     Output('sdg_office_id', 'options'),
@@ -368,35 +392,7 @@ def populate_depts_dropdown(pathname):
 
 
 
-
-
-#Check Status dropdown
-@app.callback(
-    Output('sdg_checkstatus', 'options'),
-    Input('url', 'pathname')
-)
-def populate_status_dropdown(pathname):
-    # Check if the pathname matches if necessary
-    if pathname == '/SDGimpactrankings/SDG_submission':
-        sql ="""
-        SELECT checkstatus_name as label, checkstatus_id  as value
-        FROM  kmteam.checkstatus
-       """
-        values = []
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        
-        checkstatus_types = [{'label': row['label'], 'value': row['value']} for _, row in df.iterrows()]
-        return checkstatus_types
-    else:
-        raise PreventUpdate
-
-
-
-
-
-
-
+ 
 # sdg criteria checklist
 @app.callback(
     Output('sdg_applycriteria', 'options'),
@@ -426,10 +422,30 @@ def populate_applycriteria_dropdown(pathname):
 )
 def toggle_dropdowns(selection_type):
     if selection_type == 'office':
-        return False, True  # Enable Office, Disable Department
+        return False, True  
     elif selection_type == 'department':
-        return True, False  # Disable Office, Enable Department
-    return True, True  # Disable both by default
+        return True, False 
+    return True, True 
+
+
+@app.callback(
+    Output('sdg_notes', 'disabled'),
+    [Input('sdg_checkstatus', 'value')]
+)
+def toggle_notes_input(check_status_id):
+    if check_status_id == '3':
+        return False
+    return True
+
+
+
+
+
+
+
+
+
+
 
 # Callback to handle enabling/disabling file and link submissions based on submission_type
 @app.callback(
@@ -629,6 +645,7 @@ def ranking_body_loaddropdown(pathname, search):
         State('sdg_accomplishedby', 'value'),
         State('sdg_datesubmitted', 'value'), 
         State('sdg_checkstatus', 'value'), 
+        State('sdg_notes', 'value'), 
         State('sdg_file', 'contents'),
         State('sdg_file', 'filename'),  
         State('sdg_link', 'value'), 
@@ -638,7 +655,8 @@ def ranking_body_loaddropdown(pathname, search):
 )
 def record_SDGsubmission(submitbtn, closebtn, removerecord,
                          sdg_rankingbody, sdg_evidencename, sdg_description,
-                         sdg_office_id, sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, sdg_checkstatus,
+                         sdg_office_id, sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, 
+                         sdg_checkstatus,sdg_notes,
                          sdg_file_contents, sdg_file_names, sdg_link, sdg_applycriteria,
                          search):
     
@@ -662,30 +680,29 @@ def record_SDGsubmission(submitbtn, closebtn, removerecord,
     create_mode = parse_qs(parsed.query).get('mode', [None])[0]
 
     if create_mode == 'add':
-        # Validation logic only for "add" mode
-        if not sdg_rankingbody:
-            alert_open = True
+        # Ensure required fields are filled
+        if not all([sdg_rankingbody, sdg_evidencename, sdg_accomplishedby]):
             alert_color = 'danger'
-            alert_text = 'Check your inputs. Please add a Ranking Body.'
-            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+            alert_text = 'Missing required fields.'
+            return [alert_color, alert_text, True, modal_open, feedbackmessage, okay_href]
 
-        if not sdg_evidencename:
-            alert_open = True
-            alert_color = 'danger'
-            alert_text = 'Check your inputs. Please add an Evidence Name.'
-            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+        try:
+            check_existing_name_sql = """
+                SELECT 1 
+                FROM kmteam.SDGSubmission 
+                WHERE sdg_evidencename = %s
+            """
+            existing_name = db.querydatafromdatabase(check_existing_name_sql, (sdg_evidencename,), ["exists"])
 
-        if not (sdg_office_id or sdg_deg_unit_id):
-            alert_open = True
-            alert_color = 'danger'
-            alert_text = 'Please provide an Office ID or a Degree Unit ID.'
-            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+            if not existing_name.empty:
+                alert_color = 'danger'
+                alert_text = 'The Evidence Name already exists. Please choose a unique name.'
+                return [alert_color, alert_text, True, modal_open, feedbackmessage, okay_href]
 
-        if not sdg_accomplishedby:
-            alert_open = True
+        except Exception as e:
             alert_color = 'danger'
-            alert_text = 'Check your inputs. Please add an Accomplished by.'
-            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+            alert_text = f'Error checking for existing evidence name: {e}'
+            return [alert_color, alert_text, True, modal_open, feedbackmessage, okay_href]
 
         if sdg_file_contents is None or sdg_file_names is None:
             sdg_file_contents = ["1"]
@@ -724,18 +741,19 @@ def record_SDGsubmission(submitbtn, closebtn, removerecord,
             INSERT INTO kmteam.SDGSubmission (
                 sdg_rankingbody, sdg_evidencename,
                 sdg_description, sdg_office_id, sdg_deg_unit_id,
-                sdg_accomplishedby, sdg_datesubmitted, sdg_checkstatus,
+                sdg_accomplishedby, sdg_datesubmitted, sdg_checkstatus, sdg_notes,
                 sdg_link, sdg_applycriteria,
                 sdg_file_path, sdg_file_name, sdg_file_type, sdg_file_size
             )
             VALUES (
-                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
             )
         """
 
         values = (
             sdg_rankingbody, sdg_evidencename, sdg_description, sdg_office_id,
-            sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, sdg_checkstatus, sdg_link,
+            sdg_deg_unit_id, sdg_accomplishedby, sdg_datesubmitted, sdg_checkstatus,sdg_notes,
+            sdg_link,
             json.dumps(sdg_applycriteria) if sdg_applycriteria else None,
             file_data[0]["path"] if file_data else None,
             file_data[0]["name"] if file_data else None,
@@ -759,6 +777,7 @@ def record_SDGsubmission(submitbtn, closebtn, removerecord,
             UPDATE kmteam.SDGSubmission
             SET
                 sdg_checkstatus = %s,
+                sdg_notes = %s,
                 sdg_del_ind = %s
 
             WHERE 
@@ -766,7 +785,7 @@ def record_SDGsubmission(submitbtn, closebtn, removerecord,
         """
         to_delete = bool(removerecord) 
 
-        values = [sdg_checkstatus, to_delete, sdgsubmissionid]
+        values = [sdg_checkstatus, sdg_notes, to_delete, sdgsubmissionid]
         db.modifydatabase(sqlcode, values)
 
         feedbackmessage = html.H5("Status has been updated.")
@@ -796,6 +815,7 @@ def record_SDGsubmission(submitbtn, closebtn, removerecord,
         Output('sdg_accomplishedby', 'value'),
         Output('sdg_datesubmitted', 'value'), 
         Output('sdg_checkstatus', 'value'), 
+        Output('sdg_notes', 'value'), 
         Output('sdg_file', 'filename'),  
         Output('sdg_link', 'value'), 
         Output('sdg_applycriteria', 'value'), 
@@ -818,7 +838,7 @@ def sdgsubmission_loadprofile(timestamp, toload, search):
                 sdg_rankingbody, sdg_evidencename,
                 sdg_description, sdg_office_id, sdg_deg_unit_id,
                 sdg_accomplishedby, sdg_datesubmitted, sdg_checkstatus,
-                sdg_file_name, 
+                sdg_notes, sdg_file_name, 
                 sdg_link, sdg_applycriteria 
             FROM kmteam.SDGSubmission
             WHERE sdgsubmission_id = %s
@@ -828,8 +848,8 @@ def sdgsubmission_loadprofile(timestamp, toload, search):
         cols = [
                 'sdg_rankingbody', 'sdg_evidencename',
                 'sdg_description', 'sdg_office_id', 'sdg_deg_unit_id',
-                'sdg_accomplishedby', 'sdg_datesubmitted', 'sdg_checkstatus',
-                'sdg_file_name' , 
+                'sdg_accomplishedby', 'sdg_datesubmitted', 'sdg_checkstatus', 
+                'sdg_notes', 'sdg_file_name' , 
                 'sdg_link', 'sdg_applycriteria',
                 
         ]
@@ -847,7 +867,7 @@ def sdgsubmission_loadprofile(timestamp, toload, search):
         sdg_accomplishedby = df['sdg_accomplishedby'][0]
         sdg_datesubmitted = df['sdg_datesubmitted'][0]
         sdg_checkstatus = df['sdg_checkstatus'][0]
-        
+        sdg_notes = df['sdg_notes'][0]
         sdg_file_name = df['sdg_file_name'][0] 
 
         sdg_link = df['sdg_link'][0]
@@ -858,7 +878,7 @@ def sdgsubmission_loadprofile(timestamp, toload, search):
         
         return [sdg_rankingbody, sdg_evidencename, sdg_description, 
                 sdg_office_id, sdg_deg_unit_id, sdg_accomplishedby, 
-                sdg_datesubmitted, sdg_checkstatus, sdg_file_name, 
+                sdg_datesubmitted, sdg_checkstatus,sdg_notes, sdg_file_name, 
                 sdg_link, sdg_applycriteria, 
                 ]
     

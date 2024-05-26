@@ -163,6 +163,11 @@ layout = html.Div(
 )
 
 
+
+
+
+
+
 @app.callback(
     [
         Output('checking_list', 'children')
@@ -344,7 +349,3 @@ def approvedrevisions_list (pathname):
             return [html.Div("No currently revised submissions")]
     else:
         raise PreventUpdate
-
-
- 
-    

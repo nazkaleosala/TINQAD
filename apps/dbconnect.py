@@ -151,7 +151,7 @@ def get_sdgroffice(evidence_id_office):
             return ""
 
     except psycopg2.Error as e:
-        print("Error fetching description:", e)
+        print("Error fetching office:", e)
         return None
 
 
@@ -179,5 +179,32 @@ def get_sdgrdepartment(evidence_id_department):
             return ""
 
     except psycopg2.Error as e:
-        print("Error fetching description:", e)
+        print("Error fetching department:", e)
+        return None
+
+
+
+def get_sdgrnotes(evidence_id_notes):
+    try:
+        conn = getdblocation()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT s.sdg_notes
+            FROM kmteam.SDGSubmission s 
+            WHERE s.sdgsubmission_id  = %s
+        """
+        cursor.execute(query, (evidence_id_notes,))
+        rankingbody = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if rankingbody:
+            return rankingbody[0]
+        else:
+            return ""
+
+    except psycopg2.Error as e:
+        print("Error fetching notes:", e)
         return None
