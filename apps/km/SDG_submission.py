@@ -324,8 +324,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Add Applicable Criteria ",
-                        html.Span("*", style={"color": "#F8B237"})
+                        "Add Applicable Criteria ", 
                     ],
                     width=4),
                 dbc.Col(
@@ -766,8 +765,7 @@ def record_SDGsubmission(submitbtn, closebtn, removerecord,
         feedbackmessage = html.H5("New evidence submitted successfully.")
         okay_href = "/SDG_evidencelist"
 
-    elif create_mode == 'edit':
-        # Update existing user record
+    elif create_mode == 'edit': 
         sdgsubmissionid = parse_qs(parsed.query).get('id', [None])[0]
         
         if sdgsubmissionid is None:

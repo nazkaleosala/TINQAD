@@ -52,14 +52,14 @@ form = dbc.Form(
         ),
         dbc.Row(
             [
-                dbc.Label("Description", width=4),
+                dbc.Label("Description about the evidence", width=4),
                 dbc.Col(
                     html.P(id='sdgr_description'),
                     width=8,
                 ),
             ],
             className="mb-3",
-        ),
+        ), 
         dbc.Row(
             [
                 dbc.Label("Office", width=4),
@@ -76,6 +76,16 @@ form = dbc.Form(
                 dbc.Label("Department", width=4),
                 dbc.Col(
                     html.P(id='sdgr_deg_unit_id'),
+                    width=8,
+                ),
+            ],
+            className="mb-3",
+        ),
+        dbc.Row(
+            [
+                dbc.Label("Revision Notes", width=4),
+                dbc.Col(
+                    html.P(id='sdgr_checknotes'),
                     width=8,
                 ),
             ],
@@ -123,7 +133,16 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='sdgr_checkstatus', 
+                        id='sdgr_checkstatus',  
+                        options=[
+                            {"label": "Pending", "value": '1'},
+                            {"label": "Approved", "value": '2'},
+                            {"label": "For Revisions", "value": '3'},
+                              
+                        ],
+                        value='1',
+                        disabled=False
+                        
                     ),
                     width=4,
                 ),
@@ -131,6 +150,22 @@ form = dbc.Form(
             ],
             className="mb-3"
         ),
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Notes for revision",
+                    ],
+                    width=4),
+                dbc.Col(
+                    dbc.Textarea(id="sdgr_notes",placeholder="Enter notes for revision", 
+                                disabled=True ),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
+
 
         dbc.Row(
             [
@@ -222,8 +257,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Add Applicable Criteria ",
-                        html.Span("*", style={"color": "#F8B237"})
+                        "Add Applicable Criteria ", 
                     ],
                     width=4),
                 dbc.Col(
@@ -456,29 +490,38 @@ def update_department_text(selected_evidencename_department):
 
 
 
-
-
-
-#Check Status dropdown
+#notes appear
 @app.callback(
-    Output('sdgr_checkstatus', 'options'),
-    Input('url', 'pathname')
+    Output('sdgr_checknotes', 'children'),
+    [Input('sdgr_evidencename', 'value')]
 )
-def populate_sdgrstatus_dropdown(pathname):
-    # Check if the pathname matches if necessary
-    if pathname == '/SDGimpactrankings/SDG_revision':
-        sql ="""
-        SELECT checkstatus_name as label, checkstatus_id  as value
-        FROM  kmteam.checkstatus
-       """
-        values = []
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        
-        sdgrcheckstatus_types = [{'label': row['label'], 'value': row['value']} for _, row in df.iterrows()]
-        return sdgrcheckstatus_types
+
+def update_notes_text(selected_evidencename_notes):
+    if selected_evidencename_notes is None:
+        return ""
     else:
-        raise PreventUpdate
+        try: 
+            notes = db.get_sdgrnotes (selected_evidencename_notes)
+            if notes:
+                return notes
+            else:
+                return ""
+        except Exception as e:
+            return "An error occurred while fetching the notes: {}".format(str(e))
+
+
+
+ 
+# Callback to open notes
+@app.callback(
+    Output('sdgr_notes', 'disabled'),
+    [Input('sdgr_checkstatus', 'value')]
+)
+def toggle_sdgrnotes_input(check_sdgrstatus_id):
+    if check_sdgrstatus_id == '3':
+        return False
+    return True
+
 
 
 
