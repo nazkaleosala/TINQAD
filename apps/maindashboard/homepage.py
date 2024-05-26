@@ -621,7 +621,7 @@ layout = html.Div(
                                             html.Div(style={'background-color': '#7A0911', 'width': '100%', 'height': '20px'}),  # Rectangle
                                             html.A(
                                                 html.H5("Quality Assurance Officers", className="card-title fw-bold text-dark text-center"), 
-                                                href='/qa_officers',
+                                                href='/QAOfficers_dashboard',
                                                 style={'text-decoration': 'none'}
                                             ),
                                         
