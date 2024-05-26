@@ -81,7 +81,7 @@ def generate_navbar():
                     #admin dashboard 
                     html.A(html.B('Admin'),  href='/administration_dashboard', className="nav-link"),  
                     html.A('Record Expenses',  href='/record_expenses', className="nav-link"),  
-                    
+                    html.A('Training Documents',  href='/training_instructions', className="nav-link"),  
                     html.A('View Training List',  href='/training_record', className="nav-link"),  
                     #html.A('Generate Report', id='generate-report-link', href='/generate_report', className="nav-link"), 
                     html.A('-----------------------------------', style={'color': 'white'} ),  
@@ -90,7 +90,6 @@ def generate_navbar():
                     html.A(html.B('Internal QA'), href='/iqa_dashboard', className="nav-link"),  
                     #html.A('iAADs Reports Summary', id='iaads-reports-link', href='/iaads_reports', className="nav-link"),  
                     html.A('Acad Heads Directory',  href='/acad_heads_directory', className="nav-link"),  
-                    html.A('QA Officers Directory', id='qa-officers-directory-link', href='/QAOfficers_directory', className="nav-link"),  
                     html.A('-----------------------------------', style={'color': 'white'} ),  
 
                     
@@ -106,13 +105,14 @@ def generate_navbar():
                     html.A(html.B('KM Team'), href='/km_dashboard', className="nav-link"),  
                     #html.A('THE World Univ Rankings', id='the-world-univ-rankings-link', href='/THEworld_rankings', className="nav-link"),  
                     html.A('SDG Impact Rankings',  href='/SDGimpact_rankings', className="nav-link"),  
+                    html.A('SDG Evidence List',  href='/SDG_evidencelist', className="nav-link"),  
                     #html.A('QS University Rankings', id='qs-university-rankings-link', href='/QSworld_rankings', className="nav-link"),  
                     html.A('-----------------------------------', style={'color': 'white'} ), 
 
                     
                     #qa officers
                     html.A(html.B('QA Officers Dashboard'), id='qa-officers-dashboard-link', href='/QAOfficers_dashboard', className="nav-link"),    
-                    html.A('Training Documents',  href='/training_instructions', className="nav-link"),  
+                    html.A('QA Officers Directory', id='qa-officers-directory-link', href='/QAOfficers_directory', className="nav-link"),  
 
                 ],
                 vertical=True,  # Set to True for vertical stacking

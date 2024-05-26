@@ -17,13 +17,13 @@ interval_time = 60000  # 1 minute
 
 # Function to fetch the total count from the database for Academic Unit Heads
 def get_total_count_acad_unitheads():
-    sql = "SELECT COUNT(*) FROM iqateam.acad_unitheads"
+    sql = "SELECT COUNT(*) FROM iqateam.acad_unitheads  WHERE unithead_del_ind = False"
     total_count = db.query_single_value(sql)
     return total_count
 
 # Function to fetch the total count from the database for QA Officers
 def get_total_count_qa_officers():
-    sql = "SELECT COUNT(*) FROM qaofficers.qa_officer"
+    sql = "SELECT COUNT(*) FROM qaofficers.qa_officer WHERE qaofficer_del_ind = False"
     total_count = db.query_single_value(sql)
     return total_count
 
@@ -39,6 +39,7 @@ def generate_acadhead_card():
     FROM iqateam.acad_unitheads a
     JOIN public.college c ON a.unithead_college_id = c.college_id
     WHERE a.unithead_appointment_end < CURRENT_DATE + INTERVAL '2 months'
+      
     GROUP BY a.unithead_college_id, c.college_name;
     """
     # Execute the query and fetch data
@@ -139,7 +140,9 @@ def generate_qaofficers_card():
            SUM(CASE WHEN qaofficer_remarks = 'No record' THEN 1 ELSE 0 END) AS no_record
     FROM qaofficers.qa_officer q
     JOIN public.college c ON q.qaofficer_college_id = c.college_id
+    WHERE q.qaofficer_del_ind = False
     GROUP BY q.qaofficer_college_id, c.college_name;
+
     """
     # Execute the query and fetch data
     data = db.querydatafromdatabase(sql, [], ['college', 'qa_officers', 'approved_papers', 'expiring', 'renewal', 'no_record'])
@@ -314,6 +317,7 @@ def update_cards(n):
     FROM iqateam.acad_unitheads a
     JOIN public.college c ON a.unithead_college_id = c.college_id
     WHERE a.unithead_appointment_end < CURRENT_DATE + INTERVAL '2 months'
+      AND a.unithead_del_ind = False
     GROUP BY a.unithead_college_id, c.college_name;
     """
     # SQL query to fetch data for QA Officers
@@ -326,6 +330,8 @@ def update_cards(n):
            SUM(CASE WHEN qaofficer_remarks = 'No record' THEN 1 ELSE 0 END) AS no_record
     FROM qaofficers.qa_officer q
     JOIN public.college c ON q.qaofficer_college_id = c.college_id
+    WHERE q.qaofficer_del_ind = False
+
     GROUP BY q.qaofficer_college_id, c.college_name;
     """
     # Execute the queries and fetch data

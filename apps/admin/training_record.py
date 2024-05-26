@@ -140,7 +140,7 @@ def traininglist_loadlist(pathname, searchterm):
                 )
             df['Action'] = buttons
 
-            df = df[["QAO Name","Faculty Position","Cluster","College","QA Training", "Departure Date", "Return Date","Venue", "Action"]]
+            df = df[["QAO Name","Faculty Position","Cluster","College","QA Training", "Departure Date", "Return Date","Venue", ]]
 
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]

@@ -516,7 +516,7 @@ layout = html.Div(
                                     width="auto"
                                 ),
                                 dbc.Col(
-                                    dbc.Button("Cancel", color="warning", id="sdgsubmission_cancel_button", n_clicks=0, href="/SDGimpact_rankings"),  
+                                    dbc.Button("Cancel", color="warning", id="sdgsubmission_cancel_button", n_clicks=0, href="/SDG_evidencelist"),  
                                     width="auto"
                                 ),
                             ],
@@ -533,7 +533,7 @@ layout = html.Div(
                                 ),
                                 dbc.ModalFooter(
                                     dbc.Button(
-                                        "Proceed", href='/SDGimpact_rankings', id='sdgsubmission_btn_modal'
+                                        "Proceed", href='SDG_evidencelist', id='sdgsubmission_btn_modal'
                                     ), 
                                 )
                                 
@@ -746,7 +746,7 @@ def record_SDGsubmission(submitbtn, closebtn, removerecord,
         db.modifydatabase(sql, values)
         modal_open = True
         feedbackmessage = html.H5("New evidence submitted successfully.")
-        okay_href = "/SDGimpact_rankings"
+        okay_href = "/SDG_evidencelist"
 
     elif create_mode == 'edit':
         # Update existing user record
@@ -770,7 +770,7 @@ def record_SDGsubmission(submitbtn, closebtn, removerecord,
         db.modifydatabase(sqlcode, values)
 
         feedbackmessage = html.H5("Status has been updated.")
-        okay_href = "/SDGimpact_rankings"
+        okay_href = "/SDG_evidencelist"
         modal_open = True
 
     else:

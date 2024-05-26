@@ -295,7 +295,7 @@ layout = html.Div(
                                     width="auto"
                                 ),
                                 dbc.Col(
-                                    dbc.Button("Cancel", color="warning", id="sdgr_cancel_button", n_clicks=0, href="/search_users"),  
+                                    dbc.Button("Cancel", color="warning", id="sdgr_cancel_button", n_clicks=0, href="/SDG_evidencelist"),  
                                     width="auto"
                                 ),
                             ],
@@ -314,7 +314,7 @@ layout = html.Div(
                                 ),
                                 dbc.ModalFooter(
                                     dbc.Button(
-                                        "Proceed", href='/search_users', id='sdgr_btn_modal'
+                                        "Proceed", href='/SDG_evidencelist', id='sdgr_btn_modal'
                                     ), 
                                 )
                                 
@@ -588,8 +588,6 @@ def record_SDGrevision (submitbtn, closebtn, removerecord,
     modal_open = False
     alert_color = ''
     alert_text = ''
-    feedbackmessage = None
-    okay_href = None
 
     parsed = urlparse(search)
     create_mode = parse_qs(parsed.query).get('mode', [None])[0]
@@ -630,8 +628,7 @@ def record_SDGrevision (submitbtn, closebtn, removerecord,
                     file_info = {
                         "path": file_path,
                         "name": filename,
-                        "type": content_type,
-                        "size": len(decoded_content),
+
                     }
                     file_data.append(file_info)
 
@@ -643,14 +640,14 @@ def record_SDGrevision (submitbtn, closebtn, removerecord,
 
         sql = """
             INSERT INTO kmteam.SDGRevision (
-                sdgr_rankingbody, sdgr_evidencename,
-                sdgr_description, sdgr_office_id, sdgr_deg_unit_id,
-                sdgr_accomplishedby, sdgr_datesubmitted, sdgr_checkstatus,
-                sdgr_link, sdgr_applycriteria,
-                sdgr_file_path, sdgr_file_name, sdgr_file_type, sdgr_file_size
+                sdgr_rankingbody, sdgr_evidencename, sdgr_description, sdgr_office_id,
+                sdgr_deg_unit_id, sdgr_accomplishedby, sdgr_datesubmitted, sdgr_checkstatus,
+                sdgr_file_contents, sdgr_file_names, sdgr_link, sdgr_applycriteria, sdgr_del_ind
             )
             VALUES (
-                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                %s, %s, %s, %s, 
+                %s, %s, %s, %s, 
+                %s, %s, %s, %s, %s
             )
         """
 
@@ -660,14 +657,14 @@ def record_SDGrevision (submitbtn, closebtn, removerecord,
             json.dumps(sdgr_applycriteria) if sdgr_applycriteria else None,
             file_data[0]["path"] if file_data else None,
             file_data[0]["name"] if file_data else None,
-            file_data[0]["type"] if file_data else None,
-            file_data[0]["size"] if file_data else None,
+            False
         )
 
         db.modifydatabase(sql, values)
         modal_open = True
         feedbackmessage = html.H5("New evidence submitted successfully.")
-        okay_href = "/SDGimpact_rankings"
+        okay_href = "/SDG_evidencelist"
+
 
     elif create_mode == 'edit':
         # Update existing user record
@@ -691,10 +688,91 @@ def record_SDGrevision (submitbtn, closebtn, removerecord,
         db.modifydatabase(sqlcode, values)
 
         feedbackmessage = html.H5("Status has been updated.")
-        okay_href = "/SDGimpact_rankings"
+        okay_href = "/SDG_evidencelist"
         modal_open = True
 
     else:
         raise PreventUpdate
 
     return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+
+
+
+
+
+@app.callback(
+    [
+        Output('sdgr_rankingbody', 'value'),
+        Output('sdgr_evidencename', 'value'),
+        Output('sdgr_description', 'value'),
+        Output('sdgr_office_id', 'value'),
+        Output('sdgr_deg_unit_id', 'value'),
+        Output('sdgr_accomplishedby', 'value'),
+        Output('sdgr_datesubmitted', 'value'), 
+        Output('sdgr_checkstatus', 'value'), 
+        Output('sdgr_file', 'contents'),
+        Output('sdgr_file', 'filename'),  
+        Output('sdgr_link', 'value'), 
+        Output('sdgr_applycriteria', 'value'), 
+    ],
+    [  
+        Input('sdgr_toload', 'modified_timestamp')
+    ],
+    [
+        State('sdgr', 'data'),
+        State('url', 'search')
+    ]
+)
+
+def sdgr_loadprofile(timestamp, toload, search):
+    if toload:
+        parsed = urlparse(search)
+        sdgrevisionid = parse_qs(parsed.query)['id'][0]
+
+        sql = """
+            SELECT 
+                sdgr_rankingbody, sdgr_evidencename, sdgr_description, 
+                sdgr_office_id, sdgr_deg_unit_id, sdgr_accomplishedby, 
+                sdgr_datesubmitted, sdgr_checkstatus, sdgr_link, 
+                sdgr_applycriteria, sdgr_file_path, sdgr_file_name
+           
+            FROM kmteam.SDGRevision
+            WHERE sdgrevision_id = %s
+        """
+        values = [sdgrevisionid]
+
+        cols = [
+            'sdgr_rankingbody', 'sdgr_evidencename','sdgr_description',
+            'sdgr_office_id', 'sdgr_deg_unit_id', 'sdgr_accomplishedby', 
+            'sdgr_datesubmitted', 'sdgr_checkstatus', 'sdgr_link',
+            'sdgr_applycriteria', 'sdgr_file_path', 'sdgr_file_name'
+        ]
+
+        df = db.querydatafromdatabase(sql, values, cols)
+
+        
+        sdgr_rankingbody = df['sdgr_rankingbody'][0]
+        sdgr_evidencename = df['sdgr_evidencename'][0]
+        sdgr_description = df['sdgr_description'][0]
+        sdgr_office_id = df['sdgr_office_id'][0]
+        sdgr_deg_unit_id = df['sdgr_deg_unit_id'][0]
+        sdgr_accomplishedby = df['sdgr_accomplishedby'][0]
+        sdgr_datesubmitted = df['sdgr_datesubmitted'][0]
+        sdgr_checkstatus = df['sdgr_checkstatus'][0]
+        sdgr_link = df['sdgr_link'][0]
+        sdgr_applycriteria = df['sdgr_applycriteria'][0]
+        sdgr_file_path = df['sdgr_file_path'][0]
+        sdgr_file_name = df['sdgr_file_name'][0]
+
+
+        return [sdgr_rankingbody, sdgr_evidencename,
+                sdgr_description, sdgr_office_id, sdgr_deg_unit_id,
+                sdgr_accomplishedby, sdgr_datesubmitted, sdgr_checkstatus,
+                sdgr_link, sdgr_applycriteria, sdgr_file_path, 
+                sdgr_file_name
+                ]
+    
+    else:
+        raise PreventUpdate
+    
+

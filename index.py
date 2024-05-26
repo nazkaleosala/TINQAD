@@ -16,7 +16,7 @@ from apps.maindashboard import homepage, user_profile, register_user, search_use
 from apps.admin import administration_dashboard, record_expenses, training_instructions, training_documents, add_expenses, training_record
 from apps.iqa import iqa_dashboard, more_details, acad_heads_directory, acadheads_profile
 from apps.eqa import eqa_dashboard, assessment_reports, assessment_details, accreditation_tracker, program_list, program_details, sar_details
-from apps.km import THEworld_rankings, SDGimpact_rankings, SDG_submission, SDG_revision, add_criteria
+from apps.km import THEworld_rankings, SDGimpact_rankings, SDG_submission, SDG_revision, add_criteria, SDG_evidencelist
 from apps.qaofficers import qa_directory, training_list, qaofficers_profile, training_details, view_list
 
  
@@ -125,6 +125,8 @@ def displaypage (pathname):
                 returnlayout = SDG_submission.layout 
             elif pathname == '/SDGimpactrankings/SDG_revision':
                 returnlayout = SDG_revision.layout 
+            elif pathname == '/SDG_evidencelist':
+                returnlayout = SDG_evidencelist.layout 
             #elif pathname == '/QSworld_rankings':
                 #returnlayout = QSworld_rankings.layout 
 
