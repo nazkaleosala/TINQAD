@@ -501,7 +501,7 @@ def revisions_list (pathname):
                 )
             )
 
-            df = df[['Evidence Name', 'Office', 'Department', 'Description', 'Ranking Body', "Applicable Criteria", 'Action']]
+            df = df[['Evidence Name', 'Office', 'Department', 'Description', 'Ranking Body', "Applicable Criteria", ]]
 
         if not df.empty:
             df["Applicable Criteria"] = df["Applicable Criteria"].apply(
