@@ -96,7 +96,7 @@ layout = html.Div(
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add New", color="primary", 
-                                        href='/QAOfficers/qaofficers_profile', 
+                                        href='/qaofficers_profile?mode=add', 
                                     ),
                                     width="auto",    
                                     
@@ -152,6 +152,7 @@ def qadirectory_loadlist(pathname, searchterm, selected_month, selected_year):
         # Fetch the data
         sql = """
             SELECT 
+                qaofficer_id AS "ID",
                 clusters.cluster_shortname AS "Cluster",
                 college.college_shortname AS "College",
                 deg_unit.deg_unit_name AS "Unit",
@@ -177,23 +178,17 @@ def qadirectory_loadlist(pathname, searchterm, selected_month, selected_year):
                 public.college ON qaofficer_college_id = college.college_id
             LEFT JOIN 
                 public.deg_unit ON qaofficer_deg_unit_id = deg_unit.deg_unit_id
+            WHERE
+                NOT qaofficer_del_ind    
         """
 
         cols = [
-            'Cluster', 'College', 'Unit', 'Full Name', 'UP Mail', 'Faculty Position',
+            'ID', 'Cluster', 'College', 'Unit', 'Full Name', 'UP Mail', 'Faculty Position',
             'Admin Position', 'Staff Position', 'QA Position', 
             'With Basic Paper', 'Remarks', 'ALC', 'Start Term', 'End Term', 
             'CU-Level role'
         ]
         
-        # Fetch all data
-        df = db.querydatafromdatabase(sql, [], cols)
-        
-        
-        
-        # Check if DataFrame is empty after data retrieval
-        if df.empty:
-            return html.Div("No records to display")
         
         # Apply search term filter
         if searchterm:
@@ -202,6 +197,10 @@ def qadirectory_loadlist(pathname, searchterm, selected_month, selected_year):
                 lambda row: any(searchterm.lower() in str(cell).lower() for cell in row),
                 axis=1
             )]
+        else:
+            values = []
+        
+        df = db.querydatafromdatabase(sql, values, cols)
         
         # Apply additional filters
         df['Start Term'] = pd.to_datetime(df['Start Term'], errors='coerce')  # Handle errors gracefully
@@ -215,8 +214,25 @@ def qadirectory_loadlist(pathname, searchterm, selected_month, selected_year):
         # Truncate the 'Start Term' column to ensure it doesn't exceed 10 characters
         df['Start Term'] = df['Start Term'].astype(str).str.slice(0, 10)
         
-        # Generate the table from the filtered DataFrame
-        if not df.empty:
+        
+
+        if df.shape[0] > 0:
+            buttons = []
+            for qaofficer_id in df['ID']:
+                buttons.append(
+                    html.Div(
+                        dbc.Button('Edit',
+                                   href=f'qaofficers_profile?mode=edit&id={qaofficer_id}',
+                                   size='sm', color='warning'),
+                        style={'text-align': 'center'}
+                    )
+                )
+            df['Action'] = buttons
+
+            df = df[['Cluster', 'College', 'Unit', 'Full Name', 'UP Mail', 'Faculty Position',
+            'Admin Position', 'Staff Position', 'QA Position', 'With Basic Paper', 'Remarks', 
+            'ALC', 'Start Term', 'End Term', 'CU-Level role', 'Action']]
+
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return table
         else:
