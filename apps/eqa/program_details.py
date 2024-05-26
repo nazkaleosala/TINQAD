@@ -15,6 +15,8 @@ import psycopg2
 import json
 import logging
 
+from urllib.parse import urlparse, parse_qs
+
 
 form = dbc.Form(
     [
@@ -23,7 +25,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Select Degree Program",
+                        "Select Degree Program ",
                         html.Span("*", style={"color":"#F8B237"})
                     ],
                     width=4
@@ -41,7 +43,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Degree Program Shortname",
+                        "Degree Program Shortname ",
                         html.Span("*", style={"color":"#F8B237"})
                     ],
                     width=4
@@ -58,7 +60,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Degree Program Initials",
+                        "Degree Program Initials ",
                         html.Span("*", style={"color":"#F8B237"})
                     ],
                     width=4
@@ -92,8 +94,8 @@ form = dbc.Form(
         dbc.Row(
             [
                 dbc.Label(
-                    [
-                        "College",
+                    [ 
+                        "College ",
                         html.Span("*", style={"color":"#F8B237"})
                     ],
                     width=4
@@ -136,7 +138,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Degree Count",
+                        "Degree Count ",
                         html.Span("*", style={"color": "#F8B237"})
                     ],
                     width=4),
@@ -152,7 +154,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Degree Program Type",
+                        "Degree Program Type ",
                         html.Span("*", style={"color":"#F8B237"})
                     ],
                     width=4
@@ -195,7 +197,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Applicable Accreditation Bodies",
+                        "Applicable Accreditation Bodies ",
                         html.Span("*", style={"color": "#F8B237"})
                     ],
                     width=4),
@@ -232,55 +234,6 @@ form = dbc.Form(
 
         html.Br(),
         html.Br(),
-
-        dbc.Row(
-            [ 
-                
-                dbc.Col(
-                    dbc.Button("Save", color="primary",  id="save_button", n_clicks=0),
-                    width="auto"
-                ),
-                dbc.Col(
-                    dbc.Button("Cancel", color="warning", id="cancel_button", n_clicks=0, href="/program_list"),  
-                    width="auto"
-                ),
-            ],
-            className="mb-2",
-            justify="end",
-        ),
-
-        dbc.Modal(
-            [
-                dbc.ModalHeader(className="bg-success"),
-                dbc.ModalBody(
-                    html.H4('Program Registered Successfully.'),
-                ),
-                dbc.ModalFooter(
-                    dbc.Button(
-                      "Proceed", id='prog_proceed_button', className='ml-auto'
-                    ), 
-                )
-                 
-            ],
-            centered=True,
-            id='pro_alert_successmodal',
-            backdrop=True,   
-            className="modal-success"  
-        ),
-
-        dbc.Modal(
-            [
-                dbc.ModalHeader(className="bg-success"),
-                dbc.ModalBody(
-                    html.H4('New accreditation body added.'),
-                ),
-                
-            ],
-            centered=True,
-            id='newaccred_successmodal',
-            backdrop=True,   
-            className="modal-success"  
-        ),
     ]
 )
  
@@ -296,12 +249,78 @@ layout = html.Div(
                 ),
                 dbc.Col(
                     [
+                        html.Div(  
+                            [
+                                dcc.Store(id='pro_toload', storage_type='memory', data=0),
+                            ]
+                        ),
+
                         html.H1("ADD NEW PROGRAM"),
                         html.Hr(),
                         dbc.Alert(id='pro_alert', is_open=False), # For feedback purpose
                         form, 
                         html.Br(),
-                         
+
+                        html.Div(
+                            dbc.Row(
+                                [
+                                    dbc.Label("Wish to delete?", width=3),
+                                    dbc.Col(
+                                        dbc.Checklist(
+                                            id='pro_removerecord',
+                                            options=[
+                                                {
+                                                    'label': "Mark for Deletion",
+                                                    'value': 1
+                                                }
+                                            ], 
+                                            style={'fontWeight':'bold'},
+                                        ),
+                                        width=5,
+                                    ),
+                                ],
+                                className="mb-3",
+                            ),
+                            id='pro_removerecord_div'
+                        ),
+
+                        html.Br(),
+                        dbc.Row(
+                            [ 
+                                dbc.Col(
+                                    dbc.Button("Save", color="primary",  id="pro_save_button", n_clicks=0),
+                                    width="auto"
+                                ),
+                                dbc.Col(
+                                    dbc.Button("Cancel", color="warning", id="pro_cancel_button", n_clicks=0, href="/program_list"),  
+                                    width="auto"
+                                ),
+                            ],
+                            className="mb-2",
+                            justify="end",
+                        ),
+
+                        
+
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader(className="bg-success"),
+                                dbc.ModalBody(
+                                    ['New Program added successfully.'
+                                    ],id='pro_feedback_message'
+                                ),
+                                dbc.ModalFooter(
+                                    dbc.Button(
+                                        "Proceed", href='/program_list', id='pro_btn_modal'
+                                    ), 
+                                )
+                                
+                            ],
+                            centered=True,
+                            id='pro_successmodal',
+                            backdrop=True,   
+                            className="modal-success"    
+                        ),
                         
                     ], width=8, style={'marginLeft': '15px'}
                 ),   
@@ -320,183 +339,7 @@ layout = html.Div(
 )
 
 
- 
-@app.callback(
-    [
-        Output('pro_alert', 'color'),
-        Output('pro_alert', 'children'),
-        Output('pro_alert', 'is_open'),
-        Output('pro_alert_successmodal', 'is_open')
-    ],
-    [Input('save_button', 'n_clicks')],
-    [
-        State('pro_degree_title', 'value'),
-        State('pro_degree_shortname', 'value'),
-        State('pro_degree_initials', 'value'),
-        State('pro_cluster_id', 'value'),
-        State('pro_college_id', 'value'),
-        State('pro_department_id', 'value'),
-        State('pro_degree_count', 'value'),
-        State('pro_program_type_id', 'value'),
-        State('pro_calendar_type_id', 'value'),
-        State('pro_accreditation_body_id', 'value')  # JSON string input
-    ]
-)
-def record_program_details(
-    submitbtn,
-    pro_degree_title,
-    pro_degree_shortname,
-    pro_degree_initials,
-    pro_cluster_id,
-    pro_college_id,
-    pro_department_id,
-    pro_degree_count,
-    pro_program_type_id,
-    pro_calendar_type_id,
-    pro_accreditation_body_id
-):
-    if not submitbtn:
-        raise PreventUpdate
 
-    # Default values
-    alert_open = False
-    modal_open = False
-    alert_color = ""
-    alert_text = ""
-
-    # Ensure required fields are filled
-    if not all([pro_degree_title, pro_degree_shortname, pro_degree_initials]):
-        return [alert_color, "Missing required fields.", alert_open, modal_open]
-
-    try:
-        check_existing_title_sql = """
-            SELECT 1 
-            FROM eqateam.program_details 
-            WHERE pro_degree_title = %s
-        """
-        existing_title = db.querydatafromdatabase(check_existing_title_sql, (pro_degree_title,), ["exists"])
-
-        check_existing_shortname_sql = """
-            SELECT 1 
-            FROM eqateam.program_details 
-            WHERE pro_degree_shortname = %s
-        """
-        existing_shortname = db.querydatafromdatabase(check_existing_shortname_sql, (pro_degree_shortname,), ["exists"])
-
-        check_existing_initials_sql = """
-            SELECT 1 
-            FROM eqateam.program_details 
-            WHERE pro_degree_initials = %s
-        """
-        existing_initials = db.querydatafromdatabase(check_existing_initials_sql, (pro_degree_initials,), ["exists"])
-
-        # Construct an alert text based on which fields already exist
-        if not existing_title.empty:
-            alert_text = 'Degree Program Title already exists. Please use a different title.'
-        elif not existing_shortname.empty:
-            alert_text = 'Degree Program Shortname already exists. Please use a different shortname.'
-        elif not existing_initials.empty:
-            alert_text = 'Degree Program Initials already exists. Please use different initials.'
-
-        if not existing_title.empty or not existing_shortname.empty or not existing_initials.empty:
-            return [alert_color, alert_text, True, False]
-
-        sql = """
-            INSERT INTO eqateam.program_details (
-                pro_degree_title, pro_degree_shortname,
-                pro_degree_initials, pro_cluster_id,
-                pro_college_id, pro_department_id,
-                pro_degree_count, pro_program_type_id,
-                pro_calendar_type_id, pro_accreditation_body_id
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-             
-        """
-
-        values = (
-            pro_degree_title,
-            pro_degree_shortname,
-            pro_degree_initials,
-            pro_cluster_id,
-            pro_college_id,
-            pro_department_id,
-            pro_degree_count,
-            pro_program_type_id,
-            pro_calendar_type_id, 
-            json.dumps(pro_accreditation_body_id) if pro_accreditation_body_id else None,
-        )
-            
-            
-        db.modifydatabase(sql, values)
-        modal_open = True
-
-    except Exception as e:
-        return set_alert("An error occurred while saving the data: " + str(e), 'danger')
-
-    return [alert_color, alert_text, alert_open, modal_open]
-
-
-# Helper function for setting alerts
-def set_alert(message, color):
-    return [color, message, True, False]
-
-
-
-
-
-
-
-@app.callback(
-    [Output('newaccred_successmodal', 'is_open')],
-    [Input('add_button', 'n_clicks')],
-    [State('new_accreditation_body_id', 'value')]
-)
-def new_accreditation_details(addbtn, new_accreditation_body_id):
-    if not addbtn or not new_accreditation_body_id:
-        raise PreventUpdate  # Don't update if there's no click or no input
-    
-    modal_open = False
-
-    try:
-        sql = """
-            INSERT INTO public.accreditation_body (
-                body_name
-            )
-            VALUES (%s)
-        """
-        values = (new_accreditation_body_id,)
-        db.modifydatabase(sql, values)  # Function to execute the SQL and commit changes
-        modal_open = True  # Open a success modal
-
-    except Exception as e:
-        # Handle error appropriately
-        modal_open = False
- 
-    return [modal_open]
-
-
- 
-
-# Cluster dropdown
-@app.callback(
-    Output('pro_cluster_id', 'options'),
-    Input('url', 'pathname')
-)
-def populate_cluster_dropdown(pathname):
-    # Check if the pathname matches if necessary
-    if pathname == '/programlist/program_details':
-        sql = """
-        SELECT cluster_name as label, cluster_id  as value
-        FROM public.clusters
-        """
-        values = []
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        
-        pro_cluster_types = df.to_dict('records')
-        return pro_cluster_types
-    else:
-        raise PreventUpdate
 
 # College dropdown
 @app.callback(
@@ -550,9 +393,6 @@ def populate_dgu_dropdown(selected_college):
         return []
     
 
- 
-
-
 # Program type dropdown
 @app.callback(
     Output('pro_program_type_id', 'options'),
@@ -560,7 +400,7 @@ def populate_dgu_dropdown(selected_college):
 )
 def populate_programtype_dropdown(pathname):
     # Check if the pathname matches if necessary
-    if pathname == '/programlist/program_details':
+    if pathname == '/program_details':
         sql = """
         SELECT programtype_name  as label, programtype_id as value
         FROM eqateam.program_type
@@ -575,8 +415,6 @@ def populate_programtype_dropdown(pathname):
         raise PreventUpdate
 
 
-
-
 # Accreditation body dropdown
 @app.callback(
     Output('pro_accreditation_body_id', 'options'),
@@ -584,7 +422,7 @@ def populate_programtype_dropdown(pathname):
 )
 def populate_accreditationbody_dropdown(pathname):
     # Check if the pathname matches if necessary
-    if pathname == '/programlist/program_details':
+    if pathname == '/program_details':
         sql = """
         SELECT body_name as label, accreditation_body_id as value
         FROM public.accreditation_body
@@ -598,12 +436,330 @@ def populate_accreditationbody_dropdown(pathname):
     else:
         raise PreventUpdate
 
+
+# Cluster dropdown
 @app.callback(
-    Output('prog_proceed_button', 'href'),
-    [Input('prog_proceed_button', 'n_clicks')]
+    [
+        Output('pro_cluster_id', 'options'),
+        Output('pro_toload', 'data'),
+        Output('pro_removerecord_div', 'style'),
+    ],
+    [
+        Input('url', 'pathname')
+    ],
+    [
+        State('url', 'search')  
+    ]
 )
-def redirect_to_program_list(n_clicks):
-    if not n_clicks:
+
+def populate_cluster_dropdown(pathname, search):
+    # Check if the pathname matches if necessary
+    if pathname == 'program_details':
+        sql = """
+        SELECT cluster_name as label, cluster_id  as value
+        FROM public.clusters
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        pro_cluster_types = df.to_dict('records')
+    
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query)['mode'][0]
+        to_load = 1 if create_mode == 'edit' else 0
+        removediv_style = {'display': 'none'} if not to_load else None
+
+    else:
+        raise PreventUpdate
+    return [pro_cluster_types, to_load, removediv_style]
+
+ 
+
+
+@app.callback(
+    [
+        Output('pro_alert', 'color'),
+        Output('pro_alert', 'children'),
+        Output('pro_alert', 'is_open'),
+        Output('pro_successmodal', 'is_open'),
+        Output('pro_feedback_message', 'children'),
+        Output('pro_btn_modal', 'href')
+    ],
+    [
+        Input('pro_save_button', 'n_clicks'),
+        Input('pro_btn_modal', 'n_clicks'),
+        Input('pro_removerecord', 'value')
+    ],
+    [
+        State('pro_degree_title', 'value'),
+        State('pro_degree_shortname', 'value'),
+        State('pro_degree_initials', 'value'),
+        State('pro_cluster_id', 'value'),
+        State('pro_college_id', 'value'),
+        State('pro_department_id', 'value'),
+        State('pro_degree_count', 'value'),
+        State('pro_program_type_id', 'value'),
+        State('pro_calendar_type_id', 'value'),
+        State('pro_accreditation_body_id', 'value'),
+        State('url', 'search')         # JSON string input
+    ]
+)
+def record_program_details(submitbtn, closebtn, removerecord,
+                            pro_degree_title, pro_degree_shortname, pro_degree_initials,
+                            pro_cluster_id, pro_college_id, pro_department_id,
+                            pro_degree_count, pro_program_type_id, pro_calendar_type_id,
+                            pro_accreditation_body_id, search):
+    ctx = dash.callback_context 
+
+    if ctx.triggered:
+        eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+        if eventid == 'pro_save_button' and submitbtn:
+        
+            alert_open = False
+            modal_open = False
+            alert_color = ''
+            alert_text = ''
+
+            parsed = urlparse(search)
+            create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+            
+            if create_mode == 'add':
+
+                if not all([pro_degree_title, pro_degree_shortname, pro_degree_initials]):
+                    return [alert_color, "Missing required fields.", alert_open, modal_open]
+
+                check_existing_title_sql = """
+                    SELECT 1 
+                    FROM eqateam.program_details 
+                    WHERE pro_degree_title = %s
+                """
+                existing_title = db.querydatafromdatabase(check_existing_title_sql, (pro_degree_title,), ["exists"])
+
+                check_existing_shortname_sql = """
+                    SELECT 1 
+                    FROM eqateam.program_details 
+                    WHERE pro_degree_shortname = %s
+                """
+                existing_shortname = db.querydatafromdatabase(check_existing_shortname_sql, (pro_degree_shortname,), ["exists"])
+
+                check_existing_initials_sql = """
+                    SELECT 1 
+                    FROM eqateam.program_details 
+                    WHERE pro_degree_initials = %s
+                """
+                existing_initials = db.querydatafromdatabase(check_existing_initials_sql, (pro_degree_initials,), ["exists"])
+
+                # Construct an alert text based on which fields already exist
+                if not existing_title.empty:
+                    alert_text = 'Degree Program Title already exists. Please use a different title.'
+                elif not existing_shortname.empty:
+                    alert_text = 'Degree Program Shortname already exists. Please use a different shortname.'
+                elif not existing_initials.empty:
+                    alert_text = 'Degree Program Initials already exists. Please use different initials.'
+
+                if not existing_title.empty or not existing_shortname.empty or not existing_initials.empty:
+                    return [alert_color, alert_text, True, False]
+
+                sql = """
+                    INSERT INTO eqateam.program_details (
+                        pro_degree_title, pro_degree_shortname, pro_degree_initials, 
+                        pro_cluster_id, pro_college_id, pro_department_id,
+                        pro_degree_count, pro_program_type_id, pro_calendar_type_id, 
+                        pro_accreditation_body_id, pro_del_ind
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    
+                """
+
+                values = (
+                    pro_degree_title, pro_degree_shortname, pro_degree_initials,
+                    pro_cluster_id, pro_college_id, pro_department_id,
+                    pro_degree_count, pro_program_type_id, pro_calendar_type_id, 
+                    json.dumps(pro_accreditation_body_id) if pro_accreditation_body_id else None,
+                    False
+                )
+                
+                db.modifydatabase(sql, values) 
+                modal_open = True
+                feedbackmessage = html.H5("New Program added successfully.")
+                okay_href = "/program_list"
+                
+            elif create_mode == 'edit':
+                # Update existing user record
+                programdetailsid = parse_qs(parsed.query).get('id', [None])[0]
+                
+                if programdetailsid is None:
+                    raise PreventUpdate
+                
+                sqlcode = """
+                    UPDATE eqateam.program_details
+                    SET
+                        pro_degree_count = %s,
+                        pro_calendar_type_id = %s,
+                        pro_accreditation_body_id = %s, 
+                        pro_del_ind = %s
+                    WHERE 
+                        programdetails_id = %s
+                """
+
+                to_delete = bool(removerecord) 
+                
+                values = [pro_degree_count, pro_calendar_type_id,
+                        pro_accreditation_body_id, to_delete, programdetailsid]
+                db.modifydatabase(sqlcode, values)
+                
+                feedbackmessage = html.H5("Program has been updated.")
+                okay_href = "/program_list"
+                modal_open = True
+            
+            else:
+                raise PreventUpdate
+
+            return [alert_color, alert_text, alert_open, modal_open,
+                    feedbackmessage, okay_href]  
+
+        else:
+            raise PreventUpdate
+    else:
+        raise PreventUpdate
+
+    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]  
+
+  
+
+
+# Helper function for setting alerts
+def set_alert(message, color):
+    return [color, message, True, False]
+
+
+
+
+
+
+
+@app.callback(
+    [Output('newaccred_successmodal', 'is_open')],
+    [Input('add_button', 'n_clicks')],
+    [State('new_accreditation_body_id', 'value')]
+)
+def new_accreditation_details(addbtn, new_accreditation_body_id):
+    if not addbtn or not new_accreditation_body_id:
+        raise PreventUpdate  # Don't update if there's no click or no input
+    
+    modal_open = False
+
+    try:
+        sql = """
+            INSERT INTO public.accreditation_body (
+                body_name
+            )
+            VALUES (%s)
+        """
+        values = (new_accreditation_body_id,)
+        db.modifydatabase(sql, values)  # Function to execute the SQL and commit changes
+        modal_open = True  # Open a success modal
+
+    except Exception as e:
+        # Handle error appropriately
+        modal_open = False
+ 
+    return [modal_open]
+
+
+ 
+@app.callback(
+    [
+        Output('pro_degree_title', 'value'),
+        Output('pro_degree_shortname', 'value'),
+        Output('pro_degree_initials', 'value'),
+        Output('pro_cluster_id', 'value'),
+        Output('pro_college_id', 'value'),
+        Output('pro_department_id', 'value'),
+        Output('pro_degree_count', 'value'),
+        Output('pro_program_type_id', 'value'),
+        Output('pro_calendar_type_id', 'value'),
+        Output('pro_accreditation_body_id', 'value'),
+       
+    ],
+    [  
+        Input('pro_toload', 'modified_timestamp')
+    ],
+    [
+        State('pro_toload', 'data'),
+        State('url', 'search')
+    ]
+)
+
+
+def pro_loadprofile(timestamp, toload, search):
+    if toload:
+        parsed = urlparse(search)
+        programdetailsid = parse_qs(parsed.query)['id'][0]
+
+        sql = """
+            SELECT 
+                pro_degree_title, pro_degree_shortname, pro_degree_initials,
+                pro_cluster_id, pro_college_id, pro_department_id,
+                pro_degree_count, pro_program_type_id, pro_calendar_type_id,
+                pro_accreditation_body_id
+                
+            FROM eqateam.program_details
+            WHERE programdetails_id = %s
+        """
+        values = [programdetailsid]
+
+        cols = [
+            'pro_degree_title', 'pro_degree_shortname', 'pro_degree_initials',
+            'pro_cluster_id', 'pro_college_id', 'pro_department_id',
+            'pro_degree_count', 'pro_program_type_id', 'pro_calendar_type_id',
+            'pro_accreditation_body_id'
+        ]
+
+        df = db.querydatafromdatabase(sql, values, cols)
+
+
+        pro_degree_title = df['pro_degree_title'][0]
+        pro_degree_shortname = df['pro_degree_shortname'][0]
+        pro_degree_initials = df['pro_degree_initials'][0]
+        pro_cluster_id = int(df['pro_cluster_id'][0])
+        pro_college_id = df['pro_college_id'][0]
+        pro_department_id = df['pro_department_id'][0]
+        pro_degree_count = df['pro_degree_count'][0]
+        pro_program_type_id = df['pro_program_type_id'][0]
+        pro_calendar_type_id = df['pro_calendar_type_id'][0]
+        pro_accreditation_body_id = df['pro_accreditation_body_id'][0]
+        
+        
+
+        
+        return [pro_degree_title, pro_degree_shortname, pro_degree_initials,
+                pro_cluster_id, pro_college_id, pro_department_id,
+                pro_degree_count, pro_program_type_id, pro_calendar_type_id,
+                pro_accreditation_body_id
+                ]
+    
+    else:
         raise PreventUpdate
     
-    return '/program_list'
+
+@app.callback(
+    [
+        Output('pro_degree_title', 'disabled'),
+        Output('pro_degree_shortname', 'disabled'),
+        Output('pro_degree_initials', 'disabled'),
+        Output('pro_cluster_id', 'disabled'),
+        Output('pro_college_id', 'disabled'),
+        Output('pro_department_id', 'disabled'),
+        Output('pro_program_type_id', 'disabled'),
+    ],
+    [Input('url', 'search')]
+)
+def pro_inputs_disabled(search):
+    if search:
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+        if create_mode == 'edit':
+            return [True] * 7  # Disable all inputs in edit mode
+    return [False] * 7  # Enable all inputs otherwise
+
