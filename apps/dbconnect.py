@@ -69,3 +69,37 @@ def get_college(selected_degree_program):
         # Print or log the error
         print("Error fetching college:", e)
         return None
+
+
+
+
+
+def get_rankingbody(sdgr_evidencename):
+    try:
+        conn = getdblocation()
+        cursor = conn.cursor()
+
+        query = """
+        SELECT r.sdgr_rankingbody, r.sdgr_description, o.office_name
+        FROM kmteam.SDGRevision r
+        LEFT JOIN maindashboard.offices o ON r.sdgr_office_id = o.office_id
+        WHERE r.sdgr_evidencename = %s
+        """
+        cursor.execute(query, (sdgr_evidencename,))
+        result = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if result:
+            return {
+                'rankingbody': result[0],
+                'description': result[1],
+                'office': result[2]
+            }
+        else:
+            return None
+
+    except psycopg2.Error as e:
+        print("Database error:", e)
+        return None
