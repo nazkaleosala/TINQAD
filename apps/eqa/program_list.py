@@ -10,7 +10,7 @@ import pandas as pd
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
-
+ 
 
 
 layout = html.Div(
@@ -28,7 +28,7 @@ layout = html.Div(
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add Program", color="primary", 
-                                        href='/programlist/program_details', 
+                                        href='/program_details?mode=add', 
                                     ),
                                     width="auto",    
                                 ),
@@ -102,6 +102,7 @@ def programlist_loadlist(pathname, searchterm):
     if pathname == '/program_list':
         sql = """  
             SELECT
+                programdetails_id AS "ID",
                 pd.pro_degree_shortname AS "Degree Program",
                 c.college_name AS "College",
                 du.deg_unit_shortname AS "Department",
@@ -123,8 +124,12 @@ def programlist_loadlist(pathname, searchterm):
                 INNER JOIN public.deg_unit du ON pd.pro_department_id = du.deg_unit_id
                 INNER JOIN public.clusters cl ON pd.pro_cluster_id = cl.cluster_id
                 INNER JOIN eqateam.program_type pt ON pd.pro_program_type_id = pt.programtype_id
+                WHERE
+                    NOT pro_del_ind
         """
- 
+        cols = ['ID', "Degree Program", "College", "Department", 
+                "Cluster", "Program Type", "Applicable Accreditation Body"]
+        
         values = []
 
         if searchterm:
@@ -142,15 +147,32 @@ def programlist_loadlist(pathname, searchterm):
 
         final_sql = sql + " ORDER BY pd.pro_degree_shortname"
          
-        cols = ["Degree Program", "College", "Department", "Cluster", "Program Type", "Applicable Accreditation Body"]
-
         df = db.querydatafromdatabase(final_sql, values, cols)
- 
+        
+
+        if df.shape[0] > 0:
+            buttons = []
+            for programdetails_id in df['ID']:
+                buttons.append(
+                    html.Div(
+                        dbc.Button('Edit',
+                                   href=f'program_details?mode=edit&id={programdetails_id}',
+                                   size='sm', color='warning'),
+                        style={'text-align': 'center'}
+                    )
+                )
+            df['Action'] = buttons
+
+            df = df[["Degree Program", "College", "Department", "Cluster", 
+                "Program Type", "Applicable Accreditation Body", 'Action']]
+
+
+        # Generate the table from the filtered DataFrame
         if not df.empty:
-            df["Applicable Accreditation Body"] = df["Applicable Accreditation Body"].apply(
-                lambda x: ", ".join(x) if x else "None"
-            )
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
-            return [html.Div("No records under this criteria")]
+            return [html.Div("No records to display")]
+    else:
+        raise PreventUpdate
+    
