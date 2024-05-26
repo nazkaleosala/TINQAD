@@ -124,10 +124,9 @@ layout = html.Div(
                             }
                         ),
 
+                        html.Hr(),
 
-
-
-                         html.Div(
+                        html.Div(
                             [
                                 html.Br(),  
                                     
