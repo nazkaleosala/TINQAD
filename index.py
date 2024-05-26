@@ -5,7 +5,7 @@ import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-import webbrowser
+import webbrowser 
 
 from app import app
 from apps import commonmodules as cm
