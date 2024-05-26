@@ -403,13 +403,14 @@ def update_manageevidence_list (pathname, selected_criteria):
 )
 
 def checking_list (pathname):
-    if pathname == '/SDGimpact_rankings':  # Adjusted URL path
+    if pathname == '/SDGimpact_rankings':   
          
         sql = """
             SELECT 
                 sdgsubmission_id AS "ID", 
                 sdg_evidencename AS "Evidence Name",
                 (SELECT office_name FROM maindashboard.offices WHERE office_id = sdg_office_id) AS "Office",
+                (SELECT deg_unit_name FROM public.deg_unit WHERE deg_unit_id  = sdg_deg_unit_id) AS "Department",
                 sdg_description AS "Description",
                 (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body",
                 (
@@ -425,7 +426,7 @@ def checking_list (pathname):
                 sdg_checkstatus = '1'   
                 AND sdg_del_ind IS FALSE
         """
-        cols = ['ID', 'Evidence Name', 'Office', 'Description', 'Ranking Body', "Applicable Criteria"]
+        cols = ['ID', 'Evidence Name', 'Office','Department', 'Description', 'Ranking Body', "Applicable Criteria"]
 
         df = db.querydatafromdatabase(sql, [], cols)
 
@@ -437,7 +438,7 @@ def checking_list (pathname):
                 )
             )
 
-            df = df[['Evidence Name', 'Office', 'Description', 'Ranking Body', "Applicable Criteria", 'Action']]
+            df = df[['Evidence Name', 'Office', 'Department','Description', 'Ranking Body', "Applicable Criteria", 'Action']]
 
         if not df.empty:
             df["Applicable Criteria"] = df["Applicable Criteria"].apply(
@@ -466,12 +467,14 @@ def checking_list (pathname):
 )
 
 def revisions_list (pathname):
-    if pathname == '/SDGimpact_rankings':  # Adjusted URL path
+    if pathname == '/SDGimpact_rankings':  
          
         sql = """
             SELECT 
+                sdgsubmission_id AS "ID", 
                 sdg_evidencename AS "Evidence Name",
                 (SELECT office_name FROM maindashboard.offices WHERE office_id = sdg_office_id) AS "Office",
+                (SELECT deg_unit_name FROM public.deg_unit WHERE deg_unit_id  = sdg_deg_unit_id) AS "Department",
                 sdg_description AS "Description",
                 (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body",
                 (
@@ -485,12 +488,21 @@ def revisions_list (pathname):
                 kmteam.SDGSubmission
             WHERE
                 sdg_checkstatus = '3'   
-        """
-        cols = ['Evidence Name', 'Office','Description', 'Ranking Body' , "Applicable Criteria"] 
+        """ 
+        cols = ['ID', 'Evidence Name', 'Office', 'Department','Description', 'Ranking Body', "Applicable Criteria"]
 
-        df = db.querydatafromdatabase(sql, [], cols) 
+        df = db.querydatafromdatabase(sql, [], cols)
 
-        # Generate the table from the DataFrame
+        if df.shape[0] > 0:
+            df["Action"] = df["ID"].apply(
+                lambda x: html.Div(
+                    dbc.Button('Edit', href=f'SDGimpactrankings/SDG_revision?mode=edit&id={x}', size='sm', color='warning'),
+                    style={'text-align': 'center'}
+                )
+            )
+
+            df = df[['Evidence Name', 'Office', 'Department', 'Description', 'Ranking Body', "Applicable Criteria", 'Action']]
+
         if not df.empty:
             df["Applicable Criteria"] = df["Applicable Criteria"].apply(
                 lambda x: ", ".join(x) if x else "None"
@@ -499,8 +511,8 @@ def revisions_list (pathname):
             return [table]
         else:
             return [html.Div("No submissions for revision")]
-    
-
+    else:
+        raise PreventUpdate
 
 
 

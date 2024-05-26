@@ -7,9 +7,22 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import pandas as pd
 
+
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
+import json
+
+import base64
+import os
+from urllib.parse import urlparse, parse_qs
+
+# Using the corrected path
+UPLOAD_DIRECTORY = r"C:\Users\Naomi A. Takagaki\OneDrive\Documents\TINQAD\assets\database"
+
+# Ensure the directory exists or create it
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
+
 
 
 form = dbc.Form(
@@ -239,6 +252,11 @@ layout = html.Div(
                 dbc.Col(cm.generate_navbar(), width=2),
                 dbc.Col(
                     [
+                        html.Div(  
+                            [
+                                dcc.Store(id='sdgr_toload', storage_type='memory', data=0),
+                            ]
+                        ),
                         html.H1("ADD REVISION"),
                         html.Hr(),
                         html.Br(),
@@ -338,7 +356,7 @@ def populate_evidence_dropdown(pathname):
         sql = """
         SELECT sdg_evidencename as label, sdgsubmission_id as value
         FROM kmteam.SDGSubmission
-        WHERE sdg_checkstatus = '3'  
+        WHERE sdg_checkstatus = '3' AND sdg_del_ind = FALSE
         """
         values = []
         cols = ['label', 'value']
@@ -520,3 +538,163 @@ def display_uploaded_files(filenames):
 
 
 
+
+@app.callback(
+    [
+        Output('sdgr_alert', 'color'),
+        Output('sdgr_alert', 'children'),
+        Output('sdgr_alert', 'is_open'),
+        Output('sdgr_successmodal', 'is_open'),
+        Output('sdgr_feedback_message', 'children'),
+        Output('sdgr_btn_modal', 'href')
+    ],
+    [
+        Input('sdgr_save_button', 'n_clicks'),
+        Input('sdgr_btn_modal', 'n_clicks'),
+        Input('sdgr_removerecord', 'value')
+    ],
+    [
+        State('sdgr_rankingbody', 'value'),
+        State('sdgr_evidencename', 'value'),
+        State('sdgr_description', 'value'),
+        State('sdgr_office_id', 'value'),
+        State('sdgr_deg_unit_id', 'value'),
+        State('sdgr_accomplishedby', 'value'),
+        State('sdgr_datesubmitted', 'value'), 
+        State('sdgr_checkstatus', 'value'), 
+        State('sdgr_file', 'contents'),
+        State('sdgr_file', 'filename'),  
+        State('sdgr_link', 'value'), 
+        State('sdgr_applycriteria', 'value'), 
+        State('url', 'search')
+    ]
+)
+def record_SDGrevision (submitbtn, closebtn, removerecord,
+                         sdgr_rankingbody, sdgr_evidencename, sdgr_description,
+                         sdgr_office_id, sdgr_deg_unit_id, sdgr_accomplishedby, sdgr_datesubmitted, sdgr_checkstatus,
+                         sdgr_file_contents, sdgr_file_names, sdgr_link, sdgr_applycriteria,
+                         search):
+    
+    ctx = dash.callback_context 
+
+    if not ctx.triggered:
+        raise PreventUpdate
+
+    eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+    if eventid != 'sdgr_save_button' or not submitbtn:
+        raise PreventUpdate
+
+    alert_open = False
+    modal_open = False
+    alert_color = ''
+    alert_text = ''
+    feedbackmessage = None
+    okay_href = None
+
+    parsed = urlparse(search)
+    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+
+    if create_mode == 'add':
+        # Validation logic only for "add" mode
+        if not sdgr_rankingbody:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = 'Check your inputs. Please add a Ranking Body.'
+            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+
+        if not sdgr_accomplishedby:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = 'Check your inputs. Please add an Accomplished by.'
+            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+
+        if sdgr_file_contents is None or sdgr_file_names is None:
+            sdgr_file_contents = ["1"]
+            sdgr_file_names = ["1"]
+
+        # Process the files if there are any
+        file_data = []
+        if sdgr_file_contents and sdgr_file_names:
+            for content, filename in zip(sdgr_file_contents, sdgr_file_names):
+                if content == "1" and filename == "1":
+                    continue  # Skip default "1" value
+                try:
+                    # Decode and save the file
+                    content_type, content_string = content.split(',')
+                    decoded_content = base64.b64decode(content_string)
+
+                    file_path = os.path.join(UPLOAD_DIRECTORY, filename)
+                    with open(file_path, 'wb') as f:
+                        f.write(decoded_content)
+
+                    file_info = {
+                        "path": file_path,
+                        "name": filename,
+                        "type": content_type,
+                        "size": len(decoded_content),
+                    }
+                    file_data.append(file_info)
+
+                except Exception as e:
+                    alert_open = True
+                    alert_color = 'danger'
+                    alert_text = f'Error processing file: {e}'
+                    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+
+        sql = """
+            INSERT INTO kmteam.SDGRevision (
+                sdgr_rankingbody, sdgr_evidencename,
+                sdgr_description, sdgr_office_id, sdgr_deg_unit_id,
+                sdgr_accomplishedby, sdgr_datesubmitted, sdgr_checkstatus,
+                sdgr_link, sdgr_applycriteria,
+                sdgr_file_path, sdgr_file_name, sdgr_file_type, sdgr_file_size
+            )
+            VALUES (
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+            )
+        """
+
+        values = (
+            sdgr_rankingbody, sdgr_evidencename, sdgr_description, sdgr_office_id,
+            sdgr_deg_unit_id, sdgr_accomplishedby, sdgr_datesubmitted, sdgr_checkstatus, sdgr_link,
+            json.dumps(sdgr_applycriteria) if sdgr_applycriteria else None,
+            file_data[0]["path"] if file_data else None,
+            file_data[0]["name"] if file_data else None,
+            file_data[0]["type"] if file_data else None,
+            file_data[0]["size"] if file_data else None,
+        )
+
+        db.modifydatabase(sql, values)
+        modal_open = True
+        feedbackmessage = html.H5("New evidence submitted successfully.")
+        okay_href = "/SDGimpact_rankings"
+
+    elif create_mode == 'edit':
+        # Update existing user record
+        sdgrevisionid = parse_qs(parsed.query).get('id', [None])[0]
+        
+        if sdgrevisionid is None:
+            raise PreventUpdate
+        
+        sqlcode = """
+            UPDATE kmteam.SDGRevision
+            SET
+                sdgr_checkstatus = %s,
+                sdgr_del_ind = %s
+
+            WHERE 
+                sdgrevision_id = %s
+        """
+        to_delete = bool(removerecord) 
+
+        values = [sdgr_checkstatus, to_delete, sdgrevisionid]
+        db.modifydatabase(sqlcode, values)
+
+        feedbackmessage = html.H5("Status has been updated.")
+        okay_href = "/SDGimpact_rankings"
+        modal_open = True
+
+    else:
+        raise PreventUpdate
+
+    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
