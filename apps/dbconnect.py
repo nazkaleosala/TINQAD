@@ -74,32 +74,110 @@ def get_college(selected_degree_program):
 
 
 
-def get_rankingbody(sdgr_evidencename):
+def get_rankingbody(evidence_id_rankingbody):
     try:
         conn = getdblocation()
         cursor = conn.cursor()
 
         query = """
-        SELECT r.sdgr_rankingbody, r.sdgr_description, o.office_name
-        FROM kmteam.SDGRevision r
-        LEFT JOIN maindashboard.offices o ON r.sdgr_office_id = o.office_id
-        WHERE r.sdgr_evidencename = %s
+            SELECT rb.ranking_body_name 
+            FROM kmteam.SDGSubmission s
+            JOIN kmteam.ranking_body rb ON s.sdg_rankingbody = rb.ranking_body_id
+            WHERE s.sdgsubmission_id  = %s
         """
-        cursor.execute(query, (sdgr_evidencename,))
-        result = cursor.fetchone()
+        cursor.execute(query, (evidence_id_rankingbody,))
+        rankingbody = cursor.fetchone()
 
         cursor.close()
         conn.close()
 
-        if result:
-            return {
-                'rankingbody': result[0],
-                'description': result[1],
-                'office': result[2]
-            }
+        if rankingbody:
+            return rankingbody[0]
         else:
-            return None
+            return "No selected evidence name"
 
     except psycopg2.Error as e:
-        print("Database error:", e)
+        print("Error fetching ranking body:", e)
+        return None
+    
+
+
+def get_sdgrdescription(evidence_id_descript):
+    try:
+        conn = getdblocation()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT s.sdg_description 
+            FROM kmteam.SDGSubmission s 
+            WHERE s.sdgsubmission_id  = %s
+        """
+        cursor.execute(query, (evidence_id_descript,))
+        rankingbody = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if rankingbody:
+            return rankingbody[0]
+        else:
+            return "No selected evidence name"
+
+    except psycopg2.Error as e:
+        print("Error fetching description:", e)
+        return None
+    
+
+def get_sdgroffice(evidence_id_office):
+    try:
+        conn = getdblocation()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT o.office_name
+            FROM kmteam.SDGSubmission s 
+            JOIN maindashboard.offices o ON s.sdg_office_id = o.office_id
+            WHERE s.sdgsubmission_id = %s
+        """
+        cursor.execute(query, (evidence_id_office,))
+        rankingbody = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if rankingbody:
+            return rankingbody[0]
+        else:
+            return ""
+
+    except psycopg2.Error as e:
+        print("Error fetching description:", e)
+        return None
+
+
+
+def get_sdgrdepartment(evidence_id_department):
+    try:
+        conn = getdblocation()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT d.deg_unit_name 
+            FROM kmteam.SDGSubmission s 
+            JOIN public.deg_unit d ON s.sdg_deg_unit_id = d.deg_unit_id 
+            WHERE s.sdgsubmission_id = %s
+        """
+        cursor.execute(query, (evidence_id_department,))
+        rankingbody = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if rankingbody:
+            return rankingbody[0]
+        else:
+            return ""
+
+    except psycopg2.Error as e:
+        print("Error fetching description:", e)
         return None

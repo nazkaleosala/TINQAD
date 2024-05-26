@@ -57,6 +57,17 @@ form = dbc.Form(
             ],
             className="mb-3",
         ),
+
+        dbc.Row(
+            [
+                dbc.Label("Department", width=4),
+                dbc.Col(
+                    html.P(id='sdgr_deg_unit_id'),
+                    width=8,
+                ),
+            ],
+            className="mb-3",
+        ),
         dbc.Row(
             [
                 dbc.Label(
@@ -68,7 +79,7 @@ form = dbc.Form(
 
                 dbc.Col(
                     dbc.Input(type="text", placeholder="Name Surname",id='sdgr_accomplishedby'),  
-                    width=8,
+                    width=5,
                 ),
             ],
             className="mb-3",
@@ -99,10 +110,9 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='sdgr_checkstatus',  
-                        value='pending',
+                        id='sdgr_checkstatus', 
                     ),
-                    width=5,
+                    width=4,
                 ),
  
             ],
@@ -172,6 +182,12 @@ form = dbc.Form(
                 ),
                 
             ],
+            className="mb-2",
+        ),
+
+        dbc.Row(
+            [dbc.Label("",width=6),
+             dbc.Col(id="sdgr_file_output",style={"color": "#F8B237"}, width=6)],  # Output area for uploaded file names
             className="mb-2",
         ),
 
@@ -320,8 +336,9 @@ def populate_evidence_dropdown(pathname):
     # Check if the pathname matches if necessary
     if pathname == '/SDGimpactrankings/SDG_revision':
         sql = """
-        SELECT sdg_evidencename as label, sdgsubmission_id   as value
+        SELECT sdg_evidencename as label, sdgsubmission_id as value
         FROM kmteam.SDGSubmission
+        WHERE sdg_checkstatus = '3'  
         """
         values = []
         cols = ['label', 'value']
@@ -332,6 +349,95 @@ def populate_evidence_dropdown(pathname):
     else:
         raise PreventUpdate
     
+
+
+
+
+#ranking body appear
+@app.callback(
+    Output('sdgr_rankingbody', 'children'),
+    [Input('sdgr_evidencename', 'value')]
+)
+
+def update_rankingbody_text(selected_evidencename_rb):
+    if selected_evidencename_rb is None:
+        return ""
+    else:
+        try: 
+            rankingbody = db.get_rankingbody(selected_evidencename_rb)
+            if rankingbody:
+                return rankingbody
+            else:
+                return "No ranking body found for this evidence name"
+        except Exception as e:
+            return "An error occurred while fetching the rankingbody: {}".format(str(e))
+
+
+
+
+#description appear
+@app.callback(
+    Output('sdgr_description', 'children'),
+    [Input('sdgr_evidencename', 'value')]
+)
+
+def update_description_text(selected_evidencename_descript):
+    if selected_evidencename_descript is None:
+        return ""
+    else:
+        try: 
+            description = db.get_sdgrdescription (selected_evidencename_descript)
+            if description:
+                return description
+            else:
+                return "No description found for this evidence name"
+        except Exception as e:
+            return "An error occurred while fetching the description: {}".format(str(e))
+
+
+
+
+#office appear
+@app.callback(
+    Output('sdgr_office_id', 'children'),
+    [Input('sdgr_evidencename', 'value')]
+)
+
+def update_office_text(selected_evidencename_office):
+    if selected_evidencename_office is None:
+        return ""
+    else:
+        try: 
+            office = db.get_sdgroffice (selected_evidencename_office)
+            if office:
+                return office
+            else:
+                return ""
+        except Exception as e:
+            return "An error occurred while fetching the office: {}".format(str(e))
+
+
+#department appear
+@app.callback(
+    Output('sdgr_deg_unit_id', 'children'),
+    [Input('sdgr_evidencename', 'value')]
+)
+
+def update_department_text(selected_evidencename_department):
+    if selected_evidencename_department is None:
+        return ""
+    else:
+        try: 
+            department = db.get_sdgrdepartment (selected_evidencename_department)
+            if department:
+                return department
+            else:
+                return ""
+        except Exception as e:
+            return "An error occurred while fetching the department: {}".format(str(e))
+
+
+
 
 
 
@@ -380,8 +486,7 @@ def populate_applysdgrcriteria_dropdown(pathname):
     else:
         raise PreventUpdate
 
-
-# Callback to handle enabling/disabling file and link submissions based on submission_type
+ 
 @app.callback(
     [Output('sdgr_file', 'disabled'),
      Output('sdgr_link', 'disabled')],
