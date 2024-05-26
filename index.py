@@ -109,7 +109,7 @@ def displaypage (pathname):
                 returnlayout = accreditation_tracker.layout
             elif pathname == '/program_list':
                 returnlayout = program_list.layout
-            elif pathname == '/programlist/program_details':
+            elif pathname == '/program_details':
                 returnlayout = program_details.layout
 
             #KM
