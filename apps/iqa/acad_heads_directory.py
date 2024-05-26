@@ -96,7 +96,7 @@ layout = html.Div(
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add New", color="primary", 
-                                        href='/acadheadsdirectory/acadheads_profile', 
+                                        href='/acadheads_profile?mode=add', 
                                     ),
                                     width="auto",    
                                     
@@ -150,9 +150,10 @@ def acadheadsdirectory_loadlist(pathname, searchterm, selected_month, selected_y
         # SQL query to fetch the data from the database
         sql = """
             SELECT 
-                clusters.cluster_shortname AS Cluster,
-                college.college_shortname AS College,
-                deg_unit.deg_unit_name AS Unit,
+                acad_unitheads.unithead_id AS "ID",
+                clusters.cluster_shortname AS "Cluster",
+                college.college_shortname AS "College",
+                deg_unit.deg_unit_name AS "Unit",
                 acad_unitheads.unithead_full_name AS "Full Name",   
                 acad_unitheads.unithead_fname AS "First Name",
                 acad_unitheads.unithead_sname AS "Surname",
@@ -166,17 +167,18 @@ def acadheadsdirectory_loadlist(pathname, searchterm, selected_month, selected_y
                 LEFT JOIN public.clusters ON acad_unitheads.unithead_cluster_id = clusters.cluster_id
                 LEFT JOIN public.college ON acad_unitheads.unithead_college_id = college.college_id
                 LEFT JOIN public.deg_unit ON acad_unitheads.unithead_deg_unit_id = deg_unit.deg_unit_id
+                WHERE
+                    NOT unithead_del_ind
                  
         """
 
         cols = [
-            'Cluster', 'College', 'Unit', 'Full Name', 'First Name', 'Surname', 'Up Mail',
+            'ID', 'Cluster', 'College', 'Unit', 'Full Name', 'First Name', 'Surname', 'Up Mail',
             'Faculty Position', 'Designation', 'Start Term', 'End Term'
         ]
-        # Query the database with the correct SQL
-        df = db.querydatafromdatabase(sql, [], cols)  # Fetch all data
+        
+        df = db.querydatafromdatabase(sql, [], cols)  
 
-        # Filter the DataFrame based on the search term
         if searchterm:
             search_cols = ['Full Name','Surname', 'First Name', 'Up Mail', 'Faculty Position', 'Unit']
             df = df[df[search_cols].apply(lambda row: any(searchterm.lower() in str(cell).lower() for cell in row), axis=1)]
@@ -192,6 +194,23 @@ def acadheadsdirectory_loadlist(pathname, searchterm, selected_month, selected_y
         
         # Truncate the 'Start Term' column to ensure it doesn't exceed 10 characters
         df['Start Term'] = df['Start Term'].astype(str).str.slice(0, 10)
+
+        if df.shape[0] > 0:
+            buttons = []
+            for unithead_id in df['ID']:
+                buttons.append(
+                    html.Div(
+                        dbc.Button('Edit',
+                                   href=f'acadheads_profile?mode=edit&id={unithead_id}',
+                                   size='sm', color='warning'),
+                        style={'text-align': 'center'}
+                    )
+                )
+            df['Action'] = buttons
+
+            df = df[['Cluster', 'College', 'Unit', 'Full Name', 'First Name', 'Surname', 'Up Mail',
+            'Faculty Position', 'Designation', 'Start Term', 'End Term', 'Action']]
+
 
         # Generate the table from the filtered DataFrame
         if not df.empty:

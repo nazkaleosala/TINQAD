@@ -8,8 +8,8 @@ from dash.exceptions import PreventUpdate
 import pandas as pd
 import plotly.graph_objects as go
 
-from apps import commonmodules as cm
 from app import app
+from apps import commonmodules as cm
 from apps import dbconnect as db
 from datetime import datetime
 
@@ -86,14 +86,14 @@ def generate_pie_and_bar_chart():
         ]
     )
 
- 
+
 def get_main_expenses():
-    df = db.querydatafromdatabase("SELECT * FROM adminteam.main_expenses", (), ['main_expense_id', 'main_expense_name'])
+    df = db.querydatafromdatabase("SELECT main_expense_id, main_expense_name FROM adminteam.main_expenses", (), ['main_expense_id', 'main_expense_name'])
     main_expenses = df.to_records(index=False).tolist()
     return main_expenses
 
 def get_sub_expenses(main_expense_id):
-    df = db.querydatafromdatabase("SELECT * FROM adminteam.sub_expenses WHERE main_expense_id = %s", (main_expense_id,), ['sub_expense_id', 'sub_expense_name', 'main_expense_id'])
+    df = db.querydatafromdatabase("SELECT sub_expense_id, sub_expense_name, main_expense_id FROM adminteam.sub_expenses WHERE main_expense_id = %s", (main_expense_id,), ['sub_expense_id', 'sub_expense_name', 'main_expense_id'])
     sub_expenses = df.to_records(index=False).tolist()
     return sub_expenses
 
