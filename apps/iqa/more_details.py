@@ -28,7 +28,9 @@ def generate_acadhead_tracker_card():
     JOIN public.clusters c ON a.unithead_cluster_id = c.cluster_id
     JOIN public.college cl ON a.unithead_college_id = cl.college_id
     JOIN public.deg_unit du ON a.unithead_deg_unit_id = du.deg_unit_id
-    WHERE a.unithead_appointment_end <= '{two_months_from_now}';
+    WHERE a.unithead_appointment_end <= '{two_months_from_now}'
+        AND a.unithead_del_ind = False
+    ;
     """
     # Execute the query and fetch data
     acadheads_data = db.querydatafromdatabase(sql, [], ['cluster', 'academic_unit', 'degree_granting_unit', 'name', 'up_mail', 'end_of_term'])
@@ -115,7 +117,9 @@ def generate_qaofficers_card():
     FROM qaofficers.qa_officer q
     JOIN public.clusters c ON q.qaofficer_cluster_id = c.cluster_id
     JOIN public.college cl ON q.qaofficer_college_id = cl.college_id
-    JOIN public.deg_unit du ON q.qaofficer_deg_unit_id = du.deg_unit_id;
+    JOIN public.deg_unit du ON q.qaofficer_deg_unit_id = du.deg_unit_id
+    WHERE q.qaofficer_del_ind = False
+    ;
     """
     # Execute the query and fetch data
     qaofficers_data = db.querydatafromdatabase(sql, [], ['cluster', 'academic_unit', 'degree_granting_unit', 'name', 'up_mail', 'end_of_term', 'status'])
