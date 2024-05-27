@@ -25,13 +25,6 @@ layout = html.Div(
                         
                         dbc.Row(   
                             [
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "➕ Add Program", color="primary", 
-                                        href='/program_details?mode=add', 
-                                    ),
-                                    width="auto",    
-                                ),
                                 dbc.Col(  
                                     dbc.Input(
                                         type='text',
@@ -40,6 +33,13 @@ layout = html.Div(
                                         className='ml-auto'   
                                     ),
                                     width="8",
+                                ),
+                                dbc.Col(   
+                                    dbc.Button(
+                                        "➕ Add Program", color="primary", 
+                                        href='/program_details?mode=add', 
+                                    ),
+                                    width="auto",    
                                 ),
                                 #dbc.Col(   
                                     #dbc.Button(
@@ -54,12 +54,8 @@ layout = html.Div(
                                     #width="auto",    
                                 # ),
                             ],
-                             
-                            className="align-items-center ",   
-                            style={
-                                "margin-right": "2px",
-                                "margin-bottom": "15px",
-                                   }
+                            className="align-items-center",   
+                            justify="between",  
                         ),
 
  
