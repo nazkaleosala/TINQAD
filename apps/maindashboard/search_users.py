@@ -26,13 +26,6 @@ layout = html.Div(
                         html.Hr(),
                         dbc.Row(   
                             [
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "➕ Add New", color="primary", 
-                                        href='/register_user?mode=add', 
-                                    ),
-                                    width="auto",    
-                                ),
                                 dbc.Col(  
                                     dbc.Input(
                                         type='text',
@@ -41,6 +34,13 @@ layout = html.Div(
                                         className='ml-auto'   
                                     ),
                                     width=8,
+                                ),
+                                dbc.Col(   
+                                    dbc.Button(
+                                        "➕ Add New", color="primary", 
+                                        href='/register_user?mode=add', 
+                                    ),
+                                    width="auto",    
                                 ),
                             ],
                             className="align-items-center",   
