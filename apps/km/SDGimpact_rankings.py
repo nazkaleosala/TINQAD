@@ -65,8 +65,10 @@ layout = html.Div(
                                     ),
                                     width="auto",    
                                     
-                                ),
-                            ]
+                                )
+                            ],
+                            className="align-items-center",   
+                            justify="between",  
                         ),
 
                          
@@ -78,10 +80,11 @@ layout = html.Div(
                                 'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
                             }
                         ),
+                        html.Br(),
 
                         html.Div(
                             [
-                                html.Br(),    
+                                html.Hr(),   
                                 # Heading with a button on the same row
                                 dbc.Row(
                                     [
