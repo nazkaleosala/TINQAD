@@ -71,8 +71,6 @@ layout = html.Div(
                             justify="between",  
                         ),
 
-                         
-                         
                         html.Div(
                             id='add_criteria_list', 
                             style={
@@ -190,7 +188,7 @@ def populate_criteria_list_dropdown(pathname):
     else:
         raise PreventUpdate
 
-#eqa deselect
+#criteria list  deselect
 @app.callback(
     Output('criteria_list', 'value'),
     [Input('deselect_button', 'n_clicks')]
@@ -204,23 +202,6 @@ def deselect_all_options(n_clicks):
         return dash.no_update
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @app.callback(
     [
         Output('add_criteria_list', 'children')
@@ -232,8 +213,7 @@ def deselect_all_options(n_clicks):
 )
 
 def add_criteria_list(pathname, searchterm):
-    if pathname == '/SDGimpact_rankings':  # Adjusted URL path
-         
+    if pathname == '/SDGimpact_rankings':  
         sql = """
             SELECT 
                 sdgcriteria_number AS "Criteria ID.",
@@ -257,8 +237,7 @@ def add_criteria_list(pathname, searchterm):
             values = []
 
         df = db.querydatafromdatabase(sql, values, cols) 
-
-        # Generate the table from the DataFrame
+ 
         if not df.empty:
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
@@ -281,8 +260,7 @@ def add_criteria_list(pathname, searchterm):
 )
 
 def update_manageevidence_list (pathname, selected_criteria):
-    if pathname == '/SDGimpact_rankings':  # Adjusted URL path
-         
+    if pathname == '/SDGimpact_rankings':     
         sql = """
             SELECT 
                 sdg_evidencename AS "Evidence Name",
@@ -302,9 +280,8 @@ def update_manageevidence_list (pathname, selected_criteria):
                 sdg_checkstatus = '2'   
         """
         if selected_criteria:
-            # Subquery to extract individual criteria IDs and check for overlap with selected criteria
             sql += """
-                WHERE EXISTS (
+                AND EXISTS (
                     SELECT 1
                     FROM jsonb_array_elements_text(sdg_applycriteria) AS e
                     WHERE CAST(e AS INTEGER) = ANY(%s)
@@ -319,14 +296,13 @@ def update_manageevidence_list (pathname, selected_criteria):
         df = db.querydatafromdatabase(sql, params, cols)
 
         if not df.empty:
-            df["Applicable Criteria"] = df["Applicable Criteria"].apply(
-                lambda x: ", ".join(x) if x else "None"
-            )
+            df["Applicable Criteria"] = df["Applicable Criteria"].apply(lambda x: ", ".join(x) if x else "None")
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
             return [html.Div("No records under this criteria")]
-    
+    else:
+        raise PreventUpdate
 
 
 
