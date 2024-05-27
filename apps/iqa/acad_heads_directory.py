@@ -106,7 +106,7 @@ layout = html.Div(
                             ],
                              
                             className="align-items-center",   
-                            justify="between",  
+                            justify="end",  
                         ),
 
                         
