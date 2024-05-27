@@ -65,8 +65,10 @@ layout = html.Div(
                                     ),
                                     width="auto",    
                                     
-                                ),
-                            ]
+                                )
+                            ],
+                            className="align-items-center",   
+                            justify="between",  
                         ),
 
                          
@@ -78,10 +80,11 @@ layout = html.Div(
                                 'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
                             }
                         ),
+                        html.Br(),
 
                         html.Div(
                             [
-                                html.Br(),    
+                                html.Hr(),   
                                 # Heading with a button on the same row
                                 dbc.Row(
                                     [
@@ -122,91 +125,6 @@ layout = html.Div(
                                 'overflowY': 'auto',   
                                 'maxHeight': '200px',
                             }
-                        ),
-
-                        html.Hr(),
-
-                        html.Div(
-                            [
-                                html.Br(),  
-                                    
-                                dbc.Row(
-                                    [
-                                        
-                                        dbc.Col(
-                                            dbc.Button(
-                                                "➕ Add Submission",
-                                                color="primary",
-                                                href='/SDGimpactrankings/SDG_submission?mode=add',
-                                            ),
-                                            width="auto",
-                                            className="mb-0",
-                                        ),
-                                        dbc.Col(
-                                            dbc.Button(
-                                                "✍🏻 Add Revision",
-                                                color="warning",
-                                                href='/SDGimpactrankings/SDG_revision?mode=add',
-                                            ),
-                                            width="auto",
-                                            className="mb-0",
-                                        ),
-                                    ],
-                                    justify="end",  # Ensures heading is on the left and buttons on the right
-                                ),
-                                  
-                                
-
-                                
-                            ]
-                        ),
-
-                        html.Br(), 
-
-                        dbc.Row(
-                            dbc.Col(
-                                dbc.Card(
-                                    [
-                                        dbc.CardHeader("Submissions for Checking"),
-                                        dbc.CardBody(
-                                            html.Div(
-                                                id='checking_list', 
-                                                style={
-                                                    'marginTop': '20px',
-                                                    'overflowX': 'auto',
-                                                    'overflowY': 'auto',
-                                                    'maxHeight': '300px', 
-                                                }
-                                            )
-                                        )
-                                    ],
-                                    color="light"
-                                ),
-                                width="12"
-                            )
-                        ),
-                        html.Br(),
-                        dbc.Row(
-                            dbc.Col(
-                                dbc.Card(
-                                    [
-                                        dbc.CardHeader("Submissions in need of Revisions"),
-                                        dbc.CardBody(
-                                            html.Div(
-                                                id='revisions_list', 
-                                                style={
-                                                    'marginTop': '20px',
-                                                    'overflowX': 'auto',
-                                                    'overflowY': 'auto',
-                                                    'maxHeight': '300px',
-                                                }
-                                            )
-                                        )
-                                    ],
-                                    color="light"
-                                ),
-                                width="12"
-                            )
                         ),
                          
 

@@ -23,7 +23,16 @@ layout = html.Div(
                         html.Hr(), 
 
                         dbc.Row(   
-                            [
+                            [   
+                                dbc.Col(  
+                                    dbc.Input(
+                                        type='text',
+                                        id='assessmentreports_filter',
+                                        placeholder='🔎 Search by degree program',
+                                        className='ml-auto'   
+                                    ),
+                                    width="6",
+                                ),
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add New SAR", color="primary", 
@@ -38,18 +47,7 @@ layout = html.Div(
                                         href='/assessmentreports/assessment_details', 
                                     ),
                                     width="auto",    
-                                    
-                                ),
-                                
-                                dbc.Col(  
-                                    dbc.Input(
-                                        type='text',
-                                        id='assessmentreports_filter',
-                                        placeholder='🔎 Search by degree program',
-                                        className='ml-auto'   
-                                    ),
-                                    width="6",
-                                ),
+                                )
                             ]
                         ),
 

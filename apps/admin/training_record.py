@@ -25,13 +25,6 @@ layout = html.Div(
                         
                         dbc.Row(   
                             [
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "➕ Add Training Document", color="primary", 
-                                        href='/training_documents?mode=add',  
-                                    ),
-                                    width="auto",    
-                                ),
                                 dbc.Col(  
                                     dbc.Input(
                                         type='text',
@@ -41,14 +34,17 @@ layout = html.Div(
                                     ),
                                     width="8",
                                 ),
+                                dbc.Col(   
+                                    dbc.Button(
+                                        "➕ Add Training Document", color="primary", 
+                                        href='/training_documents?mode=add',  
+                                    ),
+                                    width="auto",    
+                                ),
                                  
                             ],
-                             
-                            className="align-items-center ",   
-                            style={
-                                "margin-right": "2px",
-                                "margin-bottom": "15px",
-                                   }
+                            className="align-items-center",   
+                            justify="between",  
                         ),
 
  
