@@ -129,6 +129,26 @@ layout = html.Div(
                          
 
                         html.Br(),
+                        html.Hr(),
+
+                        dbc.Row(
+                            dbc.Col(
+                                html.H5(html.B("Approved Revisions")),
+                                width=8,
+                                ),
+                            
+                        ),
+                        html.Div(
+                            id='managerevision_list', 
+                            style={
+                                'marginTop': '20px',
+                                'overflowX': 'auto',# This CSS property adds a horizontal scrollbar
+                                'overflowY': 'auto',   
+                                'maxHeight': '200px',
+                            }
+                        ),
+
+                        html.Br(),
                         html.Br(),
                                 
 
@@ -309,4 +329,50 @@ def update_manageevidence_list (pathname, selected_criteria):
     
 
 
- 
+
+@app.callback(
+    [
+        Output('managerevision_list', 'children')
+    ],
+    [
+        Input('url', 'pathname'),  
+    ]
+)
+
+def update_managerevision_list (pathname):
+    if pathname == '/SDGimpact_rankings': 
+         
+        sql = """
+            SELECT 
+                sdgr_evidencename AS "Evidence Name",
+                (SELECT office_name FROM maindashboard.offices WHERE office_id = sdgr_office_id) AS "Office",
+                sdgr_description AS "Description",
+                (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdgr_rankingbody) AS "Ranking Body",
+                (
+                    SELECT json_agg(sdgcriteria_code)
+                    FROM kmteam.SDGCriteria
+                    WHERE sdgcriteria_id IN (
+                        SELECT CAST(jsonb_array_elements_text(sdgr_applycriteria) AS INTEGER)
+                    )
+                ) AS "Applicable Criteria"
+            FROM  
+                kmteam.SDGRevision
+            WHERE
+                sdgr_checkstatus = '2'   
+        """
+        
+
+        cols = ["Evidence Name", "Office", "Description", "Ranking Body", "Applicable Criteria"]
+
+        df = db.querydatafromdatabase(sql, [], cols)
+
+        if not df.empty:
+            df["Applicable Criteria"] = df["Applicable Criteria"].apply(
+                lambda x: ", ".join(x) if x else "None"
+            )
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return [table]
+        else:
+            return [html.Div("No records under this criteria")]
+    
+

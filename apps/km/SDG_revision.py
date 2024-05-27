@@ -34,6 +34,7 @@ form = dbc.Form(
                     dcc.Dropdown(
                         id='sdgr_evidencename',
                         options=[],
+                        disabled=False, 
                     ),
                     width=4,
                 ),
@@ -101,8 +102,8 @@ form = dbc.Form(
                     width=4),
 
                 dbc.Col(
-                    dbc.Input(type="text", placeholder="Name Surname",id='sdgr_accomplishedby'),  
-                    width=5,
+                    dbc.Input(type="text", placeholder="Name Surname",id='sdgr_accomplishedby', disabled=False),  
+                    width=5, 
                 ),
             ],
             className="mb-3",
@@ -115,6 +116,7 @@ form = dbc.Form(
                         id='sdgr_datesubmitted',
                         date=str(pd.to_datetime("today").date()),  
                         clearable=True,
+                        disabled=False, 
                     ),
                     width=4,
                 ),
@@ -183,7 +185,8 @@ form = dbc.Form(
                             {"label": "Link", "value": "link"},
                             {"label": "Both File and Link", "value": "both"},
                         ],
-                        placeholder="Select Submission Type"
+                        placeholder="Select Submission Type",
+                        disabled=False, 
                     ),
                     width=4,
                 ),
@@ -343,7 +346,7 @@ layout = html.Div(
                             [
                                 dbc.ModalHeader(className="bg-success"),
                                 dbc.ModalBody(
-                                    ['User registered successfully.'
+                                    ['Revised evidence submitted successfully.'
                                     ],id='sdgr_feedback_message'
                                 ),
                                 dbc.ModalFooter(
@@ -379,28 +382,43 @@ layout = html.Div(
 
 
 
-#select evidence name from list of revisions
+#select evidence name from list of revisions 
 @app.callback(
-    Output('sdgr_evidencename', 'options'),
-    Input('url', 'pathname')
+    [
+        Output('sdgr_evidencename', 'options'),
+        Output('sdgr_toload', 'data'),
+        Output('sdgr_removerecord_div', 'style'),
+    ],
+    [
+        Input('url', 'pathname')
+    ],
+    [
+        State('url', 'search')  
+    ]
 )
-def populate_evidence_dropdown(pathname):
-    # Check if the pathname matches if necessary
+
+def evidence_name_loaddropdown(pathname, search):
     if pathname == '/SDGimpactrankings/SDG_revision':
         sql = """
-        SELECT sdg_evidencename as label, sdg_evidencename as value
-        FROM kmteam.SDGSubmission
-        WHERE sdg_checkstatus = '3' AND sdg_del_ind = FALSE
+            SELECT sdg_evidencename as label, sdg_evidencename as value
+            FROM kmteam.SDGSubmission
+            WHERE sdg_checkstatus = '3' AND sdg_del_ind = FALSE
         """
         values = []
         cols = ['label', 'value']
         df = db.querydatafromdatabase(sql, values, cols)
+        evidence_name_options = df.to_dict('records')
         
-        evidence_types = df.to_dict('records')
-        return evidence_types
+        
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query)['mode'][0]
+        to_load = 1 if create_mode == 'edit' else 0
+        removediv_style = {'display': 'none'} if not to_load else None
+    
     else:
         raise PreventUpdate
-    
+    return [evidence_name_options, to_load, removediv_style]
+
 
 
 
@@ -672,7 +690,43 @@ def record_SDGrevision(submitbtn, closebtn, removerecord,
 
         # Copy relevant fields from SDGSubmission to SDGRevision
         sql_copy = """
-           
+            INSERT INTO kmteam.SDGRevision (
+                sdgr_evidencename, 
+                sdgr_rankingbody, 
+                sdgr_description,
+                sdgr_office_id,
+                sdgr_deg_unit_id,
+                sdgr_checknotes,
+                sdgr_accomplishedby,
+                sdgr_datesubmitted,
+                sdgr_checkstatus,
+                sdgr_notes,
+                sdgr_file_path,  
+                sdgr_file_name,   
+                sdgr_file_type,   
+                sdgr_file_size,   
+                sdgr_link,
+                sdgr_applycriteria
+            )
+            SELECT 
+                sdg_evidencename, 
+                sdg_rankingbody, 
+                sdg_description,
+                sdg_office_id,
+                sdg_deg_unit_id,
+                sdg_notes,  
+                %s,    
+                %s,    
+                %s,    
+                %s,    
+                %s,    
+                %s,   
+                %s,    
+                %s,    
+                %s,   
+                %s    
+            FROM kmteam.SDGSubmission
+            WHERE sdg_evidencename = %s;
         """
 
         values_copy = (
@@ -709,13 +763,14 @@ def record_SDGrevision(submitbtn, closebtn, removerecord,
             SET
                 sdgr_checkstatus = %s,
                 sdgr_notes = %s,
+                sdgr_applycriteria = %s,
                 sdgr_del_ind = %s
             WHERE 
                 sdgrevision_id = %s
         """
         to_delete = bool(removerecord) 
 
-        values = [sdgr_checkstatus, sdgr_notes, to_delete, sdgrevisionid]
+        values = [sdgr_checkstatus, sdgr_notes, sdgr_applycriteria, to_delete, sdgrevisionid]
         db.modifydatabase(sqlcode, values)
 
         feedbackmessage = html.H5("Status has been updated.")
@@ -732,14 +787,18 @@ def record_SDGrevision(submitbtn, closebtn, removerecord,
 @app.callback(
     [
         Output('sdgr_evidencename', 'value'),
+        Output('sdgr_rankingbody', 'value'),
+        Output('sdgr_description', 'value'),
+        Output('sdgr_office_id', 'value'),
+        Output('sdgr_deg_unit_id', 'value'),
+        Output('sdgr_checknotes', 'value'),
         Output('sdgr_accomplishedby', 'value'),
-        Output('sdgr_datesubmitted', 'value'),
-        Output('sdgr_checkstatus', 'value'),
-        Output('sdgr_notes', 'value'),
-        Output('sdgr_file', 'contents'),
-        Output('sdgr_file', 'filename'),
-        Output('sdgr_link', 'value'),
-        Output('sdgr_applycriteria', 'value')
+        Output('sdgr_datesubmitted', 'value'), 
+        Output('sdgr_checkstatus', 'value'), 
+        Output('sdgr_notes', 'value'), 
+        Output('sdgr_file', 'filename'),  
+        Output('sdgr_link', 'value'), 
+        Output('sdgr_applycriteria', 'value'), 
     ],
     [
         Input('sdgr_toload', 'modified_timestamp')
@@ -749,46 +808,85 @@ def record_SDGrevision(submitbtn, closebtn, removerecord,
         State('url', 'search')
     ]
 )
-def sdgr_loadprofile(timestamp, toload, search):
+def sdgrevision_loadprofile(timestamp, toload, search):
     if toload:
         parsed = urlparse(search)
-        sdgrevisionid = parse_qs(parsed.query).get('id', [None])[0]
+        sdgrevisionid = parse_qs(parsed.query)['id'][0]
 
         sql = """
             SELECT 
-                sdgr_evidencename, sdgr_accomplishedby,
-                sdgr_datesubmitted, sdgr_checkstatus, sdgr_notes,
-                sdgr_link, sdgr_applycriteria, sdgr_file_path,
-                sdgr_file_name
+                sdgr_evidencename, sdgr_rankingbody, 
+                sdgr_description, sdgr_office_id, sdgr_deg_unit_id, 
+                sdgr_checknotes, 
+                sdgr_accomplishedby, sdgr_datesubmitted, sdgr_checkstatus,
+                sdgr_notes, sdgr_file_name, 
+                sdgr_link, sdgr_applycriteria 
             FROM kmteam.SDGRevision
             WHERE sdgrevision_id = %s
         """
         values = [sdgrevisionid]
 
         cols = [
-            'sdgr_evidencename', 'sdgr_accomplishedby',
-            'sdgr_datesubmitted', 'sdgr_checkstatus', 'sdgr_notes',
-            'sdgr_link', 'sdgr_applycriteria', 'sdgr_file_path',
-            'sdgr_file_name'
+            'sdgr_evidencename', 'sdgr_rankingbody', 
+            'sdgr_description', 'sdgr_office_id', 'sdgr_deg_unit_id', 
+            'sdgr_checknotes', 
+            'sdgr_accomplishedby', 'sdgr_datesubmitted', 'sdgr_checkstatus',
+            'sdgr_notes', 'sdgr_file_name', 
+            'sdgr_link', 'sdgr_applycriteria' 
+            
         ]
 
         df = db.querydatafromdatabase(sql, values, cols)
 
         sdgr_evidencename = df['sdgr_evidencename'][0]
+        sdgr_rankingbody = df['sdgr_rankingbody'][0]
+        
+        sdgr_description = df['sdgr_description'][0]
+        sdgr_office_id = df['sdgr_office_id'][0]
+
+        sdgr_deg_unit_id = df['sdgr_deg_unit_id'][0]
+        sdgr_checknotes = df['sdgr_checknotes'][0]
         sdgr_accomplishedby = df['sdgr_accomplishedby'][0]
         sdgr_datesubmitted = df['sdgr_datesubmitted'][0]
         sdgr_checkstatus = df['sdgr_checkstatus'][0]
         sdgr_notes = df['sdgr_notes'][0]
+        sdgr_file_name = df['sdgr_file_name'][0]
+        
         sdgr_link = df['sdgr_link'][0]
         sdgr_applycriteria = df['sdgr_applycriteria'][0]
-        sdgr_file_path = df['sdgr_file_path'][0]
-        sdgr_file_name = df['sdgr_file_name'][0]
+         
+        
 
         return [
-            sdgr_evidencename, sdgr_accomplishedby,
+            sdgr_evidencename,sdgr_rankingbody,
+            sdgr_description, sdgr_office_id, sdgr_deg_unit_id,
+            sdgr_checknotes, sdgr_accomplishedby,
             sdgr_datesubmitted, sdgr_checkstatus, sdgr_notes,
-            sdgr_file_path, sdgr_file_name, sdgr_link, sdgr_applycriteria
+            sdgr_file_name, sdgr_link, sdgr_applycriteria
         ]
 
     else:
         raise PreventUpdate
+    
+
+
+
+
+
+@app.callback(
+    [ 
+        Output('sdgr_evidencename', 'disabled'),
+        Output('sdgr_accomplishedby', 'disabled'),
+        Output('sdgr_datesubmitted', 'disabled'), 
+        Output('sdgrsubmission_type', 'disabled'),
+  
+    ],
+    [Input('url', 'search')]
+)
+def sdg_inputs_disabled(search):
+    if search:
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+        if create_mode == 'edit':
+            return [True] * 4
+    return [False] * 4
