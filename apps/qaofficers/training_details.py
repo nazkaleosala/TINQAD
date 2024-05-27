@@ -110,11 +110,12 @@ form = dbc.Form(
                     width="auto"
                 ),
                 dbc.Col(
-                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
+                    dbc.Button("Cancel", color="secondary", id="cancel_button", href="/QAOfficers_dashboard", n_clicks=0),
                     width="auto"
                 ),
             ],
             className="mb-2",
+            justify="end",
         ),
 
         dbc.Modal(
@@ -125,7 +126,7 @@ form = dbc.Form(
                 ),
                 dbc.ModalFooter(
                     dbc.Button(
-                       "Proceed", id='proceed_button', className='ml-auto'
+                       "Proceed", href = '/QAOfficers_dashboard', id='proceed_button', className='ml-auto'
                     ), 
                 )
                  
