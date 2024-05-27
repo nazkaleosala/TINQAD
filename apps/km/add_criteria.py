@@ -107,7 +107,7 @@ form = dbc.Form(
                     html.H4("Criteria added."),
                 ),
                 dbc.ModalFooter(
-                    dbc.Button("Proceed", id="proceed_button", className="ml-auto"),
+                    dbc.Button("Proceed", href='/SDGimpact_rankings', id="proceed_button", className="ml-auto"),
                 ),
             ],
             centered=True,
