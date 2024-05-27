@@ -3,11 +3,11 @@ import pandas as pd
 
 def getdblocation():
     db = psycopg2.connect(
-        host='10.206.100.41',
-        database='tinquaddb',
-        user='qaotinqad',
+        host='localhost',
+        database='TINQAD_database',
+        user='postgres',
         port=5432,
-        password='qaotinqad123'
+        password='nat31602'
     )
 
     return db
@@ -83,7 +83,7 @@ def get_rankingbody(evidence_id_rankingbody):
             SELECT rb.ranking_body_name 
             FROM kmteam.SDGSubmission s
             JOIN kmteam.ranking_body rb ON s.sdg_rankingbody = rb.ranking_body_id
-            WHERE s.sdgsubmission_id  = %s
+            WHERE s.sdg_evidencename  = %s
         """
         cursor.execute(query, (evidence_id_rankingbody,))
         rankingbody = cursor.fetchone()
@@ -110,7 +110,7 @@ def get_sdgrdescription(evidence_id_descript):
         query = """
             SELECT s.sdg_description 
             FROM kmteam.SDGSubmission s 
-            WHERE s.sdgsubmission_id  = %s
+            WHERE s.sdg_evidencename  = %s
         """
         cursor.execute(query, (evidence_id_descript,))
         rankingbody = cursor.fetchone()
@@ -137,7 +137,7 @@ def get_sdgroffice(evidence_id_office):
             SELECT o.office_name
             FROM kmteam.SDGSubmission s 
             JOIN maindashboard.offices o ON s.sdg_office_id = o.office_id
-            WHERE s.sdgsubmission_id = %s
+            WHERE s.sdg_evidencename = %s
         """
         cursor.execute(query, (evidence_id_office,))
         rankingbody = cursor.fetchone()
@@ -165,7 +165,7 @@ def get_sdgrdepartment(evidence_id_department):
             SELECT d.deg_unit_name 
             FROM kmteam.SDGSubmission s 
             JOIN public.deg_unit d ON s.sdg_deg_unit_id = d.deg_unit_id 
-            WHERE s.sdgsubmission_id = %s
+            WHERE s.sdg_evidencename = %s
         """
         cursor.execute(query, (evidence_id_department,))
         rankingbody = cursor.fetchone()
@@ -192,7 +192,7 @@ def get_sdgrnotes(evidence_id_notes):
         query = """
             SELECT s.sdg_notes
             FROM kmteam.SDGSubmission s 
-            WHERE s.sdgsubmission_id  = %s
+            WHERE s.sdg_evidencename  = %s
         """
         cursor.execute(query, (evidence_id_notes,))
         rankingbody = cursor.fetchone()

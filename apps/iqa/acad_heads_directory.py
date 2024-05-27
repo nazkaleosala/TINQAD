@@ -41,11 +41,17 @@ layout = html.Div(
                     [
                         html.H1("ACADEMIC UNIT HEADS DIRECTORY"),
                         html.Hr(),
-                        
-                        
+                       
 
                         dbc.Row(
                             [
+                                dbc.Col(   
+                                    dbc.Button(
+                                        "➕ Add New", color="primary", 
+                                        href='/acadheads_profile?mode=add', 
+                                    ),
+                                    width="auto",    
+                                ),
                                 dbc.Col(  
                                     dbc.Input(
                                         type='text',
@@ -53,7 +59,7 @@ layout = html.Div(
                                         placeholder='🔎 Search by name, email, position, etc',
                                         className='ml-auto'   
                                     ),
-                                    width="6",
+                                    width="5",
                                 ),
                                 dbc.Col( 
                                      
@@ -91,23 +97,7 @@ layout = html.Div(
 
                         html.Br(),
 
-                        dbc.Row(   
-                            [
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "➕ Add New", color="primary", 
-                                        href='/acadheads_profile?mode=add', 
-                                    ),
-                                    width="auto",    
-                                    
-                                ),
-                                
-                                
-                            ],
-                             
-                            className="align-items-center",   
-                            justify="end",  
-                        ),
+                        
 
                         
   

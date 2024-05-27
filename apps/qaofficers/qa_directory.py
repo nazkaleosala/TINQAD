@@ -46,6 +46,14 @@ layout = html.Div(
 
                         dbc.Row(
                             [
+                                dbc.Col(   
+                                    dbc.Button(
+                                        "➕ Add New", color="primary", 
+                                        href='/qaofficers_profile?mode=add', 
+                                    ),
+                                    width="auto",    
+                                    
+                                ),
                                 dbc.Col(  
                                     dbc.Input(
                                         type='text',
@@ -53,7 +61,7 @@ layout = html.Div(
                                         placeholder='🔎 Search by name, email, position, etc',
                                         className='ml-auto'   
                                     ),
-                                    width="6",
+                                    width="5",
                                 ),
                                 dbc.Col( 
                                      
@@ -91,23 +99,6 @@ layout = html.Div(
 
                         html.Br(),
 
-                        dbc.Row(   
-                            [
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "➕ Add New", color="primary", 
-                                        href='/qaofficers_profile?mode=add', 
-                                    ),
-                                    width="auto",    
-                                    
-                                ),
-                                
-                                
-                            ],
-                             
-                            className="align-items-center",   
-                            justify="between",  
-                        ),
 
                         html.Div(
                             id='qadirectory_list', 
