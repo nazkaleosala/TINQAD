@@ -672,43 +672,7 @@ def record_SDGrevision(submitbtn, closebtn, removerecord,
 
         # Copy relevant fields from SDGSubmission to SDGRevision
         sql_copy = """
-            INSERT INTO kmteam.SDGRevision (
-                sdgr_evidencename, 
-                sdgr_rankingbody, 
-                sdgr_description,
-                sdgr_office_id,
-                sdgr_deg_unit_id,
-                sdgr_checknotes,
-                sdgr_accomplishedby,
-                sdgr_datesubmitted,
-                sdgr_checkstatus,
-                sdgr_notes,
-                sdgr_file_path,  
-                sdgr_file_name,   
-                sdgr_file_type,   
-                sdgr_file_size,   
-                sdgr_link,
-                sdgr_applycriteria
-            )
-            SELECT 
-                sdg_evidencename, 
-                sdg_rankingbody, 
-                sdg_description,
-                sdg_office_id,
-                sdg_deg_unit_id,
-                sdg_notes,  
-                %s,    
-                %s,   
-                %s,    
-                %s,    
-                %s,   
-                %s, 
-                %s,    
-                %s,   
-                %s, 
-                %s     
-            FROM kmteam.SDGSubmission
-            WHERE sdg_evidencename = %s;
+           
         """
 
         values_copy = (
@@ -762,3 +726,69 @@ def record_SDGrevision(submitbtn, closebtn, removerecord,
         raise PreventUpdate
 
     return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+
+
+
+@app.callback(
+    [
+        Output('sdgr_evidencename', 'value'),
+        Output('sdgr_accomplishedby', 'value'),
+        Output('sdgr_datesubmitted', 'value'),
+        Output('sdgr_checkstatus', 'value'),
+        Output('sdgr_notes', 'value'),
+        Output('sdgr_file', 'contents'),
+        Output('sdgr_file', 'filename'),
+        Output('sdgr_link', 'value'),
+        Output('sdgr_applycriteria', 'value')
+    ],
+    [
+        Input('sdgr_toload', 'modified_timestamp')
+    ],
+    [
+        State('sdgr_toload', 'data'),
+        State('url', 'search')
+    ]
+)
+def sdgr_loadprofile(timestamp, toload, search):
+    if toload:
+        parsed = urlparse(search)
+        sdgrevisionid = parse_qs(parsed.query).get('id', [None])[0]
+
+        sql = """
+            SELECT 
+                sdgr_evidencename, sdgr_accomplishedby,
+                sdgr_datesubmitted, sdgr_checkstatus, sdgr_notes,
+                sdgr_link, sdgr_applycriteria, sdgr_file_path,
+                sdgr_file_name
+            FROM kmteam.SDGRevision
+            WHERE sdgrevision_id = %s
+        """
+        values = [sdgrevisionid]
+
+        cols = [
+            'sdgr_evidencename', 'sdgr_accomplishedby',
+            'sdgr_datesubmitted', 'sdgr_checkstatus', 'sdgr_notes',
+            'sdgr_link', 'sdgr_applycriteria', 'sdgr_file_path',
+            'sdgr_file_name'
+        ]
+
+        df = db.querydatafromdatabase(sql, values, cols)
+
+        sdgr_evidencename = df['sdgr_evidencename'][0]
+        sdgr_accomplishedby = df['sdgr_accomplishedby'][0]
+        sdgr_datesubmitted = df['sdgr_datesubmitted'][0]
+        sdgr_checkstatus = df['sdgr_checkstatus'][0]
+        sdgr_notes = df['sdgr_notes'][0]
+        sdgr_link = df['sdgr_link'][0]
+        sdgr_applycriteria = df['sdgr_applycriteria'][0]
+        sdgr_file_path = df['sdgr_file_path'][0]
+        sdgr_file_name = df['sdgr_file_name'][0]
+
+        return [
+            sdgr_evidencename, sdgr_accomplishedby,
+            sdgr_datesubmitted, sdgr_checkstatus, sdgr_notes,
+            sdgr_file_path, sdgr_file_name, sdgr_link, sdgr_applycriteria
+        ]
+
+    else:
+        raise PreventUpdate

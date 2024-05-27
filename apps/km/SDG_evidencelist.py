@@ -141,8 +141,24 @@ layout = html.Div(
                                         width="12"
                                     )
                                 ),
-                                
-                                
+
+                                dbc.Modal(
+                                    [
+                                        dbc.ModalHeader("Confirm Removal"),
+                                        dbc.ModalBody("Remove evidence from list of revisions?"),
+                                        dbc.ModalFooter(
+                                            [
+                                                dbc.Button("Cancel", id="sdgrevision_cancel_remove", color="secondary"),
+                                                dbc.Button("Confirm", id="sdgrevision_confirm_remove", color="danger")
+                                            ]
+                                        ),
+                                    ],
+                                    centered=True,
+                                    id='sdgrevision_confirmmodal',
+                                    backdrop=True,   
+                                    className="modal-success"  
+                                )
+
                             ],
                         ),
                         html.Br(),    
@@ -262,7 +278,7 @@ def revisions_list (pathname):
             FROM  
                 kmteam.SDGSubmission
             WHERE
-                sdg_checkstatus = '3'   
+                sdg_checkstatus = '3'   AND sdg_del_ind IS FALSE
         """ 
         cols = ['ID', 'Evidence Name', 'Office', 'Department','Description', 'Ranking Body', "Applicable Criteria"]
 
@@ -271,9 +287,8 @@ def revisions_list (pathname):
         if df.shape[0] > 0:
             df["Action"] = df["ID"].apply(
                 lambda x: html.Div(
-                    dbc.Button('Edit', href=f'/SDGimpactrankings/SDG_revision?mode=edit&id={x}', size='sm', color='warning'),
-                    style={'text-align': 'center'}
-                )
+                    dbc.Button('Remove', id={'type': 'remove-button', 'index': x}, 
+                               size='sm', color='danger'), style={'text-align': 'center'})
             )
 
             df = df[['Evidence Name', 'Office', 'Department', 'Description', 'Ranking Body', "Applicable Criteria", 'Action']]
@@ -292,6 +307,34 @@ def revisions_list (pathname):
 
 
 
+ 
+@app.callback(
+    Output('revisions_list', 'children', allow_duplicate=True),
+    [Input({'type': 'remove-button', 'index': dash.dependencies.ALL}, 'n_clicks')],
+    [State({'type': 'remove-button', 'index': dash.dependencies.ALL}, 'id')],
+    prevent_initial_call=True
+)
+def remove_submission(n_clicks_list, button_id_list):
+    if not n_clicks_list or not any(n_clicks_list):
+        raise PreventUpdate
+
+    outputs = []
+    for n_clicks, button_id in zip(n_clicks_list, button_id_list):
+        if n_clicks:
+            submission_id = button_id['index']
+            update_sql = """
+                UPDATE kmteam.SDGSubmission
+                SET sdg_del_ind = TRUE
+                WHERE sdgsubmission_id = %s
+            """
+            db.modifydatabase(update_sql, [submission_id])
+            # Append the updated table to outputs list
+            outputs.append(revisions_list('/SDG_evidencelist')[0])
+
+    return outputs
+
+ 
+
 
 @app.callback(
     [
@@ -302,7 +345,7 @@ def revisions_list (pathname):
     ]
 )
 
-def approvedrevisions_list (pathname):
+def checkedrevisions_list (pathname):
     if pathname == '/SDG_evidencelist':  
          
         sql = """
@@ -323,6 +366,8 @@ def approvedrevisions_list (pathname):
                 ) AS "Applicable Criteria"
             FROM  
                 kmteam.SDGRevision
+            WHERE
+                sdgr_del_ind IS FALSE
             
         """ 
         cols = ['ID', 'Evidence Name', 'Office', 'Department','Description', 'Status','Ranking Body', "Applicable Criteria"]

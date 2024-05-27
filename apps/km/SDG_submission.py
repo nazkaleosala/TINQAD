@@ -642,7 +642,7 @@ def ranking_body_loaddropdown(pathname, search):
         State('sdg_office_id', 'value'),
         State('sdg_deg_unit_id', 'value'),
         State('sdg_accomplishedby', 'value'),
-        State('sdg_datesubmitted', 'value'), 
+        State('sdg_datesubmitted', 'date'), 
         State('sdg_checkstatus', 'value'), 
         State('sdg_notes', 'value'), 
         State('sdg_file', 'contents'),
