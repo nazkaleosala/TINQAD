@@ -14,6 +14,9 @@ from apps import dbconnect as db
 
 import locale
 import re
+import base64
+
+
 
 form = dbc.Form(
     [
@@ -194,45 +197,46 @@ form = dbc.Form(
         ),
 
         dbc.Row(
-                dbc.Col(
-                    dcc.Upload(
-                        id='upload_receipt',
-                        children=html.Div(
-                            [
-                                html.Img(
-                                    src=app.get_asset_url('icons/upload_photo.png'),
-                                    style={'width': '50px', 'height': '50px', 'margin-bottom': '5px'}
-                                ),
-                                html.Div([
-                                    "Add Receipt ",
-                                    html.Span("*", style={'color': '#F8B237'})
-                                ], style={'fontWeight': 'bold', 'fontSize': '20px', 'margin-bottom': '1px'}),
-                                html.Div("Drag and Drop or Select Files", style={'fontSize': '14px'})
-                            ],
-                            style={
-                                'display': 'flex',
-                                'flexDirection': 'column',
-                                'alignItems': 'center',
-                                'justifyContent': 'center',
-                                'height': '100%',
-                                'padding': '15px 30px'  # Adjust padding as needed
-                            }
-                        ),
+            dbc.Col(
+                dcc.Upload(
+                    id='upload_receipt',
+                    children=html.Div(
+                        [
+                            html.Img(
+                                src=app.get_asset_url('icons/upload_photo.png'),
+                                style={'width': '50px', 'height': '50px', 'margin-bottom': '5px'}
+                            ),
+                            html.Div([
+                                "Add Receipt ",
+                                html.Span("*", style={'color': '#F8B237'})
+                            ], style={'fontWeight': 'bold', 'fontSize': '20px', 'margin-bottom': '1px'}),
+                            html.Div("Drag and Drop or Select Files", style={'fontSize': '14px'})
+                        ],
                         style={
-                            'width': '100%', 'minHeight': '100px',  # Adjust height as needed
-                            'borderWidth': '2px', 'borderStyle': 'solid',
-                            'borderRadius': '5px', 'textAlign': 'center',
-                            'margin': '5px', 'display': 'flex',
-                            'alignItems': 'center', 'justifyContent': 'center'
-                        },
-                        multiple=True
+                            'display': 'flex',
+                            'flexDirection': 'column',
+                            'alignItems': 'center',
+                            'justifyContent': 'center',
+                            'height': '100%',
+                            'padding': '15px 30px'
+                        }
                     ),
-                    lg={'size': 8, 'offset': 2},  # Adjust size and offset for proper alignment
-                    md={'size': 10, 'offset': 1},
-                    sm={'size': 12},
-                    style={'marginBottom': '1rem'}
+                    style={
+                        'width': '100%', 'minHeight': '100px',
+                        'borderWidth': '2px', 'borderStyle': 'solid',
+                        'borderRadius': '5px', 'textAlign': 'center',
+                        'margin': '5px', 'display': 'flex',
+                        'alignItems': 'center', 'justifyContent': 'center'
+                    },
+                    multiple=False
                 ),
+                lg={'size': 8, 'offset': 2},
+                md={'size': 10, 'offset': 1},
+                sm={'size': 12},
+                style={'marginBottom': '1rem'}
             ),
+         
+        ),
           
         dbc.Row(
             [dbc.Col(id="expense_name_output",style={"color": "#F8B237"}, width=8)],  # Output area for uploaded file names
@@ -475,7 +479,6 @@ layout = html.Div(
 
 
 
-
 @app.callback(
     [
         Output('recordexpenses_alert', 'color'),
@@ -484,7 +487,7 @@ layout = html.Div(
         Output('recordexpenses_successmodal', 'is_open')
     ],
     [
-        Input('save_button', 'n_clicks')
+        Input('save_button', 'n_clicks'),
     ],
     [
         State('exp_date', 'date'),
@@ -493,18 +496,16 @@ layout = html.Div(
         State('sub_expense_id', 'value'),
         State('exp_particulars', 'value'),
         State('exp_amount', 'value'),
-        State('exp_status', 'value'),  
+        State('exp_status', 'value'),
         State('exp_bur_no', 'value'),
-        State('exp_submitted_by', 'value'), 
+        State('exp_submitted_by', 'value'),
+        State('upload_receipt', 'contents'),  # New state for the uploaded receipt
     ]
 )
- 
+def save_expense(n_clicks, exp_date, exp_payee, main_expense_id, sub_expense_id,
+                 exp_particulars, exp_amount, exp_status, exp_bur_no, exp_submitted_by, upload_receipt):
 
-
-def record_expenses(submitbtn, date, payee, mainexpense, 
-                    subexpense, particulars, amount, 
-                    status, bur_no, submittedby):
-    if not submitbtn:
+    if n_clicks == 0:
         raise PreventUpdate
 
     alert_open = False
@@ -513,85 +514,33 @@ def record_expenses(submitbtn, date, payee, mainexpense,
     alert_text = ''
 
     # Input validation
-    if not date:
+    if not all([exp_date, exp_payee, main_expense_id, sub_expense_id,
+                exp_particulars, exp_amount, exp_status, exp_bur_no, exp_submitted_by, upload_receipt]):
         alert_open = True
         alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a date.'
+        alert_text = 'Check your inputs. Please fill out all required fields.'
         return [alert_color, alert_text, alert_open, modal_open]
 
-    if not payee:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a Payee.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not mainexpense:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a Main expense.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not subexpense:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a Sub expense.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not particulars:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a Particulars.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not amount:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add an Amount.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not status:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a Status.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not bur_no:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add a BUR no.'
-        return [alert_color, alert_text, alert_open, modal_open]
-    
-    if not submittedby:
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please add Submitted by.'
-        return [alert_color, alert_text, alert_open, modal_open]
- 
+    # Decode the uploaded file content
+    content_type, content_string = upload_receipt.split(',')
+    exp_receipt = base64.b64decode(content_string)
 
+    # Insert statement into the database
+    sql = """
+        INSERT INTO adminteam.expenses (
+            exp_date, exp_payee, main_expense_id, sub_expense_id,
+            exp_particulars, exp_amount, exp_status, exp_bur_no,
+            exp_submitted_by, exp_receipt
+        ) 
+        
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """
+    values = (exp_date, exp_payee, main_expense_id, sub_expense_id, 
+              exp_particulars, exp_amount, exp_status, exp_bur_no, 
+              exp_submitted_by, exp_receipt)
+    
+    db.modifydatabase(sql, values)
 
-    # Default values
-    exp_receipt = None
-
-    # Insert data into the database
-    try:
-        sql = """
-            INSERT INTO adminteam.expenses (
-                exp_date, exp_payee, main_expense_id, sub_expense_id, 
-                exp_particulars, exp_amount, exp_status, 
-                exp_bur_no, exp_submitted_by, exp_receipt
-            )
-            VALUES (
-                %s, %s, %s, %s, 
-                %s, %s, %s, 
-                %s, %s, %s
-            )
-        """
-        values = (date, payee, mainexpense, subexpense, particulars, amount, status, bur_no, submittedby, exp_receipt)
-        db.modifydatabase(sql, values)
-        modal_open = True
-    except Exception as e:
-        alert_color = 'danger'
-        alert_text = 'An error occurred while saving the data.'
-        alert_open = True
+    modal_open = True  # Open success modal after successful submission
 
     return [alert_color, alert_text, alert_open, modal_open]
