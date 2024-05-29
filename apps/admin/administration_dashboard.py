@@ -164,6 +164,19 @@ layout = html.Div(
                                 )
                             ]
                         ),
+                        
+                        dbc.Row(
+                        [
+                            dbc.Col(
+                                html.A(
+                                    dbc.Button("Edit Expense Type List", color="link"),
+                                    href="/expense_list",
+                                    style={"text-align": "right"}
+                                ),
+                                width={"size": 8}  # Adjust width and offset for alignment
+                            ),
+                        ],
+                    ),
                         html.Br(),
                         html.Br(),
                         html.Br(),

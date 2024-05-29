@@ -10,13 +10,14 @@ import webbrowser
 from app import app
 from apps import commonmodules as cm
 from apps import home
+from apps import blankpage
 
 
 from apps.maindashboard import homepage, user_profile, register_user, search_users, password, about_TINQAD
-from apps.admin import administration_dashboard, record_expenses, training_instructions, training_documents, add_expenses, training_record
+from apps.admin import administration_dashboard, expensetype_add, record_expenses, expense_list, training_instructions, training_documents, add_expenses, training_record
 from apps.iqa import iqa_dashboard, more_details, acad_heads_directory, acadheads_profile
 from apps.eqa import eqa_dashboard, assessment_reports, assessment_details, accreditation_tracker, program_list, program_details, sar_details
-from apps.km import km_dashboard, THEworld_rankings, SDGimpact_rankings, SDG_submission, SDG_revision, add_criteria, SDG_evidencelist
+from apps.km import km_dashboard, SDGimpact_rankings, SDG_submission, SDG_revision, add_criteria, SDG_evidencelist
 from apps.qaofficers import qa_directory, training_list, qaofficers_profile, training_details, view_list
 
  
@@ -78,6 +79,10 @@ def displaypage (pathname):
                 returnlayout = record_expenses.layout
             elif pathname == '/record_expenses/add_expense':
                 returnlayout = add_expenses.layout
+            elif pathname == '/expense_list':
+                returnlayout = expense_list.layout
+            elif pathname == '/expense_list/add_expensetype':
+                returnlayout = expensetype_add.layout
             elif pathname == '/training_instructions':
                 returnlayout = training_instructions.layout
             elif pathname == '/training_documents':
@@ -117,8 +122,8 @@ def displaypage (pathname):
                 returnlayout = km_dashboard.layout 
             elif pathname == '/add_criteria':
                 returnlayout = add_criteria.layout 
-            elif pathname == '/THEworld_rankings':
-                returnlayout = THEworld_rankings.layout 
+            #elif pathname == '/THEworld_rankings':
+                #returnlayout = THEworld_rankings.layout 
             elif pathname == '/SDGimpact_rankings':
                 returnlayout = SDGimpact_rankings.layout 
             elif pathname == '/SDGimpactrankings/SDG_submission':
@@ -144,7 +149,7 @@ def displaypage (pathname):
                 returnlayout = qa_directory.layout
 
             else:
-                returnlayout = 'error404'
+                returnlayout = blankpage.layout
     
             return [returnlayout]
     
