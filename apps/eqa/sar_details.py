@@ -370,10 +370,10 @@ def display_uploaded_files(filenames):
         Input('sarep_checkstatus', 'value')
     ]
 )
-def toggle_dropdowns(sarsubmission_type):
-    if sarsubmission_type == 'For Checking':
+def toggle_dropdowns(sarep_checkstatus_type):
+    if sarep_checkstatus_type == 'For Checking':
         return True, True, True, True, True
-    elif sarsubmission_type == 'Already Checked':
+    elif sarep_checkstatus_type == 'Already Checked':
         return False, False, False, False, False
     return True, True, True, True, True
 
@@ -444,7 +444,7 @@ layout = html.Div(
                             [
                                 dbc.ModalHeader(className="bg-success"),
                                 dbc.ModalBody(
-                                    ['New evidence submitted successfully.'
+                                    ['New SAR submitted successfully.'
                                     ],id='sarep_feedback_message'
                                 ),
                                 dbc.ModalFooter(
@@ -649,9 +649,9 @@ def record_sar_details(submitbtn, closebtn, removerecord,
         okay_href = "/assessment_reports"
 
     elif create_mode == 'edit': 
-        sdgsubmissionid = parse_qs(parsed.query).get('id', [None])[0]
+        sarepid = parse_qs(parsed.query).get('id', [None])[0]
         
-        if sdgsubmissionid is None:
+        if sarepid is None:
             raise PreventUpdate
         
         # SQL update
@@ -671,7 +671,7 @@ def record_sar_details(submitbtn, closebtn, removerecord,
         to_delete = bool(removerecord) 
 
         values = [sarep_checkstatus, sarep_datereviewed, sarep_review_status,
-                sarep_assessedby, sarep_notes, sarep_sarscore, to_delete, sdgsubmissionid]
+                sarep_assessedby, sarep_notes, sarep_sarscore, to_delete, sarepid]
         db.modifydatabase(sqlcode, values)
 
         feedbackmessage = html.H5("Status has been updated.")
