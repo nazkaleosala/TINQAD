@@ -78,7 +78,7 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='submission_type',
+                        id='sarsubmission_type',
                         options=[
                             {"label": "File", "value": "file"},
                             {"label": "Link", "value": "link"},
@@ -323,18 +323,18 @@ def populate_reviewstatus_dropdown(pathname):
     else:
         raise PreventUpdate
 
-# Callback to handle enabling/disabling file and link submissions based on submission_type
+# Callback to handle enabling/disabling file and link submissions based on sarsubmission_type
 @app.callback(
     [Output('sarep_file', 'disabled'),
      Output('sarep_link', 'disabled')],
-    [Input('submission_type', 'value')]
+    [Input('sarsubmission_type', 'value')]
 )
-def toggle_submissions(submission_type):
-    if submission_type == 'file':
+def toggle_submissions(sarsubmission_type):
+    if sarsubmission_type == 'file':
         return False, True  
-    elif submission_type == 'link':
+    elif sarsubmission_type == 'link':
         return True, False  
-    elif submission_type == 'both':
+    elif sarsubmission_type == 'both':
         return False, False   
     return True, True   
 
@@ -358,7 +358,6 @@ def display_uploaded_files(filenames):
     return f"Uploaded file: {filenames}"
 
 
-# Callback to handle enabling/disabling office and department dropdowns based on selection_type
 @app.callback(
     [
         Output('sarep_datereviewed', 'disabled'),
@@ -371,10 +370,10 @@ def display_uploaded_files(filenames):
         Input('sarep_checkstatus', 'value')
     ]
 )
-def toggle_dropdowns(selection_type):
-    if selection_type == 'For Checking':
+def toggle_dropdowns(sarsubmission_type):
+    if sarsubmission_type == 'For Checking':
         return True, True, True, True, True
-    elif selection_type == 'Already Checked':
+    elif sarsubmission_type == 'Already Checked':
         return False, False, False, False, False
     return True, True, True, True, True
 
@@ -665,7 +664,7 @@ def record_sar_details(submitbtn, closebtn, removerecord,
                 sarep_assessedby = %s,
                 sarep_notes = %s,
                 sarep_sarscore = %s,
-                sdg_del_ind = %s
+                sarep_del_ind  = %s
             WHERE 
                 sarep_id = %s
         """
@@ -687,3 +686,88 @@ def record_sar_details(submitbtn, closebtn, removerecord,
 
 
     
+
+@app.callback(
+    [ 
+        Output('sarep_degree_programs_id', 'value'),
+        Output('sarep_currentdate', 'value'), 
+        Output('sarep_file', 'filename'), 
+        Output('sarep_link', 'value'),
+        Output('sarep_checkstatus', 'value'),
+        Output('sarep_datereviewed', 'value'),
+        Output('sarep_assessedby', 'value'),
+        Output('sarep_review_status', 'value'),
+        Output('sarep_notes', 'value'),
+        Output('sarep_sarscore', 'value'), 
+    ],
+    [  
+        Input('sarep_toload', 'modified_timestamp')
+    ],
+    [
+        State('sarep_toload', 'data'),
+        State('url', 'search')
+    ]
+)
+def sarep_load(timestamp, toload, search):
+    if toload:
+        parsed = urlparse(search)
+        sarepid = parse_qs(parsed.query)['id'][0]
+
+        sql = """
+            SELECT 
+                sarep_degree_programs_id, sarep_currentdate, 
+                sarep_file_name, 
+                sarep_link, sarep_checkstatus, sarep_datereviewed, sarep_assessedby,
+                sarep_review_status, sarep_notes, sarep_sarscore
+            FROM eqateam.sar_report
+            WHERE sarep_id = %s
+        """
+        values = [sarepid]
+
+        cols = [
+                'sarep_degree_programs_id', 'sarep_currentdate', 
+                'sarep_file_name', 
+                'sarep_link', 'sarep_checkstatus', 'sarep_datereviewed', 'sarep_assessedby',
+                'sarep_review_status', 'sarep_notes', 'sarep_sarscore'  
+        ]
+
+        df = db.querydatafromdatabase(sql, values, cols)
+
+        
+        sarep_degree_programs_id = int(df['sarep_degree_programs_id'][0])
+        sarep_currentdate = df['sarep_currentdate'][0]
+        sarep_file_name = df['sarep_file_name'][0]
+        sarep_link = df['sarep_link'][0]
+        sarep_checkstatus = df['sarep_checkstatus'][0]
+        sarep_datereviewed = df['sarep_datereviewed'][0]
+        sarep_assessedby = df['sarep_assessedby'][0]
+        sarep_review_status = df['sarep_review_status'][0]
+        sarep_notes = df['sarep_notes'][0] 
+        sarep_sarscore = df['sarep_sarscore'][0] 
+        
+        return [sarep_degree_programs_id, sarep_currentdate, 
+                sarep_file_name, 
+                sarep_link, sarep_checkstatus, sarep_datereviewed, sarep_assessedby,
+                sarep_review_status, sarep_notes, sarep_sarscore
+                ]
+    
+    else:
+        raise PreventUpdate
+
+
+ 
+@app.callback(
+    [ 
+        Output('sarep_degree_programs_id', 'disabled'), 
+        Output('sarep_currentdate', 'disabled'), 
+        Output('sarsubmission_type', 'disabled'), 
+    ],
+    [Input('url', 'search')]
+)
+def sarep_inputs_disabled(search):
+    if search:
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+        if create_mode == 'edit':
+            return [True] * 3
+    return [False] * 3

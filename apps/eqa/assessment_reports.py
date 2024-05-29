@@ -125,7 +125,6 @@ def switch_tab(tab):
 
 
  
-
 @app.callback(
     [Output('assessmentreports_list', 'children')],
     [
@@ -135,13 +134,12 @@ def switch_tab(tab):
     ]
 )
 def assessmentreports_loadlist(pathname, searchterm, active_tab):
-    # Default response if the path is not correct
     if pathname != '/assessment_reports':
         raise PreventUpdate
-    
-    # Initialize default values to prevent UnboundLocalError
+
     sql = None
     values = []
+    cols = []
 
     # Generate SQL and set columns based on active_tab
     if active_tab == "sar":
@@ -159,14 +157,16 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
                 eqateam.sar_report AS ar
             LEFT JOIN 
                 eqateam.program_details AS dp ON ar.sarep_degree_programs_id = dp.programdetails_id 
+            WHERE
+                sarep_del_ind IS FALSE
         """
-        cols = ['ID','Date', 'Degree Program' , "Check Status", 'SAR Link', "SAR File", "Review Status", "SAR Score"]
+        cols = ['ID', 'Date', 'Degree Program', "Check Status", 'SAR Link', "SAR File", "Review Status", "SAR Score"]
 
     elif active_tab == "others":
         sql = """
             SELECT 
                 arep_currentdate AS "Date",
-                dp.pro_degree_title  AS "Degree Program",
+                dp.pro_degree_title AS "Degree Program",
                 arep_title AS "Assessment Title",
                 arep_approv_eqa AS "EQA Type",
                 arep_checkstatus AS "Status"
@@ -174,19 +174,24 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
                 eqateam.assess_report AS ar
             LEFT JOIN 
                 eqateam.program_details AS dp ON ar.arep_degree_programs_id = dp.programdetails_id 
+            WHERE
+                arep_del_ind IS FALSE
         """
-        cols = ['Date', 'Degree Program', 'Assessment Title', 'EQA Type' , 'Status']
+        cols = ['Date', 'Degree Program', 'Assessment Title', 'EQA Type', 'Status']
 
     else:
-        # If the active_tab is unexpected, raise PreventUpdate or return a default response
         return [html.Div("Invalid tab selection")]
 
     # Apply search filter if searchterm is provided
     if searchterm:
         like_pattern = f"%{searchterm}%"
-        sql += """ WHERE dp.degree_name ILIKE %s OR 
-                    sarep_title ILIKE %s """
-        values = [like_pattern, like_pattern]
+        sql += """ AND (dp.pro_degree_title ILIKE %s OR 
+                        sarep_checkstatus ILIKE %s OR
+                        sarep_link ILIKE %s OR
+                        sarep_file_path ILIKE %s OR
+                        sarep_review_status ILIKE %s OR
+                        sarep_sarscore ILIKE %s) """
+        values = [like_pattern] * 6
 
     # Ensure that sql has a valid query before accessing it
     if sql:
@@ -194,6 +199,15 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
 
         # Generate the table from the DataFrame
         if not df.empty:
+            if active_tab == "sar":
+                df["Action"] = df["ID"].apply(
+                    lambda x: html.Div(
+                        dbc.Button('Edit', href=f'/assessmentreports/sar_details?mode=edit&id={x}', size='sm', color='warning'),
+                        style={'text-align': 'center'}
+                    )
+                )
+                df = df[['Date', 'Degree Program', "Check Status", 'SAR Link', "SAR File", "Review Status", "SAR Score", 'Action']]
+            
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
