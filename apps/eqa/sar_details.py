@@ -35,21 +35,21 @@ form = dbc.Form(
             ],
             className="mb-2",
         ),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "College", 
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    html.P(id="sarep_college_text"),
-                    width=6,
-                ), 
-            ],
-            className="mb-2",
-        ),
+        #dbc.Row(
+            #[
+                #dbc.Label(
+                    #[
+                        #"College", 
+                        #html.Span("*", style={"color": "#F8B237"})
+                    #],
+                    #width=4),
+                #dbc.Col(
+                    #html.P(id="sarep_college_text"),
+                    #width=6,
+                #), 
+            #],
+            #className="mb-2",
+        #),
          
         
         dbc.Row(

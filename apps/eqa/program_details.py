@@ -341,6 +341,49 @@ layout = html.Div(
 
 
 
+
+# Cluster dropdown
+@app.callback(
+    [
+        Output('pro_cluster_id', 'options'),
+        Output('pro_toload', 'data'),
+        Output('pro_removerecord_div', 'style'),
+    ],
+    [
+        Input('url', 'pathname')
+    ],
+    [
+        State('url', 'search')  
+    ]
+)
+
+def populate_cluster_dropdown(pathname, search):
+    if pathname == '/program_details':
+        sql = """
+            SELECT cluster_name as label, cluster_id  as value
+            FROM public.clusters 
+            WHERE cluster_del_ind = False
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        cluster_options = df.to_dict('records')
+        
+        
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query)['mode'][0]
+        to_load = 1 if create_mode == 'edit' else 0
+        removediv_style = {'display': 'none'} if not to_load else None
+    
+    else:
+        raise PreventUpdate
+    return [cluster_options, to_load, removediv_style]
+
+
+
+
+
+
 # College dropdown
 @app.callback(
     Output('pro_college_id', 'options'),
@@ -366,6 +409,16 @@ def populate_college_dropdown(selected_cluster):
         # Log the error or handle it appropriately
         return [] 
 
+
+
+
+
+
+
+
+
+
+
 # Degree Unit dropdown
 @app.callback(
     Output('pro_department_id', 'options'),
@@ -373,7 +426,7 @@ def populate_college_dropdown(selected_cluster):
 )
 def populate_dgu_dropdown(selected_college):
     if selected_college is None:
-        return []  # Return empty options if no college is selected
+        return []   
     
     try:
         # Query to fetch degree units based on the selected college
@@ -393,7 +446,7 @@ def populate_dgu_dropdown(selected_college):
         return []
     
 
-# Program type dropdown
+#Program type dropdown
 @app.callback(
     Output('pro_program_type_id', 'options'),
     Input('url', 'pathname')
@@ -437,41 +490,6 @@ def populate_accreditationbody_dropdown(pathname):
         raise PreventUpdate
 
 
-# Cluster dropdown
-@app.callback(
-    [
-        Output('pro_cluster_id', 'options'),
-        Output('pro_toload', 'data'),
-        Output('pro_removerecord_div', 'style'),
-    ],
-    [
-        Input('url', 'pathname')
-    ],
-    [
-        State('url', 'search')  
-    ]
-)
-
-def populate_cluster_dropdown(pathname, search):
-    # Check if the pathname matches if necessary
-    if pathname == 'program_details':
-        sql = """
-        SELECT cluster_name as label, cluster_id  as value
-        FROM public.clusters
-        """
-        values = []
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        pro_cluster_types = df.to_dict('records')
-    
-        parsed = urlparse(search)
-        create_mode = parse_qs(parsed.query)['mode'][0]
-        to_load = 1 if create_mode == 'edit' else 0
-        removediv_style = {'display': 'none'} if not to_load else None
-
-    else:
-        raise PreventUpdate
-    return [pro_cluster_types, to_load, removediv_style]
 
  
 

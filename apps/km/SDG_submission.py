@@ -776,7 +776,7 @@ def record_SDGsubmission(submitbtn, closebtn, removerecord,
             SET
                 sdg_checkstatus = %s,
                 sdg_notes = %s,
-                sdg_applycriteria,
+                sdg_applycriteria = %s,
                 sdg_del_ind = %s
 
             WHERE 
