@@ -36,15 +36,15 @@ layout = html.Div(
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add New SAR", color="primary", 
-                                        href='/assessmentreports/sar_details', 
+                                        href='/assessmentreports/sar_details?mode=add', 
                                     ),
                                     width="auto",    
-                                    
+                                     
                                 ),
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add New Assessment", color="warning", 
-                                        href='/assessmentreports/assessment_details', 
+                                        href='/assessmentreports/assessment_details?mode=add', 
                                     ),
                                     width="auto",    
                                 )
@@ -147,17 +147,20 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
     if active_tab == "sar":
         sql = """
             SELECT 
+                sarep_id AS "ID", 
                 sarep_currentdate AS "Date", 
-                dp.pro_degree_title  AS "Degree Program",
-                sarep_title AS "Assessment Title",
-                sarep_approv_eqa AS "EQA Type",
-                sarep_checkstatus AS "Status"
+                dp.pro_degree_title  AS "Degree Program", 
+                sarep_checkstatus AS "Check Status",
+                sarep_link AS "SAR Link",
+                sarep_file_path AS "SAR File",
+                sarep_review_status AS "Review Status",
+                sarep_sarscore AS "SAR Score"
             FROM 
                 eqateam.sar_report AS ar
             LEFT JOIN 
                 eqateam.program_details AS dp ON ar.sarep_degree_programs_id = dp.programdetails_id 
         """
-        cols = ['Date', 'Degree Program', 'Assessment Title', 'EQA Type' , 'Status']
+        cols = ['ID','Date', 'Degree Program' , "Check Status", 'SAR Link', "SAR File", "Review Status", "SAR Score"]
 
     elif active_tab == "others":
         sql = """

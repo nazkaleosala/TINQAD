@@ -111,15 +111,12 @@ def generate_assessment_schedule_card():
     sql = """
         SELECT 
             dp.degree_name AS program_name, 
-            ae.approv_eqa_name AS assessment_type, 
             sr.sarep_sched_assessdate AS assessment_sched_date
         FROM eqateam.sar_report sr
         JOIN public.degree_programs dp 
-        ON sr.sarep_degree_programs_id = dp.degree_id
-        JOIN eqateam.approv_eqa ae 
-        ON sr.sarep_approv_eqa = ae.approv_eqa_id
+        ON sr.sarep_degree_programs_id = dp.degree_id 
         """
-    assessmentsched_data = db.querydatafromdatabase(sql, [], ['program_name', 'assessment_type', 'assessment_sched_date'])
+    assessmentsched_data = db.querydatafromdatabase(sql, [], ['program_name', 'assessment_sched_date'])
     
     # Add index to data
     assessmentsched_data['index'] = range(1, len(assessmentsched_data) + 1)

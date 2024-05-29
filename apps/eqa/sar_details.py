@@ -10,6 +10,17 @@ import pandas as pd
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
+import json
+
+import base64
+import os
+from urllib.parse import urlparse, parse_qs
+
+# Using the corrected path
+UPLOAD_DIRECTORY = r"C:\Users\Naomi A. Takagaki\OneDrive\Documents\TINQAD\assets\database"
+
+# Ensure the directory exists or create it
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 
 
@@ -21,13 +32,14 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Degree Program Title ", 
+                        "Degree Program Title", 
                          html.Span("*", style={"color": "#F8B237"})
                     ],
                     width=4),
                 dbc.Col(
                     dcc.Dropdown(
                         id='sarep_degree_programs_id', 
+                        disabled=False
                     ),
                     width=8,
                 ),
@@ -35,138 +47,28 @@ form = dbc.Form(
             ],
             className="mb-2",
         ),
-        #dbc.Row(
-            #[
-                #dbc.Label(
-                    #[
-                        #"College", 
-                        #html.Span("*", style={"color": "#F8B237"})
-                    #],
-                    #width=4),
-                #dbc.Col(
-                    #html.P(id="sarep_college_text"),
-                    #width=6,
-                #), 
-            #],
-            #className="mb-2",
-        #),
-         
         
         dbc.Row(
             [
                 dbc.Label(
                     [
-                        "Assessment Title ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    dbc.Input(id="sarep_title", type="text"),
-                    width=7,
-                ),
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                     "Date ",
+                     "Date",
                         html.Span("*", style={"color":"#F8B237"})
                     ],
                     width=4
                 ),
                 dbc.Col(
-                    dbc.Input(type="date", id='sarep_currentdate' ),
-                            width=4,
-                ),
-            ],
-            className="mb-2",
-        ),
-  
-
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                     "Approved EQA Type ",
-                        html.Span("*", style={"color":"#F8B237"})
-                    ],
-                    width=4
-                ),
-                dbc.Col(
-                    dcc.Dropdown(
-                        id='sarep_approv_eqa',
-                        placeholder="Select EQA Type",
+                    dcc.DatePickerSingle(
+                       id='sarep_currentdate',
+                       date=str(pd.to_datetime("today").date()),
                     ),
                     width=4,
                 ),
             ],
             className="mb-2",
         ),
-
+        
         dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "To be Assessed by ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ], 
-                    width=4),
-                dbc.Col(
-                    dbc.Select(
-                        id="sarep_assessedby", 
-                        placeholder="Select Accreditation Body",
-                    ),
-                    width=7,
-                ),
-            ],
-            className="mb-2",
-        ), 
-
-          
-                # with disabled input
-                dbc.Row(
-                    [
-                        dbc.Label(
-                            [
-                                "Set SAR assessment date? ",
-                                html.Span("*", style={"color": "#F8B237"})
-                            ], 
-                            width=4),
-                        dbc.Col(
-                            dbc.RadioItems(
-                                id="sarep_qscheddate",
-                                options=[
-                                    {"label":"Yes","value":"Yes"},
-                                    {"label":"No","value":"No"},
-                                ],
-                                inline=True,
-                            ),
-                        ),
-                    ],
-                    className="mb-1",
-                ),
-                # Additional field for"Scheduled Assessment Date"
-                dbc.Row(
-                    [
-                        dbc.Col(dbc.Label(
-                            [
-                                "Scheduled SAR Assessment Date ",
-                                html.Span("*", style={"color": "#F8B237"})
-                            ],  
-                        ), width=4),
-                        dbc.Col(
-                            dbc.Input(type="date", id='sarep_sched_assessdate', disabled=True),
-                            width=4,
-                        ),
-                    ],
-                    className="mb-2",
-                    id="scheduled-sar-date-field"
-                ),
-
-         
-         dbc.Row(
             [
                 dbc.Label(
                     [
@@ -182,7 +84,8 @@ form = dbc.Form(
                             {"label": "Link", "value": "link"},
                             {"label": "Both File and Link", "value": "both"},
                         ],
-                        placeholder="Select Submission Type"
+                        placeholder="Select Submission Type",
+                        disabled=False
                     ),
                     width=4,
                 ),
@@ -190,65 +93,73 @@ form = dbc.Form(
             className="mb-2",
         ),
 
-        
         dbc.Row(
             [
                 dbc.Label(
                     [
-                        "Link ",
-                        html.Span("*", style={"color": "#F8B237"})
+                        "File Submissions ",
+                        
+                    ],
+                    width=4,
+                ),
+                dbc.Col(
+                    dcc.Upload(
+                        id="sarep_file",
+                        children=html.Div(
+                            [
+                                html.Img(
+                                    src=app.get_asset_url("icons/add_file.png"),
+                                    style={"height": "15px", "marginRight": "5px"},
+                                ),
+                                "Add file",
+                            ],
+                            style={"display": "flex", "alignItems": "center"},
+                        ),
+                        style={
+                            "width": "100%",
+                            "minHeight": "30px",
+                            "borderWidth": "1px",
+                            "borderStyle": "solid",
+                            "borderRadius": "5px",
+                            "textAlign": "center",
+                            "margin": "5px",
+                            "display": "flex",
+                            "alignItems": "center",
+                            "justifyContent": "center",
+                        },
+                        multiple=True,  # Enable multiple file uploads
+                        disabled=False
+                        
+                    ),
+                    width=6,
+                ),
+                
+            ],
+            className="mb-2",
+        ),
+ 
+        dbc.Row(
+            [dbc.Label("",width=6),
+             dbc.Col(id="sarep_file_output",style={"color": "#F8B237"}, width="4")],   
+            className="mt-2",
+        ),
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Link Submissions ", 
                     ],
                     width=4),
                 dbc.Col(
-                    dbc.Input(id="sarep_link", type="text"),
-                    width=5,
+                    dbc.Input(type="text",id="sarep_link", placeholder="Enter Link",
+                              disabled=False),
+                    width=6,
                 ),
             ],
             className="mb-2",
         ),
 
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "PDF File ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],  
-                    width=4),
-                dbc.Col(
-                    dcc.Upload(
-                        id='sarep_pdf',
-                        children=html.Div(
-                            [
-                            html.Img(src=app.get_asset_url('icons/add_file.png'), style={'height': '15px', 'marginRight': '5px'}),
-                            "add file"
-                        ],
-                        style={
-                            'display': 'flex',
-                            'alignItems': 'center'
-                        }
-                    ),
-                    style={
-                        'width': '100%', 'minHeight': '40px',  # Adjust height as needed
-                        'borderWidth': '1px', 'borderStyle': 'solid',
-                        'borderRadius': '5px', 'textAlign': 'center',
-                        'display': 'flex',
-                        'alignItems': 'center', 'justifyContent': 'center',
-                        'borderColor': '#CCCCCC'
-                    },
-                    multiple=True
-                    ),
-                    width=4
-                ),
-            ],
-            className="mb-2",
-        ),
-
-        dbc.Row(
-            [dbc.Label("",width=6),
-             dbc.Col(id="sarep_pdf_output",style={"color": "#F8B237"}, width="4")],  # Output area for uploaded file names
-            className="mt-2",
-        ),
+        
 
         dbc.Row(
             [
@@ -267,6 +178,7 @@ form = dbc.Form(
                             {"label":"For Checking","value":"For Checking"},
                             {"label":"Already Checked","value":"Already Checked"},
                             ],
+                        disabled=False
                     ),
                     width=4,
                 ),
@@ -274,311 +186,106 @@ form = dbc.Form(
             ],
             className="mb-2", 
         ), 
-
-
-
-        # Additional fields for"Already Checked" option
+ 
         dbc.Row(
             [
-                dbc.Row(
+                dbc.Label(
                     [
-                        dbc.Label(
-                            [
-                                "Date Reviewed ",
-                                html.Span("*", style={"color": "#F8B237"})
-                            ],
-                            width=4),
-                        dbc.Col(
-                            dbc.Input(type="date", id='sarep_datereviewed', disabled=True),
-                            width=4,
-                        ),
-                    ],
-                    className="mb-2",
-                ),
-                dbc.Row(
-                    [
-                        dbc.Label(
-                            [
-                               "Review Status ",
-                                html.Span("*", style={"color":"#F8B237"})
-                            ],
-                            width=4
-                        ),
-                        dbc.Col(
-                            dcc.Dropdown(
-                                id='sarep_review_status',
-                                placeholder="Select Review Status",
-                                disabled=True,
-                            ),
-                            width=6,
-                        ),
-                    ],
-                    className="mb-2",
-                ),
-
-                dbc.Row(
-                    [
-                        dbc.Label(
-                            [
-                               "Notes ",
-                               html.Span("*", style={"color": "#F8B237"})
-                            ],
-                            width=4
-                        ),
-                        dbc.Col(
-                            dbc.Textarea(id='sarep_notes', placeholder="Add notes", disabled=True),
-                            width=8,
-                        ),
-                    ],
-                    className="mb-2",
-                ),
-
-                dbc.Row(
-                    [
-                        dbc.Label(
-                            [
-                                "SAR Score ",
-                                html.Span("*", style={"color": "#F8B237"})
-                            ],
-                            width=4),
-                        dbc.Col(
-                            dbc.Input(id="sarep_sarscore", type="number", disabled=True),
-                            width=3,
-                        ),
-                    ],
-                    className="mb-2",
-                ),
-            ],
-            className="mb-1",
-            id='already-checked'
-        ),
-        html.Br(),
- 
- 
-        dbc.Row(
-            [ 
-                
+                        "Date Reviewed",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ], 
+                    width=4),
                 dbc.Col(
-                    dbc.Button("Save", color="primary",  id="save_button", n_clicks=0),
-                    width="auto"
-                ),
-                dbc.Col(
-                    dbc.Button("Cancel", color="warning", id="cancel_button", n_clicks=0, href="/assessment_reports"),  
-                    width="auto"
+                    dbc.Input(type="date", id='sarep_datereviewed', disabled=True),
+                    width=4,
                 ),
             ],
             className="mb-2",
-            justify="end",
         ),
-
-        dbc.Modal(
-            [
-                dbc.ModalHeader(className="bg-success"),
-                dbc.ModalBody(
-                    html.H4('New Self Assessment Report added.'),
-                ),
-                dbc.ModalFooter(
-                    dbc.Button(
-                      "Proceed", id='sar_proceed_button', className='ml-auto'
-                    ), 
-                )
-                 
-            ],
-            centered=True,
-            id='sarep_successmodal',
-            backdrop=True,   
-            className="modal-success"  
-        ),
-         
-    ]
-)
-
-
-
-
-
-
-
-layout = html.Div(
-    [
+        
         dbc.Row(
             [
-                dbc.Col(
-                    cm.generate_navbar(), 
-                    width=2 
-                ),
-                  
-
-                dbc.Col(
+                dbc.Label(
                     [
-                        html.H1("ADD NEW SAR"),
-                        html.Hr(),
-                        dbc.Alert(id='sarep_alert', is_open=False), # For feedback purpose
-                        form, 
-                    ], width=8, style={'marginLeft': '15px'}
-                ),   
-            ]
-        ),
-        html.Br(),
-        html.Br(),
-        
-
-        dbc.Row (
-            [
+                        "Assessed by",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
                 dbc.Col(
-                    cm.generate_footer(), width={"size": 12, "offset": 0}
+                    dbc.Input(type="text", id='sarep_assessedby', disabled=True),
+                    width=6,
                 ),
-            ]
-        )
-    ]
-)
-
-
-
-
-
-@app.callback(
-    [
-        Output('sarep_alert', 'color'),
-        Output('sarep_alert', 'children'),
-        Output('sarep_alert', 'is_open'),
-        Output('sarep_successmodal', 'is_open')
-    ],
-    [Input('save_button', 'n_clicks')],
-    [
-        State('sarep_degree_programs_id', 'value'),
-        State('sarep_title', 'value'),
-        State('sarep_currentdate', 'value'),
-        State('sarep_approv_eqa', 'value'),
-        State('sarep_assessedby', 'value'),
-        State('sarep_qscheddate', 'value'),
-        State('sarep_sched_assessdate', 'value'),
-        State('sarep_link', 'value'),
-        State('sarep_pdf', 'value'),
-        State('sarep_checkstatus', 'value'),
-        State('sarep_datereviewed', 'value'),
-        State('sarep_review_status', 'value'),
-        State('sarep_notes', 'value'),
-        State('sarep_sarscore', 'value'),
-    ]
-)
-def record_assessment_details(
-    submitbtn, sarep_degree_programs_id, sarep_title, sarep_currentdate,
-    sarep_approv_eqa, sarep_assessedby, sarep_qscheddate, sarep_sched_assessdate,
-    sarep_link, sarep_pdf, sarep_checkstatus, sarep_datereviewed, 
-    sarep_review_status, sarep_notes, sarep_sarscore
-):
-    if not submitbtn:
-        raise PreventUpdate
-    
-    alert_open = True
-    modal_open = False
-    alert_color = 'danger'
-    alert_text = 'Please check your inputs.'
-    
-    # Validation
-    if not sarep_degree_programs_id:
-        alert_text = 'Check your inputs. Please add a Degree Program Title.'
-        return [alert_color, alert_text, alert_open, modal_open]
-
-    # Default values
-    sarep_pdf = None  # Ensure it’s being set to None if not provided
-
-    try:
-        sql = """
-            INSERT INTO eqateam.sar_report (
-                sarep_degree_programs_id, sarep_title, sarep_currentdate,
-                sarep_approv_eqa, sarep_assessedby, sarep_qscheddate,
-                sarep_sched_assessdate, sarep_link, sarep_pdf,
-                sarep_checkstatus, sarep_datereviewed, sarep_review_status, 
-                sarep_notes, sarep_sarscore
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        values = (
-            sarep_degree_programs_id, sarep_title, sarep_currentdate,
-            sarep_approv_eqa, sarep_assessedby, sarep_qscheddate,
-            sarep_sched_assessdate, sarep_link, sarep_pdf, 
-            sarep_checkstatus, sarep_datereviewed, sarep_review_status,
-            sarep_notes, sarep_sarscore
-        )
+            ],
+            className="mb-2",
+        ),
         
-        db.modifydatabase(sql, values)
-        modal_open = True
-        alert_color = 'success'
-        alert_text = 'Data saved successfully!'
-        
-    except Exception as e:
-        alert_color = 'danger'
-        alert_text = 'An error occurred while saving the data: ' + str(e)
-    
-    return [alert_color, alert_text, alert_open, modal_open]
-  
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Review Status ",
+                        html.Span("*", style={"color":"#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dcc.Dropdown(
+                        id='sarep_review_status',
+                        placeholder="Select Review Status",
+                        disabled=True,
+                    ),
+                    width=6,
+                ),
+            ],
+            className="mb-2",
+        ),
 
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Notes ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dbc.Textarea(id='sarep_notes', placeholder="Add notes", disabled=True),
+                    width=8,
+                ),
+            ],
+            className="mb-2",
+        ),
 
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "SAR Score ",
+                        html.Span("*", style={"color": "#F8B237"})
+                    ],
+                    width=4),
+                dbc.Col(
+                    dbc.Input(id="sarep_sarscore", type="number", disabled=True),
+                    width=3,
+                ),
+            ],
+            className="mb-2",
+        ),
+             
+    ], 
 
-
-
-
-
-
-
-# degree programs dropdown
-@app.callback(
-    Output('sarep_degree_programs_id', 'options'),
-    Input('url', 'pathname')
 )
-def populate_degprog_dropdown(pathname):
-    # Check if the pathname matches if necessary
-    if pathname == '/assessmentreports/sar_details':
-        sql ="""
-        SELECT pro_degree_title as label, programdetails_id as value
-        FROM eqateam.program_details
-       """
-        values = []
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        
-        degprog_types = df.to_dict('records')
-        return degprog_types
-    else:
-        raise PreventUpdate
 
 
 
- 
-
-  
-#college appear
-@app.callback(
-    Output('sarep_college_text', 'children'),
-    [Input('sarep_degree_programs_id', 'value')]
-)
-
-def update_college_text(selected_degree_program):
-    if selected_degree_program is None:
-        return "No degree program selected"
-    else:
-        try:
-            # Assuming you have a function in your db module to fetch the college based on the degree program
-            college = db.get_college(selected_degree_program)
-            if college:
-                return college
-            else:
-                return "No college found for this degree program"
-        except Exception as e:
-            return "An error occurred while fetching the college: {}".format(str(e))
-
-
- 
 
 #eqa types dropdown
 @app.callback(
     Output('sarep_approv_eqa', 'options'),
     Input('url', 'pathname')
 )
-def populate_approvedeqa_dropdown(pathname):
-    # Check if the pathname matches if necessary
+def populate_approvedeqa_dropdown(pathname): 
     if pathname == '/assessmentreports/sar_details':
         sql ="""
         SELECT approv_eqa_name as label, approv_eqa_id as value
@@ -601,8 +308,7 @@ def populate_approvedeqa_dropdown(pathname):
     Output('sarep_review_status', 'options'),
     Input('url', 'pathname')
 )
-def populate_reviewstatus_dropdown(pathname):
-    # Check if the pathname matches if necessary
+def populate_reviewstatus_dropdown(pathname): 
     if pathname == '/assessmentreports/sar_details':
         sql ="""
         SELECT review_status_name as label, review_status_id as value
@@ -617,148 +323,31 @@ def populate_reviewstatus_dropdown(pathname):
     else:
         raise PreventUpdate
 
-
-
-#schedule date
-@app.callback(
-    Output('scheduled-sar-date-field', 'children'),
-    [Input('sarep_qscheddate', 'value')]
-)
-def update_scheduled_sar_date_field(value):
-    if value =="Yes":
-        input_width = 4  # Set width to 4 when"Yes" is selected
-        disabled = False  # Enable input field
-    else:
-        input_width = 4  # Set width to 0 when"No" is selected
-        disabled = True  # Disable input field
-
-    return [
-        dbc.Col(dbc.Label("Scheduled SAR Assessment Date"), width=4),
-        dbc.Col(
-            dbc.Input(type="date", id='sarep_sched_assessdate', disabled=disabled),
-            width=input_width,
-        )
-    ]
-
-
-
-
-
-#check status
-@app.callback(
-    Output('already-checked', 'children'),
-    [Input('sarep_checkstatus', 'value')]
-)
-def toggle_fields(check_status):
-    if check_status =="Already Checked":
-        disabled = False
-    else:
-        disabled = True
-
-    return [
-        dbc.Row(
-            [
-                dbc.Label("Date to be Reviewed", width=4,style={"margin-right":"9px"}),
-                dbc.Col(
-                    dbc.Input(type="date", id='sarep_datereviewed', disabled=disabled),
-                    width=4,
-                ),
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                       "Review Status",
-                        html.Span("*", style={"color":"#F8B237"})
-                    ],
-                    width=4,style={"margin-right":"9px"},
-                ),
-                dbc.Col(
-                    dcc.Dropdown(
-                        id='sarep_review_status',
-                        placeholder="Select Review Status",
-                        disabled=disabled,
-                    ),
-                    width=6,  # Adjusted width to match the dropdown
-                ),
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                       "Notes"
-                    ],
-                    width=4,style={"margin-right":"9px"},
-                ),
-                dbc.Col(
-                    dbc.Textarea(id='sarep_notes', placeholder="Add notes", disabled=disabled),
-                    width=6,  # Adjusted width to match the dropdown
-                ),
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Label("SAR Score", width=4 ,style={"margin-right":"9px"}),
-                dbc.Col(
-                    dbc.Input(id="sarep_sarscore", type="number", disabled=disabled),
-                    width=6,  # Adjusted width to match the dropdown
-                ),
-            ],
-            className="mb-2",
-        )
-    ]
-
-
-
-
-#accreditation body dropdown
-@app.callback(
-    Output('sarep_assessedby', 'options'),
-    Input('url', 'pathname')
-)
-def populate_accreditationbody_dropdown(pathname):
-    # Check if the pathname matches if necessary
-    if pathname == '/assessmentreports/sar_details':
-        sql ="""
-        SELECT body_name as label, accreditation_body_id  as value
-        FROM public.accreditation_body
-       """
-        values = []
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        
-        accreditation_body = df.to_dict('records')
-        return accreditation_body
-    else:
-        raise PreventUpdate
-
-
 # Callback to handle enabling/disabling file and link submissions based on submission_type
 @app.callback(
-    [Output('sarep_pdf', 'disabled'),
+    [Output('sarep_file', 'disabled'),
      Output('sarep_link', 'disabled')],
     [Input('submission_type', 'value')]
 )
 def toggle_submissions(submission_type):
     if submission_type == 'file':
-        return False, True  # Enable File, Disable Link
+        return False, True  
     elif submission_type == 'link':
-        return True, False  # Disable File, Enable Link
+        return True, False  
     elif submission_type == 'both':
-        return False, False  # Enable both
-    return True, True  # Disable both by default
+        return False, False   
+    return True, True   
 
 
+
+
+
+# Callback to display the names of the uploaded files
 @app.callback(
-    Output("sarep_pdf_output", "children"),
-    [Input("sarep_pdf", "filename")],  # Use filename to get uploaded file names
+    Output("sarep_file_output", "children"),
+    [Input("sarep_file", "filename")],  
 )
-def display_otherreport_files(filenames):
+def display_uploaded_files(filenames):
     if not filenames:
         return "No files uploaded"
     
@@ -768,23 +357,333 @@ def display_otherreport_files(filenames):
  
     return f"Uploaded file: {filenames}"
 
+
+# Callback to handle enabling/disabling office and department dropdowns based on selection_type
 @app.callback(
-    Output('sar_proceed_button', 'href'),
-    [Input('sar_proceed_button', 'n_clicks')]
+    [
+        Output('sarep_datereviewed', 'disabled'),
+        Output('sarep_assessedby', 'disabled'),
+        Output('sarep_review_status', 'disabled'),
+        Output('sarep_notes', 'disabled'),
+        Output('sarep_sarscore', 'disabled')
+    ],
+    [   
+        Input('sarep_checkstatus', 'value')
+    ]
 )
-def redirect_to_program_list(n_clicks):
-    if not n_clicks:
-        raise PreventUpdate
-    
-    return '/assessment_reports'
+def toggle_dropdowns(selection_type):
+    if selection_type == 'For Checking':
+        return True, True, True, True, True
+    elif selection_type == 'Already Checked':
+        return False, False, False, False, False
+    return True, True, True, True, True
+
+
  
 
+# Layout for the Dash app
+layout = html.Div(
+    [
+        dbc.Row(
+            [
+                dbc.Col(cm.generate_navbar(), width=2),
+                dbc.Col(
+                    [
+                        html.Div(  
+                            [
+                                dcc.Store(id='sarep_toload', storage_type='memory', data=0),
+                            ]
+                        ),
+                        
+                        html.H1("ADD NEW SAR SUBMISSION"),
+                        html.Hr(),
+                        html.Br(),
+                        dbc.Alert(id="sarep_alert", is_open=False),  # Alert for feedback
+                        form,
+                        html.Br(),
+
+                        html.Div(
+                            dbc.Row(
+                                [
+                                    dbc.Label("Wish to delete?", width=3),
+                                    dbc.Col(
+                                        dbc.Checklist(
+                                            id='sarep_removerecord',
+                                            options=[
+                                                {
+                                                    'label': "Mark for Deletion",
+                                                    'value': 1
+                                                }
+                                            ], 
+                                            style={'fontWeight':'bold'},
+                                        ),
+                                        width=5,
+                                    ),
+                                ],
+                                className="mb-3",
+                            ),
+                            id='sarep_removerecord_div'
+                        ),
+
+                        html.Br(),
+                        dbc.Row(
+                            [ 
+                                dbc.Col(
+                                    dbc.Button("Save", color="primary",  id="sarep_save_button", n_clicks=0),
+                                    width="auto"
+                                ),
+                                dbc.Col(
+                                    dbc.Button("Cancel", color="warning", id="sarep_cancel_button", n_clicks=0, href="/SDG_evidencelist"),  
+                                    width="auto"
+                                ),
+                            ],
+                            className="mb-2",
+                            justify="end",
+                        ),
+
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader(className="bg-success"),
+                                dbc.ModalBody(
+                                    ['New evidence submitted successfully.'
+                                    ],id='sarep_feedback_message'
+                                ),
+                                dbc.ModalFooter(
+                                    dbc.Button(
+                                        "Proceed", href='assessment_reports', id='sarep_btn_modal'
+                                    ), 
+                                )
+                                
+                            ],
+                            centered=True,
+                            id='sarep_successmodal',
+                            backdrop=True,   
+                            className="modal-success"    
+                        ), 
+                        
+                    ],
+                    width=8,
+                    style={"marginLeft": "15px"},
+                ),
+            ],
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    cm.generate_footer(),
+                    width={"size": 12, "offset": 0},
+                ),
+            ],
+        ),
+    ]
+)
 
 
 
 
+@app.callback(
+    [
+        Output('sarep_degree_programs_id', 'options'),
+        Output('sarep_toload', 'data'),
+        Output('sarep_removerecord_div', 'style'),
+    ],
+    [
+        Input('url', 'pathname')
+    ],
+    [
+        State('url', 'search')  
+    ]
+)
+
+def populate_degprog_dropdown(pathname, search):
+    if pathname == '/assessmentreports/sar_details':
+        sql = """
+            SELECT pro_degree_title as label, programdetails_id as value
+            FROM eqateam.program_details
+            
+            WHERE pro_del_ind = False
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        degprog_options = df.to_dict('records')
+        
+        
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query)['mode'][0]
+        to_load = 1 if create_mode == 'edit' else 0
+        removediv_style = {'display': 'none'} if not to_load else None
+    
+    else:
+        raise PreventUpdate
+    return [degprog_options, to_load, removediv_style]
 
 
 
+@app.callback(
+    [
+        Output('sarep_alert', 'color'),
+        Output('sarep_alert', 'children'),
+        Output('sarep_alert', 'is_open'),
+        Output('sarep_successmodal', 'is_open'),
+        Output('sarep_feedback_message', 'children'),
+        Output('sarep_btn_modal', 'href')
+    ],
+    [
+        Input('sarep_save_button', 'n_clicks'),
+        Input('sarep_btn_modal', 'n_clicks'),
+        Input('sarep_removerecord', 'value')
+    ],
+    [
+        State('sarep_degree_programs_id', 'value'),
+        State('sarep_currentdate', 'date'),
+        State('sarep_file', 'contents'),
+        State('sarep_file', 'filename'),  
+        State('sarep_link', 'value'),
+        State('sarep_checkstatus', 'value'),
+        State('sarep_datereviewed', 'value'),
+        State('sarep_assessedby', 'value'),
+        State('sarep_review_status', 'value'),
+        State('sarep_notes', 'value'),
+        State('sarep_sarscore', 'value'),
+        State('url', 'search')
+    ]
+)
+def record_sar_details(submitbtn, closebtn, removerecord,
+                        sarep_degree_programs_id, sarep_currentdate,
+                        sarep_file_contents, sarep_file_names, sarep_link,  
+                        sarep_checkstatus, sarep_datereviewed, 
+                        sarep_assessedby, sarep_review_status, sarep_notes, sarep_sarscore,
+                        search):
+    
+    ctx = dash.callback_context 
+
+    if not ctx.triggered:
+        raise PreventUpdate
+
+    eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+    if eventid != 'sarep_save_button' or not submitbtn:
+        raise PreventUpdate
+
+    # Initialize default response values
+    alert_open = False
+    modal_open = False
+    alert_color = ''
+    alert_text = ''
+    feedbackmessage = None
+    okay_href = None
+
+    # Parse URL for mode
+    parsed = urlparse(search)
+    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+
+    # Helper function to process file contents
+    def process_files(contents, filenames):
+        file_data = []
+        for content, filename in zip(contents, filenames):
+            if content == "1" and filename == "1":
+                continue  # Skip default "1" value
+            try:
+                content_type, content_string = content.split(',')
+                decoded_content = base64.b64decode(content_string)
+
+                file_path = os.path.join(UPLOAD_DIRECTORY, filename)
+                with open(file_path, 'wb') as f:
+                    f.write(decoded_content)
+
+                file_info = {
+                    "path": file_path,
+                    "name": filename,
+                    "type": content_type,
+                    "size": len(decoded_content),
+                }
+                file_data.append(file_info)
+
+            except Exception as e:
+                return None, f'Error processing file: {e}'
+        return file_data, None
+
+    if create_mode == 'add': 
+        # Validate required fields
+        if not all([sarep_degree_programs_id, sarep_checkstatus]):
+            alert_color = 'danger'
+            alert_text = 'Missing required fields.'
+            return [alert_color, alert_text, True, modal_open, feedbackmessage, okay_href]
+
+        if sarep_file_contents is None or sarep_file_names is None:
+            sarep_file_contents = ["1"]
+            sarep_file_names = ["1"]
+ 
+        sarep_file_data, error = process_files(sarep_file_contents, sarep_file_names)
+        if error:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = error
+            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+
+        # SQL insertion
+        sql = """
+            INSERT INTO eqateam.sar_report (
+                sarep_degree_programs_id, sarep_currentdate, 
+                sarep_file_path, sarep_file_name, sarep_file_type, sarep_file_size,
+                sarep_link, sarep_checkstatus, sarep_datereviewed, sarep_assessedby,
+                sarep_review_status, sarep_notes, sarep_sarscore
+            )
+            VALUES (%s, %s, %s,
+                    %s, %s, %s, %s,
+                    %s, %s, %s,
+                    %s, %s, %s)
+        """
+        values = (
+            sarep_degree_programs_id, sarep_currentdate,
+            sarep_file_data[0]["path"] if sarep_file_data else None,
+            sarep_file_data[0]["name"] if sarep_file_data else None,
+            sarep_file_data[0]["type"] if sarep_file_data else None,
+            sarep_file_data[0]["size"] if sarep_file_data else None,
+            sarep_link, sarep_checkstatus, sarep_datereviewed, sarep_assessedby,
+            sarep_review_status, sarep_notes, sarep_sarscore
+        ) 
+
+        db.modifydatabase(sql, values)
+        modal_open = True
+        feedbackmessage = html.H5("New SAR report submitted successfully.")
+        okay_href = "/assessment_reports"
+
+    elif create_mode == 'edit': 
+        sdgsubmissionid = parse_qs(parsed.query).get('id', [None])[0]
+        
+        if sdgsubmissionid is None:
+            raise PreventUpdate
+        
+        # SQL update
+        sqlcode = """
+            UPDATE eqateam.sar_report
+            SET
+                sarep_checkstatus = %s,
+                sarep_datereviewed = %s,
+                sarep_review_status = %s,
+                sarep_assessedby = %s,
+                sarep_notes = %s,
+                sarep_sarscore = %s,
+                sdg_del_ind = %s
+            WHERE 
+                sarep_id = %s
+        """
+        to_delete = bool(removerecord) 
+
+        values = [sarep_checkstatus, sarep_datereviewed, sarep_review_status,
+                sarep_assessedby, sarep_notes, sarep_sarscore, to_delete, sdgsubmissionid]
+        db.modifydatabase(sqlcode, values)
+
+        feedbackmessage = html.H5("Status has been updated.")
+        okay_href = "/assessment_reports"
+        modal_open = True
+
+    else:
+        raise PreventUpdate
+
+    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
 
 
+
+    
