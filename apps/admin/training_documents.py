@@ -48,11 +48,11 @@ form = dbc.Form(
                         options=[],
                         placeholder="Select position",
                     ),
-                    width=5,
+                    width=4,
                 ),
                 dbc.Col(
-                    dbc.Input(id="fac_posn_number", type="text", placeholder="#"),
-                    width=1,
+                    dbc.Input(id="fac_posn_number", type="text", placeholder="Number"),
+                    width=2,
                 ),
             ],
             className="mb-2",
@@ -143,7 +143,22 @@ form = dbc.Form(
                         options=[],
                         placeholder="Select QA Training"
                     ),
-                    width=8,
+                    width=6,
+                ),
+            ],
+            className="mb-1",
+        ),
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Other QA Training Attended:", 
+                    ],
+                    width=4
+                ),
+                dbc.Col(
+                    dbc.Input(type="text", id='qa_training_other'),
+                    width=6,
                 ),
             ],
             className="mb-1",
@@ -805,6 +820,7 @@ def trainingdocuments_loaddropdown(pathname, search):
         State('college_id', 'value'),
         State('deg_unit_id', 'value'),
         State('qa_training_id', 'value'),
+        State('qa_training_other', 'value'),
         State('departure_date', 'date'),
         State('return_date', 'date'),
         State('venue', 'value'),
@@ -821,6 +837,7 @@ def trainingdocuments_loaddropdown(pathname, search):
 def record_training_documents(submitbtn, closebtn, removerecord,
                               complete_name, fac_posn_name, fac_posn_number,
                               cluster_id, college_id, deg_unit_id, qa_training_id,
+                              qa_training_other,
                               departure_date, return_date, venue, parti_attendance_cert,
                               official_receipt, official_travel_report, other_receipts, receiving_copy,
                               search):
@@ -913,18 +930,18 @@ def record_training_documents(submitbtn, closebtn, removerecord,
                     sql = """
                         INSERT INTO adminteam.training_documents (
                             complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id,
-                            qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
+                            qa_training_id, qa_training_other, departure_date, return_date, venue, parti_attendance_cert, 
                             official_receipt, official_travel_report, other_receipts, receiving_copy, train_docs_del_ind 
                         )
                         VALUES (
                                 %s, %s, %s, %s, %s, 
-                                %s, %s, %s, %s, %s, 
+                                %s, %s, %s, %s, %s, %s, 
                                 %s, %s, %s, %s, %s, %s
                             )
                         """
     
                     values = (complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id, 
-                        qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
+                        qa_training_id, qa_training_other, departure_date, return_date, venue, parti_attendance_cert, 
                         official_receipt, official_travel_report, other_receipts, receiving_copy, False
                     )
             
@@ -944,6 +961,7 @@ def record_training_documents(submitbtn, closebtn, removerecord,
                         fac_posn_name = %s,
                         fac_posn_number = %s,
                         qa_training_id = %s, 
+                        qa_training_other = %s, 
                         departure_date = %s,
                         return_date = %s,
                         venue = %s,
@@ -953,7 +971,7 @@ def record_training_documents(submitbtn, closebtn, removerecord,
                 """
                 to_delete = bool(removerecord) 
                         
-                values = [complete_name, fac_posn_name, fac_posn_number, qa_training_id, departure_date, return_date, venue, to_delete, trainingdocumentsid]
+                values = [complete_name, fac_posn_name, fac_posn_number, qa_training_id, qa_training_other, departure_date, return_date, venue, to_delete, trainingdocumentsid]
                 db.modifydatabase(sqlcode, values)
                     
                 feedbackmessage = html.H5("Document has been updated." )
@@ -982,6 +1000,7 @@ def record_training_documents(submitbtn, closebtn, removerecord,
         Output('college_id', 'value'),
         Output('deg_unit_id', 'value'),
         Output('qa_training_id', 'value'),
+        Output('qa_training_other', 'value'),
         Output('departure_date', 'date'),
         Output('return_date', 'date'),
         Output('venue', 'value'),
@@ -1008,7 +1027,7 @@ def trainingdocuments_loadprofile(timestamp, toload, search):
         sql = """
             SELECT 
                 complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id,
-                qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
+                qa_training_id, qa_training_other, departure_date, return_date, venue, parti_attendance_cert, 
                 official_receipt, official_travel_report, other_receipts, receiving_copy
             FROM adminteam.training_documents
             WHERE training_documents_id = %s
@@ -1017,7 +1036,7 @@ def trainingdocuments_loadprofile(timestamp, toload, search):
 
         cols = [
             'complete_name', 'fac_posn_name', 'fac_posn_number', 'cluster_id', 'college_id', 'deg_unit_id',
-            'qa_training_id', 'departure_date', 'return_date', 'venue', 'parti_attendance_cert', 
+            'qa_training_id', "qa_training_other" , 'departure_date', 'return_date', 'venue', 'parti_attendance_cert', 
             'official_receipt', 'official_travel_report', 'other_receipts', 'receiving_copy' 
         ]
 
@@ -1032,6 +1051,7 @@ def trainingdocuments_loadprofile(timestamp, toload, search):
         college_id = int(df['college_id'][0])
         deg_unit_id = int(df['deg_unit_id'][0])
         qa_training_id = int(df['qa_training_id'][0])
+        qa_training_other = df['qa_training_other'][0]
         departure_date = df['departure_date'][0]
         return_date = int(df['return_date'][0])
         venue = df['venue'][0]
@@ -1042,7 +1062,7 @@ def trainingdocuments_loadprofile(timestamp, toload, search):
         receiving_copy = df['receiving_copy'][0] 
         
         return [complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id, 
-                            qa_training_id, departure_date, return_date, venue, parti_attendance_cert, 
+                            qa_training_id, qa_training_other , departure_date, return_date, venue, parti_attendance_cert, 
                             official_receipt, official_travel_report, other_receipts, receiving_copy]
     
     else:

@@ -162,8 +162,8 @@ form = dbc.Form(
                     width=4,
                 ),
                 dbc.Col(
-                    dbc.Input(id="qaofficer_fac_posn_number", type="text", placeholder="#"),
-                    width=1,
+                    dbc.Input(id="qaofficer_fac_posn_number", type="text", placeholder="Number"),
+                    width=2,
                 ),
             ],
             className="mb-4",
