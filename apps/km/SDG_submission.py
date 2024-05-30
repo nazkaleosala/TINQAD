@@ -403,6 +403,7 @@ def populate_applycriteria_dropdown(pathname):
         sql = """
         SELECT sdgcriteria_code as label, sdgcriteria_id   as value
         FROM kmteam.SDGCriteria
+        WHERE sdgcriteria_del_ind IS FALSE
         """
         values = []
         cols = ['label', 'value']

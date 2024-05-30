@@ -94,7 +94,7 @@ layout = html.Div(
                                             dbc.Button(
                                                 "Deselect Criteria Checkboxes",
                                                 id="deselect_button",
-                                                color="danger",
+                                                color="secondary",
                                                 size="sm",
                                             ),
                                             width="auto",
@@ -256,7 +256,7 @@ def add_criteria_list(pathname, searchterm=None):
         if df.shape[0] > 0:
             df["Action"] = df["ID"].apply(
                 lambda x: html.Div(
-                    dbc.Button('Remove', id={'type': 'remove-button', 'index': x}, 
+                    dbc.Button('❌', id={'type': 'criteria_remove_button', 'index': x}, 
                                size='sm', color='danger'), style={'text-align': 'center'})
             )
 
@@ -276,8 +276,8 @@ def add_criteria_list(pathname, searchterm=None):
 
 @app.callback(
     Output('add_criteria_list', 'children', allow_duplicate=True),
-    [Input({'type': 'remove-button', 'index': dash.dependencies.ALL}, 'n_clicks')],
-    [State({'type': 'remove-button', 'index': dash.dependencies.ALL}, 'id')],
+    [Input({'type': 'criteria_remove_button', 'index': dash.dependencies.ALL}, 'n_clicks')],
+    [State({'type': 'criteria_remove_button', 'index': dash.dependencies.ALL}, 'id')],
     prevent_initial_call=True
 )
 def remove_criteria(n_clicks_list, button_id_list):
@@ -325,6 +325,7 @@ def update_manageevidence_list (pathname, selected_criteria):
     if pathname == '/SDGimpact_rankings':     
         sql = """
             SELECT 
+                sdgsubmission_id AS "ID",
                 sdg_evidencename AS "Evidence Name",
                 (SELECT office_name FROM maindashboard.offices WHERE office_id = sdg_office_id) AS "Office",
                 sdg_description AS "Description",
@@ -340,6 +341,7 @@ def update_manageevidence_list (pathname, selected_criteria):
                 kmteam.SDGSubmission
             WHERE
                 sdg_checkstatus = '2'   
+                AND sdg_del_ind IS FALSE
         """
         if selected_criteria:
             sql += """
@@ -353,18 +355,64 @@ def update_manageevidence_list (pathname, selected_criteria):
         else:
             params = []
 
-        cols = ["Evidence Name", "Office", "Description", "Ranking Body", "Applicable Criteria"]
+        cols = ["ID", "Evidence Name", "Office", "Description", "Ranking Body", "Applicable Criteria"]
 
         df = db.querydatafromdatabase(sql, params, cols)
+
+        if df.shape[0] > 0:
+            df["Action"] = df["ID"].apply(
+                lambda x: html.Div(
+                    dbc.Button('❌', id={'type': 'submission_remove_button', 'index': x}, 
+                               size='sm', color='danger'), style={'text-align': 'center'})
+            )
+
+            df = df[["Evidence Name", "Office", "Description", "Ranking Body", "Applicable Criteria", 'Action']]
+
 
         if not df.empty:
             df["Applicable Criteria"] = df["Applicable Criteria"].apply(lambda x: ", ".join(x) if x else "None")
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
-            return [html.Div("No records under this criteria")]
+            return [html.Div("No approved evidences yet")]
     else:
         raise PreventUpdate
+
+
+@app.callback(
+    Output('manageevidence_list', 'children', allow_duplicate=True),
+    [Input({'type': 'submission_remove_button', 'index': dash.dependencies.ALL}, 'n_clicks')],
+    [State({'type': 'submission_remove_button', 'index': dash.dependencies.ALL}, 'id')],
+    prevent_initial_call=True
+)
+def manageevidence_list(n_clicks_list, button_id_list, selected_criteria=None):
+    if not n_clicks_list or not any(n_clicks_list):
+        raise PreventUpdate
+
+    outputs = []
+    for n_clicks, button_id in zip(n_clicks_list, button_id_list):
+        if n_clicks:
+            sdgsubmission_id = button_id['index']
+            update_sql = """
+                UPDATE  kmteam.SDGSubmission
+                SET sdg_del_ind = TRUE
+                WHERE sdgsubmission_id = %s
+            """
+            db.modifydatabase(update_sql, [sdgsubmission_id])
+            outputs.append(update_manageevidence_list('/SDGimpact_rankings', selected_criteria)[0])
+
+    return outputs
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -382,6 +430,7 @@ def update_managerevision_list (pathname):
          
         sql = """
             SELECT 
+                sdgrevision_id AS "ID",
                 sdgr_evidencename AS "Evidence Name",
                 (SELECT office_name FROM maindashboard.offices WHERE office_id = sdgr_office_id) AS "Office",
                 sdgr_description AS "Description",
@@ -397,12 +446,23 @@ def update_managerevision_list (pathname):
                 kmteam.SDGRevision
             WHERE
                 sdgr_checkstatus = '2'   
+                AND sdgr_del_ind IS FALSE
         """
         
 
-        cols = ["Evidence Name", "Office", "Description", "Ranking Body", "Applicable Criteria"]
+        cols = ["ID", "Evidence Name", "Office", "Description", "Ranking Body", "Applicable Criteria"]
 
         df = db.querydatafromdatabase(sql, [], cols)
+
+        if df.shape[0] > 0:
+            df["Action"] = df["ID"].apply(
+                lambda x: html.Div(
+                    dbc.Button('❌', id={'type': 'revision_remove_button', 'index': x}, 
+                               size='sm', color='danger'), style={'text-align': 'center'})
+            )
+
+            df = df[["Evidence Name", "Office", "Description", "Ranking Body", "Applicable Criteria", 'Action']]
+
 
         if not df.empty:
             df["Applicable Criteria"] = df["Applicable Criteria"].apply(
@@ -411,6 +471,28 @@ def update_managerevision_list (pathname):
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
-            return [html.Div("No records under this criteria")]
+            return [html.Div("No approved revisions yet")]
     
+@app.callback(
+    Output('managerevision_list', 'children', allow_duplicate=True),
+    [Input({'type': 'revision_remove_button', 'index': dash.dependencies.ALL}, 'n_clicks')],
+    [State({'type': 'revision_remove_button', 'index': dash.dependencies.ALL}, 'id')],
+    prevent_initial_call=True
+)
+def update_managerevision_list(n_clicks_list, button_id_list):
+    if not n_clicks_list or not any(n_clicks_list):
+        raise PreventUpdate
 
+    outputs = []
+    for n_clicks, button_id in zip(n_clicks_list, button_id_list):
+        if n_clicks:
+            sdgrevision_id = button_id['index']
+            update_sql = """
+                UPDATE  kmteam.SDGRevision
+                SET sdgr_del_ind = TRUE
+                WHERE sdgrevision_id = %s
+            """
+            db.modifydatabase(update_sql, [sdgrevision_id])  
+            outputs.append(update_managerevision_list('/SDGimpact_rankings', button_id_list)[0])
+
+    return outputs
