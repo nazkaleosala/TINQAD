@@ -872,6 +872,10 @@ def record_assessment_details (submitbtn, closebtn, removerecord,
         sqlcode = """
             UPDATE eqateam.assess_report
             SET
+                arep_qscheddate  = %s,
+                arep_sched_assessdate = %s,
+                arep_sched_assessduration  = %s,
+
                 arep_checkstatus = %s,
                 arep_datereviewed = %s,
                 arep_review_status = %s,
@@ -882,7 +886,8 @@ def record_assessment_details (submitbtn, closebtn, removerecord,
         """
         to_delete = bool(removerecord) 
 
-        values = [arep_checkstatus, arep_datereviewed, arep_review_status,
+        values = [arep_qscheddate, arep_sched_assessdate, arep_sched_assessduration,
+                  arep_checkstatus, arep_datereviewed, arep_review_status,
                 arep_notes, to_delete, arepid]
         db.modifydatabase(sqlcode, values)
 

@@ -155,7 +155,7 @@ layout = html.Div(
 )
 def populate_approvedeqa_dropdown(pathname):
     # Check if the pathname matches if necessary
-    if pathname == '/accreditation_tracker':
+    if pathname == '/assessment_tracker':
         sql ="""
         SELECT approv_eqa_name as label, approv_eqa_id as value
         FROM eqateam.approv_eqa
@@ -198,38 +198,29 @@ def deselect_all_options(n_clicks):
 
 
 def accreditationtracker_loadlist(pathname, searchterm, eqa_types, selected_month, selected_years):
-    if pathname == '/accreditation_tracker': 
+    if pathname == '/assessment_tracker': 
         sql = """  
             SELECT 
-                TO_CHAR(arep_sched_assessdate, 'FMMonth FMDD, YYYY') AS "Assessment Date", 
-                a.arep_title AS "Assessment Title",
-                COALESCE(d.degree_name, '') AS "Degree Program", 
-                ae.approv_eqa_name AS "EQA Type"
+                TO_CHAR(arep_sched_assessdate, 'FMMonth FMDD, YYYY') AS "Start Assessment Date", 
+                arep_sched_assessduration AS "Assessment Duration", 
+                arep_title AS "Assessment Title",
+                arep_degree_programs_id AS "Degree Program", 
+                eqa.approv_eqa_name AS "EQA Type"
             FROM 
                 eqateam.assess_report AS a 
-            LEFT JOIN 
-                public.degree_programs AS d ON a.arep_degree_programs_id = d.degree_id
-             
-            LEFT JOIN 
-                eqateam.approv_eqa AS ae ON a.arep_approv_eqa = ae.approv_eqa_id
-            WHERE 1=1
+            JOIN 
+                eqateam.approv_eqa AS eqa ON a.arep_approv_eqa = eqa.approv_eqa_id
+            WHERE
+                arep_del_ind IS FALSE
         """
 
-        cols = ['Assessment Date', 'Assessment Title','Degree Program' , 'EQA Type']   
+        cols = ['Start Assessment Date', "Assessment Duration", 'Assessment Title','Degree Program' , 'EQA Type']   
         
         values = []
         
         if eqa_types:
-            sql += " AND a.arep_approv_eqa IN %s"
+            sql += " AND arep_approv_eqa IN %s"
             values.append(tuple(eqa_types))
-
-        if searchterm:
-            sql += """
-                AND (COALESCE(d.deg_prog_name, '') ILIKE %s 
-                OR COALESCE(c.cluster_name, '') ILIKE %s)
-            """
-            like_pattern = f"%{searchterm}%"
-            values.extend([like_pattern, like_pattern])
 
         if selected_month:  # Add condition to filter by selected month
             sql += " AND EXTRACT(MONTH FROM arep_sched_assessdate) = %s"

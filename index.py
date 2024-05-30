@@ -110,7 +110,7 @@ def displaypage (pathname):
                 returnlayout = assessment_details.layout
             elif pathname == '/assessmentreports/sar_details':
                 returnlayout = sar_details.layout
-            elif pathname == '/accreditation_tracker':
+            elif pathname == '/assessment_tracker':
                 returnlayout = accreditation_tracker.layout
             elif pathname == '/program_list':
                 returnlayout = program_list.layout

@@ -96,7 +96,7 @@ def generate_navbar():
                     #external qa dashboard
                     html.A(html.B('External QA'),  href='/eqa_dashboard', className="nav-link"),  
                     html.A('Assessment Reports', href='/assessment_reports', className="nav-link"),  
-                    html.A('Accreditation Tracker', href='/accreditation_tracker', className="nav-link"),  
+                    html.A('Assessment Tracker', href='/assessment_tracker', className="nav-link"),  
                     html.A('Program List',  href='/program_list', className="nav-link"),  
                     html.A('-----------------------------------', style={'color': 'white'} ),  
 
