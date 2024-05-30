@@ -6,7 +6,7 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 import webbrowser 
-
+ 
 from app import app
 from apps import commonmodules as cm
 from apps import home
@@ -18,7 +18,7 @@ from apps.admin import administration_dashboard, expensetype_add, record_expense
 from apps.iqa import iqa_dashboard, more_details, acad_heads_directory, acadheads_profile
 from apps.eqa import eqa_dashboard, assessment_reports, assessment_details, accreditation_tracker, program_list, program_details, sar_details
 from apps.km import km_dashboard, SDGimpact_rankings, SDG_submission, SDG_revision, add_criteria, SDG_evidencelist
-from apps.qaofficers import qa_directory, training_list, qaofficers_profile, training_details, view_list
+from apps.qaofficers import qa_directory, qaofficers_profile, training_details, view_list, qa_dashboard
 
  
 CONTENT_STYLE = {
@@ -141,7 +141,7 @@ def displaypage (pathname):
             
             #QA Officers 
             elif pathname == '/QAOfficers_dashboard':
-                returnlayout = training_list.layout
+                returnlayout = qa_dashboard.layout
             elif pathname == '/qaofficers_profile':
                 returnlayout = qaofficers_profile.layout  
             elif pathname == '/QAOfficers/addtraining':

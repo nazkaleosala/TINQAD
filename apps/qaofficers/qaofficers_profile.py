@@ -270,7 +270,7 @@ form = dbc.Form(
                     width=4
                 ),
                 dbc.Col(
-                    dbc.Input(id="qaofficer_alc", type="number"),
+                    dbc.Input(id="qaofficer_alc", type="text"),
                     width=3,
                 ),
             ],

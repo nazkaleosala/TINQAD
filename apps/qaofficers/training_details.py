@@ -84,19 +84,12 @@ form = dbc.Form(
 
         dbc.Row(
             [
-                dbc.Label("Add new training type",
+                dbc.Label("Other Training type:",
                     width=4),
                 dbc.Col(
-                    dbc.Input(id="new_training_type", type="text"),
+                    dbc.Input(id="qatr_training_other", type="text"),
                     width=5,
-                ),
-                dbc.Col(
-                    dbc.Button("+", color="primary", id="add_button",
-                            n_clicks=0,
-                            style={"font-weight": "bold"},
-                    ),
-                    width="auto",
-                ),
+                ), 
             ],
             className="mb-1",
         ),
@@ -272,12 +265,13 @@ layout = html.Div(
         State('qatr_officername_id', 'value'),
         State('qatr_training_year', 'value'), 
         State('qatr_training_name', 'value'),
-        State('qatr_training_type', 'value') 
+        State('qatr_training_type', 'value'), 
+        State('qatr_training_other', 'value'), 
     ]
 )
  
 def record_program_details (submitbtn, qatr_officername_id, qatr_training_year,
-                            qatr_training_name, qatr_training_type):
+                            qatr_training_name, qatr_training_type, qatr_training_other):
     if not submitbtn:
         raise PreventUpdate
 
@@ -311,13 +305,13 @@ def record_program_details (submitbtn, qatr_officername_id, qatr_training_year,
         sql = """
             INSERT INTO qaofficers.qa_training_details (
                 qatr_officername_id, qatr_training_year,
-                qatr_training_name, qatr_training_type
+                qatr_training_name, qatr_training_type, qatr_training_other
             )
-            VALUES (%s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s)
         """
         values = (
             qatr_officername_id, qatr_training_year,
-            qatr_training_name, qatr_training_type
+            qatr_training_name, qatr_training_type, qatr_training_other
         )
  
 
@@ -331,34 +325,7 @@ def record_program_details (submitbtn, qatr_officername_id, qatr_training_year,
 
   
 
-
-
-# Callback to add a new training type and display the success modal
-@app.callback(
-    Output("newtype_successmodal", "is_open"),
-    [Input("add_button", "n_clicks")],
-    [State("new_training_type", "value")],
-)
-def add_new_training_type(n_clicks, new_training_type):
-    if n_clicks == 0 or not new_training_type:
-        raise PreventUpdate  # No action required
-
-    modal_open = False
-
-    try:
-        sql = """
-            INSERT INTO qaofficers.training_type (trainingtype_name)
-            VALUES (%s)
-        """
-        values = (new_training_type,)
-        db.modifydatabase(sql, values)  # Function to execute the SQL and commit changes
-        modal_open = True  # Open the success modal
-    except Exception as e:
-        print(f"Error occurred: {e}")  # Log the error
-        modal_open = False
-
-    return modal_open
-
+ 
 
 
 
