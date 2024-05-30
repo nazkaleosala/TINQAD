@@ -41,11 +41,19 @@ layout = html.Div(
                                     ),
                                     width="auto",    
                                 ),
+                                dbc.Col(   
+                                    dbc.Button(
+                                        "View List", color="link", 
+                                        href='/training_record/mode=view',  
+                                    ),
+                                    width="auto",    
+                                ),
                                  
                             ],
                             className="align-items-center",   
                             justify="between",  
                         ),
+                        
 
  
                         html.Div(
@@ -136,7 +144,7 @@ def traininglist_loadlist(pathname, searchterm):
                 )
             df['Action'] = buttons
 
-            df = df[["QAO Name","Faculty Position","Cluster","College","QA Training", "Departure Date", "Return Date","Venue", ]]
+            df = df[["QAO Name","Faculty Position","Cluster","College","QA Training", "Departure Date", "Return Date","Venue", "Action"]]
 
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]

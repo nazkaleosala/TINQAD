@@ -26,7 +26,11 @@ form = dbc.Form(
                     width=4
                 ),
                 dbc.Col(
-                    dbc.Input(type="text", id='complete_name', placeholder="Last Name, First Name, Middle Initial"),
+                    dbc.Input(type="text", 
+                              id='complete_name', 
+                              placeholder="Last Name, First Name, Middle Initial",
+                              disabled=False
+                            ),
                     width=6,
                 ),
             ],
@@ -47,11 +51,15 @@ form = dbc.Form(
                         id='fac_posn_name',
                         options=[],
                         placeholder="Select position",
+                        disabled=False
+                        
                     ),
                     width=4,
                 ),
                 dbc.Col(
-                    dbc.Input(id="fac_posn_number", type="text", placeholder="Number"),
+                    dbc.Input(id="fac_posn_number", type="text", 
+                              placeholder="Number",
+                              disabled=False),
                     width=2,
                 ),
             ],
@@ -72,6 +80,7 @@ form = dbc.Form(
                    dcc.Dropdown(
                        id='cluster_id',
                        placeholder="Select Cluster",
+                       disabled=False
                    ),
                    width=6,
                ),
@@ -92,6 +101,7 @@ form = dbc.Form(
                    dcc.Dropdown(
                        id='college_id',
                        placeholder="Select College",
+                       disabled=False
                    ),
                    width=8,
                ),
@@ -112,6 +122,7 @@ form = dbc.Form(
                     dcc.Dropdown(
                         id='deg_unit_id',
                         placeholder="Select Department",
+                        disabled=False
                     ),
                     width=8,
                 ),
@@ -1009,7 +1020,6 @@ def record_training_documents(submitbtn, closebtn, removerecord,
         Output('official_travel_report', 'filename'),
         Output('other_receipts', 'filename'),
         Output('receiving_copy', 'filename'),
-        Output('url', 'search'),
     ],
     [  
         Input('trainingdocuments_toload', 'modified_timestamp')
@@ -1053,7 +1063,7 @@ def trainingdocuments_loadprofile(timestamp, toload, search):
         qa_training_id = int(df['qa_training_id'][0])
         qa_training_other = df['qa_training_other'][0]
         departure_date = df['departure_date'][0]
-        return_date = int(df['return_date'][0])
+        return_date = df['return_date'][0]
         venue = df['venue'][0]
         parti_attendance_cert = df['parti_attendance_cert'][0]  
         official_receipt = df['official_receipt'][0]
@@ -1071,3 +1081,21 @@ def trainingdocuments_loadprofile(timestamp, toload, search):
 
 
 
+@app.callback(
+    [  
+        Output('complete_name', 'disabled'),
+        Output('fac_posn_name', 'disabled'),
+        Output('fac_posn_number', 'disabled'),
+        Output('cluster_id', 'disabled'),
+        Output('college_id', 'disabled'),
+        Output('deg_unit_id', 'disabled'), 
+    ],
+    [Input('url', 'search')]
+)
+def training_inputs_disabled(search):
+    if search:
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+        if create_mode == 'edit':
+            return [True] * 6
+    return [False] * 6

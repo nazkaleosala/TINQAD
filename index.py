@@ -14,7 +14,7 @@ from apps import blankpage
 
 
 from apps.maindashboard import homepage, user_profile, register_user, search_users, password, about_TINQAD
-from apps.admin import administration_dashboard, expensetype_add, record_expenses, expense_list, training_instructions, training_documents, add_expenses, training_record
+from apps.admin import administration_dashboard, expensetype_add, record_expenses, training_instructions, training_documents, add_expenses, training_record, viewexpense_list, viewtraining_list
 from apps.iqa import iqa_dashboard, more_details, acad_heads_directory, acadheads_profile
 from apps.eqa import eqa_dashboard, assessment_reports, assessment_details, accreditation_tracker, program_list, program_details, sar_details
 from apps.km import km_dashboard, SDGimpact_rankings, SDG_submission, SDG_revision, add_criteria, SDG_evidencelist
@@ -80,7 +80,7 @@ def displaypage (pathname):
             elif pathname == '/record_expenses/add_expense':
                 returnlayout = add_expenses.layout
             elif pathname == '/expense_list':
-                returnlayout = expense_list.layout
+                returnlayout = viewexpense_list.layout
             elif pathname == '/expense_list/add_expensetype':
                 returnlayout = expensetype_add.layout
             elif pathname == '/training_instructions':
@@ -89,6 +89,9 @@ def displaypage (pathname):
                 returnlayout = training_documents.layout
             elif pathname == '/training_record':
                 returnlayout = training_record.layout
+            elif pathname == '/training_record/mode=view':
+                returnlayout = viewtraining_list.layout
+                
                 
             #IQA
             elif pathname == '/iqa_dashboard':
