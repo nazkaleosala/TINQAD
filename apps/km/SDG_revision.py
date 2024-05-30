@@ -596,7 +596,6 @@ def display_uploaded_files(filenames):
 
 
 
-
 @app.callback(
     [
         Output('sdgr_alert', 'color'),
@@ -691,40 +690,18 @@ def record_SDGrevision(submitbtn, closebtn, removerecord,
         # Copy relevant fields from SDGSubmission to SDGRevision
         sql_copy = """
             INSERT INTO kmteam.SDGRevision (
-                sdgr_evidencename, 
-                sdgr_rankingbody, 
-                sdgr_description,
-                sdgr_office_id,
-                sdgr_deg_unit_id,
-                sdgr_checknotes,
-                sdgr_accomplishedby,
-                sdgr_datesubmitted,
-                sdgr_checkstatus,
-                sdgr_notes,
-                sdgr_file_path,  
-                sdgr_file_name,   
-                sdgr_file_type,   
-                sdgr_file_size,   
-                sdgr_link,
-                sdgr_applycriteria
+                sdgr_evidencename, sdgr_rankingbody, sdgr_description,
+                sdgr_office_id, sdgr_deg_unit_id, sdgr_checknotes,
+                sdgr_accomplishedby, sdgr_datesubmitted, sdgr_checkstatus, sdgr_notes,
+                sdgr_file_path,  sdgr_file_name,  sdgr_file_type, sdgr_file_size,   
+                sdgr_link, sdgr_applycriteria
             )
             SELECT 
-                sdg_evidencename, 
-                sdg_rankingbody, 
-                sdg_description,
-                sdg_office_id,
-                sdg_deg_unit_id,
-                sdg_notes,  
-                %s,    
-                %s,    
-                %s,    
-                %s,    
-                %s,    
-                %s,   
-                %s,    
-                %s,    
-                %s,   
-                %s    
+                sdg_evidencename, sdg_rankingbody, sdg_description,
+                sdg_office_id, sdg_deg_unit_id, sdg_notes,  
+                %s, %s, %s, %s,    
+                %s, %s, %s, %s,    
+                %s, %s    
             FROM kmteam.SDGSubmission
             WHERE sdg_evidencename = %s;
         """
@@ -737,7 +714,7 @@ def record_SDGrevision(submitbtn, closebtn, removerecord,
             file_data[0]["type"] if file_data else None,
             file_data[0]["size"] if file_data else None,
             sdgr_link,
-            json.dumps(sdgr_applycriteria) if sdgr_applycriteria else None,
+            json.dumps(sdgr_applycriteria) if sdgr_applycriteria else None,  # Convert to JSON
             sdgr_evidencename
         )
         
@@ -763,14 +740,14 @@ def record_SDGrevision(submitbtn, closebtn, removerecord,
             SET
                 sdgr_checkstatus = %s,
                 sdgr_notes = %s,
-                sdgr_applycriteria = %s,
+                sdgr_applycriteria = %s::jsonb,
                 sdgr_del_ind = %s
             WHERE 
                 sdgrevision_id = %s
         """
         to_delete = bool(removerecord) 
 
-        values = [sdgr_checkstatus, sdgr_notes, sdgr_applycriteria, to_delete, sdgrevisionid]
+        values = [sdgr_checkstatus, sdgr_notes, json.dumps(sdgr_applycriteria), to_delete, sdgrevisionid]  # Convert to JSON
         db.modifydatabase(sqlcode, values)
 
         feedbackmessage = html.H5("Status has been updated.")
@@ -781,7 +758,6 @@ def record_SDGrevision(submitbtn, closebtn, removerecord,
         raise PreventUpdate
 
     return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
-
 
 
 @app.callback(

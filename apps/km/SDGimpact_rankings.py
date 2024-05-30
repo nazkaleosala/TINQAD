@@ -178,6 +178,8 @@ def populate_criteria_list_dropdown(pathname):
         sql ="""
         SELECT sdgcriteria_code as label, sdgcriteria_id  as value
         FROM  kmteam.SDGCriteria
+        WHERE
+            sdgcriteria_del_ind IS FALSE
        """
         values = []
         cols = ['label', 'value']
@@ -202,6 +204,15 @@ def deselect_all_options(n_clicks):
         return dash.no_update
 
 
+
+
+
+
+
+
+
+
+
 @app.callback(
     [
         Output('add_criteria_list', 'children')
@@ -212,17 +223,21 @@ def deselect_all_options(n_clicks):
     ]
 )
 
-def add_criteria_list(pathname, searchterm):
+def add_criteria_list(pathname, searchterm=None):
     if pathname == '/SDGimpact_rankings':  
         sql = """
             SELECT 
+                sdgcriteria_id AS "ID",
                 sdgcriteria_number AS "Criteria ID.",
                 sdgcriteria_code AS "Criteria Code",
                 sdgcriteria_description AS "Description"
             FROM 
                 kmteam.SDGCriteria 
+            WHERE
+                sdgcriteria_del_ind IS FALSE
+
         """
-        cols = ['Criteria ID.' , 'Criteria Code','Description']
+        cols = ["ID", 'Criteria ID.' , 'Criteria Code','Description']
 
         if searchterm:
             sql += """
@@ -237,15 +252,62 @@ def add_criteria_list(pathname, searchterm):
             values = []
 
         df = db.querydatafromdatabase(sql, values, cols) 
+
+        if df.shape[0] > 0:
+            df["Action"] = df["ID"].apply(
+                lambda x: html.Div(
+                    dbc.Button('Remove', id={'type': 'remove-button', 'index': x}, 
+                               size='sm', color='danger'), style={'text-align': 'center'})
+            )
+
+            df = df[['Criteria ID.' , 'Criteria Code','Description', 'Action']]
+
  
         if not df.empty:
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
-            return [html.Div("No records to display")]
+            return [html.Div("No criteria submitted yet")]
     else:
         raise PreventUpdate
     
+
+
+
+@app.callback(
+    Output('add_criteria_list', 'children', allow_duplicate=True),
+    [Input({'type': 'remove-button', 'index': dash.dependencies.ALL}, 'n_clicks')],
+    [State({'type': 'remove-button', 'index': dash.dependencies.ALL}, 'id')],
+    prevent_initial_call=True
+)
+def remove_criteria(n_clicks_list, button_id_list):
+    if not n_clicks_list or not any(n_clicks_list):
+        raise PreventUpdate
+
+    outputs = []
+    for n_clicks, button_id in zip(n_clicks_list, button_id_list):
+        if n_clicks:
+            sdgcriteria_id = button_id['index']
+            update_sql = """
+                UPDATE kmteam.SDGCriteria
+                SET sdgcriteria_del_ind = TRUE
+                WHERE sdgcriteria_id = %s
+            """
+            db.modifydatabase(update_sql, [sdgcriteria_id]) 
+            # Pass a default searchterm value when calling add_criteria_list
+            outputs.append(add_criteria_list('/SDGimpact_rankings', searchterm=None)[0])
+
+    return outputs
+
+
+
+
+
+
+
+
+
+
 
 
  
