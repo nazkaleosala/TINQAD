@@ -76,8 +76,8 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.DatePickerSingle(
-                       id='arep_currentdate',
-                       date=str(pd.to_datetime("today").date()),
+                        id='arep_currentdate',
+                        date=str(pd.to_datetime("today").date()),  # Ensure this line is correct
                     ),
                     width=4,
                 ),
@@ -693,10 +693,10 @@ layout = html.Div(
 def populate_arepdegprog_dropdown(pathname, search):
     if pathname == '/assessmentreports/assessment_details':
         sql = """
-            SELECT pro_degree_title AS label, sarep_degree_programs_id AS value
-            FROM eqateam.sar_report 
-            JOIN eqateam.program_details ON sarep_degree_programs_id = programdetails_id
-            WHERE sarep_del_ind = False
+            SELECT pd.pro_degree_title AS label, pd.pro_degree_title AS value
+            FROM eqateam.sar_report sr
+            JOIN eqateam.program_details pd ON sr.sarep_degree_programs_id = pd.programdetails_id
+            WHERE sr.sarep_del_ind = False
         """
         values = []
         cols = ['label', 'value']
@@ -731,35 +731,34 @@ def populate_arepdegprog_dropdown(pathname, search):
     [
         State('arep_degree_programs_id', 'value'), 
         State('arep_title', 'value'),
-        State('arep_currentdate', 'value'),
+        State('arep_currentdate', 'value'),  
         State('arep_approv_eqa', 'value'),
         State('arep_assessedby', 'value'),
-
         State('arep_qscheddate', 'value'),
-        State('arep_sched_assessdate', 'date'),
+        State('arep_sched_assessdate', 'value'),
         State('arep_sched_assessduration', 'value'),
-
         State('arep_report_type', 'value'),
+        State('arep_report_type_notes', 'value'),
         State('arep_file', 'contents'),
         State('arep_file', 'filename'),  
         State('arep_link', 'value'),
-
         State('arep_checkstatus', 'value'),
         State('arep_datereviewed', 'value'),
         State('arep_review_status', 'value'),
-        State('arep_notes', 'value'),
-        State('arep_sarscore', 'value'), 
+        State('arep_notes', 'value'), 
+        State('url', 'search'), 
     ]
 )
  
 def record_assessment_details (submitbtn, closebtn, removerecord,
-                               arep_degree_programs_id, arep_title, arep_currentdate, 
-                               arep_approv_eqa, arep_assessedby, arep_qscheddate, arep_sched_assessdate, 
-                               arep_sched_assessduration, arep_report_type, arep_report_type_notes, 
-                               arep_file_contents, arep_file_names, arep_link,  
-                            arep_checkstatus, arep_datereviewed, 
-                            arep_review_status, arep_notes,
-                            search):
+                                arep_degree_programs_id, arep_title, arep_currentdate, 
+                                arep_approv_eqa, arep_assessedby, arep_qscheddate, arep_sched_assessdate, 
+                                arep_sched_assessduration, arep_report_type, arep_report_type_notes, 
+                                arep_file_contents, arep_file_names, arep_link,  
+                                arep_checkstatus, arep_datereviewed, 
+                                arep_review_status, arep_notes,
+                                search):
+
     
     ctx = dash.callback_context 
 
@@ -769,19 +768,18 @@ def record_assessment_details (submitbtn, closebtn, removerecord,
     eventid = ctx.triggered[0]['prop_id'].split('.')[0]
     if eventid != 'arep_save_button' or not submitbtn:
         raise PreventUpdate
-
-    # Initialize default response values
+ 
     alert_open = False
     modal_open = False
     alert_color = ''
     alert_text = ''
     feedbackmessage = None
     okay_href = None
-
-    # Parse URL for mode
+ 
     parsed = urlparse(search)
     create_mode = parse_qs(parsed.query).get('mode', [None])[0] 
 
+   
     def process_files(contents, filenames):
         file_data = []
         for content, filename in zip(contents, filenames):
@@ -807,9 +805,8 @@ def record_assessment_details (submitbtn, closebtn, removerecord,
                 return None, f'Error processing file: {e}'
         return file_data, None
 
-    if create_mode == 'add': 
-        # Validate required fields
-        if not all([arep_degree_programs_id, arep_checkstatus]):
+    if create_mode == 'add':  
+        if not all([arep_degree_programs_id, arep_title, arep_approv_eqa, arep_checkstatus]):
             alert_color = 'danger'
             alert_text = 'Missing required fields.'
             return [alert_color, alert_text, True, modal_open, feedbackmessage, okay_href]
@@ -817,7 +814,7 @@ def record_assessment_details (submitbtn, closebtn, removerecord,
         if arep_file_contents is None or arep_file_names is None:
             arep_file_contents = ["1"]
             arep_file_names = ["1"]
- 
+
         arep_file_data, error = process_files(arep_file_contents, arep_file_names)
         if error:
             alert_open = True
@@ -825,38 +822,40 @@ def record_assessment_details (submitbtn, closebtn, removerecord,
             alert_text = error
             return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
 
+        if arep_currentdate is None:
+            arep_currentdate = str(pd.to_datetime("today").date())
+
         sql = """
             INSERT INTO eqateam.assess_report (
                 arep_degree_programs_id, arep_title, arep_currentdate,
                 arep_approv_eqa, arep_assessedby, arep_qscheddate,
-                arep_sched_assessdate, arep_sched_assessduration,
-                arep_report_type, arep_report_type_notes,
+                arep_sched_assessdate, arep_sched_assessduration, arep_report_type, 
+                arep_report_type_notes,
                 arep_file_path, arep_file_name, arep_file_type, arep_file_size,
                 arep_link, arep_checkstatus, arep_datereviewed, 
                 arep_review_status, arep_notes
             )
             VALUES (%s, %s, %s, 
                     %s, %s, %s,  
-                    %s, %s,
-                    %s, %s, 
+                    %s, %s, %s, 
+                    %s, 
                     %s, %s, %s, %s,
                     %s, %s, %s, 
                     %s, %s)
-           """
+        """
         values = (
-                arep_degree_programs_id, arep_title, arep_currentdate,
-                arep_approv_eqa, arep_assessedby, arep_qscheddate,
-                arep_sched_assessdate, arep_sched_assessduration,
-                arep_report_type, arep_report_type_notes,
-
-                arep_file_data[0]["path"] if arep_file_data else None,
-                arep_file_data[0]["name"] if arep_file_data else None,
-                arep_file_data[0]["type"] if arep_file_data else None,
-                arep_file_data[0]["size"] if arep_file_data else None,
-                arep_link, 
-                arep_checkstatus, arep_datereviewed, 
-                arep_review_status, arep_notes
-            )
+            arep_degree_programs_id, arep_title, arep_currentdate,
+            arep_approv_eqa, arep_assessedby, arep_qscheddate,
+            arep_sched_assessdate, arep_sched_assessduration,
+            arep_report_type, arep_report_type_notes,
+            arep_file_data[0]["path"] if arep_file_data else None,
+            arep_file_data[0]["name"] if arep_file_data else None,
+            arep_file_data[0]["type"] if arep_file_data else None,
+            arep_file_data[0]["size"] if arep_file_data else None,
+            arep_link, arep_checkstatus, arep_datereviewed, 
+            arep_review_status, arep_notes
+        )
+ 
 
         db.modifydatabase(sql, values)
         modal_open = True
