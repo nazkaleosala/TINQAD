@@ -165,19 +165,27 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
     elif active_tab == "others":
         sql = """
             SELECT 
+                arep_id AS "ID",
                 arep_currentdate AS "Date",
-                dp.pro_degree_title AS "Degree Program",
+                arep_degree_programs_id AS "Degree Program",
                 arep_title AS "Assessment Title",
                 arep_approv_eqa AS "EQA Type",
-                arep_checkstatus AS "Status"
+                arep_checkstatus AS "Check Status",
+                rt.report_type_name AS "Report Type",
+                arep_link AS "Link",
+                arep_file_path AS "PDF",
+                rs.review_status_name AS "Review Status"
             FROM 
-                eqateam.assess_report AS ar
+                eqateam.assess_report AS assr
             LEFT JOIN 
-                eqateam.program_details AS dp ON ar.arep_degree_programs_id = dp.programdetails_id 
+                eqateam.report_type AS rt ON assr.arep_report_type = rt.report_type_id 
+            LEFT JOIN 
+                eqateam.review_status AS rs ON assr.arep_review_status = rs.review_status_id 
+            
             WHERE
                 arep_del_ind IS FALSE
         """
-        cols = ['Date', 'Degree Program', 'Assessment Title', 'EQA Type', 'Status']
+        cols = ['ID','Date', 'Degree Program', 'Assessment Title', 'EQA Type', 'Check Status', "Report Type", "Link","PDF","Review Status"]
 
     else:
         return [html.Div("Invalid tab selection")]
@@ -185,13 +193,22 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
     # Apply search filter if searchterm is provided
     if searchterm:
         like_pattern = f"%{searchterm}%"
-        sql += """ AND (dp.pro_degree_title ILIKE %s OR 
-                        sarep_checkstatus ILIKE %s OR
-                        sarep_link ILIKE %s OR
-                        sarep_file_path ILIKE %s OR
-                        sarep_review_status ILIKE %s OR
-                        sarep_sarscore ILIKE %s) """
-        values = [like_pattern] * 6
+        if active_tab == "sar":
+            sql += """ AND (dp.pro_degree_title ILIKE %s OR 
+                            sarep_checkstatus ILIKE %s OR
+                            sarep_link ILIKE %s OR
+                            sarep_file_path ILIKE %s OR
+                            sarep_review_status ILIKE %s OR
+                            sarep_sarscore ILIKE %s) """
+            values = [like_pattern] * 6
+        elif active_tab == "others":
+            sql += """ AND (arep_degree_programs_id ILIKE %s OR
+                            arep_title ILIKE %s OR
+                            arep_approv_eqa ILIKE %s OR
+                            arep_checkstatus ILIKE %s OR
+                            rt.report_type_name ILIKE %s OR
+                            rs.review_status_name ILIKE %s) """
+            values = [like_pattern] * 6
 
     # Ensure that sql has a valid query before accessing it
     if sql:
@@ -208,6 +225,15 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
                 )
                 df = df[['Date', 'Degree Program', "Check Status", 'SAR Link', "SAR File", "Review Status", "SAR Score", 'Action']]
             
+            elif active_tab == "others":
+                df["Action"] = df["ID"].apply(
+                    lambda x: html.Div(
+                        dbc.Button('Edit', href=f'/assessmentreports/assessment_details?mode=edit&id={x}', size='sm', color='warning'),
+                        style={'text-align': 'center'}
+                    )
+                )
+                df = df[['Date', 'Degree Program', 'Assessment Title', 'EQA Type', 'Check Status', "Report Type", "Link", "PDF", "Review Status", 'Action']]
+
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
