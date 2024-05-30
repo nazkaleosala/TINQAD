@@ -900,9 +900,125 @@ def record_assessment_details (submitbtn, closebtn, removerecord,
 
 
 
+@app.callback(
+    [ 
+        Output('arep_degree_programs_id', 'value'), 
+        Output('arep_title', 'value'),
+        Output('arep_currentdate', 'value'),  
+        Output('arep_approv_eqa', 'value'),
+        Output('arep_assessedby', 'value'),
+        Output('arep_qscheddate', 'value'),
+        Output('arep_sched_assessdate', 'value'),
+        Output('arep_sched_assessduration', 'value'),
+        Output('arep_report_type', 'value'),
+        Output('arep_report_type_notes', 'value'), 
+        Output('arep_file', 'filename'),  
+        Output('arep_link', 'value'),
+        Output('arep_checkstatus', 'value'),
+        Output('arep_datereviewed', 'value'),
+        Output('arep_review_status', 'value'),
+        Output('arep_notes', 'value'), 
+    ],
+    [  
+        Input('arep_toload', 'modified_timestamp')
+    ],
+    [
+        State('arep_toload', 'data'),
+        State('url', 'search')
+    ]
+)
+def arep_load(timestamp, toload, search):
+    if toload:
+        parsed = urlparse(search)
+        arepid = parse_qs(parsed.query)['id'][0]
+
+        sql = """
+            SELECT
+                arep_degree_programs_id, arep_title, arep_currentdate,
+                arep_approv_eqa, arep_assessedby, arep_qscheddate,
+                arep_sched_assessdate, arep_sched_assessduration, arep_report_type, 
+                arep_report_type_notes,
+                arep_file_name,
+                arep_link, arep_checkstatus, arep_datereviewed, 
+                arep_review_status, arep_notes
+            
+            FROM eqateam.assess_report
+            WHERE arep_id = %s
+        """
+        values = [arepid]
+
+        cols = [
+                "arep_degree_programs_id", "arep_title", "arep_currentdate",
+                "arep_approv_eqa", "arep_assessedby", "arep_qscheddate",
+                "arep_sched_assessdate", "arep_sched_assessduration", "arep_report_type", 
+                "arep_report_type_notes",
+                "arep_file_name",
+                "arep_link", "arep_checkstatus", "arep_datereviewed", 
+                "arep_review_status", "arep_notes"
+        ]
+
+        df = db.querydatafromdatabase(sql, values, cols)
+
+        
+        arep_degree_programs_id = df['arep_degree_programs_id'][0]
+        arep_title = df['arep_title'][0]
+        arep_currentdate = df['arep_currentdate'][0]
+        arep_approv_eqa = df['arep_approv_eqa'][0]
+        
+        arep_assessedby = df['arep_assessedby'][0]
+        arep_qscheddate = df['arep_qscheddate'][0]
+        arep_sched_assessdate = df['arep_sched_assessdate'][0]
+        arep_sched_assessduration = df['arep_sched_assessduration'][0]
+
+        arep_report_type = df['arep_report_type'][0]
+        arep_report_type_notes = df['arep_report_type_notes'][0] 
+
+        arep_file_name = df['arep_file_name'][0]
+        arep_link = df['arep_link'][0]
+        arep_checkstatus = df['arep_checkstatus'][0]
+        arep_datereviewed = df['arep_datereviewed'][0]
+        arep_review_status = df['arep_review_status'][0]
+        arep_notes = df['arep_notes'][0]  
+        
+        return [arep_degree_programs_id, arep_title, arep_currentdate, 
+                arep_approv_eqa, arep_assessedby, arep_qscheddate, 
+                arep_sched_assessdate, arep_sched_assessduration,
+                arep_report_type, arep_report_type_notes,
+                arep_file_name, arep_link, 
+                arep_checkstatus, arep_datereviewed,
+                arep_review_status, arep_notes,  
+                ]
+    
+    else:
+        raise PreventUpdate
 
 
 
+
+
+
+ 
+@app.callback(
+    [ 
+        Output('arep_degree_programs_id', 'disabled'), 
+        Output('arep_title', 'disabled'), 
+        Output('arep_currentdate', 'disabled'), 
+        Output('arep_approv_eqa', 'disabled'), 
+        Output('arep_assessedby', 'disabled'), 
+        Output('arep_qscheddate', 'disabled'), 
+        Output('arep_report_type', 'disabled'), 
+        Output('arep_report_type_notes', 'disabled'), 
+        Output('arepsubmission_type', 'disabled'), 
+    ],
+    [Input('url', 'search')]
+)
+def arep_inputs_disabled(search):
+    if search:
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+        if create_mode == 'edit':
+            return [True] * 9
+    return [False] * 9
 
 
   
