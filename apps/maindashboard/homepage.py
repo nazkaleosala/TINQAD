@@ -671,14 +671,12 @@ layout = html.Div(
         Input('home_id_store', 'data')
     ]
 )
-
+ 
 def generate_greeting(pathname, user_id):
     if pathname == '/homepage' and user_id is not None and user_id != -1:
-        # Default values for greeting message and color
         text = None
-        color = None
-        
-        # Retrieve user's name from the database based on user_id
+        color = None 
+
         query = """
             SELECT 
                 user_fname AS name
@@ -690,24 +688,27 @@ def generate_greeting(pathname, user_id):
         user_name = db.query_single_value_db(query, (user_id,))
         
         if user_name:
-            print("Retrieved user name:", user_name)  # Print the retrieved user name
+            print("Retrieved user name:", user_name)   
             
             now = datetime.now(pytz.timezone('Asia/Manila'))
             hour = now.hour
             
             if 0 <= hour < 12:
-                text = f"🌅 Maupay nga aga, {user_name}!"
+                text = f"🌅 Good morning, {user_name}!"
                 color = 'cyan'
             elif 12 <= hour < 13:
-                text = f"☀️ Maupay nga udto, {user_name}!"
+                text = f"☀️ Good afternoon, {user_name}!"
                 color = 'yellow'
             elif 13 <= hour < 18:
-                text = f"🌇 Maupay nga kulop, {user_name}!"
+                text = f"🌇 Good evening, {user_name}!"
                 color = 'orange'
             else:
-                text = f"🌙 Maupay nga gabi, {user_name}!"
+                text = f"🌙 Good night, {user_name}!"
                 color = 'dark'
+        else:
+            text = html.H1(html.B("Welcome!"))
+            color = 'white'
         
-        return text, 'black'
+        return text, color
     
     raise PreventUpdate
