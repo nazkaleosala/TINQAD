@@ -43,6 +43,19 @@ def query_single_value(sql):
         print("Error executing SQL query:", e)
         return None
 
+def query_single_value_db(sql, params):
+    try:
+        db = getdblocation()
+        cur = db.cursor()
+        cur.execute(sql, params)
+        result = cur.fetchone()[0]
+        db.close()
+        return result
+    except psycopg2.Error as e:
+        print("Error executing SQL query:", e)
+        return None
+
+
 def get_college(selected_degree_program):
     try:
         # Establish a connection to your PostgreSQL database

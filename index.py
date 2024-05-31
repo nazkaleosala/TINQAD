@@ -6,12 +6,13 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 import webbrowser 
- 
+from urllib.parse import urlparse, parse_qs
+
 from app import app
 from apps import commonmodules as cm
 from apps import home
 from apps import blankpage
-
+from apps.dbconnect import query_single_value
 
 from apps.maindashboard import homepage, user_profile, register_user, search_users, password, about_TINQAD
 from apps.admin import administration_dashboard, expensetype_add, record_expenses, training_instructions, training_documents, add_expenses, training_record, viewexpense_list, viewtraining_list
@@ -31,6 +32,18 @@ CONTENT_STYLE = {
 app.layout = html.Div(
     [
         dcc.Location(id='url', refresh=True),
+
+        dcc.Store(id='sessionlogout', data=True, storage_type='local'),
+        dcc.Store(id='currentuserid', data=-1, storage_type='local'),
+        
+        # 3) currentrole -- stores the role
+        # we will not use them but if you have roles, you can use it
+        dcc.Store(id='currentrole', data=0, storage_type='local'),
+
+        # Page mode and user id for viewing for those that have any
+        dcc.Store(id='page_mode', data=-1, storage_type='memory'),
+        dcc.Store(id='view_id', data=-1, storage_type='memory'),
+        
         cm.navbar,
         html.Div(id='page-content', style=CONTENT_STYLE),
         html.Link(rel='icon', href='/assets/icons/TINQAD.png')
