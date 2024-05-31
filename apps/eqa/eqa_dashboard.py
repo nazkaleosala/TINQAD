@@ -14,6 +14,33 @@ from apps import dbconnect as db
 import plotly.graph_objs as go
 
 
+
+
+#year dropdown
+def assess_get_available_years(): 
+    sql = """
+    SELECT DISTINCT EXTRACT(YEAR FROM arep_sched_assessdate + INTERVAL '5 years') AS year
+    FROM eqateam.assess_report
+    ORDER BY year DESC
+    """
+    
+    values = []   
+    cols = ['year']   
+    df = db.querydatafromdatabase(sql, values, cols)
+    
+    years = df['year'].tolist()
+    
+    return [{'label': str(year), 'value': str(year)} for year in years]
+
+
+
+
+
+
+
+
+
+
 def get_total_checked():
     sql = "SELECT COUNT(*) FROM eqateam.sar_report WHERE sarep_checkstatus = 'Already Checked'"
     total_count = db.query_single_value(sql)
@@ -105,78 +132,7 @@ def generate_sar_submissions_chart():
     # Return the figure
     return {'data': [trace], 'layout': layout}
 
-
-
-def generate_assessment_schedule_card():
-    sql = """
-        SELECT 
-            dp.degree_name AS program_name, 
-            sr.sarep_sched_assessdate AS assessment_sched_date
-        FROM eqateam.sar_report sr
-        JOIN public.degree_programs dp 
-        ON sr.sarep_degree_programs_id = dp.degree_id 
-        """
-    assessmentsched_data = db.querydatafromdatabase(sql, [], ['program_name', 'assessment_sched_date'])
-    
-    # Add index to data
-    assessmentsched_data['index'] = range(1, len(assessmentsched_data) + 1)
-    
-    card = dbc.Card(
-        [
-            dbc.CardHeader(html.H3("Assessment Schedule")),
-            dbc.CardBody(
-                [
-                    dbc.Row(
-                        [
-                            dbc.Col(                
-                                dash_table.DataTable(
-                                    id='ass-sched-table',
-                                    columns=[
-                                        {'name': 'Index', 'id': 'index'},
-                                        {'name': 'Program Name', 'id': 'program_name'},
-                                        {'name': 'Type of Assessment', 'id': 'assessment_type'},
-                                        {'name': 'Scheduled Assessment Date', 'id': 'assessment_sched_date'}
-                                    ],
-                                    data=assessmentsched_data.to_dict('records'),
-                                    style_cell={
-                                        'fontFamily': 'Arial', 
-                                        'fontSize': '14px',
-                                        'textAlign': 'left', 
-                                        'whiteSpace': 'normal',
-                                        'paddingLeft': '15px', 
-                                        'overflow': 'hidden',  
-                                        'textOverflow': 'ellipsis' 
-                                    },
-                                    style_header={
-                                        'fontWeight': 'bold',
-                                        'textAlign': 'center',
-                                        'paddingLeft': '-15px',
-                                        'height': '50px'
-                                    },
-                                    style_table={'overflowX': 'auto', 'maxWidth': '100%'},
-                                    style_data_conditional=[
-                                        {
-                                            'if': {'column_id': 'index', 'column_id': 'days_left'},
-                                            'textAlign': 'center',
-                                            'paddingLeft': '-15px',
-                                        }
-                                    ]
-                                ),
-                                width=12
-                            )
-                        ]
-                    ),
-                    html.Br(),
-                ],
-                className="mb-3",
-                style={'overflowY': 'scroll'}  # Align items vertically in the body
-            ),
-            dbc.CardFooter(id='acadhead-row-count')
-        ],
-        style={'minHeight': '100px','maxHeight': '400px', 'overflowY': 'scroll'}
-    )
-    return card
-
+ 
 
 
 layout = html.Div(
@@ -305,10 +261,39 @@ layout = html.Div(
                                 ),
                             ]
                         ),
-                        dbc.Row(
+
+                        html.H5(html.B("Assessment Schedule")),
+                    
+                        dbc.Row(   
                             [
-                                dbc.Col(generate_assessment_schedule_card(), width=12)
+                                dbc.Col(  
+                                    dbc.Input(
+                                        type='text',
+                                        id='assesschedule_filter',
+                                        placeholder='🔎 Search by degree program, college',
+                                        className='ml-auto'   
+                                    ),
+                                    width="6",
+                                ),
+                                 
+                                dbc.Col( 
+                                    dcc.Dropdown(
+                                        id='assesschedule_yeardropdown',
+                                        options=assess_get_available_years(),
+                                        placeholder="Filter by year",
+                                        multi=True
+                                    ),
+                                    width="2"
+                                ),
                             ]
+                        ),
+                        
+                        html.Div(
+                            id='assesschedule_list', 
+                            style={
+                                'marginTop': '20px',
+                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                            }
                         ),
                     ]
                 ),
@@ -326,3 +311,58 @@ layout = html.Div(
         )
     ]
 )
+
+
+
+
+
+@app.callback(
+    Output('assesschedule_list', 'children'),
+    [
+        Input('url', 'pathname'), 
+        Input('assesschedule_filter', 'value'), 
+        Input('assesschedule_yeardropdown', 'value')
+    ]
+)
+
+
+def assessmentschedule_loadlist(pathname, searchterm, selected_years):
+    if pathname == '/eqa_dashboard': 
+        sql = """  
+            SELECT 
+                arep_degree_programs_id AS "Degree Program", 
+                arep_sched_assessdate AS "Latest Assessment Date",
+                EXTRACT(YEAR FROM arep_sched_assessdate + INTERVAL '5 years') AS "Next Assessment Year"
+            FROM 
+                eqateam.assess_report AS a 
+            WHERE
+                arep_del_ind IS FALSE
+                AND arep_report_type = '2'
+                AND arep_review_status = '1';
+        """
+
+        cols = ["Degree Program", 'Latest Assessment Date','Next Assessment Year']   
+        
+        values = []
+         
+        if selected_years:  # selected_years will be a list of selected years
+            sql += " AND EXTRACT(YEAR FROM arep_sched_assessdate + INTERVAL '5 years') IN %s"
+            values.append(tuple(selected_years))
+
+        df = db.querydatafromdatabase(sql, values, cols) 
+
+         # Filter by search term
+        if searchterm:
+            sql += " AND (arep_degree_programs_id ILIKE %s)"
+            values.extend(['%' + searchterm + '%', '%' + searchterm + '%'])
+
+        df = db.querydatafromdatabase(sql, values, cols)
+
+        # Generate the table from the DataFrame
+        if not df.empty:
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return table
+        else:
+            return html.Div("No recorded assessments yet")
+    else:
+        raise PreventUpdate

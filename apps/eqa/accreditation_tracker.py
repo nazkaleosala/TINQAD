@@ -50,7 +50,7 @@ layout = html.Div(
                                     dbc.Input(
                                         type='text',
                                         id='accreditationtracker_filter',
-                                        placeholder='🔎 Search by degree program, college',
+                                        placeholder='🔎 Search by degree program or assessment title',
                                         className='ml-auto'   
                                     ),
                                     width="6",
@@ -229,6 +229,12 @@ def accreditationtracker_loadlist(pathname, searchterm, eqa_types, selected_mont
         if selected_years:  # selected_years will be a list of selected years
             sql += " AND EXTRACT(YEAR FROM arep_sched_assessdate) IN %s"
             values.append(tuple(selected_years))
+
+        if searchterm:
+            # Adding search condition for arep_title and arep_degree_programs_id
+            sql += " AND (arep_title ILIKE %s OR arep_degree_programs_id ILIKE %s)"
+            values.extend(['%' + searchterm + '%', '%' + searchterm + '%'])
+
 
         df = db.querydatafromdatabase(sql, values, cols) 
 
