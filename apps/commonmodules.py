@@ -4,8 +4,11 @@ import dash_bootstrap_components as dbc
 import dash
 from dash.exceptions import PreventUpdate
 from dash import callback_context
+from dash.dependencies import Input, Output
 
 from app import app
+from apps import dbconnect as db
+
 
 navlink_style = {
     'color': '#fff'
@@ -34,7 +37,7 @@ navbar = dbc.Navbar(
                     align="center",
                     className='g-0'
                 ),
-                href="/home"
+                href="/homepage"
             )
         ),
         dbc.Col(
@@ -42,13 +45,13 @@ navbar = dbc.Navbar(
                 children=[
                     dbc.DropdownMenuItem("Profile", href="/profile"),
                     dbc.DropdownMenuItem("🏠 Home", href="/homepage"),
-                    dbc.DropdownMenuItem("🔒 Logout", href="/logout"),
-                    dbc.DropdownMenuItem("🔑 Change Password", href="/change-password"),
+                    dbc.DropdownMenuItem("🔒 Logout", href="/home"),
+                    dbc.DropdownMenuItem("🔑 Change Password", href="/password"),
                 ],
-                nav=True,
-                in_navbar=True,
-                label=html.Span('Hi Pika!', style={'color': 'white'}),   
-                right=True,
+                label=html.B(id='dropdown_name'), 
+                align_end = True,
+                in_navbar = True,
+                nav = True
             ),
             width="auto",
             align="end",
@@ -64,6 +67,22 @@ navbar = dbc.Navbar(
     },
 )
 
+
+@app.callback(
+    Output('dropdown_name', 'children'),
+    Input('user-id-input', 'value')   
+)
+def update_dropdown_label(user_id):
+    query = "SELECT user_fname, user_livedname FROM maindashboard.users WHERE user_id = %s"
+    user_details = db.querydatafromdatabase(query, (user_id,))
+    
+    if user_details:
+        user_fname, user_livedname = user_details
+        return f"👋 Hello, {user_fname} {user_livedname}"
+    else:
+        return "👋 Hello, User"
+
+    
 
 
 
