@@ -667,7 +667,7 @@ layout = html.Div(
         Output('greeting_alert', 'color'),
     ],
     [
-        Input('url', 'pathname'),
+        Input('url', 'pathname'), 
         Input('home_id_store', 'data')
     ]
 )
