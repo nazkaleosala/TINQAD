@@ -16,7 +16,7 @@ from apps import dbconnect as db
 from dash import ALL, no_update
 from datetime import datetime, timedelta
 import calendar
-
+import pytz
 
 from dash import Output, Input, State, callback_context
 
@@ -420,8 +420,8 @@ card = dbc.Card(
                 active_tab="tab-team-msg",
             )
         ),
-        dbc.CardBody(id="card-body-content"),  # Will be updated dynamically
-        dbc.CardFooter(id="card-footer-content"),  # Will be updated dynamically
+        dbc.CardBody(id="card-body-content"),   
+        dbc.CardFooter(id="card-footer-content"),   
     ] 
 )
 
@@ -477,6 +477,12 @@ layout = html.Div(
         dcc.Store(id='message-store', data=[]),
         
         html.Div(id='post-trigger', style={'display': 'none'}),
+
+        html.Div(  
+                [
+                dcc.Store(id='home_id_store', storage_type='session', data=0),
+                ]
+            ),
         dbc.Row(
             [
                 dbc.Col(
@@ -484,12 +490,10 @@ layout = html.Div(
                     width=2 
                 ),
                 dbc.Col(
-                    [   # Main content goes here
-                        html.H1("WELCOME, PIKA!", className="my-3"),
+                    [   
                         dbc.Row(
                             dbc.Col(
-                                card, 
-                                width=8, sm=12
+                                dbc.Alert(id = 'greeting_alert', color = 'dark')
                             )
                         ),
                         html.Br(),
@@ -653,3 +657,57 @@ layout = html.Div(
         )
     ]
 )
+
+
+
+# Callback for generating greeting alert content
+@app.callback(
+    [
+        Output('greeting_alert', 'children'),
+        Output('greeting_alert', 'color'),
+    ],
+    [
+        Input('url', 'pathname'),
+        Input('home_id_store', 'data')
+    ]
+)
+
+def generate_greeting(pathname, user_id):
+    if pathname == '/homepage' and user_id is not None and user_id != -1:
+        # Default values for greeting message and color
+        text = None
+        color = None
+        
+        # Retrieve user's name from the database based on user_id
+        query = """
+            SELECT 
+                user_fname AS name
+            FROM 
+                maindashboard.users 
+            WHERE 
+                user_id = %s
+        """
+        user_name = db.query_single_value_db(query, (user_id,))
+        
+        if user_name:
+            print("Retrieved user name:", user_name)  # Print the retrieved user name
+            
+            now = datetime.now(pytz.timezone('Asia/Manila'))
+            hour = now.hour
+            
+            if 0 <= hour < 12:
+                text = f"🌅 Maupay nga aga, {user_name}!"
+                color = 'cyan'
+            elif 12 <= hour < 13:
+                text = f"☀️ Maupay nga udto, {user_name}!"
+                color = 'yellow'
+            elif 13 <= hour < 18:
+                text = f"🌇 Maupay nga kulop, {user_name}!"
+                color = 'orange'
+            else:
+                text = f"🌙 Maupay nga gabi, {user_name}!"
+                color = 'dark'
+        
+        return text, 'black'
+    
+    raise PreventUpdate

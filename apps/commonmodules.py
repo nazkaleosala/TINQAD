@@ -43,7 +43,7 @@ navbar = dbc.Navbar(
         dbc.Col(
             dbc.DropdownMenu(
                 children=[
-                    dbc.DropdownMenuItem("Profile", href="/profile"),
+                    dbc.DropdownMenuItem("👋 Profile", href="/profile"),
                     dbc.DropdownMenuItem("🏠 Home", href="/homepage"),
                     dbc.DropdownMenuItem("🔒 Logout", href="/home"),
                     dbc.DropdownMenuItem("🔑 Change Password", href="/password"),
@@ -67,21 +67,29 @@ navbar = dbc.Navbar(
     },
 )
 
-
 @app.callback(
     Output('dropdown_name', 'children'),
-    Input('user-id-input', 'value')   
+    Input('user_id_store', 'data')   
 )
 def update_dropdown_label(user_id):
-    query = "SELECT user_fname, user_livedname FROM maindashboard.users WHERE user_id = %s"
-    user_details = db.querydatafromdatabase(query, (user_id,))
+    if not user_id:
+        return "👋 Hello"
     
-    if user_details:
-        user_fname, user_livedname = user_details
-        return f"👋 Hello, {user_fname} {user_livedname}"
+    query = "SELECT user_fname FROM maindashboard.users WHERE user_id = %s"
+    user_fname = db.query_single_value_db(query, (user_id,))  
+    
+    if user_fname is not None:
+        return f"👋 Hello, {user_fname}"
     else:
-        return "👋 Hello, User"
+        return "👋 Hello"
 
+
+
+
+
+
+
+ 
     
 
 

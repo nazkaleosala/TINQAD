@@ -146,12 +146,18 @@ layout = dbc.Row(
 
 
 @app.callback(
-    [Output('login_alert', 'is_open'),
-     Output('url', 'pathname'),
-     Output('user_id_store', 'data')],
-    [Input('login_loginbtn', 'n_clicks')],
-    [State('login_username', 'value'),
-     State('login_password', 'value')]
+    [
+        Output('login_alert', 'is_open'),
+        Output('url', 'pathname'),
+        Output('user_id_store', 'data')
+    ],
+    [
+        Input('login_loginbtn', 'n_clicks')
+    ],
+    [
+        State('login_username', 'value'),
+        State('login_password', 'value')
+    ]
 )
 def authenticate(n_clicks, username, password):
     if n_clicks:
@@ -162,6 +168,7 @@ def authenticate(n_clicks, username, password):
             
             if user_data:
                 user_id, stored_password = user_data  # Unpack the tuple
+                print("User ID:", user_id)  # Print the user ID for debugging
                 # Compare the entered password with the stored plain text password
                 if password == stored_password:
                     # Passwords match, authentication successful
