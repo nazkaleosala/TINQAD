@@ -96,6 +96,8 @@ def get_undergraduate_count():
     cols = ['total']
     df = db.querydatafromdatabase(sql, values, cols)
     return df['total'].iloc[0]
+
+
 def generate_sar_submissions_chart():
     # Retrieve data from the database
     sql = """
@@ -133,6 +135,9 @@ def generate_sar_submissions_chart():
     return {'data': [trace], 'layout': layout}
 
  
+
+
+
 
 
 layout = html.Div(
@@ -236,35 +241,63 @@ layout = html.Div(
                                     className="mb-3"
                                 ),
                                 dbc.Col(
-                                    dbc.Card(
-                                        [
-                                            dbc.CardHeader(
-                                                html.H3(
-                                                    [
-                                                        html.Strong("SAR Submissions 2024"),  # Bold only this part
-                                                    ],
-                                                    className="mb-0",  # Remove bottom margin
-                                                    style={'fontSize': '1.5rem'}  # Adjust font size
-                                                )
-                                            ),
-                                            dbc.CardBody(
-                                                dcc.Graph(
-                                                    id='sar-submissions-chart',
-                                                    figure=generate_sar_submissions_chart(),
-                                                    config={'displayModeBar': False},  # Hide the mode bar for a cleaner look
-                                                    style={'height': '200px', 'margin-top': '0px', 'padding-top': '0px'}  # Adjust height and remove top margin
+                                    [
+                                        dbc.Card(
+                                            [
+                                                dbc.CardHeader(
+                                                    html.H3(
+                                                        [
+                                                            html.Strong("SAR Submissions"),  # Bold only this part
+                                                        ],
+                                                        className="mb-0",  # Remove bottom margin
+                                                        style={'fontSize': '1.5rem'}  # Adjust font size
+                                                    )
                                                 ),
-                                            ),
-                                        ]
-                                    ),
+                                                dbc.CardBody(
+                                                    dcc.Graph(
+                                                        id='sar-submissions-chart',
+                                                        figure=generate_sar_submissions_chart(),
+                                                        config={'displayModeBar': False},  # Hide the mode bar for a cleaner look
+                                                        style={'height': '200px', 'margin-top': '0px', 'padding-top': '0px'}  # Adjust height and remove top margin
+                                                    ),
+                                                ),
+                                            ]
+                                        ),
+
+                                        html.Br(),
+                                        dbc.Card(
+                                            [
+                                                dbc.CardHeader(
+                                                    html.H3(
+                                                        [
+                                                            html.Strong("SAR (For Checking)"),  
+                                                        ],
+                                                        className="mb-0",  # Remove bottom margin
+                                                        style={'fontSize': '1.5rem'}  # Adjust font size
+                                                    )
+                                                ),
+                                                dbc.CardBody(
+                                                    html.Div(
+                                                        id='sar_forchecking', 
+                                                        style={
+                                                            'marginTop': '20px',
+                                                            'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                                                        }
+                                                    ),
+                                                ),
+                                            ]
+                                        ),
+                                    ],
                                     width=4
                                 ),
+ 
                             ]
                         ),
 
+                        
                         html.H5(html.B("Assessment Schedule")),
-                    
-                        dbc.Row(   
+
+                        dbc.Row(
                             [
                                 dbc.Col(  
                                     dbc.Input(
@@ -273,9 +306,8 @@ layout = html.Div(
                                         placeholder='🔎 Search by degree program, college',
                                         className='ml-auto'   
                                     ),
-                                    width="6",
+                                    width=6,
                                 ),
-                                 
                                 dbc.Col( 
                                     dcc.Dropdown(
                                         id='assesschedule_yeardropdown',
@@ -283,18 +315,52 @@ layout = html.Div(
                                         placeholder="Filter by year",
                                         multi=True
                                     ),
-                                    width="2"
+                                    width=2
                                 ),
                             ]
                         ),
-                        
-                        html.Div(
-                            id='assesschedule_list', 
-                            style={
-                                'marginTop': '20px',
-                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
-                            }
+
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    html.Div(
+                                        id='assesschedule_list', 
+                                        style={
+                                            'marginTop': '20px',
+                                            'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                                        }
+                                    ),
+                                    width=8,
+                                ),
+
+                                dbc.Col(
+                                    dbc.Card(
+                                        [
+                                            dbc.CardHeader(
+                                                html.H3(
+                                                    [
+                                                        html.Strong("Assessments (For Checking)"),  
+                                                    ],
+                                                    className="mb-0",  # Remove bottom margin
+                                                    style={'fontSize': '1.5rem'}
+                                                )
+                                            ),
+                                            dbc.CardBody(
+                                                html.Div(
+                                                    id='assessments_forchecking', 
+                                                    style={
+                                                        'marginTop': '20px',
+                                                        'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                                                    }
+                                                ),
+                                            ),
+                                        ]
+                                    ),
+                                    width=4,
+                                ),
+                            ]
                         ),
+ 
                     ]
                 ),
             ]
@@ -311,6 +377,86 @@ layout = html.Div(
         )
     ]
 )
+
+
+
+
+@app.callback(
+    Output('sar_forchecking', 'children'),
+    [Input('url', 'pathname')]
+) 
+def eqa_sar_forchecking(pathname):
+    if pathname == '/eqa_dashboard': 
+        sql = """
+        SELECT 
+            pd.pro_degree_shortname AS "Degree Program",
+            sr.sarep_currentdate AS "Date Submitted"
+        FROM 
+            eqateam.sar_report sr
+        JOIN 
+            eqateam.program_details pd ON sr.sarep_degree_programs_id = pd.programdetails_id
+        WHERE 
+            sr.sarep_checkstatus = 'For Checking'
+            AND sr.sarep_del_ind IS FALSE
+
+        """
+
+        cols = ['Degree Program', 'Date Submitted']
+        values = []
+         
+        df = db.querydatafromdatabase(sql, values, cols) 
+   
+        if not df.empty:
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return table
+        else:
+            return html.Div("No SAR for checking yet")
+    else:
+        return html.Div("No SAR for checking yet")
+
+
+
+
+
+
+
+@app.callback(
+    Output('assessments_forchecking', 'children'),
+    [Input('url', 'pathname')]
+) 
+def eqa_assessments_forchecking(pathname):
+    if pathname == '/eqa_dashboard': 
+        sql = """
+        SELECT 
+            arep_degree_programs_id AS "Degree Program",
+            arep_currentdate AS "Date Submitted"
+        FROM 
+            eqateam.assess_report  
+        WHERE 
+            arep_checkstatus = 'For Checking'
+            AND arep_del_ind IS FALSE
+
+        """
+
+        cols = ['Degree Program', 'Date Submitted']
+        values = []
+         
+        df = db.querydatafromdatabase(sql, values, cols) 
+   
+        if not df.empty:
+            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+            return table
+        else:
+            return html.Div("No Assessment for checking yet")
+    else:
+        return html.Div("No Assessment for checking yet")
+
+
+
+
+
+
+
 
 
 
