@@ -48,12 +48,13 @@ def query_single_value_db(sql, params):
         db = getdblocation()
         cur = db.cursor()
         cur.execute(sql, params)
-        result = cur.fetchone()[0]
+        result = cur.fetchone()
         db.close()
-        return result
+        return result  # Return the entire row as a tuple
     except psycopg2.Error as e:
         print("Error executing SQL query:", e)
         return None
+
 
 
 def get_college(selected_degree_program):

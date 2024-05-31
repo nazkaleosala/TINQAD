@@ -16,6 +16,11 @@ layout = dbc.Row(
         dbc.Col(
             html.Div(
             [
+                html.Div(  
+                            [
+                                dcc.Store(id='user_id_store', storage_type='session', data=0),
+                            ]
+                        ),
                 
                 html.Div(
                     [
@@ -142,7 +147,8 @@ layout = dbc.Row(
 
 @app.callback(
     [Output('login_alert', 'is_open'),
-     Output('url', 'pathname')],
+     Output('url', 'pathname'),
+     Output('user_id_store', 'data')],
     [Input('login_loginbtn', 'n_clicks')],
     [State('login_username', 'value'),
      State('login_password', 'value')]
@@ -150,23 +156,24 @@ layout = dbc.Row(
 def authenticate(n_clicks, username, password):
     if n_clicks:
         if username and password:
-            # Retrieve the plain text password from the database for the given username
-            sql = "SELECT user_password FROM maindashboard.users WHERE user_email = %s"
-            stored_password = db.query_single_value_db(sql, (username,))
+            # Retrieve the user_id and password from the database for the given username
+            sql = "SELECT user_id, user_password FROM maindashboard.users WHERE user_email = %s"
+            user_data = db.query_single_value_db(sql, (username,))
             
-            if stored_password:
+            if user_data:
+                user_id, stored_password = user_data  # Unpack the tuple
                 # Compare the entered password with the stored plain text password
                 if password == stored_password:
                     # Passwords match, authentication successful
-                    return False, '/homepage'  # Redirect to homepage
+                    return False, '/homepage', user_id  # Redirect to homepage with user_id
                 else:
                     # Passwords don't match, show error message
-                    return True, dash.no_update  # Stay on the login page
+                    return True, dash.no_update, dash.no_update  # Stay on the login page
             else:
                 # User not found or password not stored, show error message
-                return True, dash.no_update  # Stay on the login page
+                return True, dash.no_update, dash.no_update  # Stay on the login page
         else:
             # Username or password not provided, show error message
-            return True, dash.no_update  # Stay on the login page
+            return True, dash.no_update, dash.no_update  # Stay on the login page
     else:
         raise PreventUpdate
