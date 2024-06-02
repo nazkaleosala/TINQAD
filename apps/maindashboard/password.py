@@ -11,12 +11,10 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db 
 
-import bcrypt 
-
-profile_image_path = '/assets/database/takagaki1.png'
+import hashlib
 
 
-# Your profile header component with circular image
+
 password_header = html.Div(
     [
         html.Div(
@@ -58,7 +56,50 @@ def update_password_header(pathname, current_userid):
     else:
         return "",""
   
- 
+@app.callback(
+    [
+        Output('password_alert', 'color'),
+        Output('password_alert', 'children'),
+        Output('password_alert', 'is_open'),
+        Output('password_successmodal', 'is_open'),
+        Output('password_feedback_message', 'children'),
+    ],
+    [Input('password_save_button', 'n_clicks')],
+    [   
+        State('currentuserid', 'data'),
+        State('prev_password', 'value'),
+        State('new_password', 'value'),
+        State('confirm_password', 'value'), 
+    ]
+)
+def save_profile_changes(n_clicks, current_userid, prev_password, new_password, confirm_password):
+    if n_clicks:
+        # Fetch the hashed password from the database
+        stored_password_hash = db.get_user_password_hash(current_userid)
+        
+        # Verify the previous password
+        if db.verify_password(prev_password, stored_password_hash):
+            # Check if new password matches the confirm password
+            if new_password == confirm_password:
+                # Hash the new password
+                hashed_password = db.hash_password(new_password)
+                
+                # Update the hashed password in the database
+                db.update_user_password_hash(current_userid, new_password)
+                
+                return 'success', "Password changed successfully.", True, True, None
+            else:
+                return 'danger', "Passwords do not match.", True, False, None
+        else:
+            return 'danger', "Previous password is incorrect.", True, False, None
+
+    return None, None, False, False, None
+
+
+
+
+
+
 
 
 form = dbc.Form( 
@@ -103,9 +144,46 @@ layout = html.Div(
                     [
                         password_header,
                         html.Hr(),
-                        
+                        dbc.Alert(id='password_alert', is_open=False),  
                         html.Br(), 
                         form,  
+                        html.Br(),
+                        dbc.Row(
+                            [ 
+                                dbc.Col(
+                                    dbc.Button("Save", color="primary",  id="password_save_button", n_clicks=0),
+                                    width="auto"
+                                ),
+                                dbc.Col(
+                                    dbc.Button("Cancel", color="warning", id="password_cancel_button", n_clicks=0, href="/homepage"),  
+                                    width="auto"
+                                ),
+                            ],
+                            className="mb-2",
+                            justify="end",
+                        ),
+
+                        
+
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader(className="bg-success"),
+                                dbc.ModalBody(
+                                    ['User registered successfully.'
+                                    ],id='password_feedback_message'
+                                ),
+                                dbc.ModalFooter(
+                                    dbc.Button(
+                                        "Proceed", href='/homepage', id='password_btn_modal'
+                                    ), 
+                                )
+                                
+                            ],
+                            centered=True,
+                            id='password_successmodal',
+                            backdrop=True,   
+                            className="modal-success"    
+                        ),
                     ], 
                     width=6, 
                     style={'marginLeft': '15px'}

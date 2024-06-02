@@ -1,6 +1,5 @@
 import psycopg2
-import pandas as pd
-import bcrypt
+import pandas as pd 
 
 def getdblocation():
     db = psycopg2.connect(
@@ -14,10 +13,7 @@ def getdblocation():
     return db
 
 print(getdblocation())
-
-
-
-
+ 
 def modifydatabase(sql, values):
     db = getdblocation()
 
@@ -227,28 +223,7 @@ def get_sdgrnotes(evidence_id_notes):
         return None
 
 
-
-
-def hash_password(password):
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-    return hashed_password
-def verify_password(password, hashed_password):
-    return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
-def get_user_password_hash(user_id):
-    db = getdblocation()
-    cursor = db.cursor()
-    cursor.execute("SELECT user_password_hash FROM maindashboard.users WHERE user_id = %s", (user_id,))
-    user_password_hash = cursor.fetchone()[0]
-    db.close()
-    return user_password_hash
-def update_user_password_hash(user_id, new_password):
-    db = getdblocation()
-    hashed_password = hash_password(new_password)
-    cursor = db.cursor()
-    cursor.execute("UPDATE maindashboard.users SET user_password_hash = %s WHERE user_id = %s", (hashed_password, user_id))
-    db.commit()
-    db.close()
+ 
 
 
 def get_user_info(user_id):

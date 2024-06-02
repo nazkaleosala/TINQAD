@@ -14,20 +14,18 @@ from app import app
 from apps import dbconnect as db
 
 from datetime import datetime
-import bcrypt 
+import hashlib
 import re
 
 from urllib.parse import urlparse, parse_qs
 
 
+
 def hash_password(password): 
     password_bytes = password.encode('utf-8')
 
-    # Generate a salt
-    salt = bcrypt.gensalt()
-
     # Generate the hashed password
-    hashed_password = bcrypt.hashpw(password_bytes, salt)
+    hashed_password = hashlib.sha256(password_bytes).hexdigest()
     return hashed_password
 
   
