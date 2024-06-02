@@ -66,6 +66,27 @@ form = dbc.Form(
             className="mb-2",
         ),
 
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Add new Faculty Position", 
+                    ],
+                    width=4
+                ),
+                 
+                dbc.Col(
+                    dbc.Input(id="add_training_fac_posn", type="text"),
+                    width=6,
+                ),
+                dbc.Col(
+                    dbc.Button("➕", color="primary",  id="add_training_save_button", n_clicks=0),
+                        width="auto"
+                    ),     
+            ],
+            className="mb-2",
+        ),
+
         
         dbc.Row(
               [
@@ -743,6 +764,21 @@ layout = html.Div(
                         backdrop=True,  
                         className="modal-success"   
                     ),
+                    
+                    dbc.Modal(
+                            [
+                                dbc.ModalHeader(className="bg-success"),
+                                dbc.ModalBody(
+                                    ['Faculty Position added successfully.'
+                                    ],id='add_training_feedback_message'
+                                ), 
+                                
+                            ],
+                            centered=True,
+                            id='add_training_successmodal',
+                            backdrop=True,   
+                            className="modal-success"    
+                    ),
                      
                 ],
                 width=8, style={'marginLeft': '15px'}
@@ -1089,6 +1125,7 @@ def trainingdocuments_loadprofile(timestamp, toload, search):
         Output('cluster_id', 'disabled'),
         Output('college_id', 'disabled'),
         Output('deg_unit_id', 'disabled'), 
+        Output('add_training_fac_posn', 'disabled'), 
     ],
     [Input('url', 'search')]
 )
@@ -1097,5 +1134,34 @@ def training_inputs_disabled(search):
         parsed = urlparse(search)
         create_mode = parse_qs(parsed.query).get('mode', [None])[0]
         if create_mode == 'edit':
-            return [True] * 6
-    return [False] * 6
+            return [True] * 7
+    return [False] * 7
+
+
+
+
+
+
+
+
+@app.callback(
+    [Output('add_training_successmodal', 'is_open')],
+    [Input('add_training_save_button', 'n_clicks')],
+    [State('add_training_fac_posn', 'value'), 
+     State('url', 'search')]
+)
+ 
+def register_training_unithead(submitbtn, add_training_fac_posn, search):
+    if submitbtn:
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+
+        if create_mode == 'add' and add_training_fac_posn:
+            sql = """
+                INSERT INTO public.fac_posns (fac_posn_name)
+                VALUES (%s)
+            """
+            values = (add_training_fac_posn,)
+            db.modifydatabase(sql, values)
+            return [True]  
+    raise PreventUpdate

@@ -711,9 +711,9 @@ def generate_greeting(pathname, user_id):
             color = '#D37157'
         elif time >= 17 and time < 22:
             text = html.H5(html.B("🌇 Good evening, %s!" % name))
-            color = '#39B54A'
+            color = '#403B87'
         else:
             text = html.H5(html.B("🌙 Good night, %s!" % name))
-            color = '#35FFAF'
+            color = '#8F2F91'
         return [text, color]
     else: raise PreventUpdate

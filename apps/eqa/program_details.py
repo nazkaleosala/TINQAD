@@ -10,11 +10,8 @@ import pandas as pd
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
-
-import psycopg2
-import json
-import logging
-
+ 
+import json  
 from urllib.parse import urlparse, parse_qs
 
 
@@ -519,9 +516,10 @@ def populate_accreditationbody_dropdown(pathname):
         State('pro_program_type_id', 'value'),
         State('pro_calendar_type_id', 'value'),
         State('pro_accreditation_body_id', 'value'),
-        State('url', 'search')         # JSON string input
+        State('url', 'search')        
     ]
 )
+
 def record_program_details(submitbtn, closebtn, removerecord,
                             pro_degree_title, pro_degree_shortname, pro_degree_initials,
                             pro_cluster_id, pro_college_id, pro_department_id,
@@ -535,7 +533,7 @@ def record_program_details(submitbtn, closebtn, removerecord,
         
             alert_open = False
             modal_open = False
-            alert_color = ''
+            alert_color = 'danger'
             alert_text = ''
 
             parsed = urlparse(search)
@@ -544,40 +542,43 @@ def record_program_details(submitbtn, closebtn, removerecord,
             if create_mode == 'add':
 
                 if not all([pro_degree_title, pro_degree_shortname, pro_degree_initials]):
-                    return [alert_color, "Missing required fields.", alert_open, modal_open]
+                    return [alert_color, "Missing required fields.",  True, modal_open, '', '']
 
+                # Check existing records in the database
                 check_existing_title_sql = """
                     SELECT 1 
                     FROM eqateam.program_details 
-                    WHERE pro_degree_title = %s
+                    WHERE pro_degree_title = %s AND pro_del_ind = False
                 """
                 existing_title = db.querydatafromdatabase(check_existing_title_sql, (pro_degree_title,), ["exists"])
+
+                if not existing_title.empty:
+                    alert_text = 'Degree Program Title already exists. Please use a different title.'
+                    return ['danger', alert_text, True, False, '', '']
 
                 check_existing_shortname_sql = """
                     SELECT 1 
                     FROM eqateam.program_details 
-                    WHERE pro_degree_shortname = %s
+                    WHERE pro_degree_shortname = %s AND pro_del_ind = False
                 """
                 existing_shortname = db.querydatafromdatabase(check_existing_shortname_sql, (pro_degree_shortname,), ["exists"])
+
+                if not existing_shortname.empty:
+                    alert_text = 'Degree Program Shortname already exists. Please use a different shortname.'
+                    return ['danger', alert_text, True, False, '', '']
 
                 check_existing_initials_sql = """
                     SELECT 1 
                     FROM eqateam.program_details 
-                    WHERE pro_degree_initials = %s
+                    WHERE pro_degree_initials = %s AND pro_del_ind = False
                 """
                 existing_initials = db.querydatafromdatabase(check_existing_initials_sql, (pro_degree_initials,), ["exists"])
 
-                # Construct an alert text based on which fields already exist
-                if not existing_title.empty:
-                    alert_text = 'Degree Program Title already exists. Please use a different title.'
-                elif not existing_shortname.empty:
-                    alert_text = 'Degree Program Shortname already exists. Please use a different shortname.'
-                elif not existing_initials.empty:
+                if not existing_initials.empty:
                     alert_text = 'Degree Program Initials already exists. Please use different initials.'
+                    return ['danger', alert_text, True, False, '', '']
 
-                if not existing_title.empty or not existing_shortname.empty or not existing_initials.empty:
-                    return [alert_color, alert_text, True, False]
-
+                
                 sql = """
                     INSERT INTO eqateam.program_details (
                         pro_degree_title, pro_degree_shortname, pro_degree_initials, 
@@ -586,7 +587,6 @@ def record_program_details(submitbtn, closebtn, removerecord,
                         pro_accreditation_body_id, pro_del_ind
                     )
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    
                 """
 
                 values = (
@@ -596,7 +596,7 @@ def record_program_details(submitbtn, closebtn, removerecord,
                     json.dumps(pro_accreditation_body_id) if pro_accreditation_body_id else None,
                     False
                 )
-                
+
                 db.modifydatabase(sql, values) 
                 modal_open = True
                 feedbackmessage = html.H5("New Program added successfully.")
@@ -622,8 +622,13 @@ def record_program_details(submitbtn, closebtn, removerecord,
 
                 to_delete = bool(removerecord) 
                 
-                values = [pro_degree_count, pro_calendar_type_id,
-                        pro_accreditation_body_id, to_delete, programdetailsid]
+                values = [
+                    pro_degree_count,
+                    pro_calendar_type_id,
+                    json.dumps(pro_accreditation_body_id) if pro_accreditation_body_id else None,
+                    to_delete,
+                    programdetailsid
+                ]
                 db.modifydatabase(sqlcode, values)
                 
                 feedbackmessage = html.H5("Program has been updated.")

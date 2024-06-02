@@ -163,6 +163,27 @@ form = dbc.Form(
             ],
             className="mb-2",
         ),
+
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Add new Faculty Position", 
+                    ],
+                    width=4
+                ),
+                 
+                dbc.Col(
+                    dbc.Input(id="add_unithead_fac_posn", type="text"),
+                    width=6,
+                ),
+                dbc.Col(
+                    dbc.Button("➕", color="primary",  id="add_facposn_save_button", n_clicks=0),
+                        width="auto"
+                    ),     
+            ],
+            className="mb-2",
+        ),
          
         dbc.Row(
             [
@@ -235,7 +256,7 @@ layout = html.Div(
 
                         html.H1("ADD NEW ACADEMIC HEAD PROFILE"),
                         html.Hr(),
-                        dbc.Alert(id='unithead_alert', is_open=False), # For feedback purpose
+                        dbc.Alert(id='unithead_alert', is_open=False), # For feedback purpose 
                         form, 
                         
                         html.Br(),
@@ -300,6 +321,22 @@ layout = html.Div(
                             backdrop=True,   
                             className="modal-success"    
                         ),
+                        
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader(className="bg-success"),
+                                dbc.ModalBody(
+                                    ['Faculty Position added successfully.'
+                                    ],id='add_facposn_feedback_message'
+                                ), 
+                                
+                            ],
+                            centered=True,
+                            id='add_facposn_successmodal',
+                            backdrop=True,   
+                            className="modal-success"    
+                        ),
+                        
                         
                     ], width=8, style={'marginLeft': '15px'}
                 ),   
@@ -504,9 +541,7 @@ def record_acadhead_profile(submitbtn, closebtn, removerecord,
                     alert_color_mname = 'danger'
                     alert_text_mname = 'Check your inputs. Please add a Middle Name.'
                     return [alert_color_mname, alert_text_mname, alert_open, modal_open]
-
-                
-
+ 
                 if not unithead_upmail:
                     alert_color_upmail = 'danger'
                     alert_text_upmail = 'Check your inputs. Please add a UP Mail.'
@@ -618,8 +653,7 @@ def record_acadhead_profile(submitbtn, closebtn, removerecord,
     return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]  
 
   
-
-
+ 
 
 @app.callback(
     [
@@ -708,6 +742,7 @@ def unithead_loadprofile(timestamp, toload, search):
         Output('unithead_cluster_id', 'disabled'),      
         Output('unithead_college_id', 'disabled'), 
         Output('unithead_deg_unit_id', 'disabled'),  
+        Output('add_unithead_fac_posn', 'disabled'),  
         Output('unithead_appointment_start', 'disabled'),
     ],
     [Input('url', 'search')]
@@ -717,5 +752,41 @@ def unithead_inputs_disabled(search):
         parsed = urlparse(search)
         create_mode = parse_qs(parsed.query).get('mode', [None])[0]
         if create_mode == 'edit':
-            return [True] * 7  # Disable all inputs in edit mode
-    return [False] * 7  # Enable all inputs otherwise
+            return [True] * 8  # Disable all inputs in edit mode
+    return [False] * 8  # Enable all inputs otherwise
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@app.callback(
+    [Output('add_facposn_successmodal', 'is_open')],
+    [Input('add_facposn_save_button', 'n_clicks')],
+    [State('add_unithead_fac_posn', 'value'), 
+     State('url', 'search')]
+)
+ 
+def register_facposn_unithead(submitbtn, add_unithead_fac_posn, search):
+    if submitbtn:
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+
+        if create_mode == 'add' and add_unithead_fac_posn:
+            sql = """
+                INSERT INTO public.fac_posns (fac_posn_name)
+                VALUES (%s)
+            """
+            values = (add_unithead_fac_posn,)
+            db.modifydatabase(sql, values)
+            return [True]  
+    raise PreventUpdate

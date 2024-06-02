@@ -56,7 +56,7 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dbc.Input(type="text", id="sdg_evidencename",  
-                              placeholder="Enter Evidence Name", disabled=False ),
+                              placeholder="YearSDG_EvidenceName e.g. 2024SDG_EvidenceForHealth", disabled=False ),
                     width=6,
                 ),
             ],

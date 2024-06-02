@@ -168,6 +168,28 @@ form = dbc.Form(
             ],
             className="mb-4",
         ),
+
+        dbc.Row(
+            [
+                dbc.Label(
+                    [
+                        "Add new Faculty Position", 
+                    ],
+                    width=4
+                ),
+                 
+                dbc.Col(
+                    dbc.Input(id="add_qaofficer_fac_posn", type="text"),
+                    width=6,
+                ),
+                dbc.Col(
+                    dbc.Button("➕", color="primary",  id="add_qaofficer_save_button", n_clicks=0),
+                        width="auto"
+                    ),     
+            ],
+            className="mb-2",
+        ),
+
         dbc.Row(
             [
                 dbc.Label("Faculty Admin Position (if any)", width=4),
@@ -404,6 +426,21 @@ layout = html.Div(
                             ],
                             centered=True,
                             id='qaofficer_successmodal',
+                            backdrop=True,   
+                            className="modal-success"    
+                        ),
+
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader(className="bg-success"),
+                                dbc.ModalBody(
+                                    ['Faculty Position added successfully.'
+                                    ],id='add_qaofficer_feedback_message'
+                                ), 
+                                
+                            ],
+                            centered=True,
+                            id='add_qaofficer_successmodal',
                             backdrop=True,   
                             className="modal-success"    
                         ),
@@ -903,20 +940,41 @@ def qaofficer_loadprofile(timestamp, toload, search):
         Output('qaofficer_cluster_id', 'disabled'),      
         Output('qaofficer_college_id', 'disabled'), 
         Output('qaofficer_deg_unit_id', 'disabled'),
+        Output('add_qaofficer_fac_posn', 'disabled'),
         Output('qaofficer_role', 'disabled'),
     ],
     [Input('url', 'search')]
 
-)
-
-        
+)      
 def qaofficer_inputs_disabled(search):
     if search:
         parsed = urlparse(search)
         create_mode = parse_qs(parsed.query).get('mode', [None])[0]
         if create_mode == 'edit':
-            return [True] * 11  # Disable all inputs in edit mode
-    return [False] * 11  # Enable all inputs otherwise
+            return [True] * 12  # Disable all inputs in edit mode
+    return [False] * 12  # Enable all inputs otherwise
 
 
                 
+
+@app.callback(
+    [Output('add_qaofficer_successmodal', 'is_open')],
+    [Input('add_qaofficer_save_button', 'n_clicks')],
+    [State('add_qaofficer_fac_posn', 'value'), 
+     State('url', 'search')]
+)
+ 
+def register_qaofficer_unithead(submitbtn, add_qaofficer_fac_posn, search):
+    if submitbtn:
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+
+        if create_mode == 'add' and add_qaofficer_fac_posn:
+            sql = """
+                INSERT INTO public.fac_posns (fac_posn_name)
+                VALUES (%s)
+            """
+            values = (add_qaofficer_fac_posn,)
+            db.modifydatabase(sql, values)
+            return [True]  
+    raise PreventUpdate
