@@ -36,12 +36,7 @@ profile_header = html.Div(
         html.Div(
             [
                  
-                html.H3(id="user_name_header", 
-                        style={
-                            'marginBottom': 0, 
-                            'marginLeft': '25px'
-                            }
-                        ),
+                html.H3(id="user_name_header", style={'marginBottom': 0, 'marginLeft': '25px'}),
                 html.P("2020-*****", style={'marginBottom': 0, 'marginLeft': '25px'})  
             ],
             style={'display': 'inline-block', 'verticalAlign': 'center'}
@@ -50,19 +45,17 @@ profile_header = html.Div(
     style={'textAlign': 'left', 'marginTop': '20px'}
 )
 
+# Callback to update user name header
 @app.callback(
     Output("user_name_header", "children"),
-    [Input("user_id_store", "data")]
+    [Input("currentuserid", "data")]
 )
 def update_user_name_header(user_id):
-    print("User ID:", user_id)  # Check if user_id is received correctly
-    user_info = db.get_user_info(user_id)
-    print("User Info:", user_info)  # Check if user info is retrieved correctly
-
+    user_info = db.get_user_info(user_id)  # Assuming get_user_info function retrieves user info
     if user_info:
-        user_fname = user_info['user_fname']
-        user_mname = user_info['user_mname']
-        user_sname = user_info['user_sname']
+        user_fname = user_info.get('user_fname', '')
+        user_mname = user_info.get('user_mname', '')
+        user_sname = user_info.get('user_sname', '')
 
         full_name = f"{user_fname} {user_mname} {user_sname}" if user_mname else f"{user_fname} {user_sname}"
 
@@ -159,7 +152,6 @@ layout = html.Div(
 )
 
 
-
 @app.callback(
     [
         Output('password_alert', 'color'),
@@ -174,21 +166,27 @@ layout = html.Div(
         State("user_id_store", "data")
     ]
 )
-
 def change_password_alert(n_clicks, prev_password, new_password, confirm_password, user_id):
     if n_clicks: 
         stored_password_hash = db.get_user_password_hash(user_id)   
 
         if bcrypt.checkpw(prev_password.encode('utf-8'), stored_password_hash):
             if new_password != confirm_password:
-                return True, "danger", "New password and confirm password do not match!", True
+                return "danger", "New password and confirm password do not match!", True
+            
+            # Add validation for new password strength, minimum length, etc.
+            if len(new_password) < 8:
+                return "danger", "Password must be at least 8 characters long!", True
             
             new_password_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
             
-            db.update_user_password_hash(user_id, new_password_hash)  # Assuming you have a function to update user's hashed password
-            
-            return True, "success", "Password changed successfully!", True
+            try:
+                db.update_user_password_hash(user_id, new_password_hash)  
+                return "success", "Password changed successfully!", True
+            except Exception as e:
+                print("Error updating password:", e)
+                return "danger", "An error occurred while changing password.", True
         else:
-            return True, "danger", "Current password is incorrect!", True
+            return "danger", "Current password is incorrect!", True
     else:
-        return False, "", "", False
+        return "", "", False

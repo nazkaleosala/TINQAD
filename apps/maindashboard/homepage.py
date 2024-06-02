@@ -706,10 +706,10 @@ def generate_greeting(pathname, user_id):
         if time >= 0 and time < 12:
             text = html.H5( html.B("🌅 Good morning, %s!" % name))
             color = '#40BFBC'    
-        elif time >= 12 and time < 13:
+        elif time >= 12 and time < 17:
             text = html.H5(html.B("☀️ Good afternoon, %s!" % name))
             color = '#D37157'
-        elif time >= 13 and time < 18:
+        elif time >= 17 and time < 22:
             text = html.H5(html.B("🌇 Good evening, %s!" % name))
             color = '#39B54A'
         else:
