@@ -276,3 +276,50 @@ def get_office_info(office_id):
     office_name = cursor.fetchone()[0]  
     db.close()
     return office_name
+
+
+
+
+def verify_password(user_id, password):
+    try:
+        conn = getdblocation()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT user_id
+            FROM maindashboard.users 
+            WHERE user_id = %s AND user_password = %s
+        """
+        cursor.execute(query, (user_id, password))
+        result = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        return result is not None
+
+    except psycopg2.Error as e:
+        print("Error verifying password:", e)
+        return False
+
+def update_password(user_id, new_password):
+    try:
+        conn = getdblocation()
+        cursor = conn.cursor()
+
+        query = """
+            UPDATE maindashboard.users
+            SET user_password = %s
+            WHERE user_id = %s
+        """
+        cursor.execute(query, (new_password, user_id))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return True
+
+    except psycopg2.Error as e:
+        print("Error updating password:", e)
+        return False

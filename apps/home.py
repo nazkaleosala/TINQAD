@@ -34,10 +34,7 @@ def loginprocess(loginbtn, useremail, password,
     if ctx.triggered:
         accesstype = 0
         openalert = False
-        eventid = ctx.triggered[0]['prop_id'].split('.')[0]
-        print("Event ID:", eventid)
-        print("User Email:", useremail)
-        print("Password:", password)
+        eventid = ctx.triggered[0]['prop_id'].split('.')[0] 
          
         if eventid == 'login_loginbtn':
             if loginbtn and useremail and password:
@@ -56,8 +53,7 @@ def loginprocess(loginbtn, useremail, password,
                 df = db.querydatafromdatabase(sql, values, cols)
                 if df.shape[0]:
                     currentuserid = df['user_id'][0]
-                    accesstype = df['user_access_type'][0]
-                    print("Current UserID:", currentuserid)
+                    accesstype = df['user_access_type'][0] 
                     pathname = '/homepage'
                 else:
                     currentuserid = -1

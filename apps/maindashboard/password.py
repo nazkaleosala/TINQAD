@@ -72,28 +72,26 @@ def update_password_header(pathname, current_userid):
         State('confirm_password', 'value'), 
     ]
 )
-def save_profile_changes(n_clicks, current_userid, prev_password, new_password, confirm_password):
-    if n_clicks:
-        # Fetch the hashed password from the database
-        stored_password_hash = db.get_user_password_hash(current_userid)
-        
-        # Verify the previous password
-        if db.verify_password(prev_password, stored_password_hash):
-            # Check if new password matches the confirm password
-            if new_password == confirm_password:
-                # Hash the new password
-                hashed_password = db.hash_password(new_password)
-                
-                # Update the hashed password in the database
-                db.update_user_password_hash(current_userid, new_password)
-                
-                return 'success', "Password changed successfully.", True, True, None
-            else:
-                return 'danger', "Passwords do not match.", True, False, None
-        else:
-            return 'danger', "Previous password is incorrect.", True, False, None
+def save_profile_changes(save, current_userid, prev_password, new_password, confirm_password):
+    if save:
+        # Check if new password and confirm password match
+        if new_password != confirm_password:
+            return 'danger', "New password and confirm password do not match.", True, False, ''
 
-    return None, None, False, False, None
+        # Check if previous password matches the one in the database
+        if db.verify_password(current_userid, prev_password):
+            # Update the password in the database
+            db.update_password(current_userid, new_password)
+            return 'success', '', False, True, 'Password updated successfully.'
+        else:
+            return 'danger', "Previous password is incorrect.", True, False, ''
+    else:
+        raise PreventUpdate
+    
+
+
+
+    
 
 
 
