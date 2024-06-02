@@ -646,8 +646,8 @@ layout = html.Div(
                                 ),
                         
                         ]),
-                        approval_card,  # timeline card component
-                        upcomingevents_card,
+                        #approval_card,   
+                        #upcomingevents_card,
                     ],
                     width=3,  md=3, sm=12
                 ),

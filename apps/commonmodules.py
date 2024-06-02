@@ -90,7 +90,6 @@ def navbarlinks(pathname, user_id):
                             dbc.DropdownMenuItem("👋 Profile", href="/profile"),
                             dbc.DropdownMenuItem("🏠 Home", href="/homepage"),
                             dbc.DropdownMenuItem("🔒 Logout", href="/"),
-                            dbc.DropdownMenuItem("🔑 Change Password", href="/password"),
                         ],
                         label=html.B("👋 Hello, %s" % name),
                         align_end=True,
@@ -140,7 +139,7 @@ def generate_navbar():
                     #internal qa dashboard
                     html.A(html.B('Internal QA'), href='/iqa_dashboard', className="nav-link"),  
                     #html.A('iAADs Reports Summary', id='iaads-reports-link', href='/iaads_reports', className="nav-link"),  
-                    html.A('Acad Heads Directory',  href='/acad_heads_directory', className="nav-link"),  
+                    html.A('Academic Heads Directory',  href='/acad_heads_directory', className="nav-link"),  
                     html.A('-----------------------------------', style={'color': 'white'} ),  
 
                     

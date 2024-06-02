@@ -306,33 +306,34 @@ layout = html.Div(
                         dbc.Row(
                             [
                                 dbc.Col(
+                                    [
                                     dbc.Card(
                                         [
                                             dbc.CardHeader(html.H3("Announcements")),
                                             dbc.CardBody(
-                                                [dbc.Col(announcements_content), announcements_footer],
-                                            ),
-                                        ]
+                                                [
+                                                    dbc.Col
+                                                        (
+                                                            announcements_content
+                                                        ), 
+                                                        announcements_footer,
+                                                ],
+                                            ),  
+                                        ], 
                                     ),
-                                    width=8, sm=12
-                                )
-                            ]
-                        ),
-                        html.Br(),
-                        
-                        dbc.Row(
-                            [
-                                 
-
-                                dbc.Col(create_card(
-                                    dbc.Col("Ranking Body Categories"),
-                                    links
-                                ), width=5),
+                                    dbc.Col(
+                                        create_card
+                                            (
+                                                dbc.Col("Ranking Body Categories"),
+                                                links
+                                            ), width=4),
+                                    
+                                    ], width=6, sm=12
+                                ),
                                 
                             ]
                         ),
-                         
-                         
+                        html.Br(), 
                     ], 
                     width=9, style={'marginLeft': '15px'}
                 ),

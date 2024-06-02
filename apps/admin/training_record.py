@@ -40,15 +40,7 @@ layout = html.Div(
                                         href='/training_documents?mode=add',  
                                     ),
                                     width="auto",    
-                                ),
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "View List", color="link", 
-                                        href='/training_record/mode=view',  
-                                    ),
-                                    width="auto",    
-                                ),
-                                 
+                                ), 
                             ],
                             className="align-items-center",   
                             justify="between",  

@@ -776,8 +776,7 @@ def record_SDGsubmission(submitbtn, closebtn, removerecord,
             UPDATE kmteam.SDGSubmission
             SET
                 sdg_checkstatus = %s,
-                sdg_notes = %s,
-                sdg_applycriteria = %s,
+                sdg_notes = %s, 
                 sdg_del_ind = %s
 
             WHERE 
@@ -785,7 +784,7 @@ def record_SDGsubmission(submitbtn, closebtn, removerecord,
         """
         to_delete = bool(removerecord) 
 
-        values = [sdg_checkstatus, sdg_notes, sdg_applycriteria, to_delete, sdgsubmissionid]
+        values = [sdg_checkstatus, sdg_notes, to_delete, sdgsubmissionid]
         db.modifydatabase(sqlcode, values)
 
         feedbackmessage = html.H5("Status has been updated.")
