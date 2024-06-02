@@ -52,7 +52,7 @@ layout = html.Div(
                                     dbc.Input(
                                         type='text',
                                         id='add_criteria_filter',
-                                        placeholder='🔎 Search by degree program',
+                                        placeholder='🔎 Search by Criteria ID, Criteria Code, Description',
                                         className='ml-auto'   
                                     ),
                                     width="8",
@@ -241,13 +241,14 @@ def add_criteria_list(pathname, searchterm=None):
 
         if searchterm:
             sql += """
-                WHERE 
+                AND (
                     sdgcriteria_code ILIKE %s OR
                     CAST(sdgcriteria_number AS VARCHAR) ILIKE %s OR 
                     sdgcriteria_description ILIKE %s
+                )
             """
             like_pattern = f"%{searchterm}%"
-            values = [like_pattern, like_pattern, like_pattern]
+            values = [like_pattern, like_pattern, like_pattern]  # Define values here
         else:
             values = []
 

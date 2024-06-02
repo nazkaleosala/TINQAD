@@ -58,7 +58,8 @@ layout = html.Div(
                                     dbc.Input(
                                         type='text',
                                         id='qadirectory_filter',
-                                        placeholder='🔎 Search by name, email, position, etc',
+                                        placeholder='🔎 Search by Name, Faculty Position, With Basic Paper, Remarks',
+                                         
                                         className='ml-auto'   
                                     ),
                                     width="5",
@@ -181,16 +182,14 @@ def qadirectory_loadlist(pathname, searchterm, selected_month, selected_year):
         ]
         
         
-        # Apply search term filter
-        if searchterm:
-            search_cols = ['Full Name', 'UP Mail', 'Faculty Position', 'Unit']
-            df = df[df[search_cols].apply(
-                lambda row: any(searchterm.lower() in str(cell).lower() for cell in row),
-                axis=1
-            )]
+        # Apply search term filter 
+        if searchterm: 
+            sql += """ AND (qaofficer_full_name ILIKE %s OR qaofficer_fac_posn ILIKE %s OR qaofficer_basicpaper ILIKE %s OR 
+                qaofficer_remarks ILIKE %s) """
+            like_pattern = f"%{searchterm}%"
+            values = [like_pattern, like_pattern, like_pattern, like_pattern]
         else:
             values = []
-        
         df = db.querydatafromdatabase(sql, values, cols)
         
         # Apply additional filters

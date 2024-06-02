@@ -107,19 +107,19 @@ def traininglist_loadlist(pathname, searchterm):
             LEFT JOIN 
                 qaofficers.training_type qt ON td.qa_training_id = qt.trainingtype_id
             WHERE 
-                NOT train_docs_del_ind
+                train_docs_del_ind IS FALSE
         
         """
 
         cols = ["ID","QAO Name","Faculty Position","Cluster","College","QA Training", "Departure Date", "Return Date","Venue"]
 
         if searchterm: 
-            sql += """ WHERE td.complete_name ILIKE %s OR td.fac_posn ILIKE  %s OR qt.trainingtype_name ILIKE %s OR 
-                clu.cluster_name ILIKE %s  """
+            sql += """ AND (td.complete_name ILIKE %s OR td.fac_posn ILIKE %s OR qt.trainingtype_name ILIKE %s OR 
+                clu.cluster_name ILIKE %s) """
             like_pattern = f"%{searchterm}%"
             values = [like_pattern, like_pattern, like_pattern, like_pattern]
         else:
-            values = [] 
+            values = []
 
         df = db.querydatafromdatabase(sql, values, cols) 
 

@@ -56,7 +56,7 @@ layout = html.Div(
                                     dbc.Input(
                                         type='text',
                                         id='acadheadsdirectory_filter',
-                                        placeholder='🔎 Search by name, email, position, etc',
+                                        placeholder='🔎 Search by Name, Email, Faculty Position, Unit',
                                         className='ml-auto'   
                                     ),
                                     width="5",
