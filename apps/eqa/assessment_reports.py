@@ -12,6 +12,54 @@ from app import app
 from apps import dbconnect as db
 
 
+
+sar_search_bar = dbc.Col(
+    dbc.Input(
+        type='text',
+        id='assessmentreports_filter_sar',
+        placeholder='🔎 Search by Degree Program, Status, SAR Score',
+        className='ml-auto'
+    ),
+    width="12",
+    id='sar_search_bar'  # Assign an ID for identification
+)
+
+others_search_bar = dbc.Col(
+    dbc.Input(
+        type='text',
+        id='assessmentreports_filter_others',
+        placeholder='🔎 Search by Degree Program, Assessment Title, EQA Type, Status, Report Type',
+        className='ml-auto'
+    ),
+    width="12",
+    id='others_search_bar'  # Assign an ID for identification
+) 
+
+@app.callback(
+    Output('sar_search_bar', 'style'),
+    Output('others_search_bar', 'style'),
+    [Input('tabs', 'active_tab')]
+)
+def update_search_bar_visibility(active_tab):
+    sar_style = {'display': 'none'} if active_tab != 'sar' else {}
+    others_style = {'display': 'none'} if active_tab != 'others' else {}
+    return sar_style, others_style
+
+@app.callback(
+    Output('assessmentreports_filter_sar', 'disabled'),
+    Output('assessmentreports_filter_others', 'disabled'),
+    [Input('tabs', 'active_tab')]
+)
+def disable_input(active_tab):
+    sar_disabled = active_tab != 'sar'
+    others_disabled = active_tab != 'others'
+    return sar_disabled, others_disabled
+
+
+
+
+
+
 layout = html.Div(
     [
         dbc.Row(
@@ -22,17 +70,13 @@ layout = html.Div(
                         html.H1("ASSESSMENT REPORTS"),
                         html.Hr(), 
 
+                        sar_search_bar,
+                        others_search_bar,
+                        html.Br(),
+                                    
                         dbc.Row(   
                             [   
-                                dbc.Col(  
-                                    dbc.Input(
-                                        type='text',
-                                        id='assessmentreports_filter',
-                                        placeholder='🔎 Search by degree program',
-                                        className='ml-auto'   
-                                    ),
-                                    width="6",
-                                ),
+                                 
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add New SAR", color="primary", 
@@ -50,7 +94,7 @@ layout = html.Div(
                                 )
                             ]
                         ),
-
+                          
                         html.Br(),
 
                         dbc.Tabs(
@@ -89,33 +133,6 @@ layout = html.Div(
         )
     ]
 )
-
-@app.callback(
-    Output("content-tab", "children"),
-    [Input("tabs", "active_tab")],
-)
-def switch_tab(tab):
-    if tab == "sar":
-        return [
-            html.Div(
-                id='assessmentreports_list', 
-                style={
-                    'marginTop': '20px',
-                    'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
-                }
-            )
-        ]
-    elif tab == "others":
-        return [
-            html.Div(
-                id='assessmentreports_list', 
-                style={
-                    'marginTop': '20px',
-                    'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
-                }
-            )
-        ]
-    return html.Div("No Tab Selected")
 
 
 
@@ -203,13 +220,13 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
                             sarep_checkstatus ILIKE %s OR
                             sarep_link ILIKE %s OR
                             sarep_file_path ILIKE %s OR
-                            sarep_review_status ILIKE %s OR
-                            sarep_sarscore ILIKE %s) """
+                            CAST(sarep_review_status AS TEXT) ILIKE %s OR   
+                            CAST(sarep_sarscore AS TEXT) ILIKE %s) """       
             values = [like_pattern] * 6
         elif active_tab == "others":
             sql += """ AND (arep_degree_programs_id ILIKE %s OR
                             arep_title ILIKE %s OR
-                            arep_approv_eqa ILIKE %s OR
+                            CAST(arep_approv_eqa AS TEXT) ILIKE %s OR       
                             arep_checkstatus ILIKE %s OR
                             rt.report_type_name ILIKE %s OR
                             rs.review_status_name ILIKE %s) """
