@@ -173,12 +173,7 @@ def encrypt_string(string):
         State('url', 'pathname'),
     ]
 )
-def loginprocess(loginbtn, useremail, password, currentuserid, pathname):
-    print("Login Button Clicks:", loginbtn) 
-    print("User Email:", useremail)
-    print("Password:", password)
-    print("Current User ID:", currentuserid)
-    
+def loginprocess(loginbtn, useremail, password, currentuserid, pathname):    
     ctx = callback_context
     if ctx.triggered:
         accesstype = 0
