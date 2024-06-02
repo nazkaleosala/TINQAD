@@ -1,5 +1,6 @@
 import psycopg2
 import pandas as pd
+import bcrypt
 
 def getdblocation():
     db = psycopg2.connect(
@@ -13,6 +14,8 @@ def getdblocation():
     return db
 
 print(getdblocation())
+
+
 
 
 def modifydatabase(sql, values):
@@ -222,3 +225,72 @@ def get_sdgrnotes(evidence_id_notes):
     except psycopg2.Error as e:
         print("Error fetching notes:", e)
         return None
+
+
+
+
+def hash_password(password):
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed_password
+def verify_password(password, hashed_password):
+    return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
+def get_user_password_hash(user_id):
+    db = getdblocation()
+    cursor = db.cursor()
+    cursor.execute("SELECT user_password_hash FROM maindashboard.users WHERE user_id = %s", (user_id,))
+    user_password_hash = cursor.fetchone()[0]
+    db.close()
+    return user_password_hash
+def update_user_password_hash(user_id, new_password):
+    db = getdblocation()
+    hashed_password = hash_password(new_password)
+    cursor = db.cursor()
+    cursor.execute("UPDATE maindashboard.users SET user_password_hash = %s WHERE user_id = %s", (hashed_password, user_id))
+    db.commit()
+    db.close()
+
+
+def get_user_info(user_id):
+    try:
+        conn = getdblocation()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT user_id, user_fname, user_mname, user_sname, user_livedname, user_bday, user_phone_num,
+                   user_id_num, user_office, user_position, user_email, user_access_type, user_acc_status
+            FROM maindashboard.users 
+            WHERE user_id = %s
+        """
+        cursor.execute(query, (user_id,))
+        user_info = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if user_info:
+            user_id, user_fname, user_mname, user_sname, user_livedname, user_bday, user_phone_num, \
+            user_id_num, user_office, user_position, user_email, user_access_type, user_acc_status = user_info
+
+            return {
+                'user_id': user_id,
+                'user_fname': user_fname,
+                'user_mname': user_mname,
+                'user_sname': user_sname,
+                'user_livedname': user_livedname,
+                'user_bday': user_bday,
+                'user_phone_num': user_phone_num,
+                'user_id_num': user_id_num,
+                'user_office': user_office,
+                'user_position': user_position,
+                'user_email': user_email,
+                'user_access_type': user_access_type,
+                'user_acc_status': user_acc_status
+            }
+        else:
+            return None
+
+    except psycopg2.Error as e:
+        print("Error fetching user info:", e)
+        return None
+

@@ -1,5 +1,3 @@
-
-
 import dash
 from dash import callback_context, dcc, html
 import dash_bootstrap_components as dbc
@@ -76,13 +74,13 @@ layout = dbc.Row(
                                         html.Br(),
 
                                             dbc.Alert(
-                                                'Username or password is incorrect',
+                                                'User email or password is incorrect',
                                                 color = 'danger',
                                                 id = 'login_alert',
                                                 is_open = False
                                             ),
                                             
-                                            dbc.Label("Username"),
+                                            dbc.Label("Registered Email"),
                                             dbc.Input(type="text", id="login_username", ),
                                             html.Br(),
                                             
@@ -92,9 +90,12 @@ layout = dbc.Row(
                                                 
                                                 dbc.Row(
                                                     dbc.Col(
-                                                        dbc.Button("Log in", color="primary", className="fw-bolder", id = 'login_loginbtn'),
-                                                        width={'size': 4, 'offset': 8},   
-                                                        className="d-flex justify-content-end"
+                                                        dbc.Button("Log in", 
+                                                                   color="primary", 
+                                                                   className="fw-bolder", 
+                                                                   id = 'login_loginbtn'),
+                                                            width={'size': 4, 'offset': 8},   
+                                                            className="d-flex justify-content-end"
                                                     )
                                                 ),
                                                 html.Br(),
@@ -143,44 +144,74 @@ layout = dbc.Row(
 
 
 
+# Function to verify password
+def verify_password(password, stored_password):
+    return stored_password == password
+
+ 
+def encrypt_string(string):
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(string.encode('utf-8'), salt)
+    return hashed
+
 
 
 @app.callback(
     [
         Output('login_alert', 'is_open'),
-        Output('url', 'pathname'),
-        Output('user_id_store', 'data')
+        Output('currentuserid', 'data'),
+        Output('currentrole', 'data'),  
+        Output('url', 'pathname'),  # Adding URL pathname output
     ],
     [
-        Input('login_loginbtn', 'n_clicks')
+        Input('login_loginbtn', 'n_clicks'), 
     ],
     [
         State('login_username', 'value'),
-        State('login_password', 'value')
+        State('login_password', 'value'), 
+        State('currentuserid', 'data'), 
+        State('url', 'pathname'),
     ]
 )
-def authenticate(n_clicks, username, password):
-    if n_clicks:
-        if username and password:
-            # Retrieve the user_id and password from the database for the given username
-            sql = "SELECT user_id, user_password FROM maindashboard.users WHERE user_email = %s"
-            user_data = db.query_single_value_db(sql, (username,))
-            
-            if user_data:
-                user_id, stored_password = user_data  # Unpack the tuple
-                print("User ID:", user_id)  # Print the user ID for debugging
-                # Compare the entered password with the stored plain text password
-                if password == stored_password:
-                    # Passwords match, authentication successful
-                    return False, '/homepage', user_id  # Redirect to homepage with user_id
+def loginprocess(loginbtn, useremail, password, currentuserid, pathname):
+    print("Login Button Clicks:", loginbtn) 
+    print("User Email:", useremail)
+    print("Password:", password)
+    print("Current User ID:", currentuserid)
+    
+    ctx = callback_context
+    if ctx.triggered:
+        accesstype = 0
+        openalert = False
+        eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+         
+        if eventid == 'login_loginbtn':
+            if loginbtn and useremail and password:
+                sql = """
+                SELECT 
+                    user_id, 
+                    user_access_type,
+                    user_password
+                FROM maindashboard.users
+                WHERE
+                    user_email = %s 
+                """
+
+                values = [useremail]
+                cols = ['user_id', 'user_access_type', 'user_password']
+
+                df = db.querydatafromdatabase(sql, values, cols)
+                if not df.empty:
+                    if df['user_password'][0] == password:
+                        currentuserid = df['user_id'][0]
+                        accesstype = df['user_access_type'][0]  
+                        # Redirect to homepage
+                        return [openalert, currentuserid, accesstype, '/homepage']
+                    else:
+                        currentuserid = -1
+                        openalert = True
                 else:
-                    # Passwords don't match, show error message
-                    return True, dash.no_update, dash.no_update  # Stay on the login page
-            else:
-                # User not found or password not stored, show error message
-                return True, dash.no_update, dash.no_update  # Stay on the login page
-        else:
-            # Username or password not provided, show error message
-            return True, dash.no_update, dash.no_update  # Stay on the login page
+                    raise PreventUpdate
+        return [openalert, currentuserid, accesstype, pathname]  # Returning the current URL pathname if login fails
     else:
         raise PreventUpdate

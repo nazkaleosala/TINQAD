@@ -36,7 +36,6 @@ app.layout = html.Div(
         # LOGIN DATA
         # 1) current_user_id -- stores user_id
         dcc.Store(id='sessionlogout', data = True, storage_type='local'),
-        
         dcc.Store(id='currentuserid', data=-1, storage_type='local'),
         
         # 2) currentrole -- stores the role
@@ -44,17 +43,14 @@ app.layout = html.Div(
         dcc.Store(id='currentrole', data=0, storage_type='local'),
         
         # Page mode and user id for viewing for those that have any
-        dcc.Store(id = 'page_mode', data = -1, storage_type = 'memory'),
-        dcc.Store(id = 'view_id', data = -1, storage_type = 'memory'),
-        #dcc.Store(id = 'current_page', data = 1, storage_type = 'memory'),
-        
+        dcc.Store(id='page_mode', data=-1, storage_type='memory'),
+        dcc.Store(id='view_id', data=-1, storage_type='memory'),
 
         cm.navbar,
         html.Div(id='page-content', style=CONTENT_STYLE),
         html.Link(rel='icon', href='/assets/icons/TINQAD.png')
     ]
 )
-
 
 @app.callback(
     [
@@ -71,27 +67,21 @@ app.layout = html.Div(
         State('url', 'search')
     ]
 )
-
-
-
-
-def displaypage (pathname, sessionlogout, user_id, accesstype, search):
+def displaypage(pathname, sessionlogout, user_id, accesstype, search):
     mode = None
     parsed = urlparse(search)
     if parse_qs(parsed.query):
-        mode = parse_qs(parsed.query)['mode'][0]
+        mode = parse_qs(parsed.query)['mode'][0] 
     ctx = dash.callback_context
     if ctx.triggered:
         eventid = ctx.triggered[0]['prop_id'].split('.')[0]
         if eventid == 'url': 
             if pathname == '/' or pathname == '/home' or pathname == '/logout':
                 returnlayout = home.layout
-
-           
             elif user_id != -1:
                 if accesstype >= 1:
-
-                    #maindashboard
+                    
+                    # Main Dashboard
                     if pathname == '/homepage':
                         returnlayout = homepage.layout
                     elif pathname == '/profile':
@@ -217,9 +207,7 @@ def displaypage (pathname, sessionlogout, user_id, accesstype, search):
         
         else:
             raise PreventUpdate
-        return [returnlayout, sessionlogout,
-                 
-            ]
+        return [returnlayout, sessionlogout ]
     else:
         raise PreventUpdate
 

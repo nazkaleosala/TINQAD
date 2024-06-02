@@ -11,7 +11,7 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db 
 
-
+import bcrypt 
 
 profile_image_path = '/assets/database/takagaki1.png'
 
@@ -36,7 +36,12 @@ profile_header = html.Div(
         html.Div(
             [
                  
-                html.H3("Pikachu, Pika", style={'marginBottom': 0, 'marginLeft': '25px'}),
+                html.H3(id="user_name_header", 
+                        style={
+                            'marginBottom': 0, 
+                            'marginLeft': '25px'
+                            }
+                        ),
                 html.P("2020-*****", style={'marginBottom': 0, 'marginLeft': '25px'})  
             ],
             style={'display': 'inline-block', 'verticalAlign': 'center'}
@@ -45,82 +50,70 @@ profile_header = html.Div(
     style={'textAlign': 'left', 'marginTop': '20px'}
 )
 
+@app.callback(
+    Output("user_name_header", "children"),
+    [Input("user_id_store", "data")]
+)
+def update_user_name_header(user_id):
+    print("User ID:", user_id)  # Check if user_id is received correctly
+    user_info = db.get_user_info(user_id)
+    print("User Info:", user_info)  # Check if user info is retrieved correctly
 
+    if user_info:
+        user_fname = user_info['user_fname']
+        user_mname = user_info['user_mname']
+        user_sname = user_info['user_sname']
 
+        full_name = f"{user_fname} {user_mname} {user_sname}" if user_mname else f"{user_fname} {user_sname}"
+
+        return full_name
+    else:
+        return "User Not Found"
 
  
 
 
-form = dbc.Form(
-    [
-        dbc.Row(
-            [
-                dbc.Label("Previous Password", width=4),
-                dbc.Col(dbc.Input(type="text"  ), width=8),
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Label("New Password", width=4),
-                dbc.Col(dbc.Input(type="text"), width=8),
-            ],
-            className="mb-2",
-        ),
-        dbc.Row(
-            [
-                dbc.Label("Confirm Password", width=4),
-                dbc.Col(dbc.Input(type="text" ), width=8),
-            ],
-            className="mb-2",
-        ), 
-        html.Br(),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dbc.Button("Save", color="primary", className="me-3", id="save_button", n_clicks=0),
-                    width="auto"
+form = dbc.Form( 
+    [  
+                dbc.Row(
+                    [
+                        dbc.Label("Previous Password", width=4),
+                        dbc.Col(dbc.Input(type="password", id="prev_password"), width=8),
+                    ],
+                    className="mb-2",
                 ),
-                dbc.Col(
-                    dbc.Button("Cancel", color="secondary", id="cancel_button", n_clicks=0),
-                    width="auto"
+                dbc.Row(
+                    [
+                        dbc.Label("New Password", width=4),
+                        dbc.Col(dbc.Input(type="password", id="new_password"), width=8),
+                    ],
+                    className="mb-2",
                 ),
-            ],
-            className="mb-2",
-        ),
-         
-    ],
+                dbc.Row(
+                    [
+                        dbc.Label("Confirm Password", width=4),
+                        dbc.Col(dbc.Input(type="password", id="confirm_password"), width=8),
+                    ],
+                    className="mb-2",
+                ),
+                html.Br(),
+                dbc.Row(
+                    [
+                    dbc.Col(
+                            dbc.Button("Save", color="primary", className="me-3", id="password_save_button", n_clicks=0),
+                            width="auto"
+                        ),
+                    dbc.Col(
+                            dbc.Button("Cancel", color="secondary", id="password_cancel_button", n_clicks=0),
+                            width="auto"
+                    ),
+                ],
+                className="mb-2",
+            ),
+        ],
     className="g-2",
 )
-
-  
-@app.callback(
-    Output("output-message", "children"),
-    [Input("save_button", "n_clicks")],
-    [State("prev_password", "value"),
-     State("new_password", "value"),
-     State("confirm_password", "value")]
-)
-
-def change_password(n_clicks, prev_password, new_password, confirm_password):
-    if n_clicks > 0:
-        # Verify if new password matches confirm password
-        if new_password != confirm_password:
-            return "New password and confirm password do not match!"
-        
-        # Check if previous password matches the one stored in the database
-        user_id = cm.get_user_id()  # Assuming you have a function to get the user ID
-        stored_password = db.get_user_password(user_id)  # Assuming you have a function to get user's password
-        
-        if stored_password != prev_password:
-            return "Previous password is incorrect!"
-        
-        # Update the password in the database
-        db.update_user_password(user_id, new_password)  # Assuming you have a function to update user's password
-        
-        return "Password changed successfully!"
-    else:
-        return ""
+     
 
 
 
@@ -133,20 +126,26 @@ layout = html.Div(
                     width=2 
                 ),
                 dbc.Col(
-                [
-                    html.H1("PROFILE"),
-                    html.Hr(),
-                    profile_header,  # Insert the profile header here
-                    html.Br(), 
-                    form,  # Insert the profile table here
-                    
-
-                ], 
-                
+                    [
+                        html.H1("PROFILE"),
+                        html.Div(  
+                            [
+                            dcc.Store(id='password_store', storage_type='session', data=0),
+                            ]
+                        ),
+                        dbc.Row(
+                            dbc.Col(
+                                dbc.Alert(id = 'password_alert', color = 'dark')
+                            )
+                        ),
+                        html.Hr(),
+                        
+                        html.Br(), 
+                        form,  
+                    ], 
                     width=6, 
                     style={'marginLeft': '15px'}
-                ),
-                 
+                ), 
             ]
         ),
         dbc.Row(
@@ -158,3 +157,38 @@ layout = html.Div(
         )
     ]
 )
+
+
+
+@app.callback(
+    [
+        Output('password_alert', 'color'),
+        Output('password_alert', 'children'),
+        Output('password_alert', 'is_open'),  
+    ],
+    [Input("password_save_button", "n_clicks")],
+    [
+        State("prev_password", "value"),
+        State("new_password", "value"),
+        State("confirm_password", "value"),
+        State("user_id_store", "data")
+    ]
+)
+
+def change_password_alert(n_clicks, prev_password, new_password, confirm_password, user_id):
+    if n_clicks: 
+        stored_password_hash = db.get_user_password_hash(user_id)   
+
+        if bcrypt.checkpw(prev_password.encode('utf-8'), stored_password_hash):
+            if new_password != confirm_password:
+                return True, "danger", "New password and confirm password do not match!", True
+            
+            new_password_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+            
+            db.update_user_password_hash(user_id, new_password_hash)  # Assuming you have a function to update user's hashed password
+            
+            return True, "success", "Password changed successfully!", True
+        else:
+            return True, "danger", "Current password is incorrect!", True
+    else:
+        return False, "", "", False
