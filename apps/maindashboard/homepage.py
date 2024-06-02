@@ -491,12 +491,20 @@ layout = html.Div(
                 ),
                 dbc.Col(
                     [   
-                        dbc.Row(
-                            dbc.Col(
-                                dbc.Alert(id = 'greeting_alert', color = 'dark')
-                            )
-                        ),
-                        html.Br(),
+                    dbc.Row(
+                        dbc.Col(
+                            dbc.Alert(id = 'greeting_alert', color = 'dark')
+                        )
+                    ),
+                    html.Br(),
+
+                    dbc.Row(
+                        dbc.Col(
+                            card, width=8, sm=12
+                        )
+                    ),
+                    html.Br(),
+
                     
                     dbc.Row(
                             [

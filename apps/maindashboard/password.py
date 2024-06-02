@@ -9,8 +9,7 @@ import pandas as pd
 
 from apps import commonmodules as cm
 from app import app
-from apps import dbconnect as db
-from calendar import month_name
+from apps import dbconnect as db 
 
 
 
@@ -95,8 +94,33 @@ form = dbc.Form(
 )
 
   
- 
+@app.callback(
+    Output("output-message", "children"),
+    [Input("save_button", "n_clicks")],
+    [State("prev_password", "value"),
+     State("new_password", "value"),
+     State("confirm_password", "value")]
+)
 
+def change_password(n_clicks, prev_password, new_password, confirm_password):
+    if n_clicks > 0:
+        # Verify if new password matches confirm password
+        if new_password != confirm_password:
+            return "New password and confirm password do not match!"
+        
+        # Check if previous password matches the one stored in the database
+        user_id = cm.get_user_id()  # Assuming you have a function to get the user ID
+        stored_password = db.get_user_password(user_id)  # Assuming you have a function to get user's password
+        
+        if stored_password != prev_password:
+            return "Previous password is incorrect!"
+        
+        # Update the password in the database
+        db.update_user_password(user_id, new_password)  # Assuming you have a function to update user's password
+        
+        return "Password changed successfully!"
+    else:
+        return ""
 
 
 
