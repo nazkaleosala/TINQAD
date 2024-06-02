@@ -228,7 +228,7 @@ def generate_sar_submissions_chart():
     program_data['pro_program_type_label'] = program_data['pro_program_type_id'].map(id_to_label)
     
     # Define colors for alternating bars
-    colors = ['#F8B237', '#40BFBC', '#D37157', '#39B54A', '#FFC937']
+    colors = ['#F8B237', '#40BFBC', '#D37157', '#39B54A', '#35FFAF', '#CF34FF']
     
     # Create bar chart trace with alternating colors
     trace = go.Bar(
@@ -420,20 +420,44 @@ layout = html.Div(
                                                         html.Br(),
                                                         dbc.Row(
                                                             [
-                                                                dbc.Col(html.P(f"Certificate Programs (C): {certificate_programs_count}"), width="auto"),
-                                                                dbc.Col(html.P(f"Diploma Programs (D): {diploma_programs_count}"), width="auto"),
+                                                                dbc.Col(
+                                                                    html.P(
+                                                                        style={'background-color': '#F8B237'}, 
+                                                                        children=f"Certificate Programs (C): {certificate_programs_count}"),
+                                                                        width="auto"),
+                                                                dbc.Col(
+                                                                    html.P(
+                                                                        style={'background-color': '#40BFBC'}, 
+                                                                        children=f"Diploma Programs (D): {diploma_programs_count}"), 
+                                                                        width="auto"), 
                                                             ]
                                                         ),
                                                         dbc.Row(
                                                             [
-                                                                dbc.Col(html.P(f"Associate Programs (A): {associate_programs_count}"), width="auto"),
-                                                                dbc.Col(html.P(f"Undergraduate Programs (U): {undergrad_programs_count}"), width="auto"),
+                                                                dbc.Col(
+                                                                    html.P(
+                                                                        style={'background-color': '#D37157'}, 
+                                                                        children=f"Associate Programs (A): {associate_programs_count}"), 
+                                                                        width="auto"), 
+                                                                dbc.Col(
+                                                                    html.P(
+                                                                        style={'background-color': '#39B54A'}, 
+                                                                        children=f"Undergraduate Programs (U): {undergrad_programs_count}"), 
+                                                                        width="auto"),  
                                                             ]
                                                         ),
                                                         dbc.Row(
                                                             [
-                                                                dbc.Col(html.P(f"Master's Programs (M): {masters_programs_count}"), width="auto"),
-                                                                dbc.Col(html.P(f"Doctorate Programs (P): {doctorate_programs_count}"), width="auto")
+                                                                dbc.Col(
+                                                                    html.P(
+                                                                        style={'background-color': '#35FFAF'}, 
+                                                                        children=f"Master's Programs (M): {masters_programs_count}"), 
+                                                                        width="auto"),  
+                                                                dbc.Col(
+                                                                    html.P(
+                                                                        style={'background-color': '#CF34FF'}, 
+                                                                        children=f"Doctorate Programs (P): {doctorate_programs_count}"), 
+                                                                        width="auto"),  
                                                             ]
                                                         )
                                                     ]
