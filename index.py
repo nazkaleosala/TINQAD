@@ -43,6 +43,12 @@ app.layout = html.Div(
         # we will not use them but if you have roles, you can use it
         dcc.Store(id='currentrole', data=0, storage_type='local'),
         
+        # Page mode and user id for viewing for those that have any
+        dcc.Store(id = 'page_mode', data = -1, storage_type = 'memory'),
+        dcc.Store(id = 'view_id', data = -1, storage_type = 'memory'),
+        #dcc.Store(id = 'current_page', data = 1, storage_type = 'memory'),
+        
+
         cm.navbar,
         html.Div(id='page-content', style=CONTENT_STYLE),
         html.Link(rel='icon', href='/assets/icons/TINQAD.png')

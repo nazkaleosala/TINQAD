@@ -11,9 +11,7 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
-import plotly.graph_objs as go
-
-
+import plotly.graph_objs as go 
 
 
 #year dropdown
@@ -42,25 +40,139 @@ def assess_get_available_years():
 
 
 def get_total_checked():
-    sql = "SELECT COUNT(*) FROM eqateam.sar_report WHERE sarep_checkstatus = 'Already Checked'"
+    sql = f"""
+        SELECT COUNT(*) 
+        FROM eqateam.sar_report 
+        WHERE 
+            sarep_checkstatus = 'Already Checked'
+            AND sarep_review_status = 1
+            AND sarep_del_ind IS FALSE;   
+    """
     total_count = db.query_single_value(sql)
     return total_count
 
 def get_total_ongoing():
-    sql = "SELECT COUNT(*) FROM eqateam.sar_report WHERE sarep_checkstatus = 'For Checking'"
+    sql = f"""
+        SELECT COUNT(*) 
+        FROM eqateam.sar_report 
+        WHERE 
+            sarep_checkstatus = 'For Checking' 
+            AND sarep_del_ind IS FALSE;   
+    """
     total_count = db.query_single_value(sql)
     return total_count
 
 def get_total_unchecked():
-    sql = "SELECT COUNT(*) FROM eqateam.sar_report"
+    sql = f"""
+        SELECT COUNT(*) 
+        FROM eqateam.sar_report 
+        WHERE sarep_del_ind IS FALSE;  
+    """
+
     sar_total_count = db.query_single_value(sql)
 
-    sql = "SELECT COUNT(*) FROM eqateam.program_details"
+    sql = f"""
+        SELECT COUNT(*) 
+        FROM eqateam.program_details 
+        WHERE pro_del_ind IS FALSE;
+    """
     prog_total_count = db.query_single_value(sql)
 
     difference = prog_total_count - sar_total_count
     
     return difference
+
+
+
+def tot_certificate_programs():
+    sql = f"""
+        SELECT COUNT(*)
+        FROM eqateam.program_details pd
+        JOIN eqateam.sar_report sr ON pd.programdetails_id = sr.sarep_degree_programs_id
+        WHERE pd.pro_program_type_id = 1 
+        AND sr.sarep_del_ind IS FALSE; 
+    """
+    certificatetotal_count = db.query_single_value(sql)
+    return certificatetotal_count
+certificate_programs_count = tot_certificate_programs()
+
+
+def tot_diploma_programs():
+    sql = f"""
+        SELECT COUNT(*)
+        FROM eqateam.program_details pd
+        JOIN eqateam.sar_report sr ON pd.programdetails_id = sr.sarep_degree_programs_id
+        WHERE pd.pro_program_type_id = 2 
+        AND sr.sarep_del_ind IS FALSE; 
+    """
+    diplomatotal_count = db.query_single_value(sql)
+    return diplomatotal_count
+diploma_programs_count = tot_diploma_programs()
+
+
+def tot_associate_programs():
+    sql = f"""
+        SELECT COUNT(*)
+        FROM eqateam.program_details pd
+        JOIN eqateam.sar_report sr ON pd.programdetails_id = sr.sarep_degree_programs_id
+        WHERE pd.pro_program_type_id = 3
+        AND sr.sarep_del_ind IS FALSE; 
+    """
+    associatetotal_count = db.query_single_value(sql)
+    return associatetotal_count
+associate_programs_count = tot_associate_programs()
+
+
+
+def tot_undergrad_programs():
+    sql = f"""
+        SELECT COUNT(*)
+        FROM eqateam.program_details pd
+        JOIN eqateam.sar_report sr ON pd.programdetails_id = sr.sarep_degree_programs_id
+        WHERE pd.pro_program_type_id = 4 
+        AND sr.sarep_del_ind IS FALSE; 
+    """
+    undergradtotal_count = db.query_single_value(sql)
+    return undergradtotal_count
+undergrad_programs_count = tot_undergrad_programs()
+
+
+
+def tot_masters_programs():
+    sql = f"""
+        SELECT COUNT(*)
+        FROM eqateam.program_details pd
+        JOIN eqateam.sar_report sr ON pd.programdetails_id = sr.sarep_degree_programs_id
+        WHERE pd.pro_program_type_id = 5 
+        AND sr.sarep_del_ind IS FALSE; 
+    """
+    masterstotal_count = db.query_single_value(sql)
+    return masterstotal_count
+masters_programs_count = tot_masters_programs()
+
+
+
+def tot_doctorate_programs():
+    sql = f"""
+        SELECT COUNT(*)
+        FROM eqateam.program_details pd
+        JOIN eqateam.sar_report sr ON pd.programdetails_id = sr.sarep_degree_programs_id
+        WHERE pd.pro_program_type_id = 6 
+        AND sr.sarep_del_ind IS FALSE; 
+    """
+    doctoratetotal_count = db.query_single_value(sql)
+    return doctoratetotal_count
+doctorate_programs_count = tot_doctorate_programs()
+
+
+
+
+
+
+
+
+
+
 
 
 def generate_donut_chart():
@@ -154,91 +266,135 @@ layout = html.Div(
                         html.Hr(),
                         dbc.Row(
                             [
-                                dbc.Col(
-                                    dbc.Card(
+                                dbc.Col
+                                    (
                                         [
-                                            dbc.CardHeader(
-                                                html.H3(
-                                                    [
-                                                        html.Strong("Summary of Degree Programs with EQA"),  # Bold only this part
-                                                    ],
-                                                    className="mb-0",  # Remove bottom margin
-                                                    style={'fontSize': '1.5rem'}  # Adjust font size
-                                                )
-                                            ),
-                                            dbc.CardBody(
-                                                [
-                                                     
-                                                    dbc.Row(
+                                        dbc.Card(
+                                            [
+                                                dbc.CardHeader(
+                                                    html.H3(
                                                         [
-                                                            dbc.Col(
-                                                                dcc.Graph(
-                                                                    id='donut-chart', 
-                                                                    figure=generate_donut_chart(),
-                                                                    config={'displayModeBar': False},  # Hide the mode bar for a cleaner look
-                                                                    style={'height': '500px', 'margin-top': '0px', 'padding-top': '0px'}  # Adjust height and remove top margin
+                                                            html.Strong("Summary of Degree Programs with EQA"),  # Bold only this part
+                                                        ],
+                                                        className="mb-0",  # Remove bottom margin
+                                                        style={'fontSize': '1.5rem'}  # Adjust font size
+                                                    )
+                                                ),
+                                                dbc.CardBody(
+                                                    [
+                                                        
+                                                        dbc.Row(
+                                                            [
+                                                                dbc.Col(
+                                                                    dcc.Graph(
+                                                                        id='donut-chart', 
+                                                                        figure=generate_donut_chart(),
+                                                                        config={'displayModeBar': False},  # Hide the mode bar for a cleaner look
+                                                                        style={'height': '500px', 'margin-top': '0px', 'padding-top': '0px'}  # Adjust height and remove top margin
+                                                                    ),
+                                                                    style={'padding': '0px', 'margin-top': '-20px'}  # Remove any padding around the graph and adjust margin
                                                                 ),
-                                                                style={'padding': '0px', 'margin-top': '-20px'}  # Remove any padding around the graph and adjust margin
-                                                            ),
-                                                            dbc.Col(
-                                                                [
-                                                                    html.Div(
-                                                                        [
-                                                                            dbc.Col(
-                                                                                html.Span(get_total_checked(), style={"font-weight": "bold", "font-size": "24px", "display": "flex", "align-items": "center", "justify-content": "center"}),
-                                                                                style={'backgroundColor': '#F8B237', 'borderRadius': '10px', 'height': '50px', 'width': '50px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
-                                                                            ),
-                                                                            dbc.Col(
-                                                                                html.P("Units currently accomplishing their accreditation", 
-                                                                                style={'marginLeft': '10px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '15px'}),
-                                                                                width=9,
-                                                                            )
-                                                                        ],
-                                                                        style={'marginBottom': '10px', 'display': 'flex', 'alignItems': 'center'}
-                                                                    ),
-                                                                    html.Div(
-                                                                        [
-                                                                            dbc.Col(
-                                                                                html.Span(get_total_ongoing(), style={"font-weight": "bold", "font-size": "24px", "display": "flex", "align-items": "center", "justify-content": "center"}),
-                                                                                style={'backgroundColor': '#39B54A', 'borderRadius': '10px', 'height': '50px', 'width': '50px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
-                                                                            ),
-                                                                            dbc.Col(
-                                                                                html.P("Units on schedule for next accreditation", 
-                                                                                style={'marginLeft': '10px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '15px'}),
-                                                                                width=9,
-                                                                            )
-                                                                        ],
-                                                                        style={'marginBottom': '10px', 'display': 'flex', 'alignItems': 'center'}
-                                                                    ),
-                                                                    html.Div(
-                                                                        [
-                                                                            dbc.Col(
-                                                                                html.Span(get_total_unchecked(), style={"font-weight": "bold", "font-size": "24px", "display": "flex", "align-items": "center", "justify-content": "center"}),
-                                                                                style={'backgroundColor': '#E4E4E4', 'borderRadius': '10px', 'height': '50px', 'width': '50px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
-                                                                            ),
-                                                                            dbc.Col(
-                                                                                html.P("Units yet to commence accreditation requirements", 
-                                                                                style={'marginLeft': '10px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '15px'}),
-                                                                                width=9,
-                                                                            )
-                                                                        ],
-                                                                        style={'marginBottom': '10px', 'display': 'flex', 'alignItems': 'center'}
-                                                                    ),
-                                                                ],
-                                                            ),
-                                                        ]
+                                                                dbc.Col(
+                                                                    [
+                                                                        html.Div(
+                                                                            [
+                                                                                dbc.Col(
+                                                                                    html.Span(get_total_checked(), style={"font-weight": "bold", "font-size": "24px", "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                                                                    style={'backgroundColor': '#F8B237', 'borderRadius': '10px', 'height': '50px', 'width': '50px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                                                                ),
+                                                                                dbc.Col(
+                                                                                    html.P("Units currently accomplishing their accreditation", 
+                                                                                    style={'marginLeft': '10px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '15px'}),
+                                                                                    width=9,
+                                                                                )
+                                                                            ],
+                                                                            style={'marginBottom': '10px', 'display': 'flex', 'alignItems': 'center'}
+                                                                        ),
+                                                                        html.Div(
+                                                                            [
+                                                                                dbc.Col(
+                                                                                    html.Span(get_total_ongoing(), style={"font-weight": "bold", "font-size": "24px", "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                                                                    style={'backgroundColor': '#39B54A', 'borderRadius': '10px', 'height': '50px', 'width': '50px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                                                                ),
+                                                                                dbc.Col(
+                                                                                    html.P("Units on schedule for next accreditation", 
+                                                                                    style={'marginLeft': '10px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '15px'}),
+                                                                                    width=9,
+                                                                                )
+                                                                            ],
+                                                                            style={'marginBottom': '10px', 'display': 'flex', 'alignItems': 'center'}
+                                                                        ),
+                                                                        html.Div(
+                                                                            [
+                                                                                dbc.Col(
+                                                                                    html.Span(get_total_unchecked(), style={"font-weight": "bold", "font-size": "24px", "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                                                                    style={'backgroundColor': '#E4E4E4', 'borderRadius': '10px', 'height': '50px', 'width': '50px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                                                                ),
+                                                                                dbc.Col(
+                                                                                    html.P("Units yet to commence accreditation requirements", 
+                                                                                    style={'marginLeft': '10px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '15px'}),
+                                                                                    width=9,
+                                                                                )
+                                                                            ],
+                                                                            style={'marginBottom': '10px', 'display': 'flex', 'alignItems': 'center'}
+                                                                        ),
+                                                                    ],
+                                                                ),
+                                                                
+                                                            ]
+                                                        ),
+                                                        dcc.Interval(
+                                                            id='interval-component',
+                                                            interval=60000,  # in milliseconds (60 seconds)
+                                                            n_intervals=0
+                                                        ),
+                                                    ]
+                                                ),
+                                            ]
+                                        ),
+                                        
+
+                                        html.Br(),
+                                                    
+                                        html.H5(html.B("Assessment Schedule")),
+                                        dbc.Row(
+                                            [
+                                                dbc.Col(  
+                                                    dbc.Input(
+                                                        type='text',
+                                                        id='assesschedule_filter',
+                                                        placeholder='🔎 Search by degree program, college',
+                                                        className='ml-auto'   
                                                     ),
-                                                    dcc.Interval(
-                                                        id='interval-component',
-                                                        interval=60000,  # in milliseconds (60 seconds)
-                                                        n_intervals=0
+                                                    width=8,
+                                                ),
+                                                dbc.Col( 
+                                                    dcc.Dropdown(
+                                                        id='assesschedule_yeardropdown',
+                                                        options=assess_get_available_years(),
+                                                        placeholder="Filter by year",
+                                                        multi=True
                                                     ),
-                                                ]
-                                            ),
-                                        ]
-                                    ),
-                                    width=8,
-                                    className="mb-3"
+                                                    width=3
+                                                ),
+                                            ]
+                                        ),
+
+                                        dbc.Row(
+                                            [
+                                                dbc.Col(
+                                                    html.Div(
+                                                        id='assesschedule_list', 
+                                                        style={
+                                                            'marginTop': '20px',
+                                                            'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                                                        }
+                                                    ),
+                                                    width="auto",
+                                                ),
+                                            ]
+                                        ),
+                                    ],
                                 ),
                                 dbc.Col(
                                     [
@@ -254,12 +410,33 @@ layout = html.Div(
                                                     )
                                                 ),
                                                 dbc.CardBody(
-                                                    dcc.Graph(
-                                                        id='sar-submissions-chart',
-                                                        figure=generate_sar_submissions_chart(),
-                                                        config={'displayModeBar': False},  # Hide the mode bar for a cleaner look
-                                                        style={'height': '200px', 'margin-top': '0px', 'padding-top': '0px'}  # Adjust height and remove top margin
-                                                    ),
+                                                    [
+                                                        dcc.Graph(
+                                                            id='sar-submissions-chart',
+                                                            figure=generate_sar_submissions_chart(),
+                                                            config={'displayModeBar': False},  # Hide the mode bar for a cleaner look
+                                                            style={'height': '200px', 'margin-top': '0px', 'padding-top': '0px'}  # Adjust height and remove top margin
+                                                        ),
+                                                        html.Br(),
+                                                        dbc.Row(
+                                                            [
+                                                                dbc.Col(html.P(f"Certificate Programs (C): {certificate_programs_count}"), width="auto"),
+                                                                dbc.Col(html.P(f"Diploma Programs (D): {diploma_programs_count}"), width="auto"),
+                                                            ]
+                                                        ),
+                                                        dbc.Row(
+                                                            [
+                                                                dbc.Col(html.P(f"Associate Programs (A): {associate_programs_count}"), width="auto"),
+                                                                dbc.Col(html.P(f"Undergraduate Programs (U): {undergrad_programs_count}"), width="auto"),
+                                                            ]
+                                                        ),
+                                                        dbc.Row(
+                                                            [
+                                                                dbc.Col(html.P(f"Master's Programs (M): {masters_programs_count}"), width="auto"),
+                                                                dbc.Col(html.P(f"Doctorate Programs (P): {doctorate_programs_count}"), width="auto")
+                                                            ]
+                                                        )
+                                                    ]
                                                 ),
                                             ]
                                         ),
@@ -287,6 +464,30 @@ layout = html.Div(
                                                 ),
                                             ]
                                         ),
+                                        html.Br(),
+                                        dbc.Card(
+                                            [
+                                                dbc.CardHeader(
+                                                    html.H3(
+                                                        [
+                                                            html.Strong("Assessments (For Checking)"),  
+                                                        ],
+                                                        className="mb-0",  # Remove bottom margin
+                                                        style={'fontSize': '1.5rem'}
+                                                    )
+                                                ),
+                                                dbc.CardBody(
+                                                    html.Div(
+                                                        id='assessments_forchecking', 
+                                                        style={
+                                                            'marginTop': '20px',
+                                                            'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                                                        }
+                                                    ),
+                                                ),
+                                            ]
+                                        ),
+                                    
                                     ],
                                     width=4
                                 ),
@@ -295,71 +496,7 @@ layout = html.Div(
                         ),
 
                         
-                        html.H5(html.B("Assessment Schedule")),
-
-                        dbc.Row(
-                            [
-                                dbc.Col(  
-                                    dbc.Input(
-                                        type='text',
-                                        id='assesschedule_filter',
-                                        placeholder='🔎 Search by degree program, college',
-                                        className='ml-auto'   
-                                    ),
-                                    width=6,
-                                ),
-                                dbc.Col( 
-                                    dcc.Dropdown(
-                                        id='assesschedule_yeardropdown',
-                                        options=assess_get_available_years(),
-                                        placeholder="Filter by year",
-                                        multi=True
-                                    ),
-                                    width=2
-                                ),
-                            ]
-                        ),
-
-                        dbc.Row(
-                            [
-                                dbc.Col(
-                                    html.Div(
-                                        id='assesschedule_list', 
-                                        style={
-                                            'marginTop': '20px',
-                                            'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
-                                        }
-                                    ),
-                                    width=8,
-                                ),
-
-                                dbc.Col(
-                                    dbc.Card(
-                                        [
-                                            dbc.CardHeader(
-                                                html.H3(
-                                                    [
-                                                        html.Strong("Assessments (For Checking)"),  
-                                                    ],
-                                                    className="mb-0",  # Remove bottom margin
-                                                    style={'fontSize': '1.5rem'}
-                                                )
-                                            ),
-                                            dbc.CardBody(
-                                                html.Div(
-                                                    id='assessments_forchecking', 
-                                                    style={
-                                                        'marginTop': '20px',
-                                                        'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
-                                                    }
-                                                ),
-                                            ),
-                                        ]
-                                    ),
-                                    width=4,
-                                ),
-                            ]
-                        ),
+                        
  
                     ]
                 ),
