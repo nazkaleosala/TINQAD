@@ -210,6 +210,9 @@ def get_undergraduate_count():
     return df['total'].iloc[0]
 
 
+
+
+
 def generate_sar_submissions_chart():
     # Retrieve data from the database
     sql = """
@@ -227,26 +230,50 @@ def generate_sar_submissions_chart():
     id_to_label = {1: 'C ', 2: 'D ', 3: 'A ', 4: 'U ', 5: 'M ', 6: 'P '}
     program_data['pro_program_type_label'] = program_data['pro_program_type_id'].map(id_to_label)
     
-    # Define colors for alternating bars
-    colors = ['#F8B237', '#40BFBC', '#D37157', '#39B54A', '#35FFAF', '#CF34FF']
+    # Define colors for each program type
+    color_mapping = {
+        'C ': '#A9CD46',
+        'D ': '#7EADE4',
+        'A ': '#D37157',
+        'U ': '#39B54A',
+        'M ': '#F8B237',
+        'P ': '#40BFBC'
+    }
+
+    # Assign colors based on program type
+    program_data['color'] = program_data['pro_program_type_label'].map(color_mapping)
     
-    # Create bar chart trace with alternating colors
+    # Define the order of program types
+    program_order = ['C ', 'D ', 'A ', 'U ', 'M ', 'P ']
+    
+    # Filter and sort program data based on the defined order
+    program_data = program_data[program_data['pro_program_type_label'].isin(program_order)]
+    program_data['pro_program_type_label'] = pd.Categorical(program_data['pro_program_type_label'], categories=program_order, ordered=True)
+    program_data = program_data.sort_values('pro_program_type_label')
+    
+    # Create bar chart trace with assigned colors and sorted data
     trace = go.Bar(
-        x=program_data['input_count'],
-        y=program_data['pro_program_type_label'],
+        x=program_data['input_count'],  # x-axis now represents the number of submissions
+        y=program_data['pro_program_type_label'],  # y-axis represents the program types
         orientation='h',
-        marker=dict(color=[colors[i % len(colors)] for i in range(len(program_data['input_count']))])  # Alternating colors
+        marker=dict(color=program_data['color'])
     )
     
     # Define layout for the bar chart
     layout = go.Layout(
-        margin=dict(l=40, r=40, t=40, b=40)
+    margin=dict(l=40, r=40, t=40, b=80),  # Adjust bottom margin for axis titles and legend
+    xaxis=dict(title='Number of SAR Submissions', tickvals=list(range(int(max(program_data['input_count'])) + 1)), tickformat='d'),  # Setting x-axis title, integer format, and tick values
+    yaxis=dict(title='Program Type'),  # Setting y-axis title
+    legend=dict(
+        x=0.5,  # Centering legend horizontally
+        y=-0.2,  # Placing legend below the graph
+        orientation="h"
     )
+)
     
     # Return the figure
     return {'data': [trace], 'layout': layout}
 
- 
 
 
 
@@ -415,51 +442,97 @@ layout = html.Div(
                                                             id='sar-submissions-chart',
                                                             figure=generate_sar_submissions_chart(),
                                                             config={'displayModeBar': False},  # Hide the mode bar for a cleaner look
-                                                            style={'height': '200px', 'margin-top': '0px', 'padding-top': '0px'}  # Adjust height and remove top margin
+                                                            style={'height': '250px', 'margin-top': '0px', 'padding-top': '0px'}  # Adjust height and remove top margin
                                                         ),
                                                         html.Br(),
                                                         dbc.Row(
                                                             [
-                                                                dbc.Col(
-                                                                    html.P(
-                                                                        style={'background-color': '#F8B237'}, 
-                                                                        children=f"Certificate Programs (C): {certificate_programs_count}"),
-                                                                        width="auto"),
-                                                                dbc.Col(
-                                                                    html.P(
-                                                                        style={'background-color': '#40BFBC'}, 
-                                                                        children=f"Diploma Programs (D): {diploma_programs_count}"), 
-                                                                        width="auto"), 
+                                                                html.Div(
+                                                                    [
+                                                                        dbc.Col(
+                                                                            html.Span(tot_certificate_programs(), style={"font-weight": "bold", "font-size": "15px", "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                                                            style={'backgroundColor': '#A9CD46', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                                                        ),
+                                                                        dbc.Col(
+                                                                            html.P("Certificate Programs (C)", 
+                                                                            style={'marginLeft': '5px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '5px'}),
+                                                                            width=10,
+                                                                        )
+                                                                    ],
+                                                                    style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
+                                                                ),
+                                                                html.Div(
+                                                                    [
+                                                                        dbc.Col(
+                                                                            html.Span(tot_diploma_programs(), style={"font-weight": "bold", "font-size": "15px", "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                                                            style={'backgroundColor': '#7EADE4', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                                                        ),
+                                                                        dbc.Col(
+                                                                            html.P("Diploma Programs (D)", 
+                                                                            style={'marginLeft': '5px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '5px'}),
+                                                                            width=10,
+                                                                        )
+                                                                    ],
+                                                                    style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
+                                                                ),
+                                                                html.Div(
+                                                                    [
+                                                                        dbc.Col(
+                                                                            html.Span(tot_associate_programs(), style={"font-weight": "bold", "font-size": "15px", "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                                                            style={'backgroundColor': '#D37157', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                                                        ),
+                                                                        dbc.Col(
+                                                                            html.P("Associate Programs (A)", 
+                                                                            style={'marginLeft': '5px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '5px'}),
+                                                                            width=10,
+                                                                        )
+                                                                    ],
+                                                                    style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
+                                                                ),
+                                                                html.Div(
+                                                                    [
+                                                                        dbc.Col(
+                                                                            html.Span(tot_undergrad_programs(), style={"font-weight": "bold", "font-size": "15px", "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                                                            style={'backgroundColor': '#39B54A', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                                                        ),
+                                                                        dbc.Col(
+                                                                            html.P("Undergraduate Programs (U)", 
+                                                                            style={'marginLeft': '5px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '5px'}),
+                                                                            width=10,
+                                                                        )
+                                                                    ],
+                                                                    style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
+                                                                ),
+                                                                html.Div(
+                                                                    [
+                                                                        dbc.Col(
+                                                                            html.Span(tot_masters_programs(), style={"font-weight": "bold", "font-size": "15px", "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                                                            style={'backgroundColor': '#F8B237', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                                                        ),
+                                                                        dbc.Col(
+                                                                            html.P("Master's Programs (M)", 
+                                                                            style={'marginLeft': '5px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '5px'}),
+                                                                            width=10,
+                                                                        )
+                                                                    ],
+                                                                    style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
+                                                                ),
+                                                                html.Div(
+                                                                    [
+                                                                        dbc.Col(
+                                                                            html.Span(tot_doctorate_programs(), style={"font-weight": "bold", "font-size": "15px", "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                                                            style={'backgroundColor': '#40BFBC', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                                                        ),
+                                                                        dbc.Col(
+                                                                            html.P("Doctorate Programs (P)", 
+                                                                            style={'marginLeft': '5px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '5px'}),
+                                                                            width=10,
+                                                                        )
+                                                                    ],
+                                                                    style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
+                                                                ),
                                                             ]
-                                                        ),
-                                                        dbc.Row(
-                                                            [
-                                                                dbc.Col(
-                                                                    html.P(
-                                                                        style={'background-color': '#D37157'}, 
-                                                                        children=f"Associate Programs (A): {associate_programs_count}"), 
-                                                                        width="auto"), 
-                                                                dbc.Col(
-                                                                    html.P(
-                                                                        style={'background-color': '#39B54A'}, 
-                                                                        children=f"Undergraduate Programs (U): {undergrad_programs_count}"), 
-                                                                        width="auto"),  
-                                                            ]
-                                                        ),
-                                                        dbc.Row(
-                                                            [
-                                                                dbc.Col(
-                                                                    html.P(
-                                                                        style={'background-color': '#35FFAF'}, 
-                                                                        children=f"Master's Programs (M): {masters_programs_count}"), 
-                                                                        width="auto"),  
-                                                                dbc.Col(
-                                                                    html.P(
-                                                                        style={'background-color': '#CF34FF'}, 
-                                                                        children=f"Doctorate Programs (P): {doctorate_programs_count}"), 
-                                                                        width="auto"),  
-                                                            ]
-                                                        )
+                                                        )  
                                                     ]
                                                 ),
                                             ]
