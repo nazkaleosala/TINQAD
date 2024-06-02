@@ -10,7 +10,15 @@ import pandas as pd
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
- 
+
+
+def map_academic_calendar_type(academic_calendar_type):
+    if academic_calendar_type == 1:
+        return "Semester"
+    elif academic_calendar_type == 2:
+        return "Trimester"
+    else:
+        return "Unknown"
 
 
 layout = html.Div(
@@ -41,18 +49,6 @@ layout = html.Div(
                                     ),
                                     width="auto",    
                                 ),
-                                #dbc.Col(   
-                                    #dbc.Button(
-                                       # "📥 Upload CSV File", color="danger",  
-                                    #),
-                                    #width="auto",    
-                                #),
-                                #dbc.Col(   
-                                    #dbc.Button(
-                                       # "📁 Export as CSV File", color="secondary",  
-                                   # ),
-                                    #width="auto",    
-                                # ),
                             ],
                             className="align-items-center",   
                             justify="between",  
@@ -112,8 +108,9 @@ def programlist_loadlist(pathname, searchterm):
                         SELECT CAST(jsonb_array_elements_text(pd.pro_accreditation_body_id) AS INTEGER)
                         FROM eqateam.program_details
                     )
-                ) AS "Applicable Accreditation Body"
-                 
+                ) AS "Applicable Accreditation Body",
+                pro_degree_count AS "Degree Count",
+                pro_calendar_type_id AS "Academic Calendar Type"
             FROM
                 eqateam.program_details pd
                 INNER JOIN public.college c ON pd.pro_college_id = c.college_id
@@ -123,8 +120,8 @@ def programlist_loadlist(pathname, searchterm):
                 WHERE
                     NOT pro_del_ind
         """
-        cols = ['ID', "Degree Program", "College", "Department", 
-                "Cluster", "Program Type", "Applicable Accreditation Body"]
+        cols = ['ID', "Degree Program", "College", "Department", "Cluster",  "Program Type", 
+                "Applicable Accreditation Body", "Degree Count", "Academic Calendar Type"]
         
         values = []
 
@@ -145,7 +142,6 @@ def programlist_loadlist(pathname, searchterm):
          
         df = db.querydatafromdatabase(final_sql, values, cols)
         
-
         if df.shape[0] > 0:
             buttons = []
             for programdetails_id in df['ID']:
@@ -159,9 +155,11 @@ def programlist_loadlist(pathname, searchterm):
                 )
             df['Action'] = buttons
 
-            df = df[["Degree Program", "College", "Department", "Cluster", 
-                "Program Type", "Applicable Accreditation Body", 'Action']]
+            # Apply mapping function to "Academic Calendar Type" column
+            df["Academic Calendar Type"] = df["Academic Calendar Type"].map(map_academic_calendar_type)
 
+            df = df[["Degree Program", "College", "Department", "Cluster",  "Program Type", 
+                     "Applicable Accreditation Body", "Degree Count", "Academic Calendar Type", 'Action']]
 
         # Generate the table from the filtered DataFrame
         if not df.empty:
@@ -171,4 +169,3 @@ def programlist_loadlist(pathname, searchterm):
             return [html.Div("No records to display")]
     else:
         raise PreventUpdate
-    
