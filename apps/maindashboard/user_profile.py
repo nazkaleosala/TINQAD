@@ -11,33 +11,15 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db 
 
-
-
-profile_image_path = '/assets/database/takagaki1.png'
-
-
+ 
 # Your profile header component with circular image
 profile_header = html.Div(
     [
         html.Div(
-            html.Img(
-                src=profile_image_path, 
-                style={
-                    'height': '100px', 
-                    'width': '100px', 
-                    'borderRadius': '50%',
-                    'objectFit': 'cover',
-                    'display': 'inline-block', 
-                    'verticalAlign': 'center'
-                }
-            ),
-            style={'textAlign': 'left', 'display': 'inline-block'}
-        ),
-        html.Div(
             [
                  
-                html.H3(id="user_fullname", style={'marginBottom': 0, 'marginLeft': '25px'}),
-                html.P(id="user_idnumber", style={'marginBottom': 0, 'marginLeft': '25px'})  
+                html.H3(id="user_fullname", style={'marginBottom': 0}),
+                html.P(id="user_idnumber", style={'marginBottom': 0})  
             ],
             style={'display': 'inline-block', 'verticalAlign': 'center'}
         ),
@@ -307,9 +289,9 @@ layout = html.Div(
                 ),
                 dbc.Col(
                 [
-                    html.H1("PROFILE"),
-                    html.Hr(),
                     profile_header,  
+                    html.Hr(),
+                    
                     html.Br(), 
                     form,  
                     dbc.Row(
