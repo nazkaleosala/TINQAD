@@ -145,11 +145,9 @@ def acadheadsdirectory_loadlist(pathname, searchterm, selected_month, selected_y
                 college.college_shortname AS "College",
                 deg_unit.deg_unit_name AS "Unit",
                 acad_unitheads.unithead_full_name AS "Full Name",   
-                acad_unitheads.unithead_fname AS "First Name",
-                acad_unitheads.unithead_sname AS "Surname",
                 acad_unitheads.unithead_upmail AS "Up Mail",
                 acad_unitheads.unithead_fac_posn AS "Faculty Position",
-                acad_unitheads.unithead_desig AS " Designation",
+                acad_unitheads.unithead_desig AS "Designation",
                 acad_unitheads.unithead_appointment_start AS "Start Term",
                 acad_unitheads.unithead_appointment_end AS "End Term"
             FROM
@@ -163,14 +161,14 @@ def acadheadsdirectory_loadlist(pathname, searchterm, selected_month, selected_y
         """
 
         cols = [
-            'ID', 'Cluster', 'College', 'Unit', 'Full Name', 'First Name', 'Surname', 'Up Mail',
+            'ID', 'Cluster', 'College', 'Unit', 'Full Name', 'Up Mail',
             'Faculty Position', 'Designation', 'Start Term', 'End Term'
         ]
         
         df = db.querydatafromdatabase(sql, [], cols)  
 
         if searchterm:
-            search_cols = ['Full Name','Surname', 'First Name', 'Up Mail', 'Faculty Position', 'Unit']
+            search_cols = ['Full Name', 'Up Mail', 'Faculty Position', 'Unit']
             df = df[df[search_cols].apply(lambda row: any(searchterm.lower() in str(cell).lower() for cell in row), axis=1)]
 
         # Apply additional filters if necessary
@@ -198,7 +196,7 @@ def acadheadsdirectory_loadlist(pathname, searchterm, selected_month, selected_y
                 )
             df['Action'] = buttons
 
-            df = df[['Cluster', 'College', 'Unit', 'Full Name', 'First Name', 'Surname', 'Up Mail',
+            df = df[['Cluster', 'College', 'Unit', 'Full Name', 'Up Mail',
             'Faculty Position', 'Designation', 'Start Term', 'End Term', 'Action']]
 
 
