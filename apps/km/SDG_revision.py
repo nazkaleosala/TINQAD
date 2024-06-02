@@ -555,7 +555,7 @@ def populate_applysdgrcriteria_dropdown(pathname):
         sql = """
         SELECT sdgcriteria_code as label, sdgcriteria_id   as value
         FROM kmteam.SDGCriteria
-        WHERE sdgcriteria_del_ind  IS FALSE
+        WHERE sdgcriteria_del_ind  IS FALSE 
         """
         values = []
         cols = ['label', 'value']
@@ -741,14 +741,21 @@ def record_SDGrevision(submitbtn, closebtn, removerecord,
             SET
                 sdgr_checkstatus = %s,
                 sdgr_notes = %s,
-                sdgr_applycriteria = %s::jsonb,
+                sdgr_applycriteria = %s, 
                 sdgr_del_ind = %s
             WHERE 
                 sdgrevision_id = %s
         """
         to_delete = bool(removerecord) 
 
-        values = [sdgr_checkstatus, sdgr_notes, json.dumps(sdgr_applycriteria), to_delete, sdgrevisionid]  # Convert to JSON
+        values = [
+            sdgr_checkstatus, 
+            sdgr_notes,  
+            json.dumps(sdgr_applycriteria) if sdgr_applycriteria else None,
+             
+            to_delete, 
+            sdgrevisionid
+        ] 
         db.modifydatabase(sqlcode, values)
 
         feedbackmessage = html.H5("Status has been updated.")

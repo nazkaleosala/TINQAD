@@ -43,7 +43,7 @@ form = dbc.Form(
                     ),
                     width=5,
                 ), 
-            ],
+            ], 
             className="mb-1",
         ),
         dbc.Row(
@@ -777,6 +777,7 @@ def record_SDGsubmission(submitbtn, closebtn, removerecord,
             SET
                 sdg_checkstatus = %s,
                 sdg_notes = %s, 
+                sdg_applycriteria = %s, 
                 sdg_del_ind = %s
 
             WHERE 
@@ -784,7 +785,13 @@ def record_SDGsubmission(submitbtn, closebtn, removerecord,
         """
         to_delete = bool(removerecord) 
 
-        values = [sdg_checkstatus, sdg_notes, to_delete, sdgsubmissionid]
+        values = [
+            sdg_checkstatus, 
+            sdg_notes, 
+            json.dumps(sdg_applycriteria) if sdg_applycriteria else None,
+                    
+            to_delete, 
+            sdgsubmissionid]
         db.modifydatabase(sqlcode, values)
 
         feedbackmessage = html.H5("Status has been updated.")
