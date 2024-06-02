@@ -11,7 +11,7 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
- 
+
 layout = html.Div(
     [
         dbc.Row(
@@ -38,8 +38,8 @@ layout = html.Div(
                                         "➕ Add New SAR", color="primary", 
                                         href='/assessmentreports/sar_details?mode=add', 
                                     ),
-                                    width="auto",    
-                                     
+                                    width="auto",
+
                                 ),
                                 dbc.Col(   
                                     dbc.Button(
@@ -60,11 +60,11 @@ layout = html.Div(
                             ],
                             id="tabs",
                             active_tab="sar",
-                             
+
                             className="custom-tabs"
                         ),
 
-                         
+
                         html.Div(
                             id="content-tab",
                             children=[
@@ -90,10 +90,6 @@ layout = html.Div(
     ]
 )
 
-
-
-
-
 @app.callback(
     Output("content-tab", "children"),
     [Input("tabs", "active_tab")],
@@ -116,17 +112,17 @@ def switch_tab(tab):
                 style={
                     'marginTop': '20px',
                     'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
-                    }
-                )
-            ]
+                }
+            )
+        ]
     return html.Div("No Tab Selected")
 
 
 
 
- 
+
 @app.callback(
-    [Output('assessmentreports_list', 'children')],
+    Output('assessmentreports_list', 'children'),
     [
         Input('url', 'pathname'),
         Input('assessmentreports_filter', 'value'),
@@ -152,6 +148,9 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
                 sarep_link AS "SAR Link",
                 sarep_file_path AS "SAR File",
                 sarep_review_status AS "Review Status",
+                sarep_datereviewed AS "Date Reviewed",
+                sarep_assessedby AS "Assessed by",
+                sarep_notes AS "Notes",
                 sarep_sarscore AS "SAR Score"
             FROM 
                 eqateam.sar_report AS ar
@@ -160,7 +159,8 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
             WHERE
                 sarep_del_ind IS FALSE
         """
-        cols = ['ID', 'Date', 'Degree Program', "Check Status", 'SAR Link', "SAR File", "Review Status", "SAR Score"]
+        cols = ['ID', 'Date', 'Degree Program', 'Check Status', 'SAR Link', 'SAR File', 'Review Status', 
+                'Date Reviewed', 'Assessed by', 'Notes', 'SAR Score']
 
     elif active_tab == "others":
         sql = """
@@ -170,11 +170,15 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
                 arep_degree_programs_id AS "Degree Program",
                 arep_title AS "Assessment Title",
                 arep_approv_eqa AS "EQA Type",
-                arep_checkstatus AS "Check Status",
+                arep_assessedby AS "Assessed by",
                 rt.report_type_name AS "Report Type",
+                arep_report_type_notes AS "Report Notes",
                 arep_link AS "Link",
-                arep_file_path AS "PDF",
-                rs.review_status_name AS "Review Status"
+                arep_file_path AS "File",
+                arep_checkstatus AS "Check Status",
+                arep_datereviewed AS "Date Reviewed",
+                rs.review_status_name AS "Review Status",
+                arep_notes AS "Notes"
             FROM 
                 eqateam.assess_report AS assr
             LEFT JOIN 
@@ -185,10 +189,11 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
             WHERE
                 arep_del_ind IS FALSE
         """
-        cols = ['ID','Date', 'Degree Program', 'Assessment Title', 'EQA Type', 'Check Status', "Report Type", "Link","PDF","Review Status"]
-
+        cols = ['ID','Date', 'Degree Program', 'Assessment Title', 'EQA Type', 'Assessed by', 
+                'Report Type', 'Report Notes', "Link",'File', 'Check Status', 'Date Reviewed', "Review Status", 'Notes']
     else:
         return [html.Div("Invalid tab selection")]
+    
 
     # Apply search filter if searchterm is provided
     if searchterm:
@@ -217,6 +222,25 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
         if "Review Status" in df.columns:
             df["Review Status"] = df["Review Status"].replace({1: "Endorsed for EQA", 2: "For Revision"})
 
+        # Replace EQA type and "To be Assessed by" values with labels
+        if not df.empty and active_tab == "others":
+            eqa_labels = {
+                1: "Type A",
+                2: "Type B",
+                3: "Type C",
+                4: "Type D",
+                5: "Type E",
+                6: "Type F"
+            }
+            df["EQA Type"] = df["EQA Type"].map(eqa_labels)
+
+            arep_assessedby_labels = {
+                1: "Engineering Accreditation Commission",
+                2: "International Accreditation",
+                3: "Local Accreditation"
+            }
+            df["Assessed by"] = df["Assessed by"].map(arep_assessedby_labels)
+
         # Generate the table from the DataFrame
         if not df.empty:
             if active_tab == "sar":
@@ -226,7 +250,9 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
                         style={'text-align': 'center'}
                     )
                 )
-                df = df[['Date', 'Degree Program', "Check Status", 'SAR Link', "SAR File", "Review Status", "SAR Score", 'Action']]
+                df = df[['Date', 'Degree Program', 'Check Status', 'SAR Link', 'SAR File', 'Review Status', 
+                'Date Reviewed', 'Assessed by', 'Notes', 'SAR Score', 'Action']
+]
             
             elif active_tab == "others":
                 df["Action"] = df["ID"].apply(
@@ -235,7 +261,8 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
                         style={'text-align': 'center'}
                     )
                 )
-                df = df[['Date', 'Degree Program', 'Assessment Title', 'EQA Type', 'Check Status', "Report Type", "Link", "PDF", "Review Status", 'Action']]
+                df = df[['Date', 'Degree Program', 'Assessment Title', 'EQA Type', 'Assessed by', 
+                'Report Type', 'Report Notes', "Link",'File', 'Check Status', 'Date Reviewed', "Review Status", 'Notes', 'Action']]
 
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
