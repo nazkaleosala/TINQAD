@@ -293,4 +293,11 @@ def get_user_info(user_id):
     except psycopg2.Error as e:
         print("Error fetching user info:", e)
         return None
-
+ 
+def get_office_info(office_id):
+    db = getdblocation()
+    cursor = db.cursor()
+    cursor.execute("SELECT office_name FROM maindashboard.offices WHERE office_id = %s", (office_id,))
+    office_name = cursor.fetchone()[0]  
+    db.close()
+    return office_name

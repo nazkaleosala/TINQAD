@@ -64,7 +64,7 @@ navbar = dbc.Navbar(
 )
 
 def navbarlinks(pathname, user_id):
-    if pathname == '/homepage':
+    if pathname != '/' and pathname != '/home':
         sql = """
             SELECT 
                 user_fname AS fname, 
