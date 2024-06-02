@@ -152,7 +152,8 @@ def recordexpenses_loadlist(pathname, searchterm, active_tab):
                     exp_particulars AS "Particulars", 
                     exp_amount AS "Amount", 
                     es.expense_status_name AS "Status",
-                    exp_bur_no AS "BUR No"
+                    exp_bur_no AS "BUR No",
+                    exp_submitted_by AS "Submitted by"
                 FROM adminteam.expenses AS e
                 LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
                 LEFT JOIN adminteam.sub_expenses AS se ON e.sub_expense_id = se.sub_expense_id
@@ -160,7 +161,7 @@ def recordexpenses_loadlist(pathname, searchterm, active_tab):
                 WHERE EXTRACT(MONTH FROM exp_date) = %s AND EXTRACT(YEAR FROM exp_date) = %s
             """
 
-            cols = ['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type',  'Particulars', 'Amount', 'Status', 'BUR No']
+            cols = ['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type',  'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by']
 
             if searchterm:
                 # Add a WHERE clause with ILIKE to filter the results
@@ -181,14 +182,15 @@ def recordexpenses_loadlist(pathname, searchterm, active_tab):
                     exp_particulars AS "Particulars", 
                     exp_amount AS "Amount", 
                     es.expense_status_name AS "Status",
-                    exp_bur_no AS "BUR No"
+                    exp_bur_no AS "BUR No",
+                    exp_submitted_by AS "Submitted by"
                 FROM adminteam.expenses AS e
                 LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
                 LEFT JOIN adminteam.sub_expenses AS se ON e.sub_expense_id = se.sub_expense_id
                 LEFT JOIN adminteam.expense_status AS es ON e.exp_status = es.expense_status_id
             """
 
-            cols = ['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type',  'Particulars', 'Amount', 'Status', 'BUR No']
+            cols = ['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type',  'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by']
 
             if searchterm:
                 # Add a WHERE clause with ILIKE to filter the results
