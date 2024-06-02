@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 import dash
 from dash.exceptions import PreventUpdate
 from dash import callback_context
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 from app import app
 from apps import dbconnect as db
@@ -13,8 +13,6 @@ from apps import dbconnect as db
 navlink_style = {
     'color': '#fff'
 }
-
-
 
 navbar = dbc.Navbar(
     [
@@ -36,27 +34,14 @@ navbar = dbc.Navbar(
                     ],
                     align="center",
                     className='g-0'
-                ),
-                href="/homepage"
+                ), 
             )
         ),
-        dbc.Col(
-            dbc.DropdownMenu(
-                children=[
-                    dbc.DropdownMenuItem("👋 Profile", href="/profile"),
-                    dbc.DropdownMenuItem("🏠 Home", href="/homepage"),
-                    dbc.DropdownMenuItem("🔒 Logout", href="/home"),
-                    dbc.DropdownMenuItem("🔑 Change Password", href="/password"),
-                ],
-                label=html.B(id='dropdown_name'), 
-                align_end = True,
-                in_navbar = True,
-                nav = True
-            ),
-            width="auto",
-            align="end",
-            style={'margin-right': '0.5in'}  
-        ),
+        html.Div(
+            [
+                dbc.Row(id = 'navbar_links')
+            ], style = {'margin-right' : '12px'}
+        )
     ],
     dark=False,
     color='dark',
@@ -67,30 +52,69 @@ navbar = dbc.Navbar(
     },
 )
 
-@app.callback(
-    Output('dropdown_name', 'children'),
-    Input('user_id_store', 'data')   
-)
-def update_dropdown_label(user_id):
-    if not user_id:
-        return "👋 Hello"
-    
-    query = "SELECT user_fname FROM maindashboard.users WHERE user_id = %s"
-    user_fname = db.query_single_value_db(query, (user_id,))  
-    
-    if user_fname is not None:
-        return f"👋 Hello, {user_fname}"
-    else:
-        return "👋 Hello"
-
-
-
-
-
 
 
  
-    
+
+
+@app.callback(
+    [Output('navbar_links', 'children')],
+    [Input('url', 'pathname')],
+    [State('currentuserid', 'data')]
+)
+
+def navbarlinks(pathname, user_id):
+    if pathname == '/homepage':
+        sql = """
+            SELECT 
+                user_fname AS fname, 
+                user_livedname AS livedname
+            FROM maindashboard.users 
+            WHERE user_id = %s
+        """
+
+        values = [user_id]
+        cols = ['fname', 'livedname']
+        df = db.querydatafromdatabase(sql, values, cols)
+
+        if not df.empty:
+            fname = df['fname'][0]
+            livedname = df['livedname'][0]
+
+            name = livedname if livedname else fname
+
+            links = [
+                dbc.Col(
+                    dbc.DropdownMenu(
+                        [
+                            dbc.DropdownMenuItem("👋 Profile", href="/profile"),
+                            dbc.DropdownMenuItem("🏠 Home", href="/homepage"),
+                            dbc.DropdownMenuItem("🔒 Logout", href="/"),
+                            dbc.DropdownMenuItem("🔑 Change Password", href="/password"),
+                        ],
+                        label=html.B("👋 Hello, %s" % name),
+                        align_end=True,
+                        in_navbar=True,
+                        nav=True
+                    ), width='auto'
+                )
+            ]
+            return [links]
+        else:
+            # Handle case where user data is not found
+            return [[html.Div("Hi! Welcome")]]
+    else:
+        return [[]] 
+
+
+
+
+
+
+
+
+
+
 
 
 

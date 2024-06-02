@@ -676,47 +676,44 @@ layout = html.Div(
     ],
     [
         Input('url', 'pathname'), 
-        Input('home_id_store', 'data')
+        Input('currentuserid', 'data')
     ]
 )
  
 def generate_greeting(pathname, user_id):
-    if pathname == '/homepage' and user_id is not None and user_id != -1:
+    if (pathname == '/homepage') and user_id != -1:
         text = None
-        color = None 
+        color = None
+        time = datetime.now(pytz.timezone('Asia/Manila')).hour
+        name = ''
 
-        query = """
+        sql = """
             SELECT 
-                user_fname AS name
+                user_livedname AS livedname, 
+                user_fname AS fname 
             FROM 
                 maindashboard.users 
             WHERE 
-                user_id = %s
+                user_id = %s;
+        
         """
-        user_name = db.query_single_value_db(query, (user_id,))
-        
-        if user_name:
-            print("Retrieved user name:", user_name)   
-            
-            now = datetime.now(pytz.timezone('Asia/Manila'))
-            hour = now.hour
-            
-            if 0 <= hour < 12:
-                text = f"🌅 Good morning, {user_name}!"
-                color = 'cyan'
-            elif 12 <= hour < 13:
-                text = f"☀️ Good afternoon, {user_name}!"
-                color = 'yellow'
-            elif 13 <= hour < 18:
-                text = f"🌇 Good evening, {user_name}!"
-                color = 'orange'
-            else:
-                text = f"🌙 Good night, {user_name}!"
-                color = 'dark'
+        values = [user_id]
+        cols = ['livedname', 'fname']
+        df = db.querydatafromdatabase(sql, values, cols)
+        if df['livedname'][0]: name = df['livedname'][0]
+        else: name = df['fname'][0]
+
+        if time >= 0 and time < 12:
+            text = html.H5( html.B("🌅 Good morning, %s!" % name))
+            color = '#40BFBC'    
+        elif time >= 12 and time < 13:
+            text = html.H5(html.B("☀️ Good afternoon, %s!" % name))
+            color = '#D37157'
+        elif time >= 13 and time < 18:
+            text = html.H5(html.B("🌇 Good evening, %s!" % name))
+            color = '#39B54A'
         else:
-            text = html.H1(html.B("Welcome!"))
-            color = 'white'
-        
-        return text, color
-    
-    raise PreventUpdate
+            text = html.H5(html.B("🌙 Good night, %s!" % name))
+            color = '#35FFAF'
+        return [text, color]
+    else: raise PreventUpdate
