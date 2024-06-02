@@ -214,6 +214,9 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
     if sql:
         df = db.querydatafromdatabase(sql, values, cols)
 
+        if "Review Status" in df.columns:
+            df["Review Status"] = df["Review Status"].replace({1: "Endorsed for EQA", 2: "For Revision"})
+
         # Generate the table from the DataFrame
         if not df.empty:
             if active_tab == "sar":
