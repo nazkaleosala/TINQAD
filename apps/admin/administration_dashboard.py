@@ -60,8 +60,7 @@ def generate_pie_and_bar_chart():
         pie_fig.update_traces(textinfo='percent+label')  # Show percentage and label on pie chart
         pie_fig.update_layout(
             title=f"{get_current_month()} {get_year_range()}",  # Title with month and year
-            title_font=dict(size=18),  # Fixed font size for the title
-            legend_title='Expense Types',
+            title_font=dict(size=18), 
             legend=dict(title_font=dict(size=12), orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
         )
         pie_chart = dcc.Graph(figure=pie_fig)

@@ -334,8 +334,13 @@ def traininglist_loadlist(pathname, searchterm):
             LEFT JOIN 
                 public.clusters AS clus
                 ON qo.qaofficer_cluster_id = clus.cluster_id
+            WHERE
+                NOT qo.qaofficer_del_ind  
+            
             GROUP BY 
                 qo.qaofficer_full_name, cp.cuposition_name, du.deg_unit_name, cl.college_name, clus.cluster_name
+        
+        
         """
 
 
@@ -360,7 +365,7 @@ def traininglist_loadlist(pathname, searchterm):
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
-            return [html.Div("No records to display")]
+            return [html.Div("No records yet.")]
     else:
         raise PreventUpdate
     

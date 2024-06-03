@@ -13,7 +13,7 @@ from apps import dbconnect as db
 from datetime import datetime
 
 # Define interval time (in milliseconds) for auto-updates
-interval_time = 1000  # 1 second
+interval_time = 6000  # 1 second
 
 # Function to fetch the total count from the database for Academic Unit Heads
 def get_total_count_acad_unitheads():
