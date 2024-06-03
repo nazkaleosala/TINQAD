@@ -17,7 +17,11 @@ interval_time = 1000  # 1 second
 
 # Function to fetch the total count from the database for Academic Unit Heads
 def get_total_count_acad_unitheads():
-    sql = "SELECT COUNT(*) FROM iqateam.acad_unitheads  WHERE unithead_del_ind = False"
+    sql = """
+        SELECT COUNT(*) 
+        FROM iqateam.acad_unitheads  
+        WHERE unithead_del_ind IS False
+    """
     total_count = db.query_single_value(sql)
     return total_count
 
@@ -323,16 +327,15 @@ def update_cards(n):
     # SQL query to fetch data for QA Officers
     qa_sql = """
     SELECT c.college_name AS college,
-           COUNT(*) AS qa_officers,
-           SUM(CASE WHEN qaofficer_basicpaper = 'Yes' THEN 1 ELSE 0 END) AS approved_papers,
-           SUM(CASE WHEN qaofficer_remarks = 'For renewal' THEN 1 ELSE 0 END) AS renewal,
-           SUM(CASE WHEN qaofficer_remarks = 'No record' THEN 1 ELSE 0 END) AS no_record,
-           SUM(CASE WHEN qaofficer_appointment_end < CURRENT_DATE + INTERVAL '2 months' THEN 1 ELSE 0 END) AS expiring,
+        COUNT(*) AS qa_officers,
+        SUM(CASE WHEN qaofficer_basicpaper = 'Yes' THEN 1 ELSE 0 END) AS approved_papers,
+        SUM(CASE WHEN qaofficer_remarks = 'For renewal' THEN 1 ELSE 0 END) AS renewal,
+        SUM(CASE WHEN qaofficer_remarks = 'No record' THEN 1 ELSE 0 END) AS no_record,
+        SUM(CASE WHEN qaofficer_appointment_end < CURRENT_DATE + INTERVAL '2 months' THEN 1 ELSE 0 END) AS expiring
     FROM qaofficers.qa_officer q
     JOIN public.college c ON q.qaofficer_college_id = c.college_id
     WHERE q.qaofficer_del_ind = False
-
-    GROUP BY q.qaofficer_college_id, c.college_name;
+    GROUP BY q.qaofficer_college_id, c.college_name; 
     """
     # Execute the queries and fetch data
     acad_data = db.querydatafromdatabase(acad_sql, [], ['college', 'term_expiry'])
