@@ -21,7 +21,32 @@ import pytz
 from dash import Output, Input, State, callback_context
 
 
- 
+
+
+
+def create_time_date_card():
+    return dbc.Card(
+        dbc.CardBody(
+            [
+                html.P(id="time", style={"font-size": "2em", "font-weight": "bold", "text-align": "center", "margin-bottom": "0"}),
+                html.P(id="date", style={"text-align": "center", "margin-top": "0"}),
+            ]
+        ),
+        className="mb-3",
+        style={"backgroundColor": "#FFFFFF"}
+    )
+
+
+
+
+
+
+
+
+
+
+
+
 def get_month_range():
     today = datetime.today()
     # Get the first day of the current month
@@ -471,6 +496,10 @@ upcomingevents_card = dbc.Card(
 
 
 
+
+
+
+
 layout = html.Div(
     [
         dcc.Store(id='stored-messages', storage_type='memory'),
@@ -625,25 +654,45 @@ layout = html.Div(
                 ),
                 dbc.Col(
                     [   # Right column for the timeline card
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    [
+                                        create_time_date_card(),
+                                        dcc.Interval(
+                                            id="interval-component",
+                                            interval=1*1000,  # in milliseconds
+                                            n_intervals=0
+                                        )
+                                    ]
+                                )
+                            ],
+                            className="mb-3",
+                            style={"backgroundColor": "#FFFFFF"},
+                        ),
                         dbc.Row ([
                             dbc.Col(
                                 dbc.Card(
                                     dbc.CardBody(
                                         [
-                                            html.Div(style={'background-color': '#7A0911', 'width': '100%', 'height': '20px'}),  # Rectangle
-                                            html.A(
-                                                html.H5("Quality Assurance Officers", className="card-title fw-bold text-dark text-center"), 
-                                                href='/QAOfficers_dashboard',
-                                                style={'text-decoration': 'none'}
-                                            ),
-                                        
+                                            dbc.Row(html.Img(src=app.get_asset_url("icons/qaofficers_icon.png"), style={"height": "100px"})),
+                                            dbc.Row(
+                                                [
+                                                    html.Div(style={'background-color': '#7A0911', 'width': '100%', 'height': '20px'}),  # Rectangle
+                                                    html.A(
+                                                        html.H5("Quality Assurance Officers", className="card-title fw-bold text-dark text-center"), 
+                                                        href='/QAOfficers_dashboard',
+                                                        style={'text-decoration': 'none'}
+                                                    ),
+                                                ]
+                                            )
                                         ]
-                                        ),
-                                        className="mb-3",
-                                        style={"backgroundColor": "#FFFFFF"},
                                     ),
-                                    
+                                    className="mb-3",
+                                    style={"backgroundColor": "#FFFFFF"},
                                 ),
+                                    
+                            ),
                         
                         ]),
                         #approval_card,   
@@ -717,3 +766,18 @@ def generate_greeting(pathname, user_id):
             color = '#8F2F91'
         return [text, color]
     else: raise PreventUpdate
+
+
+
+
+
+
+@app.callback(
+    [Output("time", "children"), Output("date", "children")],
+    [Input("interval-component", "n_intervals")]
+)
+def update_time_date(n):
+    now = datetime.now()
+    formatted_time = now.strftime("%I:%M:%S %p")
+    formatted_date = now.strftime("%A, %d %B %Y")
+    return [formatted_time], [formatted_date]
