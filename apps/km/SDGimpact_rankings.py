@@ -154,6 +154,9 @@ layout = html.Div(
                 ),
             ]
         ),
+        html.Br(),
+        html.Br(),
+        html.Br(),
         dbc.Row(
             [
                 dbc.Col(cm.generate_footer(), width={"size": 12, "offset": 0}),
