@@ -342,7 +342,9 @@ layout = html.Div(
                 ),   
             ]
         ),
-        
+        html.Br(),
+        html.Br(),
+        html.Br(),
 
         dbc.Row (
             [
