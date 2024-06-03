@@ -13,15 +13,40 @@ from apps import commonmodules as cm
 from apps import dbconnect as db
 from datetime import datetime
 
+
+
+
+
+
+def get_current_month():
+    # Return the current month's name, e.g., "April".
+    return datetime.now().strftime("%B")
+
+def get_year_range():
+    current_year = datetime.now().year
+    previous_year = current_year - 1
+    return f"{previous_year}-{current_year}"
+
+
 def generate_pie_and_bar_chart():
     # Fetch data from the database for the pie chart
+    current_year = datetime.now().year
+
     pie_sql = """
         SELECT me.main_expense_shortname, SUM(exp_amount) AS total_amount
         FROM adminteam.expenses AS e
         LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
+        WHERE EXTRACT(YEAR FROM e.exp_date) = %s
         GROUP BY me.main_expense_shortname
     """
-    pie_df = db.querydatafromdatabase(pie_sql, (), ['main_expense_shortname', 'total_amount'])
+    pie_sql = """
+        SELECT me.main_expense_shortname, SUM(exp_amount) AS total_amount
+        FROM adminteam.expenses AS e
+        LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
+        WHERE EXTRACT(YEAR FROM e.exp_date) = %s
+        GROUP BY me.main_expense_shortname
+    """
+    pie_df = db.querydatafromdatabase(pie_sql, (current_year,), ['main_expense_shortname', 'total_amount'])
 
     if pie_df.empty:
         pie_chart = html.Div("No data available for the pie chart")
@@ -41,7 +66,8 @@ def generate_pie_and_bar_chart():
         pie_fig.update_traces(textinfo='percent+label')  # Show percentage and label on pie chart
         pie_fig.update_layout(
             title=f"{get_current_month()} {get_year_range()}",  # Title with month and year
-            title_font=dict(size=18),   
+            title_font=dict(size=18),  # Fixed font size for the title
+            legend_title='Expense Types',
             legend=dict(title_font=dict(size=12), orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
         )
         pie_chart = dcc.Graph(figure=pie_fig)
@@ -52,10 +78,11 @@ def generate_pie_and_bar_chart():
             TO_CHAR(exp_date, 'Month') AS month,
             SUM(exp_amount) AS total_amount
         FROM adminteam.expenses
+        WHERE EXTRACT(YEAR FROM exp_date) = %s
         GROUP BY TO_CHAR(exp_date, 'Month')
         ORDER BY TO_DATE(TO_CHAR(exp_date, 'Month'), 'Month')
     """
-    bar_df = db.querydatafromdatabase(bar_sql, (), ['month', 'total_amount'])
+    bar_df = db.querydatafromdatabase(bar_sql, (current_year,), ['month', 'total_amount'])
 
     if bar_df.empty:
         bar_chart = html.Div("No data available for the bar chart")
@@ -116,14 +143,6 @@ def populate_accordion():
 
 expensetypes = populate_accordion()
 
-def get_current_month():
-    # Return the current month's name, e.g., "April".
-    return datetime.now().strftime("%B")
-
-def get_year_range():
-    current_year = datetime.now().year
-    previous_year = current_year - 1
-    return f"{previous_year}-{current_year}"
 
 
 layout = html.Div(
