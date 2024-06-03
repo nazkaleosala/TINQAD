@@ -49,7 +49,7 @@ announcements_content = html.Div(
                          style={
                              'overflowX': 'auto',
                              'overflowY': 'auto',
-                             'maxHeight': '200px',
+                             'maxHeight': '500px',
                          }),
                 html.Br(),
                 html.Div(
@@ -134,28 +134,64 @@ def toggle_announcement_form(footer_clicks, cancel_clicks, current_style):
 
 # Callback to insert a new message into the database
 @app.callback(
-    Output("kmann_status", "children"),
-    [Input("kmannpost_button", "n_clicks")],
-    [State("kmann_header", "value"),  # New header input
-     State("kmann_content", "value")],
+    [
+        Output("kmann_status", "children"),
+        Output("new_kmannouncement_alert", "children"),
+        Output("new_kmannouncement_alert", "is_open")
+    ],
+    [   
+        Input("kmannpost_button", "n_clicks"),
+        Input("new_kmannouncement_alert", "n_dismiss"),
+    ],
+    [
+        State("kmann_header", "value"),  
+        State("kmann_content", "value"),
+        State("currentuserid", "data")
+    ] 
 )
-def insert_announcement(n_clicks, kmann_header, kmann_content):
+def insert_announcement(n_clicks, n_dismiss, kmann_header, kmann_content, current_userid):
+    ctx = callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+
+    # Handle dismissing the alert
+    if ctx.triggered[0]['prop_id'] == 'new_announcement_alert.n_dismiss':
+        return ["", "", False]
+
     if not n_clicks or not kmann_header or not kmann_content:
         raise PreventUpdate
 
     try:
+        # Fetch the user's full name
+        user_sql = """
+            SELECT user_fname, user_sname
+            FROM maindashboard.users
+            WHERE user_id = %s
+        """
+        user_df = db.querydatafromdatabase(user_sql, [current_userid], ["user_fname", "user_sname"])
+
+        if user_df.empty:
+            raise Exception("User not found")
+
+        user_fullname = f"{user_df.iloc[0]['user_fname']} {user_df.iloc[0]['user_sname']}"
+
+        # Insert the announcement with the user's full name
         sql = """
             INSERT INTO kmteam.announcements (kmann_header, kmann_content, kmann_user)
-            VALUES (%s, %s, NULL)   
+            VALUES (%s, %s, %s)   
         """
 
-        db.modifydatabase(sql, (kmann_header, kmann_content))
-        return ["Announcement posted successfully!"]
+        values = (kmann_header, kmann_content, user_fullname)
+
+        # Insert the announcement into the database
+        db.modifydatabase(sql, values)
+        
+        alert_message = f"{user_fullname} has a new announcement!"
+        return ["Announcement posted successfully!", alert_message, True]
 
     except Exception as e:
-        return [f"Error: {str(e)}"]
+        return [f"Error: {str(e)}", "", False]
     
-
 
 @app.callback(
     Output("kmann_display", "children"),
@@ -166,7 +202,6 @@ def fetch_announcements(pathname):
         raise PreventUpdate
 
     try:
-
         start_of_month, end_of_month = get_month_range()
 
         sql = """
@@ -212,6 +247,22 @@ def fetch_announcements(pathname):
 
     except Exception as e:
         return [html.Div(f"Error retrieving announcements: {str(e)}")]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 circle_style = {
@@ -303,6 +354,13 @@ layout = html.Div(
                 dbc.Col(
                     [   # Main content goes here
                         html.H1("KM TEAM DASHBOARD", className="my-3"),
+                        dbc.Alert(
+                                id="new_kmannouncement_alert", 
+                                is_open=False, 
+                                dismissable=True, 
+                                duration=None, 
+                                color="info"
+                            ),
                         dbc.Row(
                             [
                                 dbc.Col(

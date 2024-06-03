@@ -142,38 +142,43 @@ layout = dbc.Row(
                                             dbc.Label("Password"),
                                             dbc.Input(type="password", id="login_password"),
                                             html.Br(),
-                                                
-                                                dbc.Row(
-                                                    dbc.Col(
-                                                        dbc.Button("Log in", 
-                                                                   color="primary", 
-                                                                   className="fw-bolder", 
-                                                                   id = 'login_loginbtn'),
-                                                            width={'size': 4, 'offset': 8},   
-                                                            className="d-flex justify-content-end"
-                                                    )
-                                                ),
-                                                html.Br(),
-                                                html.Br(),
-                                                html.H4("Total Integrated Network for Quality Assurance and Development", className="fw-bolder text-danger" ),
-                                                html.P ("The Total Integrated Network for Quality Assurance and Development (TINQAD) is a centralized network that allows the singular monitoring of the Quality Assurance teams activities."),
-                                                 
-                                            ]
+                                            dbc.Checklist(
+                                                options=[
+                                                    {"label": "Show Password", "value": 1},
+                                                ],
+                                                value=[],
+                                                id="show_password",
+                                                inline=True,
+                                            ),
+                                            html.Br(), 
+                                            dbc.Row(
+                                                dbc.Col(
+                                                    dbc.Button("Log in",
+                                                            color="primary",
+                                                            className="fw-bolder",
+                                                            id='login_loginbtn'),
+                                                    width={'size': 4, 'offset': 8},
+                                                    className="d-flex justify-content-end"
+                                                )
+                                            ),
+                                            html.Br(),
+                                            html.Br(),
+                                            html.H4("Total Integrated Network for Quality Assurance and Development", className="fw-bolder text-danger"),
+                                            html.P("The Total Integrated Network for Quality Assurance and Development (TINQAD) is a centralized network that allows the singular monitoring of the Quality Assurance teams activities."),
+                                        ]
                                         ),
                                     ),
-                                     
-                                    width={"size": 6, "offset": 1},   
+                                    width={"size": 6, "offset": 1},
                                     style={
                                         'position': 'fixed',
                                         'right': '2rem',  # Position the div at the right of the screen
                                         'width': '45%',  # Set the width of the div
-                                        'bottom': '3rem',  # Adjusted bottom margin
+                                        'bottom': '1rem',  # Adjusted bottom margin
+                                        'top': '2rem',
                                         'padding': '1rem',
                                         'border-radius': '10px',
                                         'box-shadow': '0px 0px 10px rgba(0, 0, 0, 0.1)',  # Add box shadow
                                     }
-                                 
-                                 
                                 ),
                             ]
                         ),
@@ -200,3 +205,12 @@ layout = dbc.Row(
 
  
 
+@app.callback(
+    Output('login_password', 'type'),
+    [Input('show_password', 'value')]
+)
+def toggle_password_visibility(checked_values):
+    if checked_values:
+        return 'text'
+    else:
+        return 'password'
