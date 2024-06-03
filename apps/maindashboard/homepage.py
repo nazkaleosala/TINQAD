@@ -841,13 +841,13 @@ def generate_greeting(pathname, user_id):
             time = datetime.now(pytz.timezone('Asia/Manila')).hour
 
             if time >= 0 and time < 12:
-                text = html.H5( html.B("🔆 Good morning, %s!" % name))
+                text = html.H5( html.B("☕ Good morning, %s!" % name))
                 color = '#F9B236'    
             elif time >= 12 and time < 18:
-                text = html.H5(html.B("🌤 Good afternoon, %s!" % name))
+                text = html.H5(html.B("🍲 Good afternoon, %s!" % name))
                 color = '#D37157'
             elif time >= 18 and time < 22:
-                text = html.H5(html.B("🌕 Good evening, %s!" % name))
+                text = html.H5(html.B("🍜 Good evening, %s!" % name))
                 color = '#A09DCB'
             else:
                 text = html.H5(html.B("🌙 Good night, %s!" % name))
