@@ -147,23 +147,40 @@ def toggle_message_input_area(add_clicks, cancel_clicks, current_style):
 
 
 
+
+
 # Callback to insert a new message into the database
 @app.callback(
     Output("teammsgs_status", "children"),   
     [Input("teammsgspost_button", "n_clicks")],
-    [State("teammsgs_content", "value")],
+    [State("teammsgs_content", "value"),
+     State("currentuserid", "data")]  # Add current user ID state
 )
-def insert_team_message(n_clicks, message_content):
-    if not n_clicks:
+def insert_team_message(n_clicks, message_content, current_userid):
+    if not n_clicks or not message_content:
         raise PreventUpdate
 
     try:
+        # Fetch the user's full name
+        user_sql = """
+            SELECT user_fname, user_sname
+            FROM maindashboard.users
+            WHERE user_id = %s
+        """
+        user_df = db.querydatafromdatabase(user_sql, [current_userid], ["user_fname", "user_sname"])
+
+        if user_df.empty:
+            raise Exception("User not found")
+
+        user_fullname = f"{user_df.iloc[0]['user_fname']} {user_df.iloc[0]['user_sname']}"
+
+        # Insert the message with the user's full name
         sql = """
             INSERT INTO maindashboard.teammessages (teammsgs_content, teammsgs_user)
-            VALUES (%s, NULL)
+            VALUES (%s, %s)
         """
         
-        values = (message_content, )
+        values = (message_content, user_fullname)
 
         # Insert the message into the database
         db.modifydatabase(sql, values)
@@ -172,9 +189,10 @@ def insert_team_message(n_clicks, message_content):
 
     except Exception as e:
         return [f"Error: {str(e)}"]
+ 
 
 
-
+# Callback to fetch team messages and display them
 @app.callback(
     Output("teammsgs_display", "children"),
     [Input("url", "pathname")],   
@@ -184,17 +202,14 @@ def fetch_team_messages(pathname):
         raise PreventUpdate
 
     try:
-         
         start_of_month, end_of_month = get_month_range()
         
-         
         sql = """
             SELECT teammsgs_content, teammsgs_user, teammsgs_timestamp
             FROM maindashboard.teammessages
             WHERE teammsgs_timestamp BETWEEN %s AND %s
             ORDER BY teammsgs_timestamp DESC
         """
-
          
         values = (start_of_month, end_of_month)
         dfcolumns = ["teammsgs_content", "teammsgs_user", "teammsgs_timestamp"]
@@ -233,7 +248,6 @@ def fetch_team_messages(pathname):
 
     except Exception as e:
         return [html.Div(f"Error retrieving messages: {str(e)}")]
-
 
 
 
@@ -300,63 +314,76 @@ app.layout = html.Div([announcement_content, announcement_footer, dcc.Location(i
 
 
 
+# Callback to insert a new message into the database
 @app.callback(
-    Output("anmsgs_id", "style"),
-    [Input("anmsgs_footer_button", "n_clicks"), 
-     Input("anmsgscancel_button", "n_clicks")],
-    [State("anmsgs_id", "style")],  
+    [
+        Output("anmsgs_status", "children"),
+        Output("new_homeannouncement_alert", "children"),
+        Output("new_homeannouncement_alert", "is_open"), 
+    ],
+    [
+        Input("anmsgspost_button", "n_clicks"),
+        Input("new_homeannouncement_alert", "n_dismiss") 
+    ],  
+    [
+        State("anmsgs_header", "value"),   
+        State("anmsgs_content", "value"),
+        State("currentuserid", "data")
+    ]
 )
-def toggle_announcement_form(footer_clicks, cancel_clicks, current_style):
-    ctx = callback_context  
-
-    footer_clicks = footer_clicks or 0
-    cancel_clicks = cancel_clicks or 0
-
+def insert_announcement(n_clicks, n_dismiss, anmsgs_header, anmsgs_content, current_userid):
+    ctx = callback_context
     if not ctx.triggered:
         raise PreventUpdate
 
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    # Handle dismissing the alert
+    if ctx.triggered[0]['prop_id'] == 'new_homeannouncement_alert.n_dismiss':
+        return ["", "", False]
 
-    if trigger_id == "anmsgs_footer_button" and footer_clicks > 0:
-        return {"display": "block"}
-
-    elif trigger_id == "anmsgscancel_button" and cancel_clicks > 0:
-        return {"display": "none"}
-
-    raise PreventUpdate
-
-
-
-
-
-
-# Callback to insert a new message into the database
-@app.callback(
-    Output("anmsgs_status", "children"),
-    [Input("anmsgspost_button", "n_clicks")],
-    [State("anmsgs_header", "value"),  # New header input
-     State("anmsgs_content", "value")],
-)
-def insert_announcement(n_clicks, anmsgs_header, anmsgs_content):
     if not n_clicks or not anmsgs_header or not anmsgs_content:
         raise PreventUpdate
 
     try:
+        # Fetch the user's full name
+        user_sql = """
+            SELECT user_fname, user_sname
+            FROM maindashboard.users
+            WHERE user_id = %s
+        """
+        user_df = db.querydatafromdatabase(user_sql, [current_userid], ["user_fname", "user_sname"])
+
+        if user_df.empty:
+            raise Exception("User not found")
+
+        user_fullname = f"{user_df.iloc[0]['user_fname']} {user_df.iloc[0]['user_sname']}"
+
+        # Insert the announcement with the user's full name
         sql = """
             INSERT INTO maindashboard.announcements (anmsgs_header, anmsgs_content, anmsgs_user)
-            VALUES (%s, %s, NULL)   
+            VALUES (%s, %s, %s)
         """
+        db.modifydatabase(sql, (anmsgs_header, anmsgs_content, user_fullname))
+        
+        # Record the alert in the alerts table
+        alert_sql = """
+            INSERT INTO maindashboard.alerts (alert_userid, alert_message)
+            VALUES (%s, %s)
+        """
+        db.modifydatabase(alert_sql, (current_userid, f"{user_fullname} has a new announcement!"))
 
-        db.modifydatabase(sql, (anmsgs_header, anmsgs_content))
-        return ["Announcement posted successfully!"]
+        return ["Announcement posted successfully!", "", True]
 
     except Exception as e:
-        return [f"Error: {str(e)}"]
+        return [f"Error: {str(e)}", "", False] 
+
+
+
+
 
 # Callback to fetch announcements and display them
 @app.callback(
     Output("anmsgs_display", "children"),
-    [Input("url", "pathname")],   
+    [Input("url", "pathname")],
 )
 def fetch_announcements(pathname):
     if pathname != "/homepage":
@@ -410,6 +437,54 @@ def fetch_announcements(pathname):
         return [html.Div(f"Error retrieving announcements: {str(e)}")]
 
 
+ 
+
+
+
+# Callback to display the alerts container
+@app.callback(
+    Output("alerts_container", "children"),
+    [Input('url', 'pathname')],  
+)
+def display_alerts(pathname):
+    if pathname == '/homepage':  
+         
+        # Fetch alerts data within the last 15 days
+        fifteen_days_ago = datetime.now() - timedelta(days=15)
+        sql = """
+            SELECT u.user_fname || ' ' || u.user_sname AS user, a.alert_message, a.alert_timestamp
+            FROM maindashboard.alerts a
+            INNER JOIN maindashboard.users u ON a.alert_userid = u.user_id
+            WHERE a.alert_timestamp >= %s
+            ORDER BY a.alert_timestamp DESC
+        """
+        cols = ["user", "alert_message", "alert_timestamp"]
+
+        df = db.querydatafromdatabase(sql, (fifteen_days_ago,), cols) 
+        
+        if not df.empty:
+            alerts = []
+            for index, row in df.iterrows():
+                alert_message = row['alert_message']
+                alert_timestamp = row['alert_timestamp']
+                formatted_date = alert_timestamp.strftime("%B %d, %Y %I:%M %p")
+                alert_html = html.Div([
+                    html.P(alert_message, className="alert-message"),
+                    html.P(formatted_date, 
+                           className="alert-timestamp", 
+                           style={
+                               "font-size": "smaller", 
+                               "font-style": "italic", 
+                               "text-align": "right"
+                               }
+                            )
+                ], className="alert-container")
+                alerts.append(alert_html)
+            return alerts
+        else:
+            return [html.Div("No new announcements since 15 days ago")]
+    else:
+        raise PreventUpdate
 
 
 
@@ -470,17 +545,24 @@ def update_card_content(active_tab):
  
  
  
+
 approval_card = dbc.Card(
     [
-        dbc.CardHeader("FOR APPROVAL", className="text-center text-bold"),
+        dbc.CardHeader("NEW ANNOUNCEMENTS", className="text-center text-bold"),
         dbc.CardBody(
             [
-                html.P("Hyperlink here then add a [Signed] button", className="card-text"),
+                dcc.Loading(
+                    id="loading-alerts",
+                    type="default",
+                    children=html.Div(id="alerts_container")
+                )
             ]
         ),
     ],
     className="mb-3"
 )
+
+
 
 upcomingevents_card = dbc.Card(
     [
@@ -524,7 +606,10 @@ layout = html.Div(
                     [   
                     dbc.Row(
                         dbc.Col(
-                            dbc.Alert(id = 'greeting_alert', color = 'dark')
+                            [
+                                dbc.Alert(id = 'greeting_alert', color = 'dark'),
+                                dbc.Alert(id="new_homeannouncement_alert", is_open=False, dismissable=True, color="info"),
+                            ]
                         )
                     ),
                     html.Br(),
@@ -694,8 +779,8 @@ layout = html.Div(
                                 href='/QAOfficers_dashboard',
                                 style={'text-decoration': 'none'}
                             )
-                        ])
-                        #approval_card,   
+                        ]),
+                        approval_card,   
                         #upcomingevents_card,
                     ],
                     width=3,  md=3, sm=12
