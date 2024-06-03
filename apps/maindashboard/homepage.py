@@ -818,8 +818,6 @@ def generate_greeting(pathname, user_id):
     if (pathname == '/homepage') and user_id != -1:
         text = None
         color = None
-        time = datetime.now(pytz.timezone('Asia/Manila')).hour
-        name = ''
 
         sql = """
             SELECT 
@@ -834,25 +832,30 @@ def generate_greeting(pathname, user_id):
         values = [user_id]
         cols = ['livedname', 'fname']
         df = db.querydatafromdatabase(sql, values, cols)
-        if df['livedname'][0]: name = df['livedname'][0]
-        else: name = df['fname'][0]
-
-        if time >= 0 and time < 12:
-            text = html.H5( html.B("🔆 Good morning, %s!" % name))
-            color = '#F9B236'    
-        elif time >= 12 and time < 18:
-            text = html.H5(html.B("🌤 Good afternoon, %s!" % name))
-            color = '#D37157'
-        elif time >= 18 and time < 22:
-            text = html.H5(html.B("🌕 Good evening, %s!" % name))
-            color = '#A09DCB'
+        
+        if df.empty or (df['livedname'].isnull().all() and df['fname'].isnull().all()):
+            text = html.H5( html.B("👋 Welcome!"))
+            color = '#F9B236'  # Set default color
         else:
-            text = html.H5(html.B("🌙 Good night, %s!" % name))
-            color = '#7EADE4'
+            name = df['livedname'][0] if df['livedname'][0] else df['fname'][0]
+            time = datetime.now(pytz.timezone('Asia/Manila')).hour
+
+            if time >= 0 and time < 12:
+                text = html.H5( html.B("🔆 Good morning, %s!" % name))
+                color = '#F9B236'    
+            elif time >= 12 and time < 18:
+                text = html.H5(html.B("🌤 Good afternoon, %s!" % name))
+                color = '#D37157'
+            elif time >= 18 and time < 22:
+                text = html.H5(html.B("🌕 Good evening, %s!" % name))
+                color = '#A09DCB'
+            else:
+                text = html.H5(html.B("🌙 Good night, %s!" % name))
+                color = '#7EADE4'
+
         return [text, color]
-    else: raise PreventUpdate
-
-
+    else: 
+        raise PreventUpdate
 
 
 

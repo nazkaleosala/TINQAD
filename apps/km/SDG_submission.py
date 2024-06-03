@@ -56,7 +56,18 @@ form = dbc.Form(
                     width=4),
                 dbc.Col(
                     dbc.Input(type="text", id="sdg_evidencename",  
-                              placeholder="YearSDG_EvidenceName e.g. 2024SDG_EvidenceForHealth", disabled=False ),
+                              placeholder="YearSDG_EvidenceName", disabled=False ),
+                    width=6,
+                ),
+                
+            ],
+            className="mb-2",
+        ),
+        dbc.Row(
+            [
+                dbc.Label( "",width=4),
+                dbc.Col(
+                    html.P("e.g. 2024SDG_EvidenceForHealth", style={"color": "#F8B237"}),
                     width=6,
                 ),
             ],

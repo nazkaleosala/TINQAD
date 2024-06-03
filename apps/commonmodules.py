@@ -77,11 +77,18 @@ def navbarlinks(pathname, user_id):
         cols = ['fname', 'livedname']
         df = db.querydatafromdatabase(sql, values, cols)
 
+        
+        
         if not df.empty:
             fname = df['fname'][0]
             livedname = df['livedname'][0]
 
             name = livedname if livedname else fname
+
+            if name:
+                greeting = "Hello, %s" % name
+            else:
+                greeting = "Hi! Welcome"
 
             links = [
                 dbc.Col(
@@ -91,7 +98,7 @@ def navbarlinks(pathname, user_id):
                             dbc.DropdownMenuItem("🏠 Home", href="/homepage"),
                             dbc.DropdownMenuItem("🔒 Logout", href="/"),
                         ],
-                        label=html.B("👋 Hello, %s" % name),
+                        label=html.B("👋 %s" % greeting),
                         align_end=True,
                         in_navbar=True,
                         nav=True
@@ -103,7 +110,7 @@ def navbarlinks(pathname, user_id):
             # Handle case where user data is not found
             return [[html.Div("Hi! Welcome")]]
     else:
-        return [[]] 
+        return [[]]
 
 
 
