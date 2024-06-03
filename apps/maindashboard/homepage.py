@@ -670,31 +670,29 @@ layout = html.Div(
                             className="mb-3",
                             style={"backgroundColor": "#FFFFFF"},
                         ),
-                        dbc.Row ([
-                            dbc.Col(
-                                dbc.Card(
-                                    dbc.CardBody(
-                                        [
-                                            dbc.Row(html.Img(src=app.get_asset_url("icons/qaofficers_icon.png"), style={"height": "100px"})),
-                                            dbc.Row(
-                                                [
-                                                    html.Div(style={'background-color': '#7A0911', 'width': '100%', 'height': '20px'}),  # Rectangle
-                                                    html.A(
-                                                        html.H5("Quality Assurance Officers", className="card-title fw-bold text-dark text-center"), 
-                                                        href='/QAOfficers_dashboard',
-                                                        style={'text-decoration': 'none'}
-                                                    ),
-                                                ]
-                                            )
-                                        ]
+                        dbc.Row([
+                            html.A(
+                                dbc.Col(
+                                    dbc.Card(
+                                        dbc.CardBody(
+                                            [           
+                                                dbc.Row(html.Img(src=app.get_asset_url("icons/qaofficer_icon.png"), style={"height": "100px", "object-fit": "contain"})),  # Adjusted styling
+                                                dbc.Row(style={'background-color': '#7A0911', 'width': '100%', 'height': '20px', 'margin': 'auto'}),  # Rectangle
+                                                dbc.Row(
+                                                    html.H5("Quality Assurance Officers", className="card-title fw-bold text-dark text-center"), 
+                                                    style={'text-decoration': 'none'}
+                                                )
+                                            ]
+                                        ),
+                                        className="mb-3",
+                                        style={"backgroundColor": "#FFFFFF"},
                                     ),
-                                    className="mb-3",
-                                    style={"backgroundColor": "#FFFFFF"},
+
                                 ),
-                                    
-                            ),
-                        
-                        ]),
+                                href='/QAOfficers_dashboard',
+                                style={'text-decoration': 'none'}
+                            )
+                        ])
                         #approval_card,   
                         #upcomingevents_card,
                     ],
