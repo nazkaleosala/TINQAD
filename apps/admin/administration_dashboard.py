@@ -13,41 +13,36 @@ from apps import commonmodules as cm
 from apps import dbconnect as db
 from datetime import datetime
 
-
 def generate_pie_and_bar_chart():
     # Fetch data from the database for the pie chart
     pie_sql = """
-        SELECT main_expense_name, SUM(exp_amount) AS total_amount
+        SELECT me.main_expense_shortname, SUM(exp_amount) AS total_amount
         FROM adminteam.expenses AS e
         LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
-        GROUP BY main_expense_name
+        GROUP BY me.main_expense_shortname
     """
-    pie_df = db.querydatafromdatabase(pie_sql, (), ['main_expense_name', 'total_amount'])
+    pie_df = db.querydatafromdatabase(pie_sql, (), ['main_expense_shortname', 'total_amount'])
 
     if pie_df.empty:
         pie_chart = html.Div("No data available for the pie chart")
     else:
         # Set custom legend labels
-        custom_legend_labels = {
-            "Maintenance and Other Operating Expenses (MOOE)": "MOOE",
-            "Training & Workshop Expenses (External)": "Training",
-            "Equipment Outlay": "Equipment"
-        }
-        # Map custom legend labels to main expense names
-        pie_df['legend_labels'] = pie_df['main_expense_name'].map(custom_legend_labels)
+        custom_legend_labels = dict(zip(pie_df['main_expense_shortname'], pie_df['main_expense_shortname']))
 
         # Define custom colors
         custom_colors = ['#39B54A', '#F8B237', '#D37157']
 
         pie_fig = go.Figure(data=[go.Pie(
-            labels=pie_df['legend_labels'],
+            labels=pie_df['main_expense_shortname'],
             values=pie_df['total_amount'],
             marker=dict(colors=custom_colors),
             hole=0.4  # Adjust the value to change the size of the hole
         )])
+        pie_fig.update_traces(textinfo='percent+label')  # Show percentage and label on pie chart
         pie_fig.update_layout(
             title=f"{get_current_month()} {get_year_range()}",  # Title with month and year
-            title_font=dict(size=18)  # Fixed font size for the title
+            title_font=dict(size=18),   
+            legend=dict(title_font=dict(size=12), orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
         )
         pie_chart = dcc.Graph(figure=pie_fig)
 

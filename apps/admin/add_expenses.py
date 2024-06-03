@@ -14,8 +14,15 @@ from apps import dbconnect as db
 
 import locale
 import re
-import base64
 
+import base64
+import os
+from urllib.parse import urlparse, parse_qs
+
+UPLOAD_DIRECTORY = r"C:\Users\Naomi A. Takagaki\OneDrive\Documents\TINQAD\assets\database"
+
+# Ensure the directory exists or create it
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 
 form = dbc.Form(
@@ -106,7 +113,9 @@ form = dbc.Form(
                     width=4
                 ),
                 dbc.Col(
-                   dbc.Textarea(id='exp_particulars', placeholder="Enter particulars"),
+                   dbc.Textarea(
+                        id='exp_particulars', 
+                        placeholder="Enter particulars"),
                    width=8,
                 ),
             ],
@@ -244,35 +253,7 @@ form = dbc.Form(
         ),
   
         
-        html.Br(),
-        dbc.Row(
-            [ 
-                
-                dbc.Col(
-                    dbc.Button("Save", color="primary",  id="save_button", n_clicks=0),
-                    width="auto"
-                ),
-                dbc.Col(
-                    dbc.Button("Cancel", color="warning", id="cancel_button", n_clicks=0, href="/record_expenses"),  
-                    width="auto"
-                ),
-            ],
-            className="mb-2",
-            justify="end",
-        ),
- 
-        dbc.Modal(
-            [
-                dbc.ModalHeader(className="bg-success"),
-                dbc.ModalBody(html.H4('Expense added.')),
-                 
-            ],
-            centered=True,
-            id='recordexpenses_successmodal', #palit ID
-            backdrop=True,   
-            className="modal-success"   
-        )
-        
+        html.Br(), 
     ],
     className="g-2",
 )
@@ -308,28 +289,33 @@ def display_uploaded_files(filenames):
 
 
 
-#main expense dropdown
-@app.callback(
-    Output('main_expense_id', 'options'),
-    Input('url', 'pathname')
-)
+ 
 
-def populate_mainexpenses_dropdown(pathname):
-    # Check if the pathname matches if necessary
-    if pathname == '/record_expenses/add_expense':
+#sub expense dropdown
+@app.callback(
+    Output('sub_expense_id', 'options'),
+    Input('main_expense_id', 'value')
+)
+def update_subexpenses_options(selected_main_expense):
+    if selected_main_expense is None:
+        return []  # Return empty options if no main expense is selected
+    
+    try:
+        # Query to fetch sub-expenses based on the selected main expense
         sql = """
-        SELECT main_expense_name as label,  main_expense_id  as value
-        FROM adminteam.main_expenses
+        SELECT sub_expense_name as label, sub_expense_id as value
+        FROM adminteam.sub_expenses
+        WHERE main_expense_id = %s
         """
-        values = []
+        values = [selected_main_expense]
         cols = ['label', 'value']
         df = db.querydatafromdatabase(sql, values, cols)
         
-        main_expense_types = df.to_dict('records')
-        return main_expense_types
-    else:
-        raise PreventUpdate
- 
+        sub_expense_options = df.to_dict('records')
+        return sub_expense_options
+    except Exception as e:
+        # Log the error or handle it appropriately
+        return [] 
 
 #amount
 locale.setlocale(locale.LC_ALL, '')
@@ -370,39 +356,7 @@ def update_bur_no_copy(value):
     else:
         return ''
 
-
-
-
-#sub expense dropdown
-@app.callback(
-    Output('sub_expense_id', 'options'),
-    Input('main_expense_id', 'value')
-)
-def update_subexpenses_options(selected_main_expense):
-    if selected_main_expense is None:
-        return []  # Return empty options if no main expense is selected
-    
-    try:
-        # Query to fetch sub-expenses based on the selected main expense
-        sql = """
-        SELECT sub_expense_name as label, sub_expense_id as value
-        FROM adminteam.sub_expenses
-        WHERE main_expense_id = %s
-        """
-        values = [selected_main_expense]
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        
-        sub_expense_options = df.to_dict('records')
-        return sub_expense_options
-    except Exception as e:
-        # Log the error or handle it appropriately
-        return [] 
-
-
-
-
-
+ 
 
 # Callbacks for formatting input fields
 #BUR No
@@ -456,11 +410,77 @@ layout = html.Div(
                 [
                     html.H1("ADD EXPENSE"),
                     html.Hr(),
+                    html.Div(  
+                            [
+                                dcc.Store(id='recordexpenses_toload', storage_type='memory', data=0),
+                            ]
+                        ),
                     dbc.Alert(id='recordexpenses_alert', is_open=False), # For feedback purpose
                     form, 
-                    
-                ],
-                width=8, style={'marginLeft': '15px'}
+                    html.Br(),
+
+                        html.Div(
+                            dbc.Row(
+                                [
+                                    dbc.Label("Wish to delete?", width=3),
+                                    dbc.Col(
+                                        dbc.Checklist(
+                                            id='recordexpenses_removerecord',
+                                            options=[
+                                                {
+                                                    'label': "Mark for Deletion",
+                                                    'value': 1
+                                                }
+                                            ], 
+                                            style={'fontWeight':'bold'},
+                                        ),
+                                        width=5,
+                                    ),
+                                ],
+                                className="mb-3",
+                            ),
+                            id='recordexpenses_removerecord_div'
+                        ),
+
+                        html.Br(),
+                        dbc.Row(
+                            [ 
+                                dbc.Col(
+                                    dbc.Button("Save", color="primary",  id="recordexpenses_save_button", n_clicks=0),
+                                    width="auto"
+                                ),
+                                dbc.Col(
+                                    dbc.Button("Cancel", color="warning", id="recordexpenses_cancel_button", n_clicks=0, href="/record_expenses"),  
+                                    width="auto"
+                                ),
+                            ],
+                            className="mb-2",
+                            justify="end",
+                        ),
+
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader(className="bg-success"),
+                                dbc.ModalBody(
+                                    ['Expense recorded successfully.'
+                                    ],id='recordexpenses_feedback_message'
+                                ),
+                                dbc.ModalFooter(
+                                    dbc.Button(
+                                        "Proceed", href='record_expenses', id='recordexpenses_btn_modal'
+                                    ), 
+                                )
+                                
+                            ],
+                            centered=True,
+                            id='recordexpenses_successmodal',
+                            backdrop=True,   
+                            className="modal-success"    
+                        ), 
+                        
+                    ],
+                    width=8,
+                    style={"marginLeft": "15px"},
                 
                 )
             ]
@@ -475,6 +495,50 @@ layout = html.Div(
         
     ]
 )
+
+
+
+#main expense dropdown
+@app.callback(
+    [
+        Output('main_expense_id', 'options'),
+        Output('recordexpenses_toload', 'data'),
+        Output('recordexpenses_removerecord_div', 'style'),
+    ],
+    [
+        Input('url', 'pathname')
+    ],
+    [
+        State('url', 'search')  
+    ]
+)
+
+def populate_mainexpenses_dropdown(pathname, search):
+    # Check if the pathname matches if necessary
+    if pathname == '/record_expenses/add_expense':
+        sql = """
+            SELECT main_expense_name as label,  main_expense_id  as value
+            FROM adminteam.main_expenses
+
+            WHERE main_expense_del_ind = False
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        main_expense_types = df.to_dict('records')
+         
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query)['mode'][0]
+        to_load = 1 if create_mode == 'edit' else 0
+        removediv_style = {'display': 'none'} if not to_load else None
+    
+    else:
+        raise PreventUpdate
+    return [main_expense_types, to_load, removediv_style]
+
+
+
+
 
 
 
