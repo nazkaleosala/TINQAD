@@ -13,7 +13,7 @@ from apps import dbconnect as db
 from datetime import datetime
 
 # Define interval time (in milliseconds) for auto-updates
-interval_time = 60000  # 1 minute
+interval_time = 1000  # 1 second
 
 # Function to fetch the total count from the database for Academic Unit Heads
 def get_total_count_acad_unitheads():
@@ -135,9 +135,9 @@ def generate_qaofficers_card():
     SELECT c.college_name AS college,
            COUNT(*) AS qa_officers,
            SUM(CASE WHEN qaofficer_basicpaper = 'Yes' THEN 1 ELSE 0 END) AS approved_papers,
-           SUM(CASE WHEN qaofficer_appointment_end < CURRENT_DATE + INTERVAL '2 months' THEN 1 ELSE 0 END) AS expiring,
            SUM(CASE WHEN qaofficer_remarks = 'For renewal' THEN 1 ELSE 0 END) AS renewal,
-           SUM(CASE WHEN qaofficer_remarks = 'No record' THEN 1 ELSE 0 END) AS no_record
+           SUM(CASE WHEN qaofficer_remarks = 'No record' THEN 1 ELSE 0 END) AS no_record,
+           SUM(CASE WHEN qaofficer_appointment_end < CURRENT_DATE + INTERVAL '2 months' THEN 1 ELSE 0 END) AS expiring
     FROM qaofficers.qa_officer q
     JOIN public.college c ON q.qaofficer_college_id = c.college_id
     WHERE q.qaofficer_del_ind = False
@@ -145,7 +145,7 @@ def generate_qaofficers_card():
 
     """
     # Execute the query and fetch data
-    data = db.querydatafromdatabase(sql, [], ['college', 'qa_officers', 'approved_papers', 'expiring', 'renewal', 'no_record'])
+    data = db.querydatafromdatabase(sql, [], ['college', 'qa_officers', 'approved_papers',  'renewal', 'no_record', 'expiring'])
     
     # Generate card layout
     card = dbc.Card(
@@ -193,9 +193,9 @@ def generate_qaofficers_card():
                                         {'name': 'College', 'id': 'college'},
                                         {'name': 'No. of QA Officers', 'id': 'qa_officers'},
                                         {'name': 'With Approved Basic Papers', 'id': 'approved_papers'},
-                                        {'name': 'Term Expiring in the Next 2 Months', 'id': 'expiring'},
                                         {'name': 'Term For Renewal', 'id': 'renewal'},
-                                        {'name': 'No Record', 'id': 'no_record'}
+                                        {'name': 'No Record', 'id': 'no_record'},
+                                        {'name': 'Term Expiring in the Next 2 Months', 'id': 'expiring'}
                                     ],
                                     data=data.to_dict('records'),
                                     style_cell={
@@ -227,15 +227,15 @@ def generate_qaofficers_card():
                                             'textAlign': 'center'
                                         },
                                         {
-                                            'if': {'column_id': 'expiring'},
-                                            'textAlign': 'center'
-                                        },
-                                        {
                                             'if': {'column_id': 'renewal'},
                                             'textAlign': 'center'
                                         },
                                         {
                                             'if': {'column_id': 'no_record'},
+                                            'textAlign': 'center'
+                                        },
+                                        {
+                                            'if': {'column_id': 'expiring'},
                                             'textAlign': 'center'
                                         },
                                     ],
@@ -325,9 +325,9 @@ def update_cards(n):
     SELECT c.college_name AS college,
            COUNT(*) AS qa_officers,
            SUM(CASE WHEN qaofficer_basicpaper = 'Yes' THEN 1 ELSE 0 END) AS approved_papers,
-           SUM(CASE WHEN qaofficer_appointment_end < CURRENT_DATE + INTERVAL '2 months' THEN 1 ELSE 0 END) AS expiring,
            SUM(CASE WHEN qaofficer_remarks = 'For renewal' THEN 1 ELSE 0 END) AS renewal,
-           SUM(CASE WHEN qaofficer_remarks = 'No record' THEN 1 ELSE 0 END) AS no_record
+           SUM(CASE WHEN qaofficer_remarks = 'No record' THEN 1 ELSE 0 END) AS no_record,
+           SUM(CASE WHEN qaofficer_appointment_end < CURRENT_DATE + INTERVAL '2 months' THEN 1 ELSE 0 END) AS expiring,
     FROM qaofficers.qa_officer q
     JOIN public.college c ON q.qaofficer_college_id = c.college_id
     WHERE q.qaofficer_del_ind = False
@@ -336,6 +336,6 @@ def update_cards(n):
     """
     # Execute the queries and fetch data
     acad_data = db.querydatafromdatabase(acad_sql, [], ['college', 'term_expiry'])
-    qa_data = db.querydatafromdatabase(qa_sql, [], ['college', 'qa_officers', 'approved_papers', 'expiring', 'renewal', 'no_record'])
+    qa_data = db.querydatafromdatabase(qa_sql, [], ['college', 'qa_officers', 'approved_papers', 'renewal', 'no_record', 'expiring'])
     
     return acad_data.to_dict('records'), qa_data.to_dict('records')
