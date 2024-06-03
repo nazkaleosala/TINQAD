@@ -861,8 +861,13 @@ def generate_greeting(pathname, user_id):
 
 
 @app.callback(
-    [Output("time", "children"), Output("date", "children")],
-    [Input("interval-component", "n_intervals")]
+    [
+        Output("time", "children"), 
+        Output("date", "children")
+    ],
+    [
+        Input("interval-component", "n_intervals")
+    ]
 )
 def update_time_date(n):
     now = datetime.now()
