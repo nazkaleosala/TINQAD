@@ -343,16 +343,16 @@ layout = html.Div(
     [
         dcc.Store(id='stored-messages', storage_type='memory'),
         dcc.Store(id='message-store', data=[]),
-        
+
         html.Div(id='post-trigger', style={'display': 'none'}),
         dbc.Row(
             [
                 dbc.Col(
-                    cm.generate_navbar(), 
-                    width=2 
+                    cm.generate_navbar(),
+                    width=2
                 ),
                 dbc.Col(
-                    [   # Main content goes here
+                    [
                         html.H1("KM TEAM DASHBOARD", className="my-3"),
                         dbc.Alert(
                                 id="new_kmannouncement_alert", 
@@ -364,40 +364,48 @@ layout = html.Div(
                         dbc.Row(
                             [
                                 dbc.Col(
-                                    [
                                     dbc.Card(
                                         [
                                             dbc.CardHeader(html.H3("Announcements")),
                                             dbc.CardBody(
                                                 [
-                                                    dbc.Col
-                                                        (
-                                                            announcements_content
-                                                        ), 
-                                                        announcements_footer,
-                                                ],
-                                            ),  
-                                        ], 
+                                                    announcements_content,
+                                                    announcements_footer,
+                                                ]
+                                            ),
+                                        ]
                                     ),
-                                    dbc.Col(
-                                        create_card
-                                            (
-                                                dbc.Col("Ranking Body Categories"),
-                                                links
-                                            ), width=4),
-                                    
-                                    ], width=6, sm=12
+                                    width=12,
+                                    className="mb-3"
                                 ),
-                                
                             ]
                         ),
-                        html.Br(), 
-                    ], 
-                    width=9, style={'marginLeft': '15px'}
+                        html.Br(),
+                    ],
+                    width=7,
                 ),
-            ]
+                dbc.Col(
+                    [
+                        html.H1("Hi", style={"color": "#FFFFFF"}, className="my-3"),
+                        dbc.Row([
+                            dbc.Col(
+                                create_card(
+                                    "Ranking Body Categories",
+                                    links
+                                ),
+                                className="mb-3",
+                                style={"backgroundColor": "#FFFFFF"},
+                            ),
+                            
+                        ]),
+                    ],
+                    width=3, md=3, sm=12
+                ),
+            ],
+            className="mb-3",
+            style={'padding-bottom': '2rem'}
         ),
-        dbc.Row (
+        dbc.Row(
             [
                 dbc.Col(
                     cm.generate_footer(), width={"size": 12, "offset": 0}
