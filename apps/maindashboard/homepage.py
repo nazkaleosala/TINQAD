@@ -210,12 +210,14 @@ def fetch_team_messages(pathname):
             user = getattr(row, "teammsgs_user")
             timestamp = getattr(row, "teammsgs_timestamp")
 
+            formatted_timestamp = datetime.strftime(timestamp, "%d %B %Y, %I:%M:%S %p")
+
             formatted_messages.append(
                 html.Div(
                     [
                         html.P(content),  # The main message content
                         html.Small(
-                            f"{user or 'Anonymous'}, {timestamp}",
+                            f"{user or 'Anonymous'}, {formatted_timestamp}",
                             style={
                                 "text-align": "right",
                                 "font-style": "italic",
@@ -751,17 +753,17 @@ def generate_greeting(pathname, user_id):
         else: name = df['fname'][0]
 
         if time >= 0 and time < 12:
-            text = html.H5( html.B("🌅 Good morning, %s!" % name))
-            color = '#40BFBC'    
-        elif time >= 12 and time < 17:
-            text = html.H5(html.B("☀️ Good afternoon, %s!" % name))
+            text = html.H5( html.B("🔆 Good morning, %s!" % name))
+            color = '#F9B236'    
+        elif time >= 12 and time < 18:
+            text = html.H5(html.B("🌤 Good afternoon, %s!" % name))
             color = '#D37157'
-        elif time >= 17 and time < 22:
-            text = html.H5(html.B("🌇 Good evening, %s!" % name))
-            color = '#403B87'
+        elif time >= 18 and time < 22:
+            text = html.H5(html.B("🌕 Good evening, %s!" % name))
+            color = '#A09DCB'
         else:
             text = html.H5(html.B("🌙 Good night, %s!" % name))
-            color = '#8F2F91'
+            color = '#7EADE4'
         return [text, color]
     else: raise PreventUpdate
 
