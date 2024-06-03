@@ -139,7 +139,7 @@ form = dbc.Form(
         ),
  
         dbc.Row(
-            [dbc.Label("",width=6),
+            [dbc.Label("",width=4),
              dbc.Col(id="sarep_file_output",style={"color": "#F8B237"}, width="4")],   
             className="mt-2",
         ),
