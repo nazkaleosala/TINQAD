@@ -11,58 +11,6 @@ from apps import dbconnect as db
  
 
 
-@app.callback(
-    [
-        Output('login_alert', 'is_open'),
-        Output('currentuserid', 'data'),
-        Output('currentrole', 'data'),  
-        Output('url', 'pathname'),  # Adding URL pathname output
-    ],
-    [
-        Input('login_loginbtn', 'n_clicks'), 
-    ],
-    [
-        State('login_username', 'value'),
-        State('login_password', 'value'), 
-        State('currentuserid', 'data'), 
-        State('url', 'pathname'),
-    ]
-)
-def loginprocess(loginbtn, useremail, password, 
-                 currentuserid, pathname):    
-    ctx = callback_context
-    if ctx.triggered:
-        accesstype = 0
-        openalert = False
-        eventid = ctx.triggered[0]['prop_id'].split('.')[0] 
-         
-        if eventid == 'login_loginbtn':
-            if loginbtn and useremail and password:
-                sql = """
-                SELECT  user_id, user_access_type
-                FROM maindashboard.users
-                WHERE
-                    user_email = %s AND
-                    user_password = %s
-                """
-                            
-                encrypt_string = lambda string: hashlib.sha256(string.encode('utf-8')).hexdigest()
-                values = [useremail, encrypt_string(password)]
-                cols = ['user_id', 'user_access_type']
-
-                df = db.querydatafromdatabase(sql, values, cols)
-                if df.shape[0]:
-                    currentuserid = df['user_id'][0]
-                    accesstype = df['user_access_type'][0] 
-                    pathname = '/homepage'
-                else:
-                    currentuserid = -1
-                    openalert = True
-        return [openalert, currentuserid, accesstype, pathname]  # Returning the current URL pathname if login fails
-    else:
-        raise PreventUpdate
-
-
 
 layout = dbc.Row(
     [
@@ -127,13 +75,8 @@ layout = dbc.Row(
                                     [
                                         html.H2("LOG IN", className="card-title fw-bolder "),
                                         html.Br(),
-
-                                            dbc.Alert(
-                                                'User email or password is incorrect',
-                                                color = 'danger',
-                                                id = 'login_alert',
-                                                is_open = False
-                                            ),
+ 
+                                            dbc.Alert(id='login_alert', is_open=False),  
                                             
                                             dbc.Label("Registered Email"),
                                             dbc.Input(type="text", id="login_username", ),
@@ -173,8 +116,8 @@ layout = dbc.Row(
                                         'position': 'fixed',
                                         'right': '2rem',  # Position the div at the right of the screen
                                         'width': '45%',  # Set the width of the div
-                                        'bottom': '1rem',  # Adjusted bottom margin
-                                        'top': '2rem',
+                                        'bottom': '0rem',  # Adjusted bottom margin
+                                        'top': '5rem',
                                         'padding': '1rem',
                                         'border-radius': '10px',
                                         'box-shadow': '0px 0px 10px rgba(0, 0, 0, 0.1)',  # Add box shadow
@@ -203,7 +146,67 @@ layout = dbc.Row(
 )
 
 
- 
+
+@app.callback(
+    [
+        Output('login_alert', 'color'),
+        Output('login_alert', 'children'),
+        Output('login_alert', 'is_open'),
+        Output('currentuserid', 'data'),
+        Output('currentrole', 'data'),  
+        Output('url', 'pathname'),  # Adding URL pathname output
+    ],
+    [
+        Input('login_loginbtn', 'n_clicks'), 
+    ],
+    [
+        State('login_username', 'value'),
+        State('login_password', 'value'), 
+        State('currentuserid', 'data'), 
+        State('url', 'pathname'),
+    ]
+)
+def loginprocess(loginbtn, useremail, password, 
+                 currentuserid, pathname):    
+    ctx = callback_context
+    if ctx.triggered:
+        accesstype = 0
+        alert_open = False 
+        alert_color = ""
+        alert_text = ""
+
+        eventid = ctx.triggered[0]['prop_id'].split('.')[0] 
+        
+        if eventid == 'login_loginbtn':
+            if loginbtn and useremail and password:
+                
+                sql = """
+                SELECT  user_id, user_access_type
+                FROM maindashboard.users
+                WHERE
+                    user_email = %s AND
+                    user_password = %s
+                """
+                            
+                encrypt_string = lambda string: hashlib.sha256(string.encode('utf-8')).hexdigest()
+                values = [useremail, encrypt_string(password)]
+                cols = ['user_id', 'user_access_type']
+
+                df = db.querydatafromdatabase(sql, values, cols)
+                if df.shape[0]:
+                    currentuserid = df['user_id'][0]
+                    accesstype = df['user_access_type'][0] 
+                    pathname = '/homepage'
+                else:
+                    currentuserid = -1
+                    alert_color = 'danger'
+                    alert_text = 'Incorrect username or password.'
+                    alert_open = True
+            
+        return [alert_color, alert_text, alert_open, currentuserid, accesstype, pathname]  # Returning the current URL pathname if login fails
+    else:
+        raise PreventUpdate
+
 
 @app.callback(
     Output('login_password', 'type'),
