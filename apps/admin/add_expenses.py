@@ -206,50 +206,52 @@ form = dbc.Form(
         ),
 
         dbc.Row(
-            dbc.Col(
-                dcc.Upload(
-                    id='upload_receipt',
-                    children=html.Div(
-                        [
-                            html.Img(
-                                src=app.get_asset_url('icons/upload_photo.png'),
-                                style={'width': '50px', 'height': '50px', 'margin-bottom': '5px'}
-                            ),
-                            html.Div([
-                                "Add Receipt ",
-                                html.Span("*", style={'color': '#F8B237'})
-                            ], style={'fontWeight': 'bold', 'fontSize': '20px', 'margin-bottom': '1px'}),
-                            html.Div("Drag and Drop or Select Files", style={'fontSize': '14px'})
-                        ],
-                        style={
-                            'display': 'flex',
-                            'flexDirection': 'column',
-                            'alignItems': 'center',
-                            'justifyContent': 'center',
-                            'height': '100%',
-                            'padding': '15px 30px'
-                        }
-                    ),
-                    style={
-                        'width': '100%', 'minHeight': '100px',
-                        'borderWidth': '2px', 'borderStyle': 'solid',
-                        'borderRadius': '5px', 'textAlign': 'center',
-                        'margin': '5px', 'display': 'flex',
-                        'alignItems': 'center', 'justifyContent': 'center'
-                    },
-                    multiple=False
+            [
+                dbc.Label(
+                    [
+                        "File Submissions",
+                        
+                    ],
+                    width=4,
                 ),
-                lg={'size': 8, 'offset': 2},
-                md={'size': 10, 'offset': 1},
-                sm={'size': 12},
-                style={'marginBottom': '1rem'}
-            ),
-         
+                dbc.Col(
+                    dcc.Upload(
+                        id="exp_receipt",
+                        children=html.Div(
+                            [
+                                html.Img(
+                                    src=app.get_asset_url("icons/add_file.png"),
+                                    style={"height": "15px", "marginRight": "5px"},
+                                ),
+                                "Add file",
+                            ],
+                            style={"display": "flex", "alignItems": "center"},
+                        ),
+                        style={
+                            "width": "100%",
+                            "minHeight": "30px",
+                            "borderWidth": "1px",
+                            "borderStyle": "solid",
+                            "borderRadius": "5px",
+                            "textAlign": "center",
+                            "margin": "5px",
+                            "display": "flex",
+                            "alignItems": "center",
+                            "justifyContent": "center",
+                        },
+                        multiple=True,  # Enable multiple file uploads
+                    ),
+                    width=6,
+                ),
+                
+            ],
+            className="mb-2",
         ),
-          
+
         dbc.Row(
-            [dbc.Col(id="expense_name_output",style={"color": "#F8B237"}, width=8)],  # Output area for uploaded file names
-            className="mt-2",
+            [dbc.Label("",width=4),
+             dbc.Col(id="expense_name_output",style={"color": "#F8B237"}, width=6)],  # Output area for uploaded file names
+            className="mb-2",
         ),
   
         
@@ -265,7 +267,7 @@ form = dbc.Form(
 # Callback to display the names of the uploaded files
 @app.callback(
     Output("expense_name_output", "children"),
-    [Input("upload_receipt", "filename")],  # Use filename to get uploaded file names
+    [Input("exp_receipt", "filename")],  # Use filename to get uploaded file names
 )
 def display_uploaded_files(filenames):
     if not filenames:
@@ -326,16 +328,14 @@ locale.setlocale(locale.LC_ALL, '')
 )
 def update_amount_copy(value):
     if value is None:
-        return None  # Return None if value is None
+        return None   
 
-    try:
-        # Try to convert the input value to a float
-        float_value = float(value.replace(',', ''))
+    try: 
+        float_value = float(str(value).replace(',', ''))
         # Format the float value with commas and two decimal places
         formatted_value = locale.format_string("%0.2f", float_value, grouping=True)
         return formatted_value
-    except ValueError:
-        # If conversion fails, return None
+    except (ValueError, TypeError): 
         return None
 
 
@@ -357,34 +357,7 @@ def update_bur_no_copy(value):
         return ''
 
  
-
-# Callbacks for formatting input fields
-#BUR No
-@app.callback(
-    Output('exp_bur_no', 'value'),
-    Input('exp_bur_no', 'n_blur'),
-    State('exp_bur_no', 'value')
-)
-def format_bur_no(n_blur, bur_no):
-    if not bur_no:
-        return ''
-
-    # Removing non-numeric characters
-    bur_no = ''.join(filter(str.isdigit, bur_no))
-
-    # Formatting the BUR number
-    formatted_bur_no = ''
-    for i, char in enumerate(bur_no):
-        if i in [4, 6]:  # Adding dashes after 4th and 6th digit
-            formatted_bur_no += '-'
-        formatted_bur_no += char
-
-    # Trimming to the pattern length (13 including dashes)
-    return formatted_bur_no[:13]
  
- 
- 
-
 
 
 
@@ -548,11 +521,15 @@ def populate_mainexpenses_dropdown(pathname, search):
         Output('recordexpenses_alert', 'color'),
         Output('recordexpenses_alert', 'children'),
         Output('recordexpenses_alert', 'is_open'),
-        Output('recordexpenses_successmodal', 'is_open')
+        Output('recordexpenses_successmodal', 'is_open'), 
+        Output('recordexpenses_feedback_message', 'children'),
+        Output('recordexpenses_btn_modal', 'href')
     ],
     [
-        Input('save_button', 'n_clicks'),
-    ],
+        Input('recordexpenses_save_button', 'n_clicks'),
+        Input('recordexpenses_btn_modal', 'n_clicks'),
+        Input('recordexpenses_removerecord', 'value')
+    ], 
     [
         State('exp_date', 'date'),
         State('exp_payee', 'value'),
@@ -563,48 +540,230 @@ def populate_mainexpenses_dropdown(pathname, search):
         State('exp_status', 'value'),
         State('exp_bur_no', 'value'),
         State('exp_submitted_by', 'value'),
-        State('upload_receipt', 'contents'),  # New state for the uploaded receipt
+        State('exp_receipt', 'contents'), 
+        State('exp_receipt', 'filename'), 
+        State('url', 'search')
     ]
 )
-def save_expense(n_clicks, exp_date, exp_payee, main_expense_id, sub_expense_id,
-                 exp_particulars, exp_amount, exp_status, exp_bur_no, exp_submitted_by, upload_receipt):
+def save_expense(submitbtn, closebtn, removerecord,
+                 exp_date, exp_payee, main_expense_id, sub_expense_id,
+                 exp_particulars, exp_amount, exp_status, 
+                 exp_bur_no, exp_submitted_by,  
+                 exp_receipt_contents, exp_receipt_names, search):
 
-    if n_clicks == 0:
+    ctx = dash.callback_context 
+
+    if not ctx.triggered:
+        raise PreventUpdate
+
+    eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+    if eventid != 'recordexpenses_save_button' or not submitbtn:
         raise PreventUpdate
 
     alert_open = False
     modal_open = False
     alert_color = ''
     alert_text = ''
+    feedbackmessage = None
+    okay_href = None
 
-    # Input validation
-    if not all([exp_date, exp_payee, main_expense_id, sub_expense_id,
-                exp_particulars, exp_amount, exp_status, exp_bur_no, exp_submitted_by, upload_receipt]):
-        alert_open = True
-        alert_color = 'danger'
-        alert_text = 'Check your inputs. Please fill out all required fields.'
-        return [alert_color, alert_text, alert_open, modal_open]
+    parsed = urlparse(search)
+    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
 
-    # Decode the uploaded file content
-    content_type, content_string = upload_receipt.split(',')
-    exp_receipt = base64.b64decode(content_string)
+    if create_mode == 'add':
+        # Ensure required fields are filled
+        if not all([exp_date, exp_payee, main_expense_id, sub_expense_id,
+                exp_particulars, exp_amount, exp_status, exp_bur_no, exp_submitted_by]):
+            alert_color = 'danger'
+            alert_text = 'Missing required fields.'
+            return [alert_color, alert_text, True, modal_open, feedbackmessage, okay_href]
 
-    # Insert statement into the database
-    sql = """
-        INSERT INTO adminteam.expenses (
-            exp_date, exp_payee, main_expense_id, sub_expense_id,
-            exp_particulars, exp_amount, exp_status, exp_bur_no,
-            exp_submitted_by, exp_receipt
-        ) 
+        if exp_receipt_contents is None or exp_receipt_names is None:
+            exp_receipt_contents = ["1"]
+            exp_receipt_names = ["1"]
+
+        file_data = []
+        if exp_receipt_contents and exp_receipt_names:
+            for content, filename in zip(exp_receipt_contents, exp_receipt_names):
+                if content == "1" and filename == "1":
+                    continue  # Skip default "1" value
+                try:     
+                    # Decode and save the file
+                    content_type, content_string = content.split(',')
+                    decoded_content = base64.b64decode(content_string)
+
+                    file_path = os.path.join(UPLOAD_DIRECTORY, filename)
+                    with open(file_path, 'wb') as f:
+                        f.write(decoded_content)
+
+                    file_info = {
+                        "path": file_path,
+                        "name": filename,
+                        "type": content_type,
+                        "size": len(decoded_content),
+                    }
+                    file_data.append(file_info)
+
+                except Exception as e:
+                    alert_open = True
+                    alert_color = 'danger'
+                    alert_text = f'Error processing file: {e}'
+                    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+
+        sql = """ 
+            INSERT INTO adminteam.expenses (
+                exp_date, exp_payee, main_expense_id, sub_expense_id,
+                exp_particulars, exp_amount, exp_status, 
+                exp_bur_no, exp_submitted_by,  
+                exp_receipt_path, exp_receipt_name, exp_receipt_type, exp_receipt_size 
+            ) 
+                
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        values = (
+            exp_date, exp_payee, main_expense_id, sub_expense_id, 
+            exp_particulars, exp_amount, exp_status, exp_bur_no, 
+            exp_submitted_by, 
+            file_data[0]["path"] if file_data else None,
+            file_data[0]["name"] if file_data else None,
+            file_data[0]["type"] if file_data else None,
+            file_data[0]["size"] if file_data else None,
+        )
         
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """
-    values = (exp_date, exp_payee, main_expense_id, sub_expense_id, 
-              exp_particulars, exp_amount, exp_status, exp_bur_no, 
-              exp_submitted_by, exp_receipt)
+        try:
+            db.modifydatabase(sql, values)
+            modal_open = True
+            feedbackmessage = html.H5("Expense recorded successfully.")
+            okay_href = "/record_expenses"
+            
+        except Exception as e:
+            alert_color = 'danger'
+            alert_text = f'Error copying record: {e}'
+            return [alert_color, alert_text, True, modal_open, feedbackmessage, okay_href]
+ 
+
+    elif create_mode == 'edit': 
+        expid = parse_qs(parsed.query).get('id', [None])[0]
+        
+        if expid is None:
+            raise PreventUpdate
+        
+        sqlcode = """
+            UPDATE adminteam.expenses
+            SET
+                exp_date = %s,
+                exp_payee = %s, 
+                exp_particulars = %s, 
+                exp_status = %s,
+                exp_bur_no = %s,
+                exp_submitted_by = %s, 
+                exp_del_ind = %s
+            WHERE 
+                exp_id = %s
+        """
+        to_delete = bool(removerecord) 
+
+        values = [
+            exp_date, exp_payee, exp_particulars,
+            exp_status, exp_bur_no, exp_submitted_by,
+            to_delete, expid
+        ]
+        db.modifydatabase(sqlcode, values)
+
+        feedbackmessage = html.H5("Status has been updated.")
+        okay_href = "/record_expenses"
+        modal_open = True
+
+    else:
+        raise PreventUpdate
+
+    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+
+
+
+
+
+@app.callback(
+    [
+        Output('exp_date', 'value'),
+        Output('exp_payee', 'value'),
+        Output('main_expense_id', 'value'),
+        Output('sub_expense_id', 'value'),
+        Output('exp_particulars', 'value'),
+        Output('exp_amount', 'value'),
+        Output('exp_status', 'value'),
+        Output('exp_bur_no', 'value'),
+        Output('exp_submitted_by', 'value'),
+        Output('exp_receipt', 'filename') 
+    ],
+    [
+        Input('recordexpenses_toload', 'modified_timestamp')
+    ],
+    [
+        State('recordexpenses_toload', 'data'),
+        State('url', 'search')
+    ]
+)
+def recordexpenses_load(timestamp, toload, search):
+    if toload:
+        parsed = urlparse(search)
+        expidd = parse_qs(parsed.query)['id'][0]
+
+        sql = """
+            SELECT 
+                exp_date, exp_payee, main_expense_id, sub_expense_id,
+                exp_particulars, exp_amount, exp_status, 
+                exp_bur_no, exp_submitted_by,  
+                exp_receipt_path
+            FROM adminteam.expenses
+            WHERE exp_id = %s
+        """
+        values = [expidd]
+
+        cols = [
+            'exp_date', 'exp_payee',  'main_expense_id', 'sub_expense_id',
+            'exp_particulars', 'exp_amount', 'exp_status', 
+            'exp_bur_no', 'exp_submitted_by',  
+            'exp_receipt_name'
+        ]
+
+        df = db.querydatafromdatabase(sql, values, cols)
+
+        exp_date = df['exp_date'][0]
+        exp_payee = df['exp_payee'][0]
+        main_expense_id = df['main_expense_id'][0]
+        sub_expense_id = df['sub_expense_id'][0]
+        exp_particulars = df['exp_particulars'][0]
+        exp_amount = df['exp_amount'][0]
+        exp_status = df['exp_status'][0]
+        exp_bur_no = df['exp_bur_no'][0]
+        exp_submitted_by = df['exp_submitted_by'][0]
+        exp_receipt_name = df['exp_receipt_name'][0]
+         
+        return [
+            exp_date, exp_payee,
+            main_expense_id, sub_expense_id, exp_particulars,
+            exp_amount, exp_status,
+            exp_bur_no, exp_submitted_by, exp_receipt_name
+        ]
+
+    else:
+        raise PreventUpdate
     
-    db.modifydatabase(sql, values)
 
-    modal_open = True  # Open success modal after successful submission
-
-    return [alert_color, alert_text, alert_open, modal_open]
+@app.callback(
+    [ 
+        Output('main_expense_id', 'disabled'),
+        Output('sub_expense_id', 'disabled'),
+        Output('exp_amount', 'disabled'),
+        Output('exp_receipt', 'disabled') 
+    ],
+    [Input('url', 'search')]
+)
+def addexpense_inputs_disabled(search):
+    if search:
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+        if create_mode == 'edit':
+            return [True] * 4
+    return [False] * 4

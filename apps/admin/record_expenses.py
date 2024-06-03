@@ -43,7 +43,7 @@ layout = html.Div(
                                 dbc.Col(   
                                     dbc.Button(
                                         "➕ Add expense", color="primary", 
-                                        href='/record_expenses/add_expense', 
+                                        href='/record_expenses/add_expense?mode=add', 
                                     ),
                                     width="auto",    
                                 ),
@@ -137,14 +137,13 @@ def switch_tab(tab):
 )
 def recordexpenses_loadlist(pathname, searchterm, active_tab):
     if pathname == '/record_expenses':
+        current_month = datetime.datetime.now().month
+        current_year = datetime.datetime.now().year
+        
         if active_tab == "current":
-            # Get the current month and year
-            current_month = datetime.datetime.now().month
-            current_year = datetime.datetime.now().year
-
-            # Updated SQL query to select records for the current month
             sql = """
                 SELECT 
+                    exp_id AS "ID",
                     exp_date AS "Date", 
                     exp_payee AS "Payee Name", 
                     me.main_expense_name AS "Main Expense Type",
@@ -158,21 +157,21 @@ def recordexpenses_loadlist(pathname, searchterm, active_tab):
                 LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
                 LEFT JOIN adminteam.sub_expenses AS se ON e.sub_expense_id = se.sub_expense_id
                 LEFT JOIN adminteam.expense_status AS es ON e.exp_status = es.expense_status_id
-                WHERE EXTRACT(MONTH FROM exp_date) = %s AND EXTRACT(YEAR FROM exp_date) = %s
+                WHERE 
+                    EXTRACT(MONTH FROM exp_date) = %s 
+                    AND EXTRACT(YEAR FROM exp_date) = %s
+                    AND exp_del_ind IS FALSE
             """
-
-            cols = ['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type',  'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by']
+            values = [current_month, current_year]
 
             if searchterm:
-                # Add a WHERE clause with ILIKE to filter the results
                 sql += """ AND (exp_payee ILIKE %s OR es.expense_status_name ILIKE %s OR exp_bur_no ILIKE %s) """
                 like_pattern = f"%{searchterm}%"
-                values = [current_month, current_year, like_pattern, like_pattern, like_pattern]
-            else:
-                values = [current_month, current_year]
+                values.extend([like_pattern, like_pattern, like_pattern])
+
+            cols = ['ID', 'Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type', 'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by']
 
         elif active_tab == "view_all":
-            # Updated SQL query to select all records from the expenses table
             sql = """
                 SELECT 
                     exp_date AS "Date", 
@@ -189,25 +188,30 @@ def recordexpenses_loadlist(pathname, searchterm, active_tab):
                 LEFT JOIN adminteam.sub_expenses AS se ON e.sub_expense_id = se.sub_expense_id
                 LEFT JOIN adminteam.expense_status AS es ON e.exp_status = es.expense_status_id
             """
-
-            cols = ['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type',  'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by']
+            values = []
+            cols = ['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type', 'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by']
 
             if searchterm:
-                # Add a WHERE clause with ILIKE to filter the results
                 sql += """ WHERE exp_payee ILIKE %s OR es.expense_status_name ILIKE %s OR exp_bur_no ILIKE %s """
                 like_pattern = f"%{searchterm}%"
-                values = [like_pattern, like_pattern, like_pattern]
-            else:
-                values = [] 
+                values.extend([like_pattern, like_pattern, like_pattern])
 
-        df = db.querydatafromdatabase(sql, values, cols) 
+        df = db.querydatafromdatabase(sql, values, cols)
 
-        # Format the amount column
-        if not df.empty:  # Check if the DataFrame is not empty
+        if not df.empty:
+            if active_tab == "current":
+                df["Action"] = df["ID"].apply(
+                    lambda x: html.Div(
+                        dbc.Button('Edit', href=f'/record_expenses/add_expense?mode=edit&id={x}', size='sm', color='warning'),
+                        style={'text-align': 'center'}
+                    )
+                )
+                df = df[['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type', 'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by', 'Action']]
+
             df['Amount'] = df['Amount'].apply(lambda x: '{:,.2f}'.format(x))
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return table
         else:
-            return html.Div("No records yet this month")
+            return html.Div("No records found")
     else:
         raise PreventUpdate

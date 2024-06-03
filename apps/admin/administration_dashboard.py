@@ -39,13 +39,7 @@ def generate_pie_and_bar_chart():
         WHERE EXTRACT(YEAR FROM e.exp_date) = %s
         GROUP BY me.main_expense_shortname
     """
-    pie_sql = """
-        SELECT me.main_expense_shortname, SUM(exp_amount) AS total_amount
-        FROM adminteam.expenses AS e
-        LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
-        WHERE EXTRACT(YEAR FROM e.exp_date) = %s
-        GROUP BY me.main_expense_shortname
-    """
+   
     pie_df = db.querydatafromdatabase(pie_sql, (current_year,), ['main_expense_shortname', 'total_amount'])
 
     if pie_df.empty:
