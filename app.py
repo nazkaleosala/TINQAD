@@ -20,7 +20,7 @@ app.title = 'TINQAD'
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
-server = Flask(__name__)
-app = dash.Dash(server=server)
+#server = Flask(__name__)
+#app = dash.Dash(server=server)
 
 
