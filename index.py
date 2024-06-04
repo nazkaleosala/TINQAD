@@ -11,8 +11,7 @@ from urllib.parse import urlparse, parse_qs
 from app import app
 from apps import commonmodules as cm
 from apps import home
-from apps import blankpage 
-from apps import demo 
+from apps import blankpage  
 
 from apps.maindashboard import homepage, user_profile, register_user, search_users, password, about_TINQAD
 from apps.admin import administration_dashboard, expensetype_add, record_expenses, training_instructions, training_documents, add_expenses, training_record, viewexpense_list, viewtraining_list
@@ -78,13 +77,10 @@ def displaypage(pathname, sessionlogout, user_id, accesstype, search):
         if eventid == 'url': 
             if pathname == '/' or pathname == '/home' or pathname == '/logout':
                 returnlayout = home.layout
-            if pathname == '/demo':
-                        returnlayout = demo.layout 
             elif user_id != -1:
                 if accesstype >= 1:
                     
-                    # Main Dashboard
-                    
+                    # Main Dashboard 
                     if pathname == '/homepage':
                         returnlayout = homepage.layout
                     elif pathname == '/profile':
