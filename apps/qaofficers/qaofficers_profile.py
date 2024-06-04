@@ -179,7 +179,7 @@ form = dbc.Form(
                 ),
                  
                 dbc.Col(
-                    dbc.Input(id="add_qaofficer_fac_posn", type="text"),
+                    dbc.Input(id="add_qaofficer_fac_posn", type="text",placeholder="Faculty position not in list?"),
                     width=6,
                 ),
                 dbc.Col(
