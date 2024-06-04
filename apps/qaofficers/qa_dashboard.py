@@ -36,25 +36,53 @@ interval_time = 60000  # 1 minute
 
 # Function to fetch the total count of Arts and Letters QA Officers
 def get_total_asl():
-    sql = "SELECT COUNT(*) FROM qaofficers.qa_officer WHERE qaofficer_cluster_id = 1"
+    sql = """
+        SELECT COUNT(*) 
+        FROM qaofficers.qa_officer 
+        WHERE 
+            qaofficer_cluster_id = 1
+            AND qaofficer_del_ind IS False
+
+    """
     total_count = db.query_single_value(sql)
     return total_count
 
 # Function to fetch the total count of Management and Economics QA Officers
 def get_total_mae():
-    sql = "SELECT COUNT(*) FROM qaofficers.qa_officer WHERE qaofficer_cluster_id = 2"
+    sql = """
+        SELECT COUNT(*) 
+        FROM qaofficers.qa_officer 
+        WHERE 
+            qaofficer_cluster_id = 2
+            AND qaofficer_del_ind IS False
+
+    """
     total_count = db.query_single_value(sql)
     return total_count
 
 # Function to fetch the total count of Scienece and Technology QA Officers
 def get_total_sat():
-    sql = "SELECT COUNT(*) FROM qaofficers.qa_officer WHERE qaofficer_cluster_id = 3"
+    sql = """
+        SELECT COUNT(*) 
+        FROM qaofficers.qa_officer 
+        WHERE 
+            qaofficer_cluster_id = 3
+            AND qaofficer_del_ind IS False
+
+    """
     total_count = db.query_single_value(sql)
     return total_count
 
 # Function to fetch the total count of Social Scieneces and Law Qa Officers
 def get_total_ssl():
-    sql = "SELECT COUNT(*) FROM qaofficers.qa_officer WHERE qaofficer_cluster_id = 4"
+    sql = """
+        SELECT COUNT(*) 
+        FROM qaofficers.qa_officer 
+        WHERE 
+            qaofficer_cluster_id = 4
+            AND qaofficer_del_ind IS False
+
+    """
     total_count = db.query_single_value(sql)
     return total_count
 

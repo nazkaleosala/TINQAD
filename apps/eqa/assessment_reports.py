@@ -145,7 +145,7 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
                 dp.pro_degree_title  AS "Degree Program", 
                 sarep_checkstatus AS "Check Status",
                 sarep_link AS "SAR Link",
-                sarep_file_path AS "SAR File",
+                sarep_file_name AS "SAR File",
                 sarep_review_status AS "Review Status",
                 sarep_datereviewed AS "Date Reviewed",
                 sarep_assessedby AS "Assessed by",
@@ -167,7 +167,7 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
             sql += """ AND (dp.pro_degree_title ILIKE %s OR 
                             sarep_checkstatus ILIKE %s OR
                             sarep_link ILIKE %s OR
-                            sarep_file_path ILIKE %s OR
+                            sarep_file_name ILIKE %s OR
                             CAST(sarep_review_status AS TEXT) ILIKE %s OR   
                             CAST(sarep_sarscore AS TEXT) ILIKE %s) """       
             values = [like_pattern] * 6
