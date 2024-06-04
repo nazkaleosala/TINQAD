@@ -11,8 +11,7 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
-
-
+# Define the search bars
 sar_search_bar = dbc.Col(
     dbc.Input(
         type='text',
@@ -21,7 +20,7 @@ sar_search_bar = dbc.Col(
         className='ml-auto'
     ),
     width="12",
-    id='sar_search_bar'  # Assign an ID for identification
+    id='sar_search_bar'
 )
 
 others_search_bar = dbc.Col(
@@ -32,34 +31,10 @@ others_search_bar = dbc.Col(
         className='ml-auto'
     ),
     width="12",
-    id='others_search_bar'  # Assign an ID for identification
-) 
-
-@app.callback(
-    Output('sar_search_bar', 'style'),
-    Output('others_search_bar', 'style'),
-    [Input('tabs', 'active_tab')]
+    id='others_search_bar'
 )
-def update_search_bar_visibility(active_tab):
-    sar_style = {'display': 'none'} if active_tab != 'sar' else {}
-    others_style = {'display': 'none'} if active_tab != 'others' else {}
-    return sar_style, others_style
 
-@app.callback(
-    Output('assessmentreports_filter_sar', 'disabled'),
-    Output('assessmentreports_filter_others', 'disabled'),
-    [Input('tabs', 'active_tab')]
-)
-def disable_input(active_tab):
-    sar_disabled = active_tab != 'sar'
-    others_disabled = active_tab != 'others'
-    return sar_disabled, others_disabled
-
-
-
-
-
-
+# Define the layout
 layout = html.Div(
     [
         dbc.Row(
@@ -68,35 +43,29 @@ layout = html.Div(
                 dbc.Col(
                     [
                         html.H1("ASSESSMENT REPORTS"),
-                        html.Hr(), 
-
+                        html.Hr(),
                         sar_search_bar,
                         others_search_bar,
                         html.Br(),
-                                    
-                        dbc.Row(   
-                            [   
-                                 
-                                dbc.Col(   
+                        dbc.Row(
+                            [
+                                dbc.Col(
                                     dbc.Button(
-                                        "➕ Add New SAR", color="primary", 
-                                        href='/assessmentreports/sar_details?mode=add', 
+                                        "➕ Add New SAR", color="primary",
+                                        href='/assessmentreports/sar_details?mode=add',
                                     ),
                                     width="auto",
-
                                 ),
-                                dbc.Col(   
+                                dbc.Col(
                                     dbc.Button(
-                                        "➕ Add New Assessment", color="warning", 
-                                        href='/assessmentreports/assessment_details?mode=add', 
+                                        "➕ Add New Assessment", color="warning",
+                                        href='/assessmentreports/assessment_details?mode=add',
                                     ),
-                                    width="auto",    
+                                    width="auto",
                                 )
                             ]
                         ),
-                          
                         html.Br(),
-
                         dbc.Tabs(
                             [
                                 dbc.Tab(label="|   Self Assessment Reports   |", tab_id="sar"),
@@ -104,24 +73,20 @@ layout = html.Div(
                             ],
                             id="tabs",
                             active_tab="sar",
-
                             className="custom-tabs"
                         ),
-
-
                         html.Div(
                             id="content-tab",
                             children=[
                                 html.Div(
-                                    id='assessmentreports_list', 
+                                    id='assessmentreports_list',
                                     style={
                                         'marginTop': '20px',
-                                        'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                                        'overflowX': 'auto'  # Adds a horizontal scrollbar
                                     }
                                 )
                             ],
                         ),
-
                     ], width=9, style={'marginLeft': '15px'}
                 ),
             ]
@@ -134,19 +99,37 @@ layout = html.Div(
     ]
 )
 
+# Callback to update the visibility of search bars
+@app.callback(
+    [Output('sar_search_bar', 'style'),
+     Output('others_search_bar', 'style')],
+    [Input('tabs', 'active_tab')]
+)
+def update_search_bar_visibility(active_tab):
+    sar_style = {'display': 'none'} if active_tab != 'sar' else {}
+    others_style = {'display': 'none'} if active_tab != 'others' else {}
+    return sar_style, others_style
 
+# Callback to disable input fields based on active tab
+@app.callback(
+    [Output('assessmentreports_filter_sar', 'disabled'),
+     Output('assessmentreports_filter_others', 'disabled')],
+    [Input('tabs', 'active_tab')]
+)
+def disable_input(active_tab):
+    sar_disabled = active_tab != 'sar'
+    others_disabled = active_tab != 'others'
+    return sar_disabled, others_disabled
 
-
-
+# Callback to load data into the table
 @app.callback(
     Output('assessmentreports_list', 'children'),
-    [
-        Input('url', 'pathname'),
-        Input('assessmentreports_filter', 'value'),
-        Input('tabs', 'active_tab'),
-    ]
+    [Input('url', 'pathname'),
+     Input('assessmentreports_filter_sar', 'value'),
+     Input('assessmentreports_filter_others', 'value'),
+     Input('tabs', 'active_tab')]
 )
-def assessmentreports_loadlist(pathname, searchterm, active_tab):
+def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, active_tab):
     if pathname != '/assessment_reports':
         raise PreventUpdate
 
@@ -154,7 +137,6 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
     values = []
     cols = []
 
-    # Generate SQL and set columns based on active_tab
     if active_tab == "sar":
         sql = """
             SELECT 
@@ -176,8 +158,19 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
             WHERE
                 sarep_del_ind IS FALSE
         """
-        cols = ['ID', 'Date', 'Degree Program', 'Check Status', 'SAR Link', 'SAR File', 'Review Status', 
+        cols = ['ID', 'Date', 'Degree Program', 'Check Status', 'SAR Link', 'SAR File', 'Review Status',
                 'Date Reviewed', 'Assessed by', 'Notes', 'SAR Score']
+
+        # Apply search filter if search term is provided
+        if sar_searchterm:
+            like_pattern = f"%{sar_searchterm}%"
+            sql += """ AND (dp.pro_degree_title ILIKE %s OR 
+                            sarep_checkstatus ILIKE %s OR
+                            sarep_link ILIKE %s OR
+                            sarep_file_path ILIKE %s OR
+                            CAST(sarep_review_status AS TEXT) ILIKE %s OR   
+                            CAST(sarep_sarscore AS TEXT) ILIKE %s) """       
+            values = [like_pattern] * 6
 
     elif active_tab == "others":
         sql = """
@@ -202,29 +195,16 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
                 eqateam.report_type AS rt ON assr.arep_report_type = rt.report_type_id 
             LEFT JOIN 
                 eqateam.review_status AS rs ON assr.arep_review_status = rs.review_status_id 
-            
             WHERE
                 arep_del_ind IS FALSE
         """
-        cols = ['ID','Date', 'Degree Program', 'Assessment Title', 'EQA Type', 'Assessed by', 
+        cols = ['ID','Date', 'Degree Program', 'Assessment Title', 'EQA Type', 'Assessed by',
                 'Report Type', 'Report Notes', "Link",'File', 'Check Status', 'Date Reviewed', "Review Status", 'Notes']
-    else:
-        return [html.Div("Invalid tab selection")]
-    
 
-    # Apply search filter if searchterm is provided
-    if searchterm:
-        like_pattern = f"%{searchterm}%"
-        if active_tab == "sar":
-            sql += """ AND (dp.pro_degree_title ILIKE %s OR 
-                            sarep_checkstatus ILIKE %s OR
-                            sarep_link ILIKE %s OR
-                            sarep_file_path ILIKE %s OR
-                            CAST(sarep_review_status AS TEXT) ILIKE %s OR   
-                            CAST(sarep_sarscore AS TEXT) ILIKE %s) """       
-            values = [like_pattern] * 6
-        elif active_tab == "others":
-            sql += """ AND (arep_degree_programs_id ILIKE %s OR
+        # Apply search filter if search term is provided
+        if others_searchterm:
+            like_pattern = f"%{others_searchterm}%"
+            sql += """ AND (CAST(arep_degree_programs_id AS TEXT) ILIKE %s OR
                             arep_title ILIKE %s OR
                             CAST(arep_approv_eqa AS TEXT) ILIKE %s OR       
                             arep_checkstatus ILIKE %s OR
@@ -232,7 +212,10 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
                             rs.review_status_name ILIKE %s) """
             values = [like_pattern] * 6
 
-    # Ensure that sql has a valid query before accessing it
+    else:
+        return [html.Div("Invalid tab selection")]
+
+    # Execute the query and load data
     if sql:
         df = db.querydatafromdatabase(sql, values, cols)
 
@@ -267,10 +250,8 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
                         style={'text-align': 'center'}
                     )
                 )
-                df = df[['Date', 'Degree Program', 'Check Status', 'SAR Link', 'SAR File', 'Review Status', 
-                'Date Reviewed', 'Assessed by', 'Notes', 'SAR Score', 'Action']
-]
-            
+                df = df[['Date', 'Degree Program', 'Check Status', 'SAR Link', 'SAR File', 'Review Status',
+                         'Date Reviewed', 'Assessed by', 'Notes', 'SAR Score', 'Action']]
             elif active_tab == "others":
                 df["Action"] = df["ID"].apply(
                     lambda x: html.Div(
@@ -278,12 +259,12 @@ def assessmentreports_loadlist(pathname, searchterm, active_tab):
                         style={'text-align': 'center'}
                     )
                 )
-                df = df[['Date', 'Degree Program', 'Assessment Title', 'EQA Type', 'Assessed by', 
-                'Report Type', 'Report Notes', "Link",'File', 'Check Status', 'Date Reviewed', "Review Status", 'Notes', 'Action']]
+                df = df[['Date', 'Degree Program', 'Assessment Title', 'EQA Type', 'Assessed by',
+                         'Report Type', 'Report Notes', "Link", 'File', 'Check Status', 'Date Reviewed', "Review Status", 'Notes', 'Action']]
 
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
             return [html.Div("No records to display")]
-    
+
     return [html.Div("Query could not be processed")]
