@@ -59,7 +59,7 @@ layout = html.Div(
                                             
                                             dbc.Textarea(
                                                 id="trinstructions_content",
-                                                placeholder="Type a message...",
+                                                placeholder="Type a new instruction, make sure its complete before hitting save!",
                                                 style={"resize": "vertical"},
                                                 rows=5,
                                             ),
@@ -67,7 +67,7 @@ layout = html.Div(
                                             dbc.Row(
                                                 [
                                                     dbc.Col(
-                                                        dbc.Button("Save", id="save_button", color="primary", className="mt-2"),
+                                                        dbc.Button("Save", id="save_button", color="primary", className="mt-2 mr-1"),
                                                         width="auto",
                                                     ),
                                                     dbc.Col(
@@ -120,10 +120,7 @@ layout = html.Div(
     [Input("url", "pathname")],   
 )
 def fetch_announcements(pathname):
-    if pathname != "/training_documents":
-        raise PreventUpdate
-
-    try:
+    if pathname == "/training_instructions": 
         sql = """
             SELECT trinstructions_content
             FROM adminteam.training_instructions
@@ -135,17 +132,9 @@ def fetch_announcements(pathname):
         dfcolumns = ["trinstructions_content"]  
         df = db.querydatafromdatabase(sql, values, dfcolumns)
 
-        if df.empty:
-            return "No announcements this month"   
-
         instruction_content = df.loc[0, "trinstructions_content"]
         return instruction_content  
-
-    except Exception as e:
-        return f"Error retrieving announcements: {str(e)}"   
-
-
-
+ 
  
 
 # Corrected callback for inserting instructions

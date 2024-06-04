@@ -28,7 +28,7 @@ def get_year_range():
     return f"{previous_year}-{current_year}"
 
 
-def generate_pie_and_bar_chart():
+def charts_mainexp():
     # Fetch data from the database for the pie chart
     current_year = datetime.now().year
 
@@ -102,6 +102,60 @@ def generate_pie_and_bar_chart():
     )
 
 
+
+def charts_subexp():
+    # Fetch data from the database for the pie chart
+    current_year = datetime.now().year
+
+    pie_sql = """
+        SELECT se.sub_expense_name, SUM(exp_amount) AS total_amount
+        FROM adminteam.expenses AS e
+        LEFT JOIN adminteam.sub_expenses AS se ON e.main_expense_id = se.sub_expense_id 
+        WHERE 
+            EXTRACT(YEAR FROM e.exp_date) = %s
+            AND e.main_expense_id = 1
+        GROUP BY se.sub_expense_name 
+    """
+   
+    pie_df = db.querydatafromdatabase(pie_sql, (current_year,), ['sub_expense_name', 'total_amount'])
+
+    if pie_df.empty:
+        pie_chart = html.Div("No data available for the pie chart")
+    else:
+        # Set custom legend labels
+        custom_legend_labels = dict(zip(pie_df['sub_expense_name'], pie_df['sub_expense_name']))
+
+        # Define custom colors
+        custom_colors = ['#39B54A', '#F8B237', '#D37157', '#A9CD46', '#7EADE4','#40BFBC']
+
+        pie_fig = go.Figure(data=[go.Pie(
+            labels=pie_df['sub_expense_name'],
+            values=pie_df['total_amount'],
+            marker=dict(colors=custom_colors),
+            hole=0.4  # Adjust the value to change the size of the hole
+        )])
+        pie_fig.update_traces(textinfo='percent')  # Show percentage and label on pie chart
+        pie_fig.update_layout(
+            title=f"{get_current_month()} {get_year_range()}",  # Title with month and year
+            title_font=dict(size=18), 
+            
+        )
+        pie_chart = dcc.Graph(figure=pie_fig) 
+
+    legend=dict(title_font=dict(size=12), orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
+ 
+    
+    return dbc.Row(
+        [
+            dbc.Col(pie_chart, width=6),  # Equal width for both charts
+            dbc.Col(legend, width=6),  # Equal width for both charts
+        ]
+    )
+
+
+
+
+
 def get_main_expenses():
     df = db.querydatafromdatabase("SELECT main_expense_id, main_expense_name FROM adminteam.main_expenses", (), ['main_expense_id', 'main_expense_name'])
     main_expenses = df.to_records(index=False).tolist()
@@ -156,12 +210,23 @@ layout = html.Div(
                             [
                                 dbc.CardHeader(html.H3("Spending Overview", className="mb-0")),
                                 dbc.CardBody(
-                                    generate_pie_and_bar_chart()
+                                    charts_mainexp()
                                 )
                             ]
                         ), 
                         
                         html.Br(),
+
+                        # Spending Overview
+                        dbc.Row(
+                            [
+                                dbc.CardHeader(html.H5("MOOE sub expenses overview", className="mb-0")),
+                                dbc.CardBody(
+                                    charts_subexp()
+                                )
+                            ]
+                        ), 
+
                         # Add the maintenance and other expenses section
                         dbc.Row(
                             [
@@ -171,6 +236,8 @@ layout = html.Div(
                                 )
                             ]
                         ),
+
+                        
                         
                         dbc.Row(
                         [
@@ -184,9 +251,7 @@ layout = html.Div(
                             ),
                         ],
                     ),
-                        html.Br(),
-                        html.Br(),
-                        html.Br(),
+                    html.Br(), html.Br(), html.Br(),
                     ],
                     width=9,
                     style={'marginLeft': '15px'}
