@@ -6,6 +6,10 @@ import logging
 
 app = dash.Dash(__name__, external_stylesheets=["assets/bootstrap.css"])
 
+if __name__ == '__main__':
+    app.run_server(host='10.206.100.41',port=8050)
+   # webbrowser.open('http://10.206.100.41:8050/',autoraise=True)
+
 app.config.suppress_callback_exceptions = True
 
 app.css.config.serve_locally = True
