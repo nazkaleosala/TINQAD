@@ -12,6 +12,7 @@ from app import app
 from apps import commonmodules as cm
 from apps import home
 from apps import blankpage 
+from apps import demo 
 
 from apps.maindashboard import homepage, user_profile, register_user, search_users, password, about_TINQAD
 from apps.admin import administration_dashboard, expensetype_add, record_expenses, training_instructions, training_documents, add_expenses, training_record, viewexpense_list, viewtraining_list
@@ -77,10 +78,13 @@ def displaypage(pathname, sessionlogout, user_id, accesstype, search):
         if eventid == 'url': 
             if pathname == '/' or pathname == '/home' or pathname == '/logout':
                 returnlayout = home.layout
+            if pathname == '/demo':
+                        returnlayout = demo.layout 
             elif user_id != -1:
                 if accesstype >= 1:
                     
                     # Main Dashboard
+                    
                     if pathname == '/homepage':
                         returnlayout = homepage.layout
                     elif pathname == '/profile':
@@ -211,5 +215,5 @@ def displaypage(pathname, sessionlogout, user_id, accesstype, search):
         raise PreventUpdate
 
 if __name__ == '__main__':
-    webbrowser.open('http://10.206.100.41:8050/', new=0, autoraise=True)
+    webbrowser.open('http://127.0.0.1:8050/', new=0, autoraise=True)
     app.run_server(debug=False)
