@@ -102,8 +102,7 @@ layout = html.Div(
 )
 def acadheadsmoredetails_loadlist(pathname):
     if pathname == '/dashboard/more_details':
-        today = datetime.today()
-        two_months_later = today + timedelta(days=60)
+        today = datetime.today() 
 
         sql = f"""
             SELECT 
@@ -119,7 +118,7 @@ def acadheadsmoredetails_loadlist(pathname):
             JOIN public.deg_unit du ON a.unithead_deg_unit_id = du.deg_unit_id
             WHERE  
                 a.unithead_del_ind IS False
-                AND a.unithead_appointment_end BETWEEN '{today.strftime('%Y-%m-%d')}' AND '{two_months_later.strftime('%Y-%m-%d')}'
+                AND a.unithead_appointment_end BETWEEN '{today}' AND '{today + timedelta(days=30)}'
         """
  
         cols = ['Cluster', 'Academic Unit', 'Degree Granting Unit', 'Name', 'UP mail', 'End of Term']
