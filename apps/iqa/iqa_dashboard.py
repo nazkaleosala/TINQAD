@@ -13,35 +13,49 @@ from apps import dbconnect as db
 
 
 
-def acad_unitheadscount(): 
-    sql = """
-        SELECT COUNT(*) 
-        FROM iqateam.acad_unitheads  
-        WHERE 
-            unithead_del_ind IS False 
-            AND unithead_appointment_end >= CURRENT_DATE
-            AND unithead_appointment_end <= CURRENT_DATE + INTERVAL '2 months';
-    """
-    acad_unitheadstotal_count = db.query_single_value(sql)
-    return acad_unitheadstotal_count
 
-# Function to fetch the total count from the database for QA Officers
-def qa_officerscount():
-    today = datetime.today()
-    twomonthsfromnow = today + timedelta(days=60)
-    sql = """
-        SELECT COUNT(*) 
-        FROM qaofficers.qa_officer 
-        WHERE 
-            qaofficer_del_ind = False
-            AND qaofficer_appointment_end BETWEEN %s AND %s
-    """
-    params = (today, twomonthsfromnow)
-    qa_officerstotal_count = db.query_single_value_db(sql, params)
-    return qa_officerstotal_count
 
-acad_unitheadstotal_count = acad_unitheadscount()
-qa_officerstotal_count = qa_officerscount ()
+@app.callback(
+    Output('acad_unitheadstotal_count', 'children'),
+    [Input('url', 'pathname')]
+)
+def acad_unitheadscount(pathname):
+    if pathname == '/iqa_dashboard':
+        today = datetime.today()
+        twomonthsfromnow = today + timedelta(days=60)
+        sql = """
+            SELECT COUNT(*) 
+            FROM iqateam.acad_unitheads  
+            WHERE 
+                unithead_del_ind IS False 
+                AND unithead_appointment_end BETWEEN %s AND %s;
+        """
+        params = (today, twomonthsfromnow)
+        acad_unitheadstotal_count = db.query_single_value_db(sql, params)
+        return acad_unitheadstotal_count
+
+@app.callback(
+    Output('qa_officerstotal_count', 'children'),
+    [Input('url', 'pathname')]
+)
+def qa_officerscount(pathname):
+    if pathname == '/iqa_dashboard':
+        today = datetime.today()
+        twomonthsfromnow = today + timedelta(days=60)
+        sql = """
+            SELECT COUNT(*) 
+            FROM qaofficers.qa_officer 
+            WHERE 
+                qaofficer_del_ind = False
+                AND qaofficer_appointment_end BETWEEN %s AND %s;
+        """
+        params = (today, twomonthsfromnow)
+        qa_officerstotal_count = db.query_single_value_db(sql, params)
+        return qa_officerstotal_count
+
+
+
+
 
 layout = html.Div(
     [
@@ -71,7 +85,7 @@ layout = html.Div(
                                                             width="auto"
                                                         ),
                                                         dbc.Col(
-                                                            html.Span(acad_unitheadstotal_count, style={"font-weight": "bold"}),
+                                                            html.Span(id='acad_unitheadstotal_count', style={"font-weight": "bold"}),
                                                             width={"size": 2, "sm": 2, "l": 1},
                                                             style={
                                                                 "backgroundColor": "#A9CD46",
@@ -80,8 +94,7 @@ layout = html.Div(
                                                                 "textAlign": "center",
                                                                 "marginLeft": "-10px" 
                                                             }
-                                                        ),
-                                                        
+                                                        ),   
                                                     ]
                                                 ),
                                                 dbc.Row(
@@ -128,7 +141,7 @@ layout = html.Div(
                                                             width="auto"
                                                         ),
                                                         dbc.Col(
-                                                            html.Span(qa_officerstotal_count, style={"font-weight": "bold"}),
+                                                            html.Span(id='qa_officerstotal_count', style={"font-weight": "bold"}),
                                                             width={"size": 2, "sm": 2, "l": 1},
                                                             style={
                                                                 "backgroundColor": "#A9CD46",
@@ -137,7 +150,7 @@ layout = html.Div(
                                                                 "textAlign": "center",
                                                                 "marginLeft": "-10px" 
                                                             }
-                                                        ),
+                                                        ),   
                                                         
                                                     ]
                                                 ),
