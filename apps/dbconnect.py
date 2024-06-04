@@ -3,11 +3,11 @@ import pandas as pd
 
 def getdblocation():
     db = psycopg2.connect(
-        host='localhost',
-        database='TINQAD_database',
-        user='postgres',
+        host='10.206.100.41',
+        database='tinquaddb',
+        user='qaotinqad',
         port=5432,
-        password='nat31602'
+        password='qaotinqad123'
     )
 
     return db
