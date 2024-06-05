@@ -1,7 +1,7 @@
 from dash import dash, html, Input, Output, State
 import dash_bootstrap_components as dbc
  
-import dash
+import dash 
 from dash.exceptions import PreventUpdate
 import pandas as pd
 import plotly.graph_objects as go

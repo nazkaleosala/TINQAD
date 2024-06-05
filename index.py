@@ -1,8 +1,9 @@
-import dash
+from dash import dash, dcc, html, Input, Output, State
 import dash_bootstrap_components as dbc
-from dash import dash, html, dcc, Input, Output, State
-
-from dash.exceptions import PreventUpdate
+ 
+import dash 
+from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate 
 
 import webbrowser 
 from urllib.parse import urlparse, parse_qs
