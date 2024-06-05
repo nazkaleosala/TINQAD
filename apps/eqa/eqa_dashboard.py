@@ -306,7 +306,7 @@ layout = html.Div(
                                                 dbc.CardHeader(
                                                     html.H3(
                                                         [
-                                                            html.Strong("Summary of Degree Programs with EQA"),  # Bold only this part
+                                                            html.Strong("Summary of Degree Programs with SAR"),  # Bold only this part
                                                         ],
                                                         className="mb-0",  # Remove bottom margin
                                                         style={'fontSize': '1.5rem'}  # Adjust font size
