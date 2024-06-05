@@ -19,6 +19,7 @@ def assess_get_available_years():
     sql = """
     SELECT DISTINCT EXTRACT(YEAR FROM arep_sched_assessdate + INTERVAL '5 years') AS year
     FROM eqateam.assess_report
+    WHERE arep_del_ind IS FALSE
     ORDER BY year DESC
     """
     
@@ -203,6 +204,7 @@ def get_undergraduate_count():
     FROM eqateam.sar_report sr
     JOIN eqateam.program_details pd ON sr.sarep_degree_programs_id = pd.programdetails_id
     WHERE pd.pro_program_type_id = 'Undergraduate'
+    AND sr.sarep_del_ind IS FALSE
     """
     values = []
     cols = ['total']
@@ -221,8 +223,11 @@ def generate_sar_submissions_chart():
             COUNT(*) AS input_count
         FROM 
             eqateam.program_details
+        WHERE
+            pro_del_ind IS False
         GROUP BY 
             pro_program_type_id
+            
     """
     program_data = db.querydatafromdatabase(sql, [], ['pro_program_type_id', 'input_count'])
 
