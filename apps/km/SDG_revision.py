@@ -18,7 +18,7 @@ import os
 from urllib.parse import urlparse, parse_qs
 
 # Using the corrected path
-UPLOAD_DIRECTORY = r"C:\Users\Naomi A. Takagaki\OneDrive\Documents\TINQAD\assets\database"
+UPLOAD_DIRECTORY = r".\assets\database"
 
 # Ensure the directory exists or create it
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)

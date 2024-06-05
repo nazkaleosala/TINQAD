@@ -64,7 +64,7 @@ team_messages_content = html.Div(
                  style={
                     'overflowX': 'auto', 
                     'overflowY': 'auto',   
-                    'maxHeight': '200px',
+                    'maxHeight': '400px',
                     }),  
         html.Br(),
         html.Div(
@@ -260,7 +260,7 @@ announcement_content = html.Div(
             style={
                 "overflowX": "auto",
                 "overflowY": "auto",
-                "maxHeight": "200px",
+                "maxHeight": "400px",
             },
         ),
         html.Div(
@@ -314,6 +314,34 @@ app.layout = html.Div([announcement_content, announcement_footer, dcc.Location(i
 
 
 
+# Callback to control visibility of the message input area
+@app.callback(
+    Output("anmsgs_id", "style"),
+    [Input("anmsgs_footer_button", "n_clicks"), 
+     Input("anmsgscancel_button", "n_clicks")],
+    [State("anmsgs_id", "style")],  
+)
+def toggle_announcement_form(footer_clicks, cancel_clicks, current_style):
+    ctx = callback_context  
+
+    footer_clicks = footer_clicks or 0
+    cancel_clicks = cancel_clicks or 0
+
+    if not ctx.triggered:
+        raise PreventUpdate
+
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if trigger_id == "anmsgs_footer_button" and footer_clicks > 0:
+        return {"display": "block"}
+
+    elif trigger_id == "anmsgscancel_button" and cancel_clicks > 0:
+        return {"display": "none"}
+
+    raise PreventUpdate
+
+
+
 # Callback to insert a new message into the database
 @app.callback(
     [
@@ -336,44 +364,50 @@ def insert_announcement(n_clicks, n_dismiss, anmsgs_header, anmsgs_content, curr
     if not ctx.triggered:
         raise PreventUpdate
 
+    print(f"Callback triggered by: {ctx.triggered}")
+
     # Handle dismissing the alert
     if ctx.triggered[0]['prop_id'] == 'new_homeannouncement_alert.n_dismiss':
         return ["", "", False]
 
     if not n_clicks or not anmsgs_header or not anmsgs_content:
-        raise PreventUpdate
+        print("Missing input: ", n_clicks, anmsgs_header, anmsgs_content)
+        return ["Please fill in all fields", "", False]
 
-    try:
-        # Fetch the user's full name
+    try: 
         user_sql = """
-            SELECT user_fname, user_sname
+            SELECT username
             FROM maindashboard.users
             WHERE user_id = %s
         """
-        user_df = db.querydatafromdatabase(user_sql, [current_userid], ["user_fname", "user_sname"])
+        user_df = db.querydatafromdatabase(user_sql, [current_userid], ["username"])
 
         if user_df.empty:
             raise Exception("User not found")
 
-        user_fullname = f"{user_df.iloc[0]['user_fname']} {user_df.iloc[0]['user_sname']}"
+        username = user_df.iloc[0]['username']
+        print(f"Username fetched: {username}")
 
-        # Insert the announcement with the user's full name
+        # Insert the announcement with the username
         sql = """
             INSERT INTO maindashboard.announcements (anmsgs_header, anmsgs_content, anmsgs_user)
             VALUES (%s, %s, %s)
         """
-        db.modifydatabase(sql, (anmsgs_header, anmsgs_content, user_fullname))
+        db.modifydatabase(sql, (anmsgs_header, anmsgs_content, username))
+        print(f"Announcement inserted: {anmsgs_header}, {anmsgs_content}, {username}")
         
         # Record the alert in the alerts table
         alert_sql = """
             INSERT INTO maindashboard.alerts (alert_userid, alert_message)
             VALUES (%s, %s)
         """
-        db.modifydatabase(alert_sql, (current_userid, f"{user_fullname} has a new announcement!"))
+        db.modifydatabase(alert_sql, (current_userid, f"{username} has a new announcement!"))
+        print(f"Alert inserted for user {current_userid}: {username} has a new announcement!")
 
-        return ["Announcement posted successfully!", "", True]
+        return ["Announcement posted successfully!", "Announcement posted!", True]
 
     except Exception as e:
+        print(f"Error: {str(e)}")
         return [f"Error: {str(e)}", "", False] 
 
 
@@ -452,7 +486,7 @@ def display_alerts(pathname):
         # Fetch alerts data within the last 15 days
         fifteen_days_ago = datetime.now() - timedelta(days=15)
         sql = """
-            SELECT u.user_fname || ' ' || u.user_sname AS user, a.alert_message, a.alert_timestamp
+            SELECT u.username AS user, a.alert_message, a.alert_timestamp
             FROM maindashboard.alerts a
             INNER JOIN maindashboard.users u ON a.alert_userid = u.user_id
             WHERE a.alert_timestamp >= %s
@@ -559,7 +593,8 @@ approval_card = dbc.Card(
             ]
         ),
     ],
-    className="mb-3"
+    className="mb-3",
+    style={"maxHeight": "200px", "overflowY": "auto"}
 )
 
 
