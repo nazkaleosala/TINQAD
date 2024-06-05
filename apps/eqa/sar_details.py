@@ -311,7 +311,7 @@ def populate_approvedeqa_dropdown(pathname):
 def populate_reviewstatus_dropdown(pathname): 
     if pathname == '/assessmentreports/sar_details':
         sql ="""
-        SELECT review_status_name as label, review_status_name as value
+        SELECT review_status_name as label, review_status_id as value
         FROM eqateam.review_status
        """
         values = []

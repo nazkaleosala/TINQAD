@@ -182,6 +182,8 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
                 eqateam.sar_report AS ar
             LEFT JOIN 
                 eqateam.program_details AS dp ON ar.sarep_degree_programs_id = dp.programdetails_id 
+            LEFT JOIN 
+                eqateam.review_status AS rs ON ar.sarep_review_status = rs.review_status_id 
             WHERE
                 sarep_del_ind IS FALSE
         """
@@ -228,6 +230,8 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
                 eqateam.review_status AS rs ON assr.arep_review_status = rs.review_status_id 
             LEFT JOIN
                 eqateam.approv_eqa AS appr ON assr.arep_approv_eqa = appr.approv_eqa_id
+            LEFT JOIN
+                
             WHERE
                 arep_del_ind IS FALSE
         """
