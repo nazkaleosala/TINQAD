@@ -10,7 +10,7 @@ import pandas as pd
 
 from apps import commonmodules as cm
 from app import app
-from apps import dbconnect as db
+from apps import dbconnect as db 
 
 import locale
 import re
@@ -19,7 +19,7 @@ import base64
 import os
 from urllib.parse import urlparse, parse_qs
 
-UPLOAD_DIRECTORY = r".\assets\database"
+UPLOAD_DIRECTORY = r".\assets\database\admin"
 
 # Ensure the directory exists or create it
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)

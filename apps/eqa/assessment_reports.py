@@ -6,10 +6,18 @@ import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import pandas as pd
+import os
 
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
+
+
+# Using the corrected path
+UPLOAD_DIRECTORY = r".\assets\database\eqa"
+
+# Ensure the directory exists or create it
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 # Define the search bars
 sar_search_bar = dbc.Col(
@@ -121,13 +129,31 @@ def disable_input(active_tab):
     others_disabled = active_tab != 'others'
     return sar_disabled, others_disabled
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Callback to load data into the table
 @app.callback(
-    Output('assessmentreports_list', 'children'),
-    [Input('url', 'pathname'),
-     Input('assessmentreports_filter_sar', 'value'),
-     Input('assessmentreports_filter_others', 'value'),
-     Input('tabs', 'active_tab')]
+        Output('assessmentreports_list', 'children'),
+    [   
+        Input('url', 'pathname'),
+        Input('assessmentreports_filter_sar', 'value'),
+        Input('assessmentreports_filter_others', 'value'),
+        Input('tabs', 'active_tab')
+    ]
 )
 def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, active_tab):
     if pathname != '/assessment_reports':
@@ -146,6 +172,7 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
                 sarep_checkstatus AS "Check Status",
                 sarep_link AS "SAR Link",
                 sarep_file_name AS "SAR File",
+                sarep_file_path AS "File Path",
                 sarep_review_status AS "Review Status",
                 sarep_datereviewed AS "Date Reviewed",
                 sarep_assessedby AS "Assessed by",
@@ -158,9 +185,11 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
             WHERE
                 sarep_del_ind IS FALSE
         """
-        cols = ['ID', 'Date', 'Degree Program', 'Check Status', 'SAR Link', 'SAR File', 'Review Status',
+        cols = ['ID', 'Date', 'Degree Program', 'Check Status', 'SAR Link', 'SAR File', 'File Path', 'Review Status',
                 'Date Reviewed', 'Assessed by', 'Notes', 'SAR Score']
 
+        df = db.querydatafromdatabase(sql, values, cols)
+        
         # Apply search filter if search term is provided
         if sar_searchterm:
             like_pattern = f"%{sar_searchterm}%"
@@ -171,7 +200,8 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
                             CAST(sarep_review_status AS TEXT) ILIKE %s OR   
                             CAST(sarep_sarscore AS TEXT) ILIKE %s) """       
             values = [like_pattern] * 6
-
+        
+        
     elif active_tab == "others":
         sql = """
             SELECT 
@@ -179,15 +209,16 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
                 arep_currentdate AS "Date",
                 arep_degree_programs_id AS "Degree Program",
                 arep_title AS "Assessment Title",
-                arep_approv_eqa AS "EQA Type",
+                appr.approv_eqa_name AS "EQA Type",
                 arep_assessedby AS "Assessed by",
                 rt.report_type_name AS "Report Type",
                 arep_report_type_notes AS "Report Notes",
                 arep_link AS "Link",
-                arep_file_path AS "File",
+                arep_file_name AS "File",
+                arep_file_path AS "File Path",
                 arep_checkstatus AS "Check Status",
                 arep_datereviewed AS "Date Reviewed",
-                rs.review_status_name AS "Review Status",
+                arep_review_status AS "Review Status",
                 arep_notes AS "Notes"
             FROM 
                 eqateam.assess_report AS assr
@@ -195,11 +226,15 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
                 eqateam.report_type AS rt ON assr.arep_report_type = rt.report_type_id 
             LEFT JOIN 
                 eqateam.review_status AS rs ON assr.arep_review_status = rs.review_status_id 
+            LEFT JOIN
+                eqateam.approv_eqa AS appr ON assr.arep_approv_eqa = appr.approv_eqa_id
             WHERE
                 arep_del_ind IS FALSE
         """
         cols = ['ID','Date', 'Degree Program', 'Assessment Title', 'EQA Type', 'Assessed by',
-                'Report Type', 'Report Notes', "Link",'File', 'Check Status', 'Date Reviewed', "Review Status", 'Notes']
+                'Report Type', 'Report Notes', "Link",'File', 'File Path', 'Check Status', 'Date Reviewed', "Review Status", 'Notes']
+        
+        
 
         # Apply search filter if search term is provided
         if others_searchterm:
@@ -218,30 +253,7 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
     # Execute the query and load data
     if sql:
         df = db.querydatafromdatabase(sql, values, cols)
-
-        if "Review Status" in df.columns:
-            df["Review Status"] = df["Review Status"].replace({1: "Endorsed for EQA", 2: "For Revision"})
-
-        # Replace EQA type and "To be Assessed by" values with labels
-        if not df.empty and active_tab == "others":
-            eqa_labels = {
-                1: "Type A",
-                2: "Type B",
-                3: "Type C",
-                4: "Type D",
-                5: "Type E",
-                6: "Type F"
-            }
-            df["EQA Type"] = df["EQA Type"].map(eqa_labels)
-
-            arep_assessedby_labels = {
-                1: "Engineering Accreditation Commission",
-                2: "International Accreditation",
-                3: "Local Accreditation"
-            }
-            df["Assessed by"] = df["Assessed by"].map(arep_assessedby_labels)
-
-        # Generate the table from the DataFrame
+        
         if not df.empty:
             if active_tab == "sar":
                 df["Action"] = df["ID"].apply(
@@ -251,7 +263,10 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
                     )
                 )
                 df = df[['Date', 'Degree Program', 'Check Status', 'SAR Link', 'SAR File', 'Review Status',
-                         'Date Reviewed', 'Assessed by', 'Notes', 'SAR Score', 'Action']]
+                        'Date Reviewed', 'Assessed by', 'Notes', 'SAR Score', 'Action']]
+                 
+                df['SAR File'] = df.apply(lambda row: html.A(row['SAR File'], href=os.path.join(UPLOAD_DIRECTORY, row['SAR File']) if row['SAR File'] else ''), axis=1)
+            
             elif active_tab == "others":
                 df["Action"] = df["ID"].apply(
                     lambda x: html.Div(
@@ -261,9 +276,13 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
                 )
                 df = df[['Date', 'Degree Program', 'Assessment Title', 'EQA Type', 'Assessed by',
                          'Report Type', 'Report Notes', "Link", 'File', 'Check Status', 'Date Reviewed', "Review Status", 'Notes', 'Action']]
+                 
+                df['File'] = df.apply(lambda row: html.A(row['File'], href=os.path.join(UPLOAD_DIRECTORY, row['File']) if row['File'] else ''), axis=1)
+            
 
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
+        
         else:
             return [html.Div("No records to display")]
 

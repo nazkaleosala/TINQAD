@@ -17,7 +17,7 @@ import os
 from urllib.parse import urlparse, parse_qs
 
 # Using the corrected path
-UPLOAD_DIRECTORY = r".\assets\database"
+UPLOAD_DIRECTORY = r".\assets\database\eqa"
 
 # Ensure the directory exists or create it
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
@@ -290,7 +290,7 @@ form = dbc.Form(
         ),
  
         dbc.Row(
-            [dbc.Label("",width=6),
+            [dbc.Label("",width=4),
              dbc.Col(id="arep_file_output",style={"color": "#F8B237"}, width="4")],   
             className="mt-2",
         ),
@@ -426,7 +426,7 @@ def populate_accreditationbody_dropdown(pathname):
     # Check if the pathname matches if necessary
     if pathname == '/assessmentreports/assessment_details':
         sql ="""
-        SELECT body_name as label, accreditation_body_id  as value
+        SELECT body_name as label, body_name as value
         FROM public.accreditation_body
        """
         values = []
