@@ -1,10 +1,7 @@
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
-from dash import Dash, Input, Output, State, callback_context
+from dash import dash, html, dcc, Input, Output, State
+from dash import callback_context
 from dash.exceptions import PreventUpdate
-import psycopg2
-import os
 
 from apps import commonmodules as cm
 from app import app
