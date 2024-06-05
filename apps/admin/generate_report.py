@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-import pandas as pd
+import pandas as pd 
 
 from apps import commonmodules as cm
 from app import app

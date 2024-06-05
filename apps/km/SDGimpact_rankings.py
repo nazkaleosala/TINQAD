@@ -1,8 +1,10 @@
+import dash
 import dash_bootstrap_components as dbc
 from dash import dash, html, dcc, Input, Output, State
 
 from dash.exceptions import PreventUpdate
 import pandas as pd
+import dash
 
 from apps import commonmodules as cm
 from app import app
