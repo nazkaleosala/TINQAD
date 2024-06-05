@@ -1,6 +1,7 @@
 import dash_bootstrap_components as dbc
-from dash import dash, html, dcc, Input, Output, State  
-  
+from dash import dash, html, dcc 
+
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import pandas as pd
 
