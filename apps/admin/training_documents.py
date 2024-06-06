@@ -1032,9 +1032,6 @@ def record_training_documents(submitbtn, closebtn, removerecord,
         sqlcode = """
             UPDATE adminteam.training_documents
             SET
-                complete_name = %s,
-                fac_posn_name = %s,
-                fac_posn_number = %s,
                 qa_training_id = %s, 
                 qa_training_other = %s, 
                 departure_date = %s,
@@ -1047,7 +1044,7 @@ def record_training_documents(submitbtn, closebtn, removerecord,
         to_delete = bool(removerecord)
 
         values = [
-            complete_name, fac_posn_name, fac_posn_number, qa_training_id,
+            qa_training_id,
             qa_training_other, departure_date, return_date, venue,
             to_delete, trainingdocumentsid
         ]
@@ -1158,6 +1155,11 @@ def trainingdocuments_loadprofile(timestamp, toload, search):
         Output('college_id', 'disabled'),
         Output('deg_unit_id', 'disabled'), 
         Output('add_training_fac_posn', 'disabled'), 
+        Output('pacert', 'disabled'),
+        Output('orcert', 'disabled'),
+        Output('otrcert', 'disabled'), 
+        Output('others', 'disabled'), 
+        Output('recert', 'disabled'), 
     ],
     [Input('url', 'search')]
 )
@@ -1166,8 +1168,8 @@ def training_inputs_disabled(search):
         parsed = urlparse(search)
         create_mode = parse_qs(parsed.query).get('mode', [None])[0]
         if create_mode == 'edit':
-            return [True] * 7
-    return [False] * 7
+            return [True] * 12
+    return [False] * 12
 
 
 
