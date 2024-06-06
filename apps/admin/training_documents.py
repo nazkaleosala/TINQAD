@@ -1,18 +1,23 @@
-import dash
-from dash import dcc, html, dash_table
 import dash_bootstrap_components as dbc
+from dash import dash, html, dcc, Input, Output, State
+from dash import callback_context
 
-from dash.dependencies import Input, Output, State
+import dash
 from dash.exceptions import PreventUpdate
 import pandas as pd
 
 from apps import commonmodules as cm
 from app import app
-from apps import dbconnect as db
+from apps import dbconnect as db 
 
-
+import base64
+import os
 from urllib.parse import urlparse, parse_qs
 
+UPLOAD_DIRECTORY = r".\assets\database\admin"
+
+# Ensure the directory exists or create it
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 form = dbc.Form(
     [
@@ -272,7 +277,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Upload(
-                        id='parti_attendance_cert',
+                        id='pacert',
                         children=html.Div(
                             [
                             html.Img(src=app.get_asset_url('icons/add_file.png'), style={'height': '15px', 'marginRight': '5px'}),
@@ -299,7 +304,7 @@ form = dbc.Form(
         ),
         dbc.Row(
             [dbc.Label("",width=6),
-             dbc.Col(id="parti_attendance_cert_output",style={"color": "#F8B237"}, width="auto")],  # Output area for uploaded file names
+             dbc.Col(id="pacert_output",style={"color": "#F8B237"}, width="auto")],  # Output area for uploaded file names
             className="mt-0",
         ),
         dbc.Row(
@@ -313,7 +318,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Upload(
-                        id='official_receipt',
+                        id='orcert',
                         children=html.Div(
                             [
                                 html.Img(
@@ -340,7 +345,7 @@ form = dbc.Form(
         ),
         dbc.Row(
             [dbc.Label("",width=6),
-            dbc.Col(id="official_receipt_output",style={"color": "#F8B237"}, width="auto")],  # Output area for uploaded file names
+            dbc.Col(id="orcert_output",style={"color": "#F8B237"}, width="auto")],  # Output area for uploaded file names
             className="mt-0",
         ),
 
@@ -355,7 +360,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Upload(
-                        id='official_travel_report',
+                        id='otrcert',
                         children=html.Div(
                             [
                                 html.Img(
@@ -382,7 +387,7 @@ form = dbc.Form(
         ),
         dbc.Row(
             [dbc.Label("",width=6),
-            dbc.Col(id="official_travel_report_output",style={"color": "#F8B237"}, width="auto")],  # Output area for uploaded file names
+            dbc.Col(id="otrcert_output",style={"color": "#F8B237"}, width="auto")],  # Output area for uploaded file names
             className="mt-0",
         ),
 
@@ -396,7 +401,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Upload(
-                        id='other_receipts',
+                        id='others',
                         children=html.Div(
                             [
                                 html.Img(
@@ -423,7 +428,7 @@ form = dbc.Form(
         ),
         dbc.Row(
             [dbc.Label("",width=6),
-             dbc.Col(id="other_receipts_output",style={"color": "#F8B237"}, width="auto")],  # Output area for uploaded file names
+             dbc.Col(id="others_output",style={"color": "#F8B237"}, width="auto")],  # Output area for uploaded file names
             className="mt-0",
         ),
 
@@ -435,7 +440,7 @@ form = dbc.Form(
                 ),
                 dbc.Col(
                     dcc.Upload(
-                        id='receiving_copy',
+                        id='recert',
                         children=html.Div(
                             [
                                 html.Img(
@@ -463,7 +468,7 @@ form = dbc.Form(
 
         dbc.Row(
             [dbc.Label("",width=6),
-             dbc.Col(id="receiving_copy_output",style={"color": "#F8B237"}, width="auto")],  
+             dbc.Col(id="recert_output",style={"color": "#F8B237"}, width="auto")],  
             className="mt-0",
         ),
 
@@ -480,8 +485,8 @@ form = dbc.Form(
 
 # Callback to display the names of the uploaded files
 @app.callback(
-    Output("parti_attendance_cert_output", "children"),
-    [Input("parti_attendance_cert", "filename")],  # Use filename to get uploaded file names
+    Output("pacert_output", "children"),
+    [Input("pacert", "filename")],  # Use filename to get uploaded file names
 )
 def display_partiattendence_files(filenames):
     if not filenames:
@@ -496,8 +501,8 @@ def display_partiattendence_files(filenames):
 
  
 @app.callback(
-    Output("official_receipt_output", "children"),
-    [Input("official_receipt", "filename")],  # Use filename to get uploaded file names
+    Output("orcert_output", "children"),
+    [Input("orcert", "filename")],  # Use filename to get uploaded file names
 )
 def display_receipt_files(filenames):
     if not filenames:
@@ -511,8 +516,8 @@ def display_receipt_files(filenames):
 
  
 @app.callback(
-    Output("official_travel_report_output", "children"),
-    [Input("official_travel_report", "filename")],  # Use filename to get uploaded file names
+    Output("otrcert_output", "children"),
+    [Input("otrcert", "filename")],  # Use filename to get uploaded file names
 )
 def display_travelreport_files(filenames):
     if not filenames:
@@ -528,8 +533,8 @@ def display_travelreport_files(filenames):
 
  
 @app.callback(
-    Output("other_receipts_output", "children"),
-    [Input("other_receipts", "filename")],  # Use filename to get uploaded file names
+    Output("others_output", "children"),
+    [Input("others", "filename")],  # Use filename to get uploaded file names
 )
 def display_otherreport_files(filenames):
     if not filenames:
@@ -543,8 +548,8 @@ def display_otherreport_files(filenames):
 
  
 @app.callback(
-    Output("receiving_copy_output", "children"),
-    [Input("receiving_copy", "filename")],  # Use filename to get uploaded file names
+    Output("recert_output", "children"),
+    [Input("recert", "filename")],  # Use filename to get uploaded file names
 )
 def display_receivingcopy_files(filenames):
     if not filenames:
@@ -603,10 +608,9 @@ def populate_facultypositions_dropdown(pathname):
 )
 def populate_college_dropdown(selected_cluster):
     if selected_cluster is None:
-        return []  # Return empty options if no main expense is selected
+        return []  
     
-    try:
-        # Query to fetch sub-expenses based on the selected main expense
+    try: 
         sql = """
         SELECT college_name as label,  college_id  as value
         FROM public.college
@@ -618,8 +622,7 @@ def populate_college_dropdown(selected_cluster):
         
         college_options = df.to_dict('records')
         return college_options
-    except Exception as e:
-        # Log the error or handle it appropriately
+    except Exception as e: 
         return [] 
 
 
@@ -844,12 +847,15 @@ def trainingdocuments_loaddropdown(pathname, search):
 
 
 
+
+
+
+
 @app.callback(
     [
         Output('trainingdocuments_alert', 'color'),
         Output('trainingdocuments_alert', 'children'),
         Output('trainingdocuments_alert', 'is_open'),
-
         Output('trainingdocuments_successmodal', 'is_open'),
         Output('trainingdocuments_feedback_message', 'children'),
         Output('trainingdocuments_btn_modal', 'href'),
@@ -871,169 +877,229 @@ def trainingdocuments_loaddropdown(pathname, search):
         State('departure_date', 'date'),
         State('return_date', 'date'),
         State('venue', 'value'),
-        State('parti_attendance_cert', 'filename'),
-        State('official_receipt', 'filename'),
-        State('official_travel_report', 'filename'),
-        State('other_receipts', 'filename'),
-        State('receiving_copy', 'filename'),
+        
+        State('pacert', 'contents'),
+        State('pacert', 'filename'),
+
+        State('orcert', 'contents'),
+        State('orcert', 'filename'),
+
+        State('otrcert', 'contents'),
+        State('otrcert', 'filename'),
+
+        State('others', 'contents'),
+        State('others', 'filename'),
+        
+        State('recert', 'contents'),
+        State('recert', 'filename'),
+         
         State('url', 'search'),
     ]
 )
-
-
 def record_training_documents(submitbtn, closebtn, removerecord,
                               complete_name, fac_posn_name, fac_posn_number,
                               cluster_id, college_id, deg_unit_id, qa_training_id,
-                              qa_training_other,
-                              departure_date, return_date, venue, parti_attendance_cert,
-                              official_receipt, official_travel_report, other_receipts, receiving_copy,
+                              qa_training_other, departure_date, return_date, venue,
+                              pacert_contents, pacert_filename,  
+                              orcert_contents, orcert_filename, 
+                              otrcert_contents, otrcert_filename,  
+                              others_contents, others_filename,
+                              recert_contents, recert_filename, 
                               search):
-    
-        ctx = dash.callback_context
-    
-        if not ctx.triggered:
-            raise PreventUpdate
-        
-        eventid = ctx.triggered[0]['prop_id'].split('.')[0]
-        if eventid == 'trainingdocuments_save_button' and submitbtn:
-    
-        
-            alert_open = False
-            modal_open = False
-            alert_color = ''
-            alert_text = ''
-     
-             
-            if not complete_name:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = 'Check your inputs. Please add a Name.'
-                return [alert_color, alert_text, alert_open, modal_open, None, None]
+    ctx = dash.callback_context
 
-            if not fac_posn_name:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = 'Check your inputs. Please add a Position Type.'
-                return [alert_color, alert_text, alert_open, modal_open, None, None]
-            
-            if not cluster_id:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = 'Check your inputs. Please add a Cluster type.'
-                return [alert_color, alert_text, alert_open, modal_open, None, None]
-            
-            if not college_id:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = 'Check your inputs. Please add a College.'
-                return [alert_color, alert_text, alert_open, modal_open, None, None]
-            
-            if not deg_unit_id:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = 'Check your inputs. Please add a Department.'
-                return [alert_color, alert_text, alert_open, modal_open, None, None]
-            
-            if not qa_training_id:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = 'Check your inputs. Please add a QA training.'
-                return [alert_color, alert_text, alert_open, modal_open, None, None]
-            
-            if not departure_date:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = 'Check your inputs. Please add a Departure date.'
-                return [alert_color, alert_text, alert_open, modal_open, None, None]
-            
-            if not return_date:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = 'Check your inputs. Please add a Return date.'
-                return [alert_color, alert_text, alert_open, modal_open, None, None]
-            
-            if not venue:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = 'Check your inputs. Please add a Venue.'
-                return [alert_color, alert_text, alert_open, modal_open, None, None]
-            
+    if not ctx.triggered:
+        raise PreventUpdate
 
-            # Set default values for non-nullable fields
-            if not parti_attendance_cert:
-                parti_attendance_cert = b''  # Empty bytes
-            if not official_receipt:
-                official_receipt = b''  
-            if not official_travel_report:
-                official_travel_report = b'' 
-            if not other_receipts:
-                other_receipts = b''
-     
-            parsed = urlparse(search)
-            create_mode = parse_qs(parsed.query)['mode'][0]
-                    
-            if create_mode == 'add':
-                        
-                    sql = """
-                        INSERT INTO adminteam.training_documents (
-                            complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id,
-                            qa_training_id, qa_training_other, departure_date, return_date, venue, parti_attendance_cert, 
-                            official_receipt, official_travel_report, other_receipts, receiving_copy, train_docs_del_ind 
-                        )
-                        VALUES (
-                                %s, %s, %s, %s, %s, 
-                                %s, %s, %s, %s, %s, %s, 
-                                %s, %s, %s, %s, %s, %s
-                            )
-                        """
-    
-                    values = (complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id, 
-                        qa_training_id, qa_training_other, departure_date, return_date, venue, parti_attendance_cert, 
-                        official_receipt, official_travel_report, other_receipts, receiving_copy, False
-                    )
-            
-                    db.modifydatabase(sql, values) 
-                    modal_open = True
-                    feedbackmessage = html.H5("Training document registered successfully.")
-                    okay_href = "/training_record" 
-                        
-            elif create_mode == 'edit':
-                parsed = urlparse(search)
-                trainingdocumentsid = parse_qs(parsed.query)['id'][0]
+    eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+    if eventid != 'trainingdocuments_save_button' or not submitbtn:
+        raise PreventUpdate
+
+    alert_open = False
+    modal_open = False
+    alert_color = ''
+    alert_text = ''
+    feedbackmessage = None
+    okay_href = None
+
+    parsed = urlparse(search)
+    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+
+    def process_files(contents, filenames):
+        file_data = []
+        for content, filename in zip(contents, filenames):
+            if content == "1" and filename == "1":
+                continue
+            try:
+                content_type, content_string = content.split(',')
+                decoded_content = base64.b64decode(content_string)
+
+                file_path = os.path.join(UPLOAD_DIRECTORY, filename)
+                with open(file_path, 'wb') as f:
+                    f.write(decoded_content)
+
+                file_info = {
+                    "path": file_path,
+                    "name": filename,
+                    "type": content_type,
+                    "size": len(decoded_content),
+                }
+                file_data.append(file_info)
                 
-                sqlcode = """
-                    UPDATE adminteam.training_documents
-                    SET
-                        complete_name = %s,
-                        fac_posn_name = %s,
-                        fac_posn_number = %s,
-                        qa_training_id = %s, 
-                        qa_training_other = %s, 
-                        departure_date = %s,
-                        return_date = %s,
-                        venue = %s,
-                        train_docs_del_ind = %s 
-                    WHERE 
-                        training_documents_id  = %s
-                """
-                to_delete = bool(removerecord) 
-                        
-                values = [complete_name, fac_posn_name, fac_posn_number, qa_training_id, qa_training_other, departure_date, return_date, venue, to_delete, trainingdocumentsid]
-                db.modifydatabase(sqlcode, values)
-                    
-                feedbackmessage = html.H5("Document has been updated." )
-                okay_href = "/training_record"
-                modal_open = True
+            except Exception as e:
+                return None, f'Error processing file: {e}'
+        return file_data, None
 
-            else:
-                raise PreventUpdate
+    if create_mode == 'add': 
+        if not all([complete_name, fac_posn_name, cluster_id, college_id, deg_unit_id,
+                    qa_training_id, departure_date, return_date, venue]):
+            alert_color = 'danger'
+            alert_text = 'Missing required fields.'
+            return [alert_color, alert_text, True, modal_open, feedbackmessage, okay_href]
 
+        if pacert_contents is None or pacert_filename is None:
+            pacert_contents = ["1"]
+            pacert_filename = ["1"]
+
+        pacert_data, error = process_files(pacert_contents, pacert_filename)
+        if error:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = error
             return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
 
-        else:
+        if orcert_contents is None or orcert_filename is None:
+            orcert_contents = ["1"]
+            orcert_filename = ["1"]
+
+        orcert_data, error = process_files(orcert_contents, orcert_filename)
+        if error:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = error
+            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+
+        if otrcert_contents is None or otrcert_filename is None:
+            otrcert_contents = ["1"]
+            otrcert_filename = ["1"]
+
+        otrcert_data, error = process_files(otrcert_contents, otrcert_filename)
+        if error:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = error
+            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+
+        if others_contents is None or others_filename is None:
+            others_contents = ["1"]
+            others_filename = ["1"]
+
+        others_data, error = process_files(others_contents, others_filename)
+        if error:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = error
+            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+
+        if recert_contents is None or recert_filename is None:
+            recert_contents = ["1"]
+            recert_filename = ["1"]
+
+        recert_data, error = process_files(recert_contents, recert_filename)
+        if error:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = error
+            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+  
+
+        sql = """
+            INSERT INTO adminteam.training_documents (
+                complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id,
+                qa_training_id, qa_training_other, departure_date, return_date, venue, 
+                pacert_path, pacert_name, pacert_type, pacert_size, 
+                orcert_path, orcert_name, orcert_type, orcert_size,
+                otrcert_path, otrcert_name, otrcert_type, otrcert_size,
+                others_path, others_name, others_type, others_size,
+                recert_path, recert_name, recert_type, recert_size,
+                train_docs_del_ind
+            )
+            VALUES (
+                %s, %s, %s, %s, %s, %s, 
+                %s, %s, %s, %s, %s,  
+                %s, %s, %s, %s, 
+                %s, %s, %s, %s, 
+                %s, %s, %s, %s,
+                %s, %s, %s, %s, 
+                %s, %s, %s, %s,
+                %s  
+            )
+        """
+
+        values = (
+            complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id,
+            qa_training_id, qa_training_other, departure_date, return_date, venue,
+            pacert_data[0]["path"] if pacert_data else None, pacert_data[0]["name"] if pacert_data else None,
+            pacert_data[0]["type"] if pacert_data else None, pacert_data[0]["size"] if pacert_data else None,
+            orcert_data[0]["path"] if orcert_data else None, orcert_data[0]["name"] if orcert_data else None,
+            orcert_data[0]["type"] if orcert_data else None, orcert_data[0]["size"] if orcert_data else None,
+            otrcert_data[0]["path"] if otrcert_data else None, otrcert_data[0]["name"] if otrcert_data else None,
+            otrcert_data[0]["type"] if otrcert_data else None, otrcert_data[0]["size"] if otrcert_data else None,
+            others_data[0]["path"] if others_data else None, others_data[0]["name"] if others_data else None,
+            others_data[0]["type"] if others_data else None, others_data[0]["size"] if others_data else None,
+            recert_data[0]["path"] if recert_data else None, recert_data[0]["name"] if recert_data else None,
+            recert_data[0]["type"] if recert_data else None, recert_data[0]["size"] if recert_data else None,
+            
+            False  # train_docs_del_ind
+        )
+
+        db.modifydatabase(sql, values)
+        modal_open = True
+        feedbackmessage = html.H5("Training document registered successfully.")
+        okay_href = "/training_record"
+
+    elif create_mode == 'edit':
+        trainingdocumentsid = parse_qs(parsed.query).get('id', [None])[0]
+
+        if trainingdocumentsid is None:
             raise PreventUpdate
-        
- 
+
+        sqlcode = """
+            UPDATE adminteam.training_documents
+            SET
+                complete_name = %s,
+                fac_posn_name = %s,
+                fac_posn_number = %s,
+                qa_training_id = %s, 
+                qa_training_other = %s, 
+                departure_date = %s,
+                return_date = %s,
+                venue = %s,
+                train_docs_del_ind = %s 
+            WHERE 
+                training_documents_id = %s
+        """
+        to_delete = bool(removerecord)
+
+        values = [
+            complete_name, fac_posn_name, fac_posn_number, qa_training_id,
+            qa_training_other, departure_date, return_date, venue,
+            to_delete, trainingdocumentsid
+        ]
+        db.modifydatabase(sqlcode, values)
+
+        feedbackmessage = html.H5("Document has been updated.")
+        okay_href = "/training_record"
+        modal_open = True
+
+    else:
+        raise PreventUpdate
+
+    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+
+
+
+
 
 
 
@@ -1051,11 +1117,11 @@ def record_training_documents(submitbtn, closebtn, removerecord,
         Output('departure_date', 'date'),
         Output('return_date', 'date'),
         Output('venue', 'value'),
-        Output('parti_attendance_cert', 'filename'),
-        Output('official_receipt', 'filename'),
-        Output('official_travel_report', 'filename'),
-        Output('other_receipts', 'filename'),
-        Output('receiving_copy', 'filename'),
+        Output('pacert', 'filename'),
+        Output('orcert', 'filename'),
+        Output('otrcert', 'filename'),
+        Output('others', 'filename'),
+        Output('recert', 'filename'),
     ],
     [  
         Input('trainingdocuments_toload', 'modified_timestamp')
@@ -1073,8 +1139,8 @@ def trainingdocuments_loadprofile(timestamp, toload, search):
         sql = """
             SELECT 
                 complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id,
-                qa_training_id, qa_training_other, departure_date, return_date, venue, parti_attendance_cert, 
-                official_receipt, official_travel_report, other_receipts, receiving_copy
+                qa_training_id, qa_training_other, departure_date, return_date, venue, pacert, 
+                orcert, otrcert, others, recert
             FROM adminteam.training_documents
             WHERE training_documents_id = %s
         """
@@ -1082,8 +1148,8 @@ def trainingdocuments_loadprofile(timestamp, toload, search):
 
         cols = [
             'complete_name', 'fac_posn_name', 'fac_posn_number', 'cluster_id', 'college_id', 'deg_unit_id',
-            'qa_training_id', "qa_training_other" , 'departure_date', 'return_date', 'venue', 'parti_attendance_cert', 
-            'official_receipt', 'official_travel_report', 'other_receipts', 'receiving_copy' 
+            'qa_training_id', "qa_training_other" , 'departure_date', 'return_date', 'venue', 'pacert', 
+            'orcert', 'otrcert', 'others', 'recert' 
         ]
 
          
@@ -1101,15 +1167,15 @@ def trainingdocuments_loadprofile(timestamp, toload, search):
         departure_date = df['departure_date'][0]
         return_date = df['return_date'][0]
         venue = df['venue'][0]
-        parti_attendance_cert = df['parti_attendance_cert'][0]  
-        official_receipt = df['official_receipt'][0]
-        official_travel_report = df['official_travel_report'][0]
-        other_receipts = df['other_receipts'][0]
-        receiving_copy = df['receiving_copy'][0] 
+        pacert = df['pacert'][0]  
+        orcert = df['orcert'][0]
+        otrcert = df['otrcert'][0]
+        others = df['others'][0]
+        recert = df['recert'][0] 
         
         return [complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id, 
-                            qa_training_id, qa_training_other , departure_date, return_date, venue, parti_attendance_cert, 
-                            official_receipt, official_travel_report, other_receipts, receiving_copy]
+                            qa_training_id, qa_training_other , departure_date, return_date, venue, pacert, 
+                            orcert, otrcert, others, recert]
     
     else:
         raise PreventUpdate

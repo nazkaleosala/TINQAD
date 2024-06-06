@@ -861,7 +861,7 @@ def record_assessment_details (submitbtn, closebtn, removerecord,
 
         db.modifydatabase(sql, values)
         modal_open = True
-        feedbackmessage = html.H5("New Assessment report submitted successfully.")
+        feedbackmessage = html.H5("New assessment report submitted successfully.")
         okay_href = "/assessment_reports"
 
     elif create_mode == 'edit': 
