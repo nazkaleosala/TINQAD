@@ -32,17 +32,6 @@ def create_time_date_card():
         style={"backgroundColor": "#FFFFFF"}
     )
 
-
-
-
-
-
-
-
-
-
-
-
 def get_month_range():
     today = datetime.today()
     # Get the first day of the current month
@@ -647,7 +636,7 @@ layout = html.Div(
 
                     dbc.Row(
                         dbc.Col(
-                            card, width=8, sm=12
+                            card, width=12
                         )
                     ),
                     html.Br(),
@@ -679,7 +668,7 @@ layout = html.Div(
                                     ),
                                     href='/administration_dashboard'
                                     ),
-                                    width=6, md=6, sm=12
+                                    width={"size": 6, "md": 12, "sm": 12},
                                 ),
                                 dbc.Col(
                                     html.A(
@@ -705,7 +694,7 @@ layout = html.Div(
                                     ),
                                     href='/eqa_dashboard'
                                     ),
-                                    width=6, md=6, sm=12
+                                    width={"size": 6, "md": 12, "sm": 12},
                                 ),
                             ],
                             className="mb-3"
@@ -736,7 +725,7 @@ layout = html.Div(
                                     ),
                                     href='/iqa_dashboard'
                                     ),
-                                    width=6, md=6, sm=12
+                                    width={"size": 6, "md": 12, "sm": 12},
                                 ),
                                 dbc.Col(
                                     html.A(
@@ -762,7 +751,7 @@ layout = html.Div(
                                     ),
                                     href='/km_dashboard'
                                     ),
-                                    width=6, md=6, sm=12
+                                    width={"size": 6, "md": 12, "sm": 12},
                                 ),
                             ],
                             className="mb-3"

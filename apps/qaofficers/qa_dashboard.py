@@ -257,9 +257,9 @@ qaofficerscard = dbc.Card(
                         ),
                         dbc.Col(
                             dbc.Button(
-                                "➕ Add Training", 
+                                "➕ Edit QA Trainings", 
                                 color="primary", 
-                                href='/qaofficers_training?mode=add',
+                                href='/qaofficers_training',
                             ),
                             width="auto",
                             className="ml-auto",
@@ -279,7 +279,7 @@ qaofficerscard = dbc.Card(
                                 style={
                                     'overflowX': 'auto',
                                     'overflowY': 'auto',
-                                    'maxHeight': '200px',
+                                    'maxHeight': '500px',
                                 }
                             ),
                         )
@@ -412,7 +412,10 @@ def traininglist_loadlist(pathname, searchterm):
                 du.deg_unit_name AS "Department",
                 cl.college_name AS "College",
                 clus.cluster_name AS "Academic Cluster",
-                STRING_AGG(qtd.qatr_training_name, ', ') AS "Trainings"
+                STRING_AGG(
+                    CASE WHEN NOT qtd.qatr_training_del_ind THEN qtd.qatr_training_name ELSE NULL END,
+                    ', '
+                ) AS "Trainings"
             FROM 
                 qaofficers.qa_officer AS qo
             LEFT JOIN 
@@ -453,15 +456,9 @@ def traininglist_loadlist(pathname, searchterm):
 
         df = db.querydatafromdatabase(sql, values, cols) 
 
-        if not df.empty: 
-            df["Action"] = df["ID"].apply(
-                lambda x: html.Div(
-                    dbc.Button('Edit', href=f'qaofficers_training?mode=edit&id={x}', size='sm', color='warning'),
-                    style={'text-align': 'center'}
-                )
-            )
-            df = df[['Name', 'Rank/Designation', 'Department','College','Academic Cluster', 'Trainings', 'Action' ]]
-                
+        if not df.empty:   
+            df = df[['Name', 'Rank/Designation', 'Department','College','Academic Cluster', 'Trainings' ]]
+             
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         

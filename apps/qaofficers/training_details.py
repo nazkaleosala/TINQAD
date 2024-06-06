@@ -1,5 +1,5 @@
 import dash_bootstrap_components as dbc
-from dash import dash, html, dcc, Input, Output, State, no_update
+from dash import dash, html, dcc, Input, Output, State, ALL
 from dash import callback_context
 
 import dash
@@ -10,10 +10,7 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
-import datetime
-
-from urllib.parse import urlparse, parse_qs
-
+import datetime  
 
 current_year = datetime.datetime.now().year
 
@@ -290,107 +287,127 @@ def record_training_details(submitbtn, closebtn, qatr_officername_id, qatr_train
         eventid = ctx.triggered[0]['prop_id'].split('.')[0]
         if eventid == 'qatr_save_button' and submitbtn:
             
-            parsed = urlparse(search)
-            create_mode = parse_qs(parsed.query).get('mode', [None])[0]
-            
-            if create_mode == 'add':
-
-                # Input validation
-                if not qatr_officername_id:
-                    alert_color = 'danger'
-                    alert_text = 'Check your inputs. Please add an Officer name.'
-                    alert_open = True
-                    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+            # Input validation
+            if not qatr_officername_id:
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please add an Officer name.'
+                alert_open = True
+                return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
                 
-                if not qatr_training_year:
-                    alert_color = 'danger'
-                    alert_text = 'Check your inputs. Please add a Training Year.'
-                    alert_open = True
-                    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+            if not qatr_training_year:
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please add a Training Year.'
+                alert_open = True
+                return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
                 
-                if not qatr_training_name:
-                    alert_color = 'danger'
-                    alert_text = 'Check your inputs. Please add a Training Name.'
-                    alert_open = True
-                    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+            if not qatr_training_name:
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please add a Training Name.'
+                alert_open = True
+                return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
                 
-                if not qatr_training_type:
-                    alert_color = 'danger'
-                    alert_text = 'Check your inputs. Please add a Training Type.'
-                    alert_open = True
-                    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+            if not qatr_training_type:
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please add a Training Type.'
+                alert_open = True
+                return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
                 
-                sql = """
-                    INSERT INTO qaofficers.qa_training_details (
-                        qatr_officername_id, qatr_training_year,
-                        qatr_training_name, qatr_training_type, qatr_training_other
-                    )
-                    VALUES (%s, %s, %s, %s, %s)
-                """
-                values = (
+            sql = """
+                INSERT INTO qaofficers.qa_training_details (
                     qatr_officername_id, qatr_training_year,
                     qatr_training_name, qatr_training_type, qatr_training_other
                 )
+                VALUES (%s, %s, %s, %s, %s)
+            """
+            values = (
+                qatr_officername_id, qatr_training_year,
+                qatr_training_name, qatr_training_type, qatr_training_other
+            )
 
-                db.modifydatabase(sql, values)
-                modal_open = True
-                feedbackmessage = html.H5("Training registered successfully.")
-                okay_href = "/QAOfficers_dashboard"
+            db.modifydatabase(sql, values)
+            modal_open = True
+            feedbackmessage = html.H5("Training registered successfully.")
+            okay_href = "/QAOfficers_dashboard"
               
-            else:
-                raise PreventUpdate
-
-            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]  
-
         else:
             raise PreventUpdate
+
     else:
         raise PreventUpdate
 
     return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
-
   
 
  
 
 
-
 @app.callback(
     Output("training_details_output", "children"),
-    [Input("qatr_officername_id", "value")],
+    [Input("qatr_officername_id", "value")]
 )
-def fetch_training_details(qatr_officername_id):
+def training_details_output(qatr_officername_id, searchterm=None):
     if not qatr_officername_id:
-        raise PreventUpdate
-    
-    try:
-        sql = """
-            SELECT 
-                qatr_training_year AS "Year",
-                qatr_training_name AS "Name",
-                tt.trainingtype_name AS "Type"
-            FROM 
-                qaofficers.qa_training_details qtd
-            INNER JOIN 
-                qaofficers.training_type tt
-            ON 
-                qtd.qatr_training_type = tt.trainingtype_id
-            WHERE 
-                qatr_officername_id = %s 
-                AND qatr_training_del_ind IS False
-        """
-        # Correct function call and appropriate arguments
-        results = db.querydatafromdatabase(sql, (qatr_officername_id,), ["Year", "Name", "Type"])
+        raise dash.exceptions.PreventUpdate
+
+    sql = """
+        SELECT 
+            qatr_id AS "ID",
+            qatr_training_year AS "Year",
+            qatr_training_name AS "Name",
+            tt.trainingtype_name AS "Type"
+        FROM 
+            qaofficers.qa_training_details qtd
+        INNER JOIN 
+            qaofficers.training_type tt
+        ON 
+            qtd.qatr_training_type = tt.trainingtype_id
+        WHERE 
+            qatr_officername_id = %s 
+            AND qatr_training_del_ind IS False
+    """
+    cols = ["ID", "Year", "Name", "Type"]
+
+    # Execute SQL query
+    df = db.querydatafromdatabase(sql, [qatr_officername_id], cols)
+
+    if not df.empty:
+        # Add a button for each training detail
+        df["Action"] = df["ID"].apply(
+            lambda x: html.Div(
+                dbc.Button('❌', id={'type': 'training_remove_button', 'index': x}, size='sm', color='danger'),
+                style={'text-align': 'center'})
+        )
         
-        if results.empty:
-            return "No training details found for this QA officer."
+        # Construct HTML table from DataFrame
+        table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+        return [table]
+    else:
+        return [html.Div("No training details found for this QA officer")]
 
-        training_list = [
-            f"Year: {row['Year']}, Training Name: {row['Name']}, Type: {row['Type']}"
-            for _, row in results.iterrows()
-        ]
 
-        return html.Ul([html.Li(item) for item in training_list])
 
-    except Exception as e:
-        return f"An error occurred while retrieving the training details: {e}"
+@app.callback(
+    Output('training_details_output', 'children', allow_duplicate=True),
+    [Input({'type': 'training_remove_button', 'index': dash.dependencies.ALL}, 'n_clicks')],
+    [State({'type': 'training_remove_button', 'index': dash.dependencies.ALL}, 'id')],
+    prevent_initial_call=True
+)
+def remove_training(n_clicks_list, button_id_list):
+    if not n_clicks_list or not any(n_clicks_list):
+        raise PreventUpdate
+
+    outputs = []
+    for n_clicks, button_id in zip(n_clicks_list, button_id_list):
+        if n_clicks:
+            qatr_id = button_id['index']
+            update_sql = """
+                UPDATE qaofficers.qa_training_details 
+                SET qatr_training_del_ind = TRUE
+                WHERE qatr_id = %s
+            """
+            db.modifydatabase(update_sql, [qatr_id])  
+
+            outputs.append(training_details_output('/qaofficers_training', searchterm=None)[0])
+
+    return outputs
+ 
