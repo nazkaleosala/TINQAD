@@ -1,6 +1,8 @@
 import dash_bootstrap_components as dbc
-from dash import dash, html, dcc, Input, Output, State
+from dash import dash, html, dcc, Input, Output, State, no_update
+from dash import callback_context
 
+import dash
 from dash.exceptions import PreventUpdate
 import pandas as pd
 
@@ -11,11 +13,6 @@ from calendar import month_name
 
 
  
-
-
-
-  
-
 
 # Form layout with improvements
 form = dbc.Form(

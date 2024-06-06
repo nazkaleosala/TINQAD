@@ -1,6 +1,8 @@
 import dash_bootstrap_components as dbc
 from dash import dash, html, dcc, Input, Output, State
+from dash import callback_context
 
+import dash
 from dash.exceptions import PreventUpdate
 import pandas as pd
 import os
@@ -227,8 +229,7 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
                 eqateam.review_status AS rs ON assr.arep_review_status = rs.review_status_id 
             LEFT JOIN
                 eqateam.approv_eqa AS appr ON assr.arep_approv_eqa = appr.approv_eqa_id
-            LEFT JOIN
-                
+            
             WHERE
                 arep_del_ind IS FALSE
         """
@@ -255,6 +256,9 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
     if sql:
         df = db.querydatafromdatabase(sql, values, cols)
         
+        if "Review Status" in df.columns:
+            df["Review Status"] = df["Review Status"].replace({1: "Endorsed for EQA", 2: "For Revision"})
+
         if not df.empty:
             if active_tab == "sar":
                 df["Action"] = df["ID"].apply(
