@@ -164,6 +164,7 @@ def populate_qaofficername_dropdown(pathname):
         sql = """
         SELECT qaofficer_full_name as label, qaofficer_id as value
         FROM  qaofficers.qa_officer
+        WHERE qaofficer_del_ind IS False
         """
         values = []
         cols = ['label', 'value']
@@ -186,7 +187,7 @@ def populate_qaofficername_dropdown(pathname):
     if pathname == '/QAOfficers/addtraining':
         sql = """
         SELECT trainingtype_name as label, trainingtype_id as value
-        FROM  qaofficers.training_type
+        FROM  qaofficers.training_type 
         """
         values = []
         cols = ['label', 'value']
@@ -351,7 +352,7 @@ def fetch_training_details(qatr_officername_id):
             ON 
                 qtd.qatr_training_type = tt.trainingtype_id
             WHERE 
-                qatr_officername_id = %s
+                qatr_officername_id = %s 
         """
         # Correct function call and appropriate arguments
         results = db.querydatafromdatabase(sql, (qatr_officername_id,), ["Year", "Name", "Type"])
