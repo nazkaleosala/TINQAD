@@ -216,33 +216,7 @@ form = dbc.Form(
                 ),
             ],
             className="mb-2",
-        ),
-
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Submission Type ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    dcc.Dropdown(
-                        id='arepsubmission_type',
-                        options=[
-                            {"label": "File", "value": "file"},
-                            {"label": "Link", "value": "link"},
-                            {"label": "Both File and Link", "value": "both"},
-                        ],
-                        placeholder="Select Submission Type",
-                        disabled=False
-                    ),
-                    width=4,
-                ),
-            ],
-            className="mb-2",
-        ),
-
+        ), 
         dbc.Row(
             [
                 dbc.Label(
@@ -257,29 +231,20 @@ form = dbc.Form(
                         id="arep_file",
                         children=html.Div(
                             [
-                                html.Img(
-                                    src=app.get_asset_url("icons/add_file.png"),
-                                    style={"height": "15px", "marginRight": "5px"},
-                                ),
-                                "Add file",
+                                'Drag and Drop or Select Files',
                             ],
                             style={"display": "flex", "alignItems": "center"},
                         ),
                         style={
-                            "width": "100%",
-                            "minHeight": "30px",
-                            "borderWidth": "1px",
-                            "borderStyle": "solid",
-                            "borderRadius": "5px",
-                            "textAlign": "center",
-                            "margin": "5px",
-                            "display": "flex",
-                            "alignItems": "center",
-                            "justifyContent": "center",
+                            'width': '100%',
+                            'height': '30px',
+                            'lineHeight': '30px',
+                            'borderWidth': '1px',
+                            'borderStyle': 'dashed',
+                            'borderRadius': '5px',
+                            'textAlign': 'center', 
                         },
-                        multiple=True,  # Enable multiple file uploads
-                        disabled=False
-                        
+                        multiple=True,    
                     ),
                     width=6,
                 ),
@@ -504,25 +469,7 @@ def populate_reviewstatus_dropdown(pathname):
     else:
         raise PreventUpdate
 
-
-# Callback to handle enabling/disabling file and link submissions based on sarsubmission_type
-@app.callback(
-    [Output('arep_file', 'disabled'),
-     Output('arep_link', 'disabled')],
-    [Input('arepsubmission_type', 'value')]
-)
-def toggle_submissions(arepsubmission_type):
-    if arepsubmission_type == 'file':
-        return False, True  
-    elif arepsubmission_type == 'link':
-        return True, False  
-    elif arepsubmission_type == 'both':
-        return False, False   
-    return True, True   
-
-  
-
-
+ 
 # Callback to display the names of the uploaded files
 @app.callback(
     Output("arep_file_output", "children"),
@@ -1014,8 +961,11 @@ def arep_load(timestamp, toload, search):
         Output('arep_assessedby', 'disabled'), 
         Output('arep_qscheddate', 'disabled'), 
         Output('arep_report_type', 'disabled'), 
-        Output('arep_report_type_notes', 'disabled'), 
-        Output('arepsubmission_type', 'disabled'), 
+        Output('arep_report_type_notes', 'disabled'),  
+        
+        Output('arep_file', 'disabled'), 
+        Output('arep_link', 'disabled'),  
+        
     ],
     [Input('url', 'search')]
 )
@@ -1024,8 +974,8 @@ def arep_inputs_disabled(search):
         parsed = urlparse(search)
         create_mode = parse_qs(parsed.query).get('mode', [None])[0]
         if create_mode == 'edit':
-            return [True] * 9
-    return [False] * 9
+            return [True] * 10
+    return [False] * 10
 
 
   

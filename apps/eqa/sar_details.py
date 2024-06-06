@@ -67,30 +67,7 @@ form = dbc.Form(
             className="mb-2",
         ),
         
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Submission Type ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    dcc.Dropdown(
-                        id='sarsubmission_type',
-                        options=[
-                            {"label": "File", "value": "file"},
-                            {"label": "Link", "value": "link"},
-                            {"label": "Both File and Link", "value": "both"},
-                        ],
-                        placeholder="Select Submission Type",
-                        disabled=False
-                    ),
-                    width=4,
-                ),
-            ],
-            className="mb-2",
-        ),
+         
 
         dbc.Row(
             [
@@ -106,28 +83,19 @@ form = dbc.Form(
                         id="sarep_file",
                         children=html.Div(
                             [
-                                html.Img(
-                                    src=app.get_asset_url("icons/add_file.png"),
-                                    style={"height": "15px", "marginRight": "5px"},
-                                ),
-                                "Add file",
-                            ],
-                            style={"display": "flex", "alignItems": "center"},
+                                'Drag and Drop or Select Files',
+                            ], 
                         ),
                         style={
-                            "width": "100%",
-                            "minHeight": "30px",
-                            "borderWidth": "1px",
-                            "borderStyle": "solid",
-                            "borderRadius": "5px",
-                            "textAlign": "center",
-                            "margin": "5px",
-                            "display": "flex",
-                            "alignItems": "center",
-                            "justifyContent": "center",
+                            'width': '100%',
+                            'height': '30px',
+                            'lineHeight': '30px',
+                            'borderWidth': '1px',
+                            'borderStyle': 'dashed',
+                            'borderRadius': '5px',
+                            'textAlign': 'center', 
                         },
-                        multiple=True,  # Enable multiple file uploads
-                        disabled=False
+                        multiple=True,   
                         
                     ),
                     width=6,
@@ -321,22 +289,7 @@ def populate_reviewstatus_dropdown(pathname):
         return reviewstatus_types
     else:
         raise PreventUpdate
-
-# Callback to handle enabling/disabling file and link submissions based on sarsubmission_type
-@app.callback(
-    [Output('sarep_file', 'disabled'),
-     Output('sarep_link', 'disabled')],
-    [Input('sarsubmission_type', 'value')]
-)
-def toggle_submissions(sarsubmission_type):
-    if sarsubmission_type == 'file':
-        return False, True  
-    elif sarsubmission_type == 'link':
-        return True, False  
-    elif sarsubmission_type == 'both':
-        return False, False   
-    return True, True   
-
+ 
 
 
 
@@ -352,9 +305,9 @@ def display_uploaded_files(filenames):
     
     if isinstance(filenames, list): 
         file_names_str = ", ".join(filenames)
-        return f"Uploaded files: {file_names_str}"
+        return f"📑{file_names_str}"
  
-    return f"Uploaded file: {filenames}"
+    return f"📑{filenames}"
 
 
 @app.callback(
@@ -761,8 +714,9 @@ def sarep_load(timestamp, toload, search):
 @app.callback(
     [ 
         Output('sarep_degree_programs_id', 'disabled'), 
-        Output('sarep_currentdate', 'disabled'), 
-        Output('sarsubmission_type', 'disabled'), 
+        Output('sarep_currentdate', 'disabled'),  
+        Output('sarep_file', 'disabled'),  
+        Output('sarep_link', 'disabled'),  
     ],
     [Input('url', 'search')]
 )
@@ -771,5 +725,5 @@ def sarep_inputs_disabled(search):
         parsed = urlparse(search)
         create_mode = parse_qs(parsed.query).get('mode', [None])[0]
         if create_mode == 'edit':
-            return [True] * 3
-    return [False] * 3
+            return [True] * 4
+    return [False] * 4
