@@ -33,11 +33,11 @@ app.layout = html.Div(
         dcc.Location(id='url', refresh=True),
 
         # LOGIN DATA
-        # 1) current_user_id -- stores user_id
+        # 1 current_user_id -- stores user_id
         dcc.Store(id='sessionlogout', data = True, storage_type='local'),
         dcc.Store(id='currentuserid', data=-1, storage_type='local'),
         
-        # 2) currentrole -- stores the role
+        # 2 currentrole -- stores the role
         # we will not use them but if you have roles, you can use it
         dcc.Store(id='currentrole', data=0, storage_type='local'),
         
