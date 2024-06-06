@@ -86,7 +86,7 @@ form = dbc.Form(
                 dbc.Label("Other Training type:",
                     width=4),
                 dbc.Col(
-                    dbc.Input(id="qatr_training_other", type="text"),
+                    dbc.Input(id="qatr_training_other", type="text", placeholder="Others: Training Name"),
                     width=5,
                 ), 
             ],
