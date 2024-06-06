@@ -1,16 +1,26 @@
-import dash
 import dash_bootstrap_components as dbc
-from dash import dash, html, dcc
+from dash import dash, html, dcc, Input, Output, State
+from dash import callback_context
 
-from dash.dependencies import Input, Output, State
+import dash 
 from dash.exceptions import PreventUpdate
 import pandas as pd
+import os
 
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
 import datetime
+
+
+
+# Using the corrected path
+UPLOAD_DIRECTORY = r".\assets\database\admin"
+
+# Ensure the directory exists or create it
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
+
 
 custom_css = {
     "tabs": {"background-color": "#C2C2C2"},
@@ -154,7 +164,9 @@ def recordexpenses_loadlist(pathname, searchterm, active_tab):
                     exp_amount AS "Amount", 
                     es.expense_status_name AS "Status",
                     exp_bur_no AS "BUR No",
-                    exp_submitted_by AS "Submitted by"
+                    exp_submitted_by AS "Submitted by",
+                    exp_receipt_name AS "File",
+                    exp_receipt_path AS "File Path"
                 FROM adminteam.expenses AS e
                 LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
                 LEFT JOIN adminteam.sub_expenses AS se ON e.sub_expense_id = se.sub_expense_id
@@ -171,11 +183,14 @@ def recordexpenses_loadlist(pathname, searchterm, active_tab):
                 like_pattern = f"%{searchterm}%"
                 values.extend([like_pattern, like_pattern, like_pattern])
 
-            cols = ['ID', 'Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type', 'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by']
+            cols = ['ID', 'Date', 'Payee Name', 'Main Expense Type', 
+                    'Sub Expense Type', 'Particulars', 'Amount', 'Status', 
+                    'BUR No', 'Submitted by','File', 'File Path']
 
         elif active_tab == "view_all":
             sql = """
                 SELECT 
+                    exp_id AS "ID",
                     exp_date AS "Date", 
                     exp_payee AS "Payee Name", 
                     me.main_expense_name AS "Main Expense Type",
@@ -184,14 +199,18 @@ def recordexpenses_loadlist(pathname, searchterm, active_tab):
                     exp_amount AS "Amount", 
                     es.expense_status_name AS "Status",
                     exp_bur_no AS "BUR No",
-                    exp_submitted_by AS "Submitted by"
+                    exp_submitted_by AS "Submitted by",
+                    exp_receipt_name AS "File",
+                    exp_receipt_path AS "File Path"
                 FROM adminteam.expenses AS e
                 LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
                 LEFT JOIN adminteam.sub_expenses AS se ON e.sub_expense_id = se.sub_expense_id
                 LEFT JOIN adminteam.expense_status AS es ON e.exp_status = es.expense_status_id
             """
             values = []
-            cols = ['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type', 'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by']
+            cols = ['ID', 'Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type', 
+                    'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by',
+                    'File', 'File Path']
 
             if searchterm:
                 sql += """ WHERE exp_payee ILIKE %s OR es.expense_status_name ILIKE %s OR exp_bur_no ILIKE %s """
@@ -199,7 +218,15 @@ def recordexpenses_loadlist(pathname, searchterm, active_tab):
                 values.extend([like_pattern, like_pattern, like_pattern])
 
         df = db.querydatafromdatabase(sql, values, cols)
+ 
 
+    else:
+        return [html.Div("Invalid tab selection")]
+
+        # Execute the query and load data
+    if sql:
+        df = db.querydatafromdatabase(sql, values, cols)
+             
         if not df.empty:
             if active_tab == "current":
                 df["Action"] = df["ID"].apply(
@@ -208,12 +235,32 @@ def recordexpenses_loadlist(pathname, searchterm, active_tab):
                         style={'text-align': 'center'}
                     )
                 )
-                df = df[['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type', 'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by', 'Action']]
+                df = df[['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type',
+                    'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by', 
+                    'File', 'Action']]
+                    
+                df['File'] = df.apply(lambda row: html.A(row['File'], href=os.path.join(UPLOAD_DIRECTORY, row['File']) if row['File'] else ''), axis=1)
+
+
+            if active_tab == "view_all":
+                df["Action"] = df["ID"].apply(
+                    lambda x: html.Div(
+                        dbc.Button('Edit', href=f'/record_expenses/add_expense?mode=edit&id={x}', size='sm', color='warning'),
+                        style={'text-align': 'center'}
+                    )
+                )
+                df = df[['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type',
+                    'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by', 
+                    'File', 'Action']]
+                    
+                df['File'] = df.apply(lambda row: html.A(row['File'], href=os.path.join(UPLOAD_DIRECTORY, row['File']) if row['File'] else ''), axis=1)
+
 
             df['Amount'] = df['Amount'].apply(lambda x: '{:,.2f}'.format(x))
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
-            return table
+            return [table]
+            
         else:
-            return html.Div("No records found")
-    else:
-        raise PreventUpdate
+            return [html.Div("No records to display")]
+
+    return [html.Div("Query could not be processed")]
