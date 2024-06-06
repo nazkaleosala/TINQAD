@@ -280,22 +280,15 @@ form = dbc.Form(
                         id='pacert',
                         children=html.Div(
                             [
-                            html.Img(src=app.get_asset_url('icons/add_file.png'), style={'height': '15px', 'marginRight': '5px'}),
-                            "add file"
-                        ],
+                                'Drag and Drop or Select Files',
+                            ], 
+                        ),
                         style={
-                            'display': 'flex',
-                            'alignItems': 'center'
-                        }
-                    ),
-                    style={
-                        'width': '100%', 'minHeight': '30px',  # Adjust height as needed
-                        'borderWidth': '1px', 'borderStyle': 'solid',
-                        'borderRadius': '5px', 'textAlign': 'center',
-                        'margin': '5px', 'display': 'flex',
-                        'alignItems': 'center', 'justifyContent': 'center'
-                    },
-                    multiple=True
+                            'width': '100%', 'height': '30px',  'lineHeight': '30px',
+                            'borderWidth': '1px', 'borderStyle': 'dashed',
+                            'borderRadius': '5px', 'textAlign': 'center', 
+                        },
+                        multiple=True
                     ),
                     width=6
                 ),
@@ -321,22 +314,15 @@ form = dbc.Form(
                         id='orcert',
                         children=html.Div(
                             [
-                                html.Img(
-                                    src=app.get_asset_url('icons/add_file.png'),
-                                    style={'height': '15px', 'marginRight': '5px'}
-                                ),
-                                "add file"
-                            ],
-                            style={'display': 'flex', 'alignItems': 'center'}
+                                'Drag and Drop or Select Files',
+                            ], 
                         ),
                         style={
-                            'width': '100%', 'minHeight': '30px',  # Adjust height as needed
-                            'borderWidth': '1px', 'borderStyle': 'solid',
-                            'borderRadius': '5px', 'textAlign': 'center',
-                            'margin': '5px', 'display': 'flex',
-                            'alignItems': 'center', 'justifyContent': 'center'
+                            'width': '100%', 'height': '30px',  'lineHeight': '30px',
+                            'borderWidth': '1px', 'borderStyle': 'dashed',
+                            'borderRadius': '5px', 'textAlign': 'center', 
                         },
-                        multiple=True
+                        multiple=True 
                     ),
                     width=6
                 ),
@@ -363,20 +349,13 @@ form = dbc.Form(
                         id='otrcert',
                         children=html.Div(
                             [
-                                html.Img(
-                                    src=app.get_asset_url('icons/add_file.png'),
-                                    style={'height': '15px', 'marginRight': '5px'}
-                                ),
-                                "add file"
-                            ],
-                            style={'display': 'flex', 'alignItems': 'center'}
+                                'Drag and Drop or Select Files',
+                            ], 
                         ),
                         style={
-                            'width': '100%', 'minHeight': '30px',  # Adjust height as needed
-                            'borderWidth': '1px', 'borderStyle': 'solid',
-                            'borderRadius': '5px', 'textAlign': 'center',
-                            'margin': '5px', 'display': 'flex',
-                            'alignItems': 'center', 'justifyContent': 'center'
+                            'width': '100%', 'height': '30px',  'lineHeight': '30px',
+                            'borderWidth': '1px', 'borderStyle': 'dashed',
+                            'borderRadius': '5px', 'textAlign': 'center', 
                         },
                         multiple=True
                     ),
@@ -404,22 +383,15 @@ form = dbc.Form(
                         id='others',
                         children=html.Div(
                             [
-                                html.Img(
-                                    src=app.get_asset_url('icons/add_file.png'),
-                                    style={'height': '15px', 'marginRight': '5px'}
-                                ),
-                                "add file"
-                            ],
-                            style={'display': 'flex', 'alignItems': 'center'}
+                                'Drag and Drop or Select Files',
+                            ], 
                         ),
                         style={
-                            'width': '100%', 'minHeight': '30px',  # Adjust height as needed
-                            'borderWidth': '1px', 'borderStyle': 'solid',
-                            'borderRadius': '5px', 'textAlign': 'center',
-                            'margin': '5px', 'display': 'flex',
-                            'alignItems': 'center', 'justifyContent': 'center'
+                            'width': '100%', 'height': '30px',  'lineHeight': '30px',
+                            'borderWidth': '1px', 'borderStyle': 'dashed',
+                            'borderRadius': '5px', 'textAlign': 'center', 
                         },
-                        multiple=True
+                        multiple=True 
                     ),
                     width=6
                 ),
@@ -443,20 +415,13 @@ form = dbc.Form(
                         id='recert',
                         children=html.Div(
                             [
-                                html.Img(
-                                    src=app.get_asset_url('icons/add_file.png'),
-                                    style={'height': '15px', 'marginRight': '5px'}
-                                ),
-                                "add file"
-                            ],
-                            style={'display': 'flex', 'alignItems': 'center'}
+                                'Drag and Drop or Select Files',
+                            ], 
                         ),
                         style={
-                            'width': '100%', 'minHeight': '30px',  # Adjust height as needed
-                            'borderWidth': '1px', 'borderStyle': 'solid',
-                            'borderRadius': '5px', 'textAlign': 'center',
-                            'margin': '5px', 'display': 'flex',
-                            'alignItems': 'center', 'justifyContent': 'center'
+                            'width': '100%', 'height': '30px',  'lineHeight': '30px',
+                            'borderWidth': '1px', 'borderStyle': 'dashed',
+                            'borderRadius': '5px', 'textAlign': 'center', 
                         },
                         multiple=True
                     ),
@@ -494,9 +459,9 @@ def display_partiattendence_files(filenames):
     
     if isinstance(filenames, list): 
         file_names_str = ", ".join(filenames)
-        return f"Uploaded files: {file_names_str}"
+        return f"📑 {file_names_str}"
  
-    return f"Uploaded file: {filenames}"
+    return f"📑 {filenames}"
 
 
  
@@ -510,9 +475,9 @@ def display_receipt_files(filenames):
     
     if isinstance(filenames, list): 
         file_names_str = ", ".join(filenames)
-        return f"Uploaded files: {file_names_str}"
+        return f"📑{file_names_str}"
  
-    return f"Uploaded file: {filenames}"
+    return f"📑{filenames}"
 
  
 @app.callback(
@@ -525,9 +490,9 @@ def display_travelreport_files(filenames):
     
     if isinstance(filenames, list): 
         file_names_str = ", ".join(filenames)
-        return f"Uploaded files: {file_names_str}"
+        return f"📑 {file_names_str}"
  
-    return f"Uploaded file: {filenames}"
+    return f"📑 {filenames}"
 
  
 
@@ -542,9 +507,9 @@ def display_otherreport_files(filenames):
     
     if isinstance(filenames, list): 
         file_names_str = ", ".join(filenames)
-        return f"Uploaded files: {file_names_str}"
+        return f"📑 {file_names_str}"
  
-    return f"Uploaded file: {filenames}"
+    return f"📑{filenames}"
 
  
 @app.callback(
@@ -557,9 +522,9 @@ def display_receivingcopy_files(filenames):
     
     if isinstance(filenames, list): 
         file_names_str = ", ".join(filenames)
-        return f"Uploaded files: {file_names_str}"
+        return f"📑 {file_names_str}"
  
-    return f"Uploaded file: {filenames}"
+    return f"📑 {filenames}"
 
  
 

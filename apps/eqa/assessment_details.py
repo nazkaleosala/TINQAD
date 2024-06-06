@@ -481,9 +481,9 @@ def display_uploaded_files(filenames):
     
     if isinstance(filenames, list): 
         file_names_str = ", ".join(filenames)
-        return f"Uploaded files: {file_names_str}"
+        return f"📑 {file_names_str}"
  
-    return f"Uploaded file: {filenames}"
+    return f"📑 {filenames}"
 
 
 @app.callback(

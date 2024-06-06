@@ -278,25 +278,17 @@ form = dbc.Form(
                         id="sdg_file",
                         children=html.Div(
                             [
-                                html.Img(
-                                    src=app.get_asset_url("icons/add_file.png"),
-                                    style={"height": "15px", "marginRight": "5px"},
-                                ),
-                                "Add file",
-                            ],
-                            style={"display": "flex", "alignItems": "center"},
+                                'Drag and Drop or Select Files',
+                            ], 
                         ),
                         style={
-                            "width": "100%",
-                            "minHeight": "30px",
-                            "borderWidth": "1px",
-                            "borderStyle": "solid",
-                            "borderRadius": "5px",
-                            "textAlign": "center",
-                            "margin": "5px",
-                            "display": "flex",
-                            "alignItems": "center",
-                            "justifyContent": "center",
+                            'width': '100%',
+                            'height': '30px',
+                            'lineHeight': '30px',
+                            'borderWidth': '1px',
+                            'borderStyle': 'dashed',
+                            'borderRadius': '5px',
+                            'textAlign': 'center', 
                         },
                         multiple=True,  # Enable multiple file uploads
                         disabled=False
@@ -484,10 +476,10 @@ def display_uploaded_files(filenames):
     if isinstance(filenames, list):
         # If multiple files are uploaded, join their names
         file_names_str = ", ".join(filenames)
-        return f"Uploaded files: {file_names_str}"
+        return f"📑{file_names_str}"
 
     # For single file upload, return the file name directly
-    return f"Uploaded file: {filenames}"
+    return f"📑{filenames}"
 
 
 # Layout for the Dash app
