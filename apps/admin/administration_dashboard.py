@@ -1,8 +1,7 @@
-import dash
-from dash import dcc, html, dash_table
+from dash import dcc, html, Input, Output, State
 import dash_bootstrap_components as dbc
  
-from dash.dependencies import Input, Output, State
+import dash 
 from dash.exceptions import PreventUpdate
 import pandas as pd
 import plotly.graph_objects as go
@@ -27,8 +26,7 @@ def get_year_range():
     return f"{previous_year}-{current_year}"
 
 
-def charts_mainexp():
-    # Fetch data from the database for the pie chart
+def charts_mainexp(): 
     current_year = datetime.now().year
 
     pie_sql = """
@@ -203,30 +201,29 @@ layout = html.Div(
                     [
                         html.H1("ADMIN DASHBOARD"),
                         html.Hr(),
+                        html.Div(  
+                            [
+                                dcc.Store(id='admindashboard_toload', storage_type='memory', data=0),
+                            ]
+                        ),
                         
-                        # Spending Overview
                         dbc.Row(
                             [
                                 dbc.CardHeader(html.H3("Spending Overview", className="mb-0")),
                                 dbc.CardBody(
-                                    charts_mainexp()
+                                    html.Div(id='charts_mainexp')
                                 )
                             ]
-                        ), 
-                        
-                        html.Br(),
-
-                        # Spending Overview
+                        ),  
                         dbc.Row(
                             [
                                 dbc.CardHeader(html.H5("MOOE sub expenses overview", className="mb-0")),
                                 dbc.CardBody(
-                                    charts_subexp()
+                                    html.Div(id='charts_subexp')
                                 )
                             ]
                         ), 
 
-                        # Add the maintenance and other expenses section
                         dbc.Row(
                             [
                                 dbc.CardHeader(html.H3("Expense Types", className="mb-0")),
@@ -235,22 +232,19 @@ layout = html.Div(
                                 )
                             ]
                         ),
-
-                        
-                        
                         dbc.Row(
-                        [
-                            dbc.Col(
-                                html.A(
-                                    dbc.Button("Edit Expense Type List", color="link"),
-                                    href="/expense_list",
-                                    style={"text-align": "right"}
+                            [
+                                dbc.Col(
+                                    html.A(
+                                        dbc.Button("Edit Expense Type List", color="link"),
+                                        href="/expense_list",
+                                        style={"text-align": "right"}
+                                    ),
+                                    width={"size": 8}  # Adjust width and offset for alignment
                                 ),
-                                width={"size": 8}  # Adjust width and offset for alignment
-                            ),
-                        ],
-                    ),
-                    html.Br(), html.Br(), html.Br(),
+                            ],
+                        ),
+                        html.Br(), html.Br(), html.Br(),
                     ],
                     width=9,
                     style={'marginLeft': '15px'}
@@ -266,3 +260,30 @@ layout = html.Div(
         )
     ]
 )
+
+
+
+
+@app.callback(
+    [Output('charts_mainexp', 'children'),
+     Output('charts_subexp', 'children')],
+    [Input('admindashboard_toload', 'modified_timestamp')],
+    [State('admindashboard_toload', 'data')]
+)
+def update_charts(timestamp, toload):
+    if toload:
+        main_exp_charts = charts_mainexp()
+        sub_exp_charts = charts_subexp()
+        return main_exp_charts, sub_exp_charts
+    else:
+        raise PreventUpdate
+    
+
+@app.callback(
+    Output('admindashboard_toload', 'data'),
+    Input('url', 'pathname')
+)
+def trigger_chart_loading(pathname):
+    if pathname == '/administration_dashboard':
+        return 1   
+    return 0  

@@ -280,7 +280,6 @@ def generate_sar_submissions_chart():
 
 
 
-
 layout = html.Div(
     [
         dbc.Row(
@@ -293,94 +292,17 @@ layout = html.Div(
                     [
                         html.H1("EQA DASHBOARD"),
                         html.Hr(),
+                        html.Div(  
+                            [
+                                dcc.Store(id='eqadashboard_toload', storage_type='memory', data=0),
+                            ]
+                        ),
                         dbc.Row(
                             [
                                 dbc.Col
                                     (
                                         [
-                                        dbc.Card(
-                                            [
-                                                dbc.CardHeader(
-                                                    html.H3(
-                                                        [
-                                                            html.Strong("Summary of Degree Programs with SAR"),  # Bold only this part
-                                                        ],
-                                                        className="mb-0",  # Remove bottom margin
-                                                        style={'fontSize': '1.5rem'}  # Adjust font size
-                                                    )
-                                                ),
-                                                dbc.CardBody(
-                                                    [
-                                                        
-                                                        dbc.Row(
-                                                            [
-                                                                dbc.Col(
-                                                                    dcc.Graph(
-                                                                        id='donut-chart', 
-                                                                        figure=generate_donut_chart(),
-                                                                        config={'displayModeBar': False},  # Hide the mode bar for a cleaner look
-                                                                        style={'height': '500px', 'margin-top': '0px', 'padding-top': '0px'}  # Adjust height and remove top margin
-                                                                    ),
-                                                                    style={'padding': '0px', 'margin-top': '-20px'}  # Remove any padding around the graph and adjust margin
-                                                                ),
-                                                                dbc.Col(
-                                                                    [
-                                                                        html.Div(
-                                                                            [
-                                                                                dbc.Col(
-                                                                                    html.Span(get_total_checked(), style={"font-weight": "bold", "font-size": "24px", "display": "flex", "align-items": "center", "justify-content": "center"}),
-                                                                                    style={'backgroundColor': '#F8B237', 'borderRadius': '10px', 'height': '50px', 'width': '50px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
-                                                                                ),
-                                                                                dbc.Col(
-                                                                                    html.P("Units currently accomplishing their accreditation", 
-                                                                                    style={'marginLeft': '10px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '15px'}),
-                                                                                    width=9,
-                                                                                )
-                                                                            ],
-                                                                            style={'marginBottom': '10px', 'display': 'flex', 'alignItems': 'center'}
-                                                                        ),
-                                                                        html.Div(
-                                                                            [
-                                                                                dbc.Col(
-                                                                                    html.Span(get_total_ongoing(), style={"font-weight": "bold", "font-size": "24px", "display": "flex", "align-items": "center", "justify-content": "center"}),
-                                                                                    style={'backgroundColor': '#39B54A', 'borderRadius': '10px', 'height': '50px', 'width': '50px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
-                                                                                ),
-                                                                                dbc.Col(
-                                                                                    html.P("Units on schedule for next accreditation", 
-                                                                                    style={'marginLeft': '10px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '15px'}),
-                                                                                    width=9,
-                                                                                )
-                                                                            ],
-                                                                            style={'marginBottom': '10px', 'display': 'flex', 'alignItems': 'center'}
-                                                                        ),
-                                                                        html.Div(
-                                                                            [
-                                                                                dbc.Col(
-                                                                                    html.Span(get_total_unchecked(), style={"font-weight": "bold", "font-size": "24px", "display": "flex", "align-items": "center", "justify-content": "center"}),
-                                                                                    style={'backgroundColor': '#E4E4E4', 'borderRadius': '10px', 'height': '50px', 'width': '50px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
-                                                                                ),
-                                                                                dbc.Col(
-                                                                                    html.P("Units yet to commence accreditation requirements", 
-                                                                                    style={'marginLeft': '10px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '15px'}),
-                                                                                    width=9,
-                                                                                )
-                                                                            ],
-                                                                            style={'marginBottom': '10px', 'display': 'flex', 'alignItems': 'center'}
-                                                                        ),
-                                                                    ],
-                                                                ),
-                                                                
-                                                            ]
-                                                        ),
-                                                        dcc.Interval(
-                                                            id='interval-component',
-                                                            interval=60000,  # in milliseconds (60 seconds)
-                                                            n_intervals=0
-                                                        ),
-                                                    ]
-                                                ),
-                                            ]
-                                        ),
+                                        
                                         
 
                                         html.Br(),
