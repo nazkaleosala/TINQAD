@@ -36,8 +36,6 @@ layout = html.Div(
                                  
                             ]
                         ),
-
-                        html.Br(),
  
                         html.Div(
                             id='viewlist_list', 
@@ -104,10 +102,11 @@ def traininglist_loadlist(pathname, searchterm):
             LEFT JOIN 
                 public.clusters AS clus
                 ON qo.qaofficer_cluster_id = clus.cluster_id
+            WHERE
+                qaofficer_del_ind IS False
             GROUP BY 
                 qo.qaofficer_full_name, cp.cuposition_name, du.deg_unit_name, cl.college_name, clus.cluster_name
         """
-
 
         cols = ['Name', 'Rank/Designation', 'Department','College','Academic Cluster', 'Trainings']   
 

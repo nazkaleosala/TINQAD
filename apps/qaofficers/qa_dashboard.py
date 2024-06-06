@@ -29,6 +29,13 @@ def get_total_asl(pathname):
             WHERE 
                 qaofficer_cluster_id = 1
                 AND qaofficer_del_ind IS False
+                AND EXISTS (
+                    SELECT 1
+                    FROM qaofficers.qa_training_details 
+                    WHERE 
+                        qatr_officername_id = qaofficers.qa_officer.qaofficer_id
+                        AND qatr_training_del_ind IS FALSE
+                );
         """ 
         total_count = db.query_single_value(sql)
     return total_count
@@ -48,6 +55,13 @@ def get_total_mae(pathname):
             WHERE 
                 qaofficer_cluster_id = 2
                 AND qaofficer_del_ind IS False
+                AND EXISTS (
+                    SELECT 1
+                    FROM qaofficers.qa_training_details 
+                    WHERE 
+                        qatr_officername_id = qaofficers.qa_officer.qaofficer_id
+                        AND qatr_training_del_ind IS FALSE
+                );
         """ 
         total_count = db.query_single_value(sql)
     return total_count
@@ -68,6 +82,13 @@ def get_total_sat(pathname):
             WHERE 
                 qaofficer_cluster_id = 3
                 AND qaofficer_del_ind IS False
+                AND EXISTS (
+                    SELECT 1
+                    FROM qaofficers.qa_training_details 
+                    WHERE 
+                        qatr_officername_id = qaofficers.qa_officer.qaofficer_id
+                        AND qatr_training_del_ind IS FALSE
+                );
         """ 
         total_count = db.query_single_value(sql)
     return total_count
@@ -87,144 +108,196 @@ def get_total_ssl(pathname):
             WHERE 
                 qaofficer_cluster_id = 4
                 AND qaofficer_del_ind IS False
+                AND EXISTS (
+                    SELECT 1
+                    FROM qaofficers.qa_training_details 
+                    WHERE 
+                        qatr_officername_id = qaofficers.qa_officer.qaofficer_id
+                        AND qatr_training_del_ind IS FALSE
+                );
         """ 
         total_count = db.query_single_value(sql)
     return total_count
  
-
 facultytrainedcard = dbc.Card(
     [
         dbc.CardHeader(html.H5(html.B("No. of faculty with QA Training"))), 
         dbc.CardBody(
-            [ 
                 dbc.Row(
                     [
-                        
                         dbc.Col(
+                        [
                             html.Span(id='get_total_asl', style={"font-weight": "bold"}), 
-                            style={
-                                "backgroundColor": "#f8d7da",
-                                'height': '70px', 
-                                'width': '70px',
-                                "borderRadius": "10px",
-                                "padding": "10px",
-                                'margin': 'auto', 
-                                "textAlign": "center",
-                                "marginLeft": "-10px" 
-                            }
-                        ),   
-                        dbc.Col(
+                            html.Div("Arts and Letters", style={'textAlign': 'center'}),
+                        ],
+                        width="auto",
+                        style={
+                            "backgroundColor": "#f8d7da",
+                            'height': '70px', 
+                            'width': '25%', 
+                            "borderRadius": "10px",
+                            "padding": "10px",
+                            "textAlign": "center",
+                            "marginBottom": "10px"
+                        }
+                    ),   
+                    dbc.Col(
+                        [
                             html.Span(id='get_total_mae', style={"font-weight": "bold"}), 
-                            style={
-                                "backgroundColor": "#cce5ff",
-                                'height': '70px', 
-                                'width': '70px',
-                                "borderRadius": "10px",
-                                "padding": "10px",
-                                'margin': 'auto', 
-                                "textAlign": "center",
-                                "marginLeft": "-10px" 
-                            }
-                        ),   
-                        dbc.Col(
+                            html.Div("Management and Economics", style={'textAlign': 'center'}),
+                        ],
+                        width="auto",
+                        style={
+                            "backgroundColor": "#cce5ff",
+                            'height': '70px', 
+                            'width': '25%', 
+                            "borderRadius": "10px",
+                            "padding": "10px",
+                            "textAlign": "center",
+                            "marginBottom": "10px"
+                        }
+                    ),   
+                    dbc.Col(
+                        [
                             html.Span(id='get_total_sat', style={"font-weight": "bold"}), 
-                            style={
-                                "backgroundColor": "#d4edda",
-                                'height': '70px', 
-                                'width': '70px',
-                                "borderRadius": "10px",
-                                "padding": "10px",
-                                'margin': 'auto', 
-                                "textAlign": "center",
-                                "marginLeft": "-10px" 
-                            }
-                        ),   
-                        dbc.Col(
+                            html.Div("Science and Technology", style={'textAlign': 'center'}),
+                        ],
+                        width="auto",
+                        style={
+                            "backgroundColor": "#fff3cd",
+                            'height': '70px', 
+                            'width': '25%',  
+                            "borderRadius": "10px",
+                            "padding": "10px",
+                            "textAlign": "center",
+                            "marginBottom": "10px"
+                        }
+                    ),   
+                    dbc.Col(
+                        [
                             html.Span(id='get_total_ssl', style={"font-weight": "bold"}), 
-                            style={
-                                "backgroundColor": "#fff3cd",
-                                'height': '70px', 
-                                'width': '70px',
-                                "borderRadius": "10px",
-                                "padding": "10px",
-                                'margin': 'auto', 
-                                "textAlign": "center",
-                                "marginLeft": "-10px" 
-                            }
-                        ),    
-                         
-                    ]
-                ),
-                dbc.Row(
-                    [ 
-                        dbc.Col(
-                            html.Strong("Arts and Letters", style={'textAlign': 'center'}),
-                            width="auto"
-                        ),
-                        dbc.Col(
-                            html.Strong("Management and Economics", style={'textAlign': 'center'}),
-                            width="auto"
-                        ),
-                        dbc.Col(
-                            html.Strong("Science and Technology", style={'textAlign': 'center'}),
-                            width="auto"
-                        ),
-                        dbc.Col(
-                            html.Strong("Social Sciences and Law", style={'textAlign': 'center'}),
-                            width="auto"
-                        ),
-
-                    ]
-                ),
-            ]   
+                            html.Div("Social Sciences and Law", style={'textAlign': 'center'}),
+                        ],
+                        width="auto",
+                        style={
+                            "backgroundColor": "#d4edda",
+                            'height': '70px', 
+                            'width': '25%',  
+                            "borderRadius": "10px",
+                            "padding": "10px",
+                            "textAlign": "center",
+                            "marginBottom": "10px"
+                        }
+                    ),    
+                ],
+                className="g-3"  # Adds gutters (spacing) between columns
+            )
         ),   
     ],
-    className="mb-3", 
-    style={'margin': '10 10px'} 
+    className="mb-3" 
 )
 
 
 
 trainedofficerscard = dbc.Card(
-    dbc.CardBody([
-        dbc.Row(
-            [
-                dbc.Col(  
-                    html.H5(html.B("Total Trained Officers")),  
-                    
-                ), 
-                dbc.Col(
-                    dcc.Input(
-                        id='qatr_currentyear',
-                        type='number',   
-                        value=current_year, 
-                        style={'width': '100%'}, 
-                    ),
-                    width=2,  
+    [
+        dbc.CardHeader(html.H5(html.B("Total Trained Officers"))), 
+        dbc.CardBody([
+            
+            dbc.Row(
+                [
+                    dbc.Col( 
+                        html.Div(
+                            id='trainedofficers_clusterlist', 
+                                style={
+                                    'marginTop': '20px',
+                                    'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
+                                    }
+                            ),
+                        )
+                    ]
                 ),
-            ],
-            className="my-2"  
-        ),
-        dbc.Row(
-            [
-                dbc.Col( 
-                    html.Div(
-                        id='trainedofficers_clusterlist', 
-                            style={
-                                'marginTop': '20px',
-                                'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
-                                }
+            
+            dbc.Row(
+                [ 
+                    dbc.Col(
+                        dcc.Input(
+                            id='qatr_currentyear',
+                            type='number',   
+                            value=current_year, 
+                            style={'width': '100%'}, 
                         ),
-                    )
-                ]
-            )
-        ]
-    ),
-    className="mb-3",  
+                        width=2,  
+                    ),
+                ],
+                className="my-2"  
+            ),
+            ]
+        ),   
+    ],
+    className="mb-3" 
 )
 
 
 
+qaofficerscard = dbc.Card(
+    [
+        dbc.CardBody(
+            [
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            dbc.Input(
+                                type='text',
+                                id='qaotraininglist_filter',
+                                placeholder='🔎 Search by name, email, position, etc',
+                                className='ml-auto'
+                            ),
+                            width="8",
+                        ),
+                        dbc.Col(
+                            dbc.Button(
+                                "➕ Add Training", 
+                                color="primary", 
+                                href='/QAOfficers/addtraining',
+                            ),
+                            width="auto",
+                            className="ml-auto",
+                        ),
+                        dbc.Col(
+                            dbc.Button(
+                                "View Data List", 
+                                color="warning", 
+                                href='/QAOfficers/datalist',
+                            ),
+                            width="auto",
+                        ),
+                    ],
+                    className="align-items-center",
+                    style={
+                        "margin-right": "2px",
+                        "margin-bottom": "15px",
+                    }
+                ),
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            html.Div(
+                                id='qaotraininglist_list',
+                                style={
+                                    'overflowX': 'auto',
+                                    'overflowY': 'auto',
+                                    'maxHeight': '200px',
+                                }
+                            ),
+                        )
+                    ]
+                ),
+            ]
+        ),
+    ], 
+    className="mb-3"
+)
 
 
 layout = html.Div(
@@ -243,52 +316,7 @@ layout = html.Div(
 
                         facultytrainedcard,
                         trainedofficerscard,
-
-                        dbc.Row(   
-                            [
-                                dbc.Col(  
-                                    dbc.Input(
-                                        type='text',
-                                        id='qaotraininglist_filter',
-                                        placeholder='🔎 Search by name, email, position, etc',
-                                        className='ml-auto'   
-                                    ),
-                                    width="8",
-                                ),
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "➕ Add Training", color="primary", 
-                                        href='/QAOfficers/addtraining', 
-                                    ),
-                                    width="auto", 
-                                    className="ml-auto",   
-                                ),
-                                dbc.Col(   
-                                    dbc.Button(
-                                        "View Data List", color="warning", 
-                                        href='/QAOfficers/datalist', 
-                                    ),
-                                    width="auto",    
-                                ),
-                            ],
-                            className="align-items-center",   
-                            style={
-                                "margin-right": "2px",
-                                "margin-bottom": "15px",
-                            }
-                        ), 
-
-                        
-
-                        html.Div(
-                            id='qaotraininglist_list', 
-                            style={
-                            'overflowX': 'auto', 
-                            'overflowY': 'auto',   
-                            'maxHeight': '200px',
-                            }
-                        ),
-
+                        qaofficerscard,
                         html.Br(),
                         html.Br(),
                         
@@ -326,8 +354,7 @@ layout = html.Div(
     )
 
 def clustertraininglist_loadlist(pathname, search_term):
-    if pathname == '/QAOfficers_dashboard': 
-        # SQL query to create a pivot table with specific training types as columns
+    if pathname == '/QAOfficers_dashboard':  
         sql = """
             SELECT 
                 clus.cluster_name AS "Academic Cluster",
@@ -356,18 +383,14 @@ def clustertraininglist_loadlist(pathname, search_term):
             ORDER BY 
                 clus.cluster_name, qtd.qatr_training_year
         """
-        
-        # Define the expected columns for the table
+         
         cols = ['Academic Cluster', 'Year', 'Tier 1', 'Tier 2', 'Tier 3', 'SAR Writing Workshop', 'External Reviewers', 'Others']
-
-        # Query data from the database
+ 
         df = db.querydatafromdatabase(sql, [], cols)
-
-        # Apply search term filter
+ 
         if search_term is not None:
-            df = df[df['Year'] == search_term]  # Filter by the search term (year)
-
-        # Generate the table from the DataFrame
+            df = df[df['Year'] == search_term]  
+ 
         if not df.empty:
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
