@@ -349,6 +349,8 @@ def clustertraininglist_loadlist(pathname, search_term):
             LEFT JOIN
                 qaofficers.training_type AS tt
                 ON qtd.qatr_training_type = tt.trainingtype_id
+            WHERE 
+                qatr_training_del_ind IS False
             GROUP BY 
                 clus.cluster_name, qtd.qatr_training_year
             ORDER BY 
@@ -413,7 +415,7 @@ def traininglist_loadlist(pathname, searchterm):
                 public.clusters AS clus
                 ON qo.qaofficer_cluster_id = clus.cluster_id
             WHERE
-                NOT qo.qaofficer_del_ind  
+                qo.qaofficer_del_ind IS False
             
             GROUP BY 
                 qo.qaofficer_full_name, cp.cuposition_name, du.deg_unit_name, cl.college_name, clus.cluster_name

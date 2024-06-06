@@ -353,6 +353,7 @@ def fetch_training_details(qatr_officername_id):
                 qtd.qatr_training_type = tt.trainingtype_id
             WHERE 
                 qatr_officername_id = %s 
+                AND qatr_training_del_ind IS False
         """
         # Correct function call and appropriate arguments
         results = db.querydatafromdatabase(sql, (qatr_officername_id,), ["Year", "Name", "Type"])
