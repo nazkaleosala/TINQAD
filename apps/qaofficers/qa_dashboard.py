@@ -259,19 +259,11 @@ qaofficerscard = dbc.Card(
                             dbc.Button(
                                 "➕ Add Training", 
                                 color="primary", 
-                                href='/QAOfficers/addtraining',
+                                href='/qaofficers_training?mode=add',
                             ),
                             width="auto",
                             className="ml-auto",
-                        ),
-                        dbc.Col(
-                            dbc.Button(
-                                "View Data List", 
-                                color="warning", 
-                                href='/QAOfficers/datalist',
-                            ),
-                            width="auto",
-                        ),
+                        ), 
                     ],
                     className="align-items-center",
                     style={
@@ -414,6 +406,7 @@ def traininglist_loadlist(pathname, searchterm):
     if pathname == '/QAOfficers_dashboard': 
         sql = """
             SELECT 
+                qo.qaofficer_id AS "ID",
                 qo.qaofficer_full_name AS "Name",
                 cp.cuposition_name AS "Rank/Designation",
                 du.deg_unit_name AS "Department",
@@ -441,10 +434,10 @@ def traininglist_loadlist(pathname, searchterm):
                 qo.qaofficer_del_ind IS False
             
             GROUP BY 
-                qo.qaofficer_full_name, cp.cuposition_name, du.deg_unit_name, cl.college_name, clus.cluster_name
+                qo.qaofficer_id, qo.qaofficer_full_name, cp.cuposition_name, du.deg_unit_name, cl.college_name, clus.cluster_name
         
         """
-        cols = ['Name', 'Rank/Designation', 'Department','College','Academic Cluster', 'Trainings']   
+        cols = ["ID", 'Name', 'Rank/Designation', 'Department','College','Academic Cluster', 'Trainings']   
 
         if searchterm:
             sql += """
@@ -460,11 +453,19 @@ def traininglist_loadlist(pathname, searchterm):
 
         df = db.querydatafromdatabase(sql, values, cols) 
 
-        # Generate the table from the DataFrame
-        if not df.empty:
+        if not df.empty: 
+            df["Action"] = df["ID"].apply(
+                lambda x: html.Div(
+                    dbc.Button('Edit', href=f'qaofficers_training?mode=edit&id={x}', size='sm', color='warning'),
+                    style={'text-align': 'center'}
+                )
+            )
+            df = df[['Name', 'Rank/Designation', 'Department','College','Academic Cluster', 'Trainings', 'Action' ]]
+                
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
+        
         else:
-            return [html.Div("No records yet.")]
-    else:
-        raise PreventUpdate
+            return [html.Div("No records to display")]
+
+    return [html.Div("Query could not be processed")]

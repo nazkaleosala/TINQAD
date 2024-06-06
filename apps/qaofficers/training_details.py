@@ -11,12 +11,11 @@ from app import app
 from apps import dbconnect as db
 
 import datetime
+
+from urllib.parse import urlparse, parse_qs
+
+
 current_year = datetime.datetime.now().year
-
-
-
-
-
 
 
 
@@ -94,53 +93,6 @@ form = dbc.Form(
         ),
  
         html.Br(),
-         
-        dbc.Row(
-            [
-                dbc.Col(
-                    dbc.Button("Register", color="primary", className="me-3", id="save_button", n_clicks=0),
-                    width="auto"
-                ),
-                dbc.Col(
-                    dbc.Button("Cancel", color="secondary", id="cancel_button", href="/QAOfficers_dashboard", n_clicks=0),
-                    width="auto"
-                ),
-            ],
-            className="mb-2",
-            justify="end",
-        ),
-
-        dbc.Modal(
-            [
-                dbc.ModalHeader(className="bg-success"),
-                dbc.ModalBody(
-                    html.H4('Training added.'),
-                ),
-                dbc.ModalFooter(
-                    dbc.Button(
-                       "Proceed", href = '/QAOfficers_dashboard', id='proceed_button', className='ml-auto'
-                    ), 
-                )
-                 
-            ],
-            centered=True,
-            id='qatr_successmodal',
-            backdrop=True,   
-            className="modal-success"  
-        ),
-
-        dbc.Modal(
-            [
-                dbc.ModalHeader(className="bg-success"),
-                dbc.ModalBody(html.H4("New training type added.")),
-            ],
-            centered=True,
-            id="newtype_successmodal",
-            is_open=False,
-            backdrop=True,
-            className="modal-success",
-        )
-         
     ]
 )
 
@@ -160,7 +112,7 @@ form = dbc.Form(
 )
 def populate_qaofficername_dropdown(pathname):
     # Check if the pathname matches if necessary
-    if pathname == '/QAOfficers/addtraining':
+    if pathname == '/qaofficers_training':
         sql = """
         SELECT qaofficer_full_name as label, qaofficer_id as value
         FROM  qaofficers.qa_officer
@@ -184,7 +136,7 @@ def populate_qaofficername_dropdown(pathname):
 )
 def populate_qaofficername_dropdown(pathname):
     # Check if the pathname matches if necessary
-    if pathname == '/QAOfficers/addtraining':
+    if pathname == '/qaofficers_training':
         sql = """
         SELECT trainingtype_name as label, trainingtype_id as value
         FROM  qaofficers.training_type 
@@ -216,8 +168,55 @@ layout = html.Div(
                         dbc.Alert(id='qatr_alert', is_open=False), # For feedback purpose
                         form, 
                         
-                        
-                        
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    dbc.Button("Register", color="primary", className="me-3", id="qatr_save_button", n_clicks=0),
+                                    width="auto"
+                                ),
+                                dbc.Col(
+                                    dbc.Button("Cancel", color="secondary", id="qatr_cancel_button", href="/QAOfficers_dashboard", n_clicks=0),
+                                    width="auto"
+                                ),
+                            ],
+                            className="mb-2",
+                            justify="end",
+                        ),
+
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader(className="bg-success"),
+                                dbc.ModalBody(
+                                    html.H4(
+                                        ['Training registered successfully.'
+                                        ],id='qatr_feedback_message'
+                                    )
+                                ),
+                                dbc.ModalFooter(
+                                    dbc.Button(
+                                    "Proceed", href = '/QAOfficers_dashboard', id='qatr_btn_modal', className='ml-auto'
+                                    ), 
+                                )
+                                
+                            ],
+                            centered=True,
+                            id='qatr_successmodal',
+                            backdrop=True,   
+                            className="modal-success"  
+                        ),
+
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader(className="bg-success"),
+                                dbc.ModalBody(html.H4("New training type added.")),
+                            ],
+                            centered=True,
+                            id="newtype_successmodal",
+                            is_open=False,
+                            backdrop=True,
+                            className="modal-success",
+                        ),
+
                         html.Hr(),
                         html.H4("TRAINING LIST"),
                         dbc.Row(
@@ -258,10 +257,13 @@ layout = html.Div(
         Output('qatr_alert', 'color'),
         Output('qatr_alert', 'children'),
         Output('qatr_alert', 'is_open'),
-        Output('qatr_successmodal', 'is_open')
+        Output('qatr_successmodal', 'is_open'),
+        Output('qatr_feedback_message', 'children'),
+        Output('qatr_btn_modal', 'href')
     ],
     [
-        Input('save_button', 'n_clicks')
+        Input('qatr_save_button', 'n_clicks'),
+        Input('qatr_btn_modal', 'n_clicks'),
     ],
     [
         State('qatr_officername_id', 'value'),
@@ -269,61 +271,83 @@ layout = html.Div(
         State('qatr_training_name', 'value'),
         State('qatr_training_type', 'value'), 
         State('qatr_training_other', 'value'), 
+        State('url', 'search') 
     ]
 )
- 
-def record_program_details (submitbtn, qatr_officername_id, qatr_training_year,
-                            qatr_training_name, qatr_training_type, qatr_training_other):
-    if not submitbtn:
-        raise PreventUpdate
+def record_training_details(submitbtn, closebtn, qatr_officername_id, qatr_training_year,
+                            qatr_training_name, qatr_training_type, qatr_training_other,
+                            search):
+    ctx = dash.callback_context 
 
-    alert_open = True  # Set alert_open to True by default
+    alert_open = False
     modal_open = False
     alert_color = ''
     alert_text = ''
+    feedbackmessage = None
+    okay_href = None
 
-    # Input validation
-    if not qatr_officername_id:
-        alert_color_sname = 'danger'
-        alert_text_sname = 'Check your inputs. Please add an Officer name.'
-        return [alert_color_sname, alert_text_sname, alert_open, modal_open]
-    
-    if not qatr_training_year :
-        alert_color_sname = 'danger'
-        alert_text_sname = 'Check your inputs. Please add a Training Year.'
-        return [alert_color_sname, alert_text_sname, alert_open, modal_open]
-    
-    if not qatr_training_name :
-        alert_color_sname = 'danger'
-        alert_text_sname = 'Check your inputs. Please add a Training Name.'
-        return [alert_color_sname, alert_text_sname, alert_open, modal_open]
-     
-    if not qatr_training_type :
-        alert_color_sname = 'danger'
-        alert_text_sname = 'Check your inputs. Please add a Training Type.'
-        return [alert_color_sname, alert_text_sname, alert_open, modal_open]
-     
-    try:
-        sql = """
-            INSERT INTO qaofficers.qa_training_details (
-                qatr_officername_id, qatr_training_year,
-                qatr_training_name, qatr_training_type, qatr_training_other
-            )
-            VALUES (%s, %s, %s, %s, %s)
-        """
-        values = (
-            qatr_officername_id, qatr_training_year,
-            qatr_training_name, qatr_training_type, qatr_training_other
-        )
- 
+    if ctx.triggered:
+        eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+        if eventid == 'qatr_save_button' and submitbtn:
+            
+            parsed = urlparse(search)
+            create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+            
+            if create_mode == 'add':
 
-        db.modifydatabase(sql, values)
-        modal_open = True
-    except Exception as e:
-        alert_color = 'danger'
-        alert_text = 'An error occurred while saving the data.'
+                # Input validation
+                if not qatr_officername_id:
+                    alert_color = 'danger'
+                    alert_text = 'Check your inputs. Please add an Officer name.'
+                    alert_open = True
+                    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+                
+                if not qatr_training_year:
+                    alert_color = 'danger'
+                    alert_text = 'Check your inputs. Please add a Training Year.'
+                    alert_open = True
+                    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+                
+                if not qatr_training_name:
+                    alert_color = 'danger'
+                    alert_text = 'Check your inputs. Please add a Training Name.'
+                    alert_open = True
+                    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+                
+                if not qatr_training_type:
+                    alert_color = 'danger'
+                    alert_text = 'Check your inputs. Please add a Training Type.'
+                    alert_open = True
+                    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
+                
+                sql = """
+                    INSERT INTO qaofficers.qa_training_details (
+                        qatr_officername_id, qatr_training_year,
+                        qatr_training_name, qatr_training_type, qatr_training_other
+                    )
+                    VALUES (%s, %s, %s, %s, %s)
+                """
+                values = (
+                    qatr_officername_id, qatr_training_year,
+                    qatr_training_name, qatr_training_type, qatr_training_other
+                )
 
-    return [alert_color, alert_text, alert_open, modal_open]
+                db.modifydatabase(sql, values)
+                modal_open = True
+                feedbackmessage = html.H5("Training registered successfully.")
+                okay_href = "/QAOfficers_dashboard"
+              
+            else:
+                raise PreventUpdate
+
+            return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]  
+
+        else:
+            raise PreventUpdate
+    else:
+        raise PreventUpdate
+
+    return [alert_color, alert_text, alert_open, modal_open, feedbackmessage, okay_href]
 
   
 
