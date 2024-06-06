@@ -10,29 +10,7 @@ from apps import dbconnect as db
 
 import plotly.graph_objs as go 
 
-
-#year dropdown
-def assess_get_available_years(): 
-    sql = """
-    SELECT DISTINCT EXTRACT(YEAR FROM arep_sched_assessdate + INTERVAL '5 years') AS year
-    FROM eqateam.assess_report
-    WHERE arep_del_ind IS FALSE
-    ORDER BY year DESC
-    """
-    
-    values = []   
-    cols = ['year']   
-    df = db.querydatafromdatabase(sql, values, cols)
-    
-    years = df['year'].tolist()
-    
-    return [{'label': str(year), 'value': str(year)} for year in years]
-
-
-
-
-
-
+ 
 
 
 
@@ -40,11 +18,10 @@ def assess_get_available_years():
 def get_total_checked():
     sql = f"""
         SELECT COUNT(*) 
-        FROM eqateam.sar_report 
-        WHERE 
-            sarep_checkstatus = 'Already Checked'
-            AND sarep_review_status = 1
-            AND sarep_del_ind IS FALSE;   
+        FROM eqateam.assess_report 
+        WHERE  
+            arep_review_status = 1
+            AND arep_del_ind IS FALSE;   
     """
     total_count = db.query_single_value(sql)
     return total_count
@@ -53,9 +30,7 @@ def get_total_ongoing():
     sql = f"""
         SELECT COUNT(*) 
         FROM eqateam.sar_report 
-        WHERE 
-            sarep_checkstatus = 'For Checking' 
-            AND sarep_del_ind IS FALSE;   
+        WHERE sarep_del_ind IS FALSE;   
     """
     total_count = db.query_single_value(sql)
     return total_count
@@ -79,6 +54,18 @@ def get_total_unchecked():
     difference = prog_total_count - sar_total_count
     
     return difference
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -201,7 +188,7 @@ def get_undergraduate_count():
     FROM eqateam.sar_report sr
     JOIN eqateam.program_details pd ON sr.sarep_degree_programs_id = pd.programdetails_id
     WHERE pd.pro_program_type_id = 'Undergraduate'
-    AND sr.sarep_del_ind IS FALSE
+    AND sr.sarep_del_ind IS FALSE;
     """
     values = []
     cols = ['total']
@@ -212,27 +199,29 @@ def get_undergraduate_count():
 
 
 
-def generate_sar_submissions_chart():
-    # Retrieve data from the database
+def generate_sar_submissions_chart(): 
     sql = """
         SELECT 
             pro_program_type_id,
             COUNT(*) AS input_count
         FROM 
-            eqateam.program_details
+            eqateam.program_details pd
         WHERE
-            pro_del_ind IS False
+            pd.pro_del_ind IS FALSE
+            AND EXISTS (
+                SELECT 1 
+                FROM eqateam.sar_report sr 
+                WHERE sr.sarep_degree_programs_id = pd.programdetails_id
+                AND sr.sarep_del_ind IS FALSE
+            )
         GROUP BY 
-            pro_program_type_id
+            pro_program_type_id;
             
     """
-    program_data = db.querydatafromdatabase(sql, [], ['pro_program_type_id', 'input_count'])
-
-    # Map IDs to labels
-    id_to_label = {1: 'C ', 2: 'D ', 3: 'A ', 4: 'U ', 5: 'M ', 6: 'P '}
+    program_data = db.querydatafromdatabase(sql, [], ['pro_program_type_id', 'input_count']) 
+    id_to_label = {1: 'C ', 2: 'D ', 3: 'A ', 4: 'U ', 5: 'M ', 6: 'P '} # Map IDs to labels
     program_data['pro_program_type_label'] = program_data['pro_program_type_id'].map(id_to_label)
-    
-    # Define colors for each program type
+     
     color_mapping = {
         'C ': '#A9CD46',
         'D ': '#7EADE4',
@@ -242,11 +231,8 @@ def generate_sar_submissions_chart():
         'P ': '#40BFBC'
     }
 
-    # Assign colors based on program type
-    program_data['color'] = program_data['pro_program_type_label'].map(color_mapping)
-    
-    # Define the order of program types
-    program_order = ['C ', 'D ', 'A ', 'U ', 'M ', 'P ']
+    program_data['color'] = program_data['pro_program_type_label'].map(color_mapping) # Assign colors based on program type
+    program_order = ['C ', 'D ', 'A ', 'U ', 'M ', 'P '] # Define the order of program types
     
     # Filter and sort program data based on the defined order
     program_data = program_data[program_data['pro_program_type_label'].isin(program_order)]
@@ -260,8 +246,7 @@ def generate_sar_submissions_chart():
         orientation='h',
         marker=dict(color=program_data['color'])
     )
-    
-    # Define layout for the bar chart
+     
     layout = go.Layout(
     margin=dict(l=40, r=40, t=40, b=80),  # Adjust bottom margin for axis titles and legend
     xaxis=dict(title='Number of SAR Submissions', tickvals=list(range(int(max(program_data['input_count'])) + 1)), tickformat='d'),  # Setting x-axis title, integer format, and tick values
@@ -270,13 +255,247 @@ def generate_sar_submissions_chart():
         x=0.5,  # Centering legend horizontally
         y=-0.2,  # Placing legend below the graph
         orientation="h"
+        )
+    ) 
+    return {'data': [trace], 'layout': layout} # Return the figure
+
+
+
+
+
+
+
+def summarylegend(get_total_checked, get_total_ongoing, get_total_unchecked):
+    return html.Div(
+        [
+            dbc.Row(
+                [
+                    dbc.Col(
+                        html.Span(get_total_checked(), 
+                            style={
+                                "font-weight": "bold", "display": "flex", 
+                                "align-items": "center",  "justify-content": "center",
+                                'backgroundColor': '#39B54A', 'borderRadius': '10px',      
+                                'padding': '5px'
+                            }
+                        ),
+                        width=3 
+                    ),
+                    dbc.Col(
+                        [
+                            html.B(
+                                "For Next Update", 
+                                style={'marginLeft': '10px', 'textAlign': 'left', 'marginRight': '15px'}
+                            ),
+                            html.P(
+                                "Units that have accomplished their Post EQA report", 
+                                style={'marginLeft': '10px', 'textAlign': 'left', 'marginRight': '15px'}
+                            ),
+                        ],
+                        width=9
+                    )
+                ]
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        html.Span(get_total_ongoing(), 
+                            style={
+                                "font-weight": "bold", "display": "flex", 
+                                "align-items": "center",  "justify-content": "center",
+                                'backgroundColor': '#F8B237', 'borderRadius': '10px',      
+                                'padding': '5px'
+                            }
+                        ),
+                        width=3 
+                    ),
+                    dbc.Col(
+                        [
+                            html.B(
+                                "Currently Ongoing", 
+                                style={'marginLeft': '10px', 'textAlign': 'left', 'marginRight': '15px'}
+                            ),
+                            html.P(
+                                "Units that have passed their SAR and are ongoing assessments", 
+                                style={'marginLeft': '10px',  'textAlign': 'left', 'marginRight': '15px'}
+                            ),
+                        ],
+                        width=9
+                    )
+                ]
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        html.Span(get_total_unchecked(), 
+                            style={
+                                "font-weight": "bold", "display": "flex", 
+                                "align-items": "center",  "justify-content": "center",
+                                'backgroundColor': '#E4E4E4', 'borderRadius': '10px',      
+                                'padding': '5px'
+                            }
+                        ),
+                        width=3 
+                    ),
+                    dbc.Col(
+                        [
+                            html.B(
+                                "Not Yet Started", 
+                                style={'marginLeft': '10px', 'textAlign': 'left', 'marginRight': '15px'}
+                            ),
+                            html.P(
+                                "Units yet to pass their self-assessment report", 
+                                style={'marginLeft': '10px',  'textAlign': 'left', 'marginRight': '15px'}
+                            ),
+                        ],
+                        width=9
+                    )
+                ]
+            )
+        ]
     )
-)
-    
-    # Return the figure
-    return {'data': [trace], 'layout': layout}
 
+ 
 
+def degreesummary(summarylegend):
+    return dbc.Card(
+        [
+            dbc.CardHeader(
+                [
+                    html.H3(html.Strong("Summary of Degree Programs with EQA")),
+                    html.A("(External Quality Assessment)")
+                ]
+            ),
+            dbc.CardBody(
+                [
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                dcc.Graph(
+                                    id='donut-chart', 
+                                    figure=generate_donut_chart(),
+                                    config={'displayModeBar': False},   
+                                    style={'height': '400px', 'margin-right': '0px', 'margin-top': '0px'}  
+                                ),
+                                width=7
+                            ),
+                            dbc.Col(
+                                [
+                                    summarylegend(get_total_checked, get_total_ongoing, get_total_unchecked),
+                                ],
+                                width=5 
+                            ),
+                        ], 
+                    ),
+                ],   
+            )
+        ], style={'margin': '0', 'height': '500px'}  # Set the height of the card to 500px
+    )
+
+def sar_chart():
+    return dbc.Card(
+        [
+            dbc.CardBody(
+                [
+                    dcc.Graph(
+                        id='sar_chart',
+                        figure=generate_sar_submissions_chart(),
+                        config={'displayModeBar': False},  # Hide the mode bar for a cleaner look
+                        style={'height': '250px', 'margin-top': '0px', 'padding-top': '0px'}  # Adjust height and remove top margin
+                    ),
+                    html.Br(),
+                    dbc.Row(
+                        [
+                            html.Div(
+                                [
+                                    dbc.Col(
+                                        html.Span(tot_certificate_programs(), style={"font-weight": "bold",  "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                        style={'backgroundColor': '#A9CD46', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                    ),
+                                    dbc.Col(
+                                        html.P("Certificate Programs (C)", 
+                                               style={'marginLeft': '5px',  'textAlign': 'left', 'marginRight': '5px'}),
+                                        width=10,
+                                    )
+                                ],
+                                style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Col(
+                                        html.Span(tot_diploma_programs(), style={"font-weight": "bold",  "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                        style={'backgroundColor': '#7EADE4', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                    ),
+                                    dbc.Col(
+                                        html.P("Diploma Programs (D)", 
+                                               style={'marginLeft': '5px',  'textAlign': 'left', 'marginRight': '5px'}),
+                                        width=10,
+                                    )
+                                ],
+                                style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Col(
+                                        html.Span(tot_associate_programs(), style={"font-weight": "bold",  "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                        style={'backgroundColor': '#D37157', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                    ),
+                                    dbc.Col(
+                                        html.P("Associate Programs (A)", 
+                                               style={'marginLeft': '5px',  'textAlign': 'left', 'marginRight': '5px'}),
+                                        width=10,
+                                    )
+                                ],
+                                style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Col(
+                                        html.Span(tot_undergrad_programs(), style={"font-weight": "bold",  "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                        style={'backgroundColor': '#39B54A', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                    ),
+                                    dbc.Col(
+                                        html.P("Undergraduate Programs (U)", 
+                                               style={'marginLeft': '5px',  'textAlign': 'left', 'marginRight': '5px'}),
+                                        width=10,
+                                    )
+                                ],
+                                style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Col(
+                                        html.Span(tot_masters_programs(), style={"font-weight": "bold",  "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                        style={'backgroundColor': '#F8B237', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                    ),
+                                    dbc.Col(
+                                        html.P("Master's Programs (M)", 
+                                               style={'marginLeft': '5px',  'textAlign': 'left', 'marginRight': '5px'}),
+                                        width=10,
+                                    )
+                                ],
+                                style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Col(
+                                        html.Span(tot_doctorate_programs(), style={"font-weight": "bold",  "display": "flex", "align-items": "center", "justify-content": "center"}),
+                                        style={'backgroundColor': '#40BFBC', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
+                                    ),
+                                    dbc.Col(
+                                        html.P("Doctorate Programs (P)", 
+                                               style={'marginLeft': '5px',  'textAlign': 'left', 'marginRight': '5px'}),
+                                        width=10,
+                                    )
+                                ],
+                                style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
+                            ),
+                        ]
+                    )  
+                ]
+            ),
+        ]
+    )
 
 
 
@@ -299,14 +518,15 @@ layout = html.Div(
                         ),
                         dbc.Row(
                             [
-                                dbc.Col
-                                    (
-                                        [
-                                        
-                                        
-
-                                        html.Br(),
-                                                    
+                                dbc.Col(
+                                    [
+                                        dbc.Row(
+                                            [
+                                                dbc.CardBody(
+                                                    html.Div(id='degreesummary')
+                                                )
+                                            ]
+                                        ),   
                                         html.H5(html.B("Assessment Schedule")),
                                         dbc.Row(
                                             [
@@ -320,11 +540,11 @@ layout = html.Div(
                                                     width=8,
                                                 ),
                                                 dbc.Col( 
-                                                    dcc.Dropdown(
-                                                        id='assesschedule_yeardropdown',
-                                                        options=assess_get_available_years(),
-                                                        placeholder="Filter by year",
-                                                        multi=True
+                                                    dcc.Input(
+                                                        id='assesschedule_year',
+                                                        type='text',
+                                                        placeholder='Enter year1,year2',
+                                                        style={'border-radius': '5px', 'height': '35px'}
                                                     ),
                                                     width=3
                                                 ),
@@ -351,124 +571,21 @@ layout = html.Div(
                                     [
                                         dbc.Card(
                                             [
-                                                dbc.CardHeader(
-                                                    html.H3(
-                                                        [
-                                                            html.Strong("SAR Submissions"),  # Bold only this part
-                                                        ],
-                                                        className="mb-0",  # Remove bottom margin
-                                                        style={'fontSize': '1.5rem'}  # Adjust font size
-                                                    )
-                                                ),
+                                                dbc.CardHeader(html.H3("SAR Submissions", className="mb-0")),
                                                 dbc.CardBody(
-                                                    [
-                                                        dcc.Graph(
-                                                            id='sar-submissions-chart',
-                                                            figure=generate_sar_submissions_chart(),
-                                                            config={'displayModeBar': False},  # Hide the mode bar for a cleaner look
-                                                            style={'height': '250px', 'margin-top': '0px', 'padding-top': '0px'}  # Adjust height and remove top margin
-                                                        ),
-                                                        html.Br(),
-                                                        dbc.Row(
-                                                            [
-                                                                html.Div(
-                                                                    [
-                                                                        dbc.Col(
-                                                                            html.Span(tot_certificate_programs(), style={"font-weight": "bold", "font-size": "15px", "display": "flex", "align-items": "center", "justify-content": "center"}),
-                                                                            style={'backgroundColor': '#A9CD46', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
-                                                                        ),
-                                                                        dbc.Col(
-                                                                            html.P("Certificate Programs (C)", 
-                                                                            style={'marginLeft': '5px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '5px'}),
-                                                                            width=10,
-                                                                        )
-                                                                    ],
-                                                                    style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
-                                                                ),
-                                                                html.Div(
-                                                                    [
-                                                                        dbc.Col(
-                                                                            html.Span(tot_diploma_programs(), style={"font-weight": "bold", "font-size": "15px", "display": "flex", "align-items": "center", "justify-content": "center"}),
-                                                                            style={'backgroundColor': '#7EADE4', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
-                                                                        ),
-                                                                        dbc.Col(
-                                                                            html.P("Diploma Programs (D)", 
-                                                                            style={'marginLeft': '5px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '5px'}),
-                                                                            width=10,
-                                                                        )
-                                                                    ],
-                                                                    style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
-                                                                ),
-                                                                html.Div(
-                                                                    [
-                                                                        dbc.Col(
-                                                                            html.Span(tot_associate_programs(), style={"font-weight": "bold", "font-size": "15px", "display": "flex", "align-items": "center", "justify-content": "center"}),
-                                                                            style={'backgroundColor': '#D37157', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
-                                                                        ),
-                                                                        dbc.Col(
-                                                                            html.P("Associate Programs (A)", 
-                                                                            style={'marginLeft': '5px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '5px'}),
-                                                                            width=10,
-                                                                        )
-                                                                    ],
-                                                                    style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
-                                                                ),
-                                                                html.Div(
-                                                                    [
-                                                                        dbc.Col(
-                                                                            html.Span(tot_undergrad_programs(), style={"font-weight": "bold", "font-size": "15px", "display": "flex", "align-items": "center", "justify-content": "center"}),
-                                                                            style={'backgroundColor': '#39B54A', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
-                                                                        ),
-                                                                        dbc.Col(
-                                                                            html.P("Undergraduate Programs (U)", 
-                                                                            style={'marginLeft': '5px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '5px'}),
-                                                                            width=10,
-                                                                        )
-                                                                    ],
-                                                                    style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
-                                                                ),
-                                                                html.Div(
-                                                                    [
-                                                                        dbc.Col(
-                                                                            html.Span(tot_masters_programs(), style={"font-weight": "bold", "font-size": "15px", "display": "flex", "align-items": "center", "justify-content": "center"}),
-                                                                            style={'backgroundColor': '#F8B237', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
-                                                                        ),
-                                                                        dbc.Col(
-                                                                            html.P("Master's Programs (M)", 
-                                                                            style={'marginLeft': '5px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '5px'}),
-                                                                            width=10,
-                                                                        )
-                                                                    ],
-                                                                    style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
-                                                                ),
-                                                                html.Div(
-                                                                    [
-                                                                        dbc.Col(
-                                                                            html.Span(tot_doctorate_programs(), style={"font-weight": "bold", "font-size": "15px", "display": "flex", "align-items": "center", "justify-content": "center"}),
-                                                                            style={'backgroundColor': '#40BFBC', 'borderRadius': '10px', 'height': '30px', 'width': '20px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', "margin-right": "3px"}
-                                                                        ),
-                                                                        dbc.Col(
-                                                                            html.P("Doctorate Programs (P)", 
-                                                                            style={'marginLeft': '5px', 'fontSize': '0.9rem', 'textAlign': 'left', 'marginRight': '5px'}),
-                                                                            width=10,
-                                                                        )
-                                                                    ],
-                                                                    style={'marginBottom': '2px', 'display': 'flex', 'alignItems': 'center'}
-                                                                ),
-                                                            ]
-                                                        )  
-                                                    ]
-                                                ),
+                                                    html.Div(id='sar_chart')
+                                                )
+                                             
                                             ]
                                         ),
-
+                                          
                                         html.Br(),
                                         dbc.Card(
                                             [
                                                 dbc.CardHeader(
                                                     html.H3(
                                                         [
-                                                            html.Strong("SAR (For Checking)"),  
+                                                            html.Strong("For Checking: SAR"),  
                                                         ],
                                                         className="mb-0",  # Remove bottom margin
                                                         style={'fontSize': '1.5rem'}  # Adjust font size
@@ -491,7 +608,7 @@ layout = html.Div(
                                                 dbc.CardHeader(
                                                     html.H3(
                                                         [
-                                                            html.Strong("Assessments (For Checking)"),  
+                                                            html.Strong("For Checking: Assessments"),  
                                                         ],
                                                         className="mb-0",  # Remove bottom margin
                                                         style={'fontSize': '1.5rem'}
@@ -507,25 +624,16 @@ layout = html.Div(
                                                     ),
                                                 ),
                                             ]
-                                        ),
-                                    
-                                    ],
-                                    width=4
-                                ),
- 
+                                        ), 
+                                    ],  width=4
+                                ), 
                             ]
-                        ),
-
-                        
-                        
- 
+                        ), 
                     ]
                 ),
             ]
         ),
-        html.Br(),
-        html.Br(),
-        html.Br(),
+        html.Br(), html.Br(), html.Br(),
         dbc.Row (
             [
                 dbc.Col(
@@ -572,12 +680,7 @@ def eqa_sar_forchecking(pathname):
     else:
         return html.Div("No SAR for checking yet")
 
-
-
-
-
-
-
+ 
 @app.callback(
     Output('assessments_forchecking', 'children'),
     [Input('url', 'pathname')]
@@ -609,28 +712,17 @@ def eqa_assessments_forchecking(pathname):
     else:
         return html.Div("No Assessment for checking yet")
 
-
-
-
-
-
-
-
-
-
-
+ 
 
 @app.callback(
     Output('assesschedule_list', 'children'),
     [
         Input('url', 'pathname'), 
         Input('assesschedule_filter', 'value'), 
-        Input('assesschedule_yeardropdown', 'value')
+        Input('assesschedule_year', 'value')
     ]
-)
-
-
-def assessmentschedule_loadlist(pathname, searchterm, selected_years):
+) 
+def assessmentschedule_loadlist(pathname, searchterm, selected_years_text):
     if pathname == '/eqa_dashboard': 
         sql = """  
             SELECT 
@@ -642,27 +734,28 @@ def assessmentschedule_loadlist(pathname, searchterm, selected_years):
             WHERE
                 arep_del_ind IS FALSE
                 AND arep_report_type = '2'
-                AND arep_review_status = '1';
+                AND arep_review_status = '1'
         """
 
         cols = ["Degree Program", 'Latest Assessment Date','Next Assessment Year']   
         
         values = []
          
-        if selected_years:  # selected_years will be a list of selected years
+        if selected_years_text:   
+            selected_years = selected_years_text.split(',')
+            selected_years = [year.strip() for year in selected_years]  # Trim any spaces
+            
+            # Build the SQL query dynamically to include selected years
             sql += " AND EXTRACT(YEAR FROM arep_sched_assessdate + INTERVAL '5 years') IN %s"
             values.append(tuple(selected_years))
-
-        df = db.querydatafromdatabase(sql, values, cols) 
-
-         # Filter by search term
+              
         if searchterm:
             sql += " AND (arep_degree_programs_id ILIKE %s)"
             values.extend(['%' + searchterm + '%', '%' + searchterm + '%'])
 
         df = db.querydatafromdatabase(sql, values, cols)
 
-        # Generate the table from the DataFrame
+        
         if not df.empty:
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return table
@@ -670,3 +763,34 @@ def assessmentschedule_loadlist(pathname, searchterm, selected_years):
             return html.Div("No recorded assessments yet")
     else:
         raise PreventUpdate
+
+
+
+
+
+
+@app.callback(
+    [Output('degreesummary', 'children'),
+     Output('sar_chart', 'children'),
+    ],
+    [Input('eqadashboard_toload', 'modified_timestamp')],
+    [State('eqadashboard_toload', 'data')]
+)
+def update_charts(timestamp, toload):
+    if toload:
+        degreesummary_chart = degreesummary(summarylegend)  # Pass summarylegend here
+        sar_chart_component = sar_chart()
+        return [degreesummary_chart, sar_chart_component]  # Return both components
+    else:
+        raise PreventUpdate
+    
+
+@app.callback(
+    Output('eqadashboard_toload', 'data'),
+    Input('url', 'pathname')
+)
+def trigger_chart_loading(pathname):
+    if pathname == '/eqa_dashboard':
+        return 1   
+    return 0  
+
