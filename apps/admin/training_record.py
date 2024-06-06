@@ -4,11 +4,18 @@ from dash import dash, html, dcc
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import pandas as pd
+import os
 
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
+
+# Using the corrected path
+UPLOAD_DIRECTORY = r".\assets\database\admin\trainings"
+
+# Ensure the directory exists or create it
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 
 layout = html.Div(
@@ -87,15 +94,26 @@ def traininglist_loadlist(pathname, searchterm):
     if pathname == '/training_record':
         sql = """
             SELECT 
-                td.training_documents_id AS "ID",
-                td.complete_name AS "QAO Name",
-                td.fac_posn AS "Faculty Position",
+                training_documents_id AS "ID",
+                complete_name AS "QAO Name",
+                fac_posn AS "Faculty Position",
                 clu.cluster_name AS "Cluster",
                 col.college_name AS "College",
                 qt.trainingtype_name AS "QA Training",
-                td.departure_date AS "Departure Date",
-                td.return_date AS "Return Date",
-                td.venue AS "Venue"
+                departure_date AS "Departure Date",
+                return_date AS "Return Date",
+                venue AS "Venue",
+                pacert_path AS "Participant Attendance Cert. path",
+                pacert_name AS "Participant Attendance Cert.",
+                orcert_path AS "Official Receipt path",
+                orcert_name AS "Official Receipt",
+                otrcert_path AS "Official Travel Report path",
+                otrcert_name AS "Official Travel Report",
+                others_path AS "Other Receipts path",
+                others_name AS "Other Receipts",
+                recert_path AS "Receiving Copy path",
+                recert_name AS "Receiving Copy"
+
             FROM 
                 adminteam.training_documents td
             LEFT JOIN 
@@ -109,7 +127,19 @@ def traininglist_loadlist(pathname, searchterm):
         
         """
 
-        cols = ["ID","QAO Name","Faculty Position","Cluster","College","QA Training", "Departure Date", "Return Date","Venue"]
+        cols = ["ID","QAO Name","Faculty Position","Cluster","College",
+                "QA Training", "Departure Date", "Return Date","Venue",
+                "Participant Attendance Cert. path",
+                "Participant Attendance Cert.",
+                "Official Receipt path",
+                "Official Receipt",
+                "Official Travel Report path",
+                "Official Travel Report",
+                "Other Receipts path",
+                "Other Receipts",
+                "Receiving Copy path",
+                "Receiving Copy"
+            ]
 
         if searchterm: 
             sql += """ AND (td.complete_name ILIKE %s OR td.fac_posn ILIKE %s OR qt.trainingtype_name ILIKE %s OR 
@@ -121,25 +151,33 @@ def traininglist_loadlist(pathname, searchterm):
 
         df = db.querydatafromdatabase(sql, values, cols) 
 
-        if df.shape[0] > 0:
-            buttons = []
-            for training_documents_id in df["ID"]:
-                buttons.append(
-                    html.Div(
-                        dbc.Button('Edit',
-                                   href=f'training_documents?mode=edit&id={training_documents_id}',
-                                   size='sm', color='warning'),
-                        style={'text-align': 'center'}
-                    )
+        if not df.empty: 
+            df["Action"] = df["ID"].apply(
+                lambda x: html.Div(
+                    dbc.Button('Edit', href=f'training_documents?mode=edit&id={x}', size='sm', color='warning'),
+                    style={'text-align': 'center'}
                 )
-            df['Action'] = buttons
+            )
+            df = df[["ID","QAO Name","Faculty Position","Cluster","College",
+                    "QA Training", "Departure Date", "Return Date","Venue",
+                    "Participant Attendance Cert.", "Official Receipt",
+                    "Official Travel Report", "Other Receipts",
+                    "Receiving Copy", 'Action' ]]
+                 
+            df['Participant Attendance Cert.'] = df.apply(lambda row: html.A(row['Participant Attendance Cert.'], href=os.path.join(UPLOAD_DIRECTORY, row['Participant Attendance Cert.']) if row['Participant Attendance Cert.'] else ''), axis=1)
+            df['Official Receipt'] = df.apply(lambda row: html.A(row['Official Receipt'], href=os.path.join(UPLOAD_DIRECTORY, row['Official Receipt']) if row['Official Receipt'] else ''), axis=1)
+            df['Official Travel Report'] = df.apply(lambda row: html.A(row['Official Travel Report'], href=os.path.join(UPLOAD_DIRECTORY, row['Official Travel Report']) if row['Official Travel Report'] else ''), axis=1)
+            df['Other Receipts'] = df.apply(lambda row: html.A(row['Other Receipts'], href=os.path.join(UPLOAD_DIRECTORY, row['Other Receipts']) if row['Other Receipts'] else ''), axis=1)
+            df['Receiving Copy'] = df.apply(lambda row: html.A(row['Receiving Copy'], href=os.path.join(UPLOAD_DIRECTORY, row['Receiving Copy']) if row['Receiving Copy'] else ''), axis=1)
+                
+        
 
-            df = df[["QAO Name","Faculty Position","Cluster","College","QA Training", "Departure Date", "Return Date","Venue", "Action"]]
-
+        
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
+        
         else:
             return [html.Div("No records to display")]
-    else:
-        raise PreventUpdate
+
+    return [html.Div("Query could not be processed")]
     

@@ -14,7 +14,7 @@ import base64
 import os
 from urllib.parse import urlparse, parse_qs
 
-UPLOAD_DIRECTORY = r".\assets\database\admin"
+UPLOAD_DIRECTORY = r".\assets\database\admin\trainings"
 
 # Ensure the directory exists or create it
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
@@ -1104,8 +1104,9 @@ def trainingdocuments_loadprofile(timestamp, toload, search):
         sql = """
             SELECT 
                 complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id,
-                qa_training_id, qa_training_other, departure_date, return_date, venue, pacert, 
-                orcert, otrcert, others, recert
+                qa_training_id, qa_training_other, departure_date, return_date, venue, 
+                pacert_name as pacert, orcert_name as orcert, otrcert_name as otrcert, 
+                others_name as others, recert_name as recert
             FROM adminteam.training_documents
             WHERE training_documents_id = %s
         """
@@ -1113,8 +1114,8 @@ def trainingdocuments_loadprofile(timestamp, toload, search):
 
         cols = [
             'complete_name', 'fac_posn_name', 'fac_posn_number', 'cluster_id', 'college_id', 'deg_unit_id',
-            'qa_training_id', "qa_training_other" , 'departure_date', 'return_date', 'venue', 'pacert', 
-            'orcert', 'otrcert', 'others', 'recert' 
+            'qa_training_id', "qa_training_other" , 'departure_date', 'return_date', 'venue', 
+            'pacert', 'orcert', 'otrcert', 'others', 'recert' 
         ]
 
          
@@ -1139,8 +1140,8 @@ def trainingdocuments_loadprofile(timestamp, toload, search):
         recert = df['recert'][0] 
         
         return [complete_name, fac_posn_name, fac_posn_number, cluster_id, college_id, deg_unit_id, 
-                            qa_training_id, qa_training_other , departure_date, return_date, venue, pacert, 
-                            orcert, otrcert, others, recert]
+                            qa_training_id, qa_training_other , departure_date, return_date, venue, 
+                            pacert, orcert, otrcert, others, recert]
     
     else:
         raise PreventUpdate
