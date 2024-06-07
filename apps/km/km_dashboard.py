@@ -249,6 +249,75 @@ def fetch_announcements(pathname):
 
 
 
+# Replies content card -------------------------------------------------------------------
+replies_content = html.Div(
+    [
+        html.Div(id="replies_display",
+            style={
+                'overflowX': 'auto',
+                'overflowY': 'auto',
+                'maxHeight': '300px', 
+            }
+        ),
+    ]
+)
+
+@app.callback(
+    Output("replies_display", "children"),
+    [Input("url", "pathname")],
+)
+def fetch_fromrepliess(pathname):
+    if pathname != "/km_dashboard":
+        raise PreventUpdate
+
+    try:
+        start_of_month, end_of_month = get_month_range()
+
+        sql = """
+            SELECT replies_header, replies_content, replies_user, replies_timestamp
+            FROM kmteam.replies
+            WHERE replies_timestamp BETWEEN %s AND %s
+            ORDER BY replies_timestamp DESC
+        """
+
+        values = (start_of_month, end_of_month)
+        dfcolumns = ["replies_header", "replies_content", "replies_user", "replies_timestamp"]
+
+        df = db.querydatafromdatabase(sql, values, dfcolumns)
+
+        if df.empty:
+            return [html.Div("No messages from QA Officers this month")]
+
+        formatted_replies = []
+        for row in df.itertuples(index=False):
+            header = getattr(row, "replies_header")
+            content = getattr(row, "replies_content")
+            user = getattr(row, "replies_user")
+            timestamp = getattr(row, "replies_timestamp")
+
+            formatted_replies.append(
+                html.Div(
+                    [
+                        html.P(f"{header}: {content}"),  # The main replies content
+                        html.Small(
+                            f"{user or 'Anonymous'}, {timestamp}",
+                            style={
+                                "text-align": "right",
+                                "font-style": "italic",
+                            },
+                        ),  
+                        html.Hr(),
+                    ],
+                    style={"margin-bottom": "10px"},  
+                )
+            )
+
+        return formatted_replies
+
+    except Exception as e:
+        return [html.Div(f"Error retrieving replies: {str(e)}")]
+
+ 
 
 
 
@@ -359,17 +428,32 @@ layout = html.Div(
                         dbc.Row(
                             [
                                 dbc.Col(
-                                    dbc.Card(
-                                        [
-                                            dbc.CardHeader(html.H3("Announcements")),
-                                            dbc.CardBody(
-                                                [
-                                                    announcements_content,
-                                                    announcements_footer,
-                                                ]
-                                            ),
-                                        ]
-                                    ),
+                                    [
+                                        dbc.Card(
+                                            [
+                                                dbc.CardHeader(html.H5("Messages from QA Officers")),
+                                                dbc.CardBody(
+                                                    [
+                                                        replies_content
+                                                    ]
+                                                ),
+                                            ]
+                                        ),
+                                        html.Br(),
+                                        
+                                        dbc.Card(
+                                            [
+                                                dbc.CardHeader(html.H3("Announcements to QA Officers")),
+                                                dbc.CardBody(
+                                                    [
+                                                        announcements_content,
+                                                        announcements_footer,
+                                                    ]
+                                                ),
+                                            ]
+                                        ),
+                                        
+                                    ],
                                     width=12,
                                     className="mb-3"
                                 ),

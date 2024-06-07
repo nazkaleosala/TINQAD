@@ -131,8 +131,8 @@ def generate_navbar(pathname, access_type, user_id):
 
         if access_type == 1:
             sidebar += [
-                html.A('Training Documents', href='/training_instructions', className="nav-link"),
-                html.A('SDG Evidence List', href='/SDG_evidencelist', className="nav-link"),
+                html.A('Add Training Document', href='/training_instructions', className="nav-link"),
+                html.A('Evidences for Checking', href='/checkinglist', className="nav-link"),
                 html.A('-----------------------------------', style={'color': 'white'}),
             ]
         if access_type >= 2:
@@ -144,7 +144,7 @@ def generate_navbar(pathname, access_type, user_id):
                 # admin dashboard
                 html.A(html.B('Admin'), href='/administration_dashboard', className="nav-link"),
                 html.A('Record Expenses', href='/record_expenses', className="nav-link"),
-                html.A('Training Documents', href='/training_instructions', className="nav-link"),
+                html.A('Training Documents', href='/instructions', className="nav-link"),
                 html.A('View Training List', href='/training_record', className="nav-link"),
                 html.A('-----------------------------------', style={'color': 'white'}),
 
