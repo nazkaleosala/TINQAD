@@ -132,7 +132,6 @@ def generate_navbar(pathname, access_type, user_id):
         if access_type == 1:
             sidebar += [
                 html.A('Training Documents', href='/training_instructions', className="nav-link"),
-                html.A(html.B('KM Team'), href='/km_dashboard', className="nav-link"),
                 html.A('SDG Evidence List', href='/SDG_evidencelist', className="nav-link"),
                 html.A('-----------------------------------', style={'color': 'white'}),
             ]

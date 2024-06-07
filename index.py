@@ -67,149 +67,139 @@ app.layout = html.Div(
     ]
 )
 def displaypage(pathname, sessionlogout, user_id, accesstype, search):
+    # Default return layout is a blank page
+    returnlayout = blankpage.layout
+    logout_conditions = [
+        pathname in ['/', '/logout'],
+        user_id == -1,
+        not user_id
+    ]
+    sessionlogout = any(logout_conditions)
+
+    # Parse mode from the URL search string if present
     mode = None
     parsed = urlparse(search)
     if parse_qs(parsed.query):
-        mode = parse_qs(parsed.query)['mode'][0] 
+        mode = parse_qs(parsed.query).get('mode', [None])[0]
+
+    # Check if the callback was triggered by the URL input
     ctx = dash.callback_context
-    if ctx.triggered:
-        eventid = ctx.triggered[0]['prop_id'].split('.')[0]
-        if eventid == 'url': 
-            if pathname == '/' or pathname == '/home' or pathname == '/logout':
-                returnlayout = home.layout
-            elif user_id != -1:
-                if accesstype >= 1:
-                    
-                    # Main Dashboard 
-                    if pathname == '/homepage':
-                        returnlayout = homepage.layout
-                    
-                    elif pathname == '/profile':
-                        returnlayout = user_profile.layout  
-                    elif pathname == '/register_user':
-                        returnlayout = register_user.layout
-                    elif pathname == '/search_users':
-                        returnlayout = search_users.layout
-                    elif pathname == '/password':
-                        returnlayout = password.layout
-                    elif pathname == '/About_TINQAD':
-                        returnlayout = about_TINQAD.layout
-                    
-                    #admin
-                    elif pathname == '/administration_dashboard':
-                        returnlayout = administration_dashboard.layout
-                    elif pathname == '/record_expenses':
-                        returnlayout = record_expenses.layout
-                    elif pathname == '/record_expenses/add_expense':
-                        returnlayout = add_expenses.layout
-                    elif pathname == '/expense_list':
-                        returnlayout = viewexpense_list.layout
-                    elif pathname == '/expense_list/add_expensetype':
-                        returnlayout = expensetype_add.layout
-                    elif pathname == '/training_instructions':
-                        returnlayout = training_instructions.layout
-                    elif pathname == '/training_documents':
-                        returnlayout = training_documents.layout
-                    elif pathname == '/training_record':
-                        returnlayout = training_record.layout
-                    elif pathname == '/training_record/mode=view':
-                        returnlayout = viewtraining_list.layout
-                        
-                        
-                    #IQA
-                    elif pathname == '/iqa_dashboard':
-                        returnlayout = iqa_dashboard.layout
-                    elif pathname == '/dashboard/more_details':
-                        returnlayout = more_details.layout  
-                    elif pathname == '/acad_heads_directory':
-                        returnlayout = acad_heads_directory.layout
-                    elif pathname == '/acadheads_profile':
-                        returnlayout = acadheads_profile.layout
-                    
-                    
-                    #EQA
-                    elif pathname == '/eqa_dashboard':
-                        returnlayout = eqa_dashboard.layout
-                    elif pathname == '/assessment_reports':
-                        returnlayout = assessment_reports.layout
-                    elif pathname == '/assessmentreports/assessment_details':
-                        returnlayout = assessment_details.layout
-                    elif pathname == '/assessmentreports/sar_details':
-                        returnlayout = sar_details.layout
-                    elif pathname == '/assessment_tracker':
-                        returnlayout = accreditation_tracker.layout
-                    elif pathname == '/program_list':
-                        returnlayout = program_list.layout
-                    elif pathname == '/program_details':
-                        returnlayout = program_details.layout
+    if not ctx.triggered:
+        raise PreventUpdate
 
-                    #KM
-                    elif pathname == '/km_dashboard':
-                        returnlayout = km_dashboard.layout 
-                    elif pathname == '/add_criteria':
-                        returnlayout = add_criteria.layout 
-                    #elif pathname == '/THEworld_rankings':
-                        #returnlayout = THEworld_rankings.layout 
-                    elif pathname == '/SDGimpact_rankings':
-                        returnlayout = SDGimpact_rankings.layout 
-                    elif pathname == '/SDGimpactrankings/SDG_submission':
-                        returnlayout = SDG_submission.layout 
-                    elif pathname == '/SDGimpactrankings/SDG_revision':
-                        returnlayout = SDG_revision.layout 
-                    elif pathname == '/SDG_evidencelist':
-                        returnlayout = SDG_evidencelist.layout 
-                    #elif pathname == '/QSworld_rankings':
-                        #returnlayout = QSworld_rankings.layout 
+    eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+    if eventid == 'url': 
+        # Public pages accessible to everyone
+        if pathname in ['/', '/home', '/logout']:
+            returnlayout = home.layout
+        # Pages accessible only to logged-in users
+        elif user_id != -1:
+            if accesstype >= 1:
+                if pathname == '/homepage':
+                    if accesstype == 2:
+                        returnlayout = homepage.layout  # Layout for access type 1 users
+                    elif accesstype == 1:
+                        returnlayout = basichome.layout  # Layout for access type 2 users
+                elif pathname == '/profile':
+                    returnlayout = user_profile.layout
+                elif pathname == '/register_user':
+                    returnlayout = register_user.layout
+                elif pathname == '/search_users':
+                    returnlayout = search_users.layout
+                elif pathname == '/password':
+                    returnlayout = password.layout
+                elif pathname == '/About_TINQAD':
+                    returnlayout = about_TINQAD.layout
 
-                    
-                    #QA Officers 
-                    elif pathname == '/QAOfficers_dashboard':
-                        returnlayout = qa_dashboard.layout
-                    elif pathname == '/qaofficers_profile':
-                        returnlayout = qaofficers_profile.layout  
-                    elif pathname == '/qaofficers_training':
-                        returnlayout = training_details.layout 
-                    elif pathname == '/qaofficers_directory':
-                        returnlayout = qa_directory.layout 
+                #admin team
+                elif pathname == '/administration_dashboard':
+                    returnlayout = administration_dashboard.layout
+                elif pathname == '/record_expenses':
+                    returnlayout = record_expenses.layout
+                elif pathname == '/record_expenses/add_expense':
+                    returnlayout = add_expenses.layout
+                elif pathname == '/expense_list':
+                    returnlayout = viewexpense_list.layout
+                elif pathname == '/expense_list/add_expensetype':
+                    returnlayout = expensetype_add.layout
+                elif pathname == '/training_instructions':
+                    returnlayout = training_instructions.layout
+                elif pathname == '/training_documents':
+                    returnlayout = training_documents.layout
+                elif pathname == '/training_record':
+                    returnlayout = training_record.layout
+                elif pathname == '/training_record/mode=view':
+                    returnlayout = viewtraining_list.layout
+                     
+                #iqa team
+                elif pathname == '/iqa_dashboard':
+                    returnlayout = iqa_dashboard.layout
+                elif pathname == '/dashboard/more_details':
+                    returnlayout = more_details.layout  
+                elif pathname == '/acad_heads_directory':
+                    returnlayout = acad_heads_directory.layout
+                elif pathname == '/acadheads_profile':
+                    returnlayout = acadheads_profile.layout
 
-                    else:
-                        returnlayout = blankpage.layout
+                #eqa team
+                elif pathname == '/eqa_dashboard':
+                    returnlayout = eqa_dashboard.layout
+                elif pathname == '/assessment_reports':
+                    returnlayout = assessment_reports.layout
+                elif pathname == '/assessmentreports/assessment_details':
+                    returnlayout = assessment_details.layout
+                elif pathname == '/assessmentreports/sar_details':
+                    returnlayout = sar_details.layout
+                elif pathname == '/assessment_tracker':
+                    returnlayout = accreditation_tracker.layout
+                elif pathname == '/program_list':
+                    returnlayout = program_list.layout
+                elif pathname == '/program_details':
+                    returnlayout = program_details.layout
+
+                #km team
+                elif pathname == '/km_dashboard':
+                    returnlayout = km_dashboard.layout 
+                elif pathname == '/add_criteria':
+                    returnlayout = add_criteria.layout 
+                elif pathname == '/SDGimpact_rankings':
+                    returnlayout = SDGimpact_rankings.layout 
+                elif pathname == '/SDGimpactrankings/SDG_submission':
+                    returnlayout = SDG_submission.layout 
+                elif pathname == '/SDGimpactrankings/SDG_revision':
+                    returnlayout = SDG_revision.layout 
+                elif pathname == '/SDG_evidencelist':
+                    returnlayout = SDG_evidencelist.layout 
                 
-                elif accesstype == 2:
-                    if pathname == '/homepage':
-                        returnlayout = basichome.layout
-                    elif pathname == '/About_TINQAD':
-                        returnlayout = about_TINQAD.layout
-                    elif pathname == '/training_documents':
-                        returnlayout = training_documents.layout
-                    elif pathname == '/km_dashboard':
-                        returnlayout = km_dashboard.layout 
-                    elif pathname == '/SDGimpactrankings/SDG_submission':
-                        returnlayout = SDG_submission.layout 
-                    elif pathname == '/SDGimpactrankings/SDG_revision':
-                        returnlayout = SDG_revision.layout 
-                    elif pathname == '/SDG_evidencelist':
-                        returnlayout = SDG_evidencelist.layout 
-                    else:
-                        returnlayout = blankpage.layout
+                #qa officers
+                elif pathname == '/QAOfficers_dashboard':
+                    returnlayout = qa_dashboard.layout
+                elif pathname == '/qaofficers_profile':
+                    returnlayout = qaofficers_profile.layout  
+                elif pathname == '/qaofficers_training':
+                    returnlayout = training_details.layout 
+                elif pathname == '/qaofficers_directory':
+                    returnlayout = qa_directory.layout 
                 else:
                     returnlayout = blankpage.layout
-            
+
+            elif accesstype == 2:
+                if pathname == '/About_TINQAD':
+                    returnlayout = about_TINQAD.layout
+                elif pathname == '/training_documents':
+                    returnlayout = training_documents.layout
+                elif pathname == '/km_dashboard':
+                    returnlayout = km_dashboard.layout 
+                elif pathname == '/SDGimpactrankings/SDG_submission':
+                    returnlayout = SDG_submission.layout 
+                elif pathname == '/SDGimpactrankings/SDG_revision':
+                    returnlayout = SDG_revision.layout 
+                elif pathname == '/SDG_evidencelist':
+                    returnlayout = SDG_evidencelist.layout 
             else:
                 returnlayout = blankpage.layout
-             
-            logout_conditions = [
-                pathname in ['/', '/logout'],
-                user_id == -1,
-                not user_id
-            ]
-            sessionlogout = any(logout_conditions)
-        
-        else:
-            raise PreventUpdate
-        return [returnlayout, sessionlogout ]
-    else:
-        raise PreventUpdate
+
+    return [returnlayout, sessionlogout]
 
 if __name__ == '__main__':
     webbrowser.open('http://127.0.0.1:8050/', new=0, autoraise=True)
