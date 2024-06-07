@@ -280,10 +280,7 @@ layout = html.Div(
     [
         dbc.Row(
             [
-                dbc.Col(
-                    cm.sidebar,
-                    width=2 
-                ),
+                cm.sidebar,
                 dbc.Col(
                 [
                     profile_header,  

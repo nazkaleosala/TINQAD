@@ -17,7 +17,7 @@ layout = html.Div(
         dbc.Row(
             [
                 dbc.Col(
-                    cm.generate_navbar(),
+                    cm.sidebar,
                     width=2
                 ),
                 dbc.Col(

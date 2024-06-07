@@ -20,11 +20,7 @@ layout = html.Div(
         dbc.Row(
             [
                 # Navbar
-                dbc.Col(
-                    cm.generate_navbar(),
-                    width=2,
-                    style={"paddingRight": 0},
-                ),
+                cm.sidebar,
                 
                 dbc.Col(
                     dbc.Card(

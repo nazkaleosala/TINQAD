@@ -181,14 +181,15 @@ def generate_navbar(pathname, user_id, access_type):
 
 sidebar = dbc.Col(
     width = 2,
+    id = 'sidebar',
     style = {
-        'margin-right' : '2em',
-        'padding' : '1.5em',
-    },
-    id = 'sidebar'
+        'margin-left' : '2em',
+        'margin-top' : '1em',
+        'max-height': '90vh',  # Maximum height of the navbar
+        'overflow-y': 'auto'   # Enable vertical scrolling
+        }    
 )
-
-
+ 
 
 
 def generate_footer():
