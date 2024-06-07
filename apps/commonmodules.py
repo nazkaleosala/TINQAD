@@ -123,68 +123,63 @@ def navbarlinks(pathname, user_id):
     ],
     [State('currentuserid', 'data')]
 )
-
-def generate_navbar(pathname, user_id, access_type):
+def generate_navbar(pathname, access_type, user_id):
     if user_id != -1:
-        sidebar = [ 
-            html.A(html.B('Home'), href='/homepage', className="nav-link"),  
-            html.A('Profile', href='/profile', className="nav-link"),    
-            html.A('-----------------------------------', style={'color': 'white'} ),  
-            html.A('Training Documents',  href='/training_instructions', className="nav-link"),  
-            html.A(html.B('KM Team'), href='/km_dashboard', className="nav-link"),  
-            html.A('SDG Evidence List',  href='/SDG_evidencelist', className="nav-link"),  
-            html.A('-----------------------------------', style={'color': 'white'} ),       
+        sidebar = [
+            html.A(html.B('Home'), href='/homepage', className="nav-link"),
+            html.A('Profile', href='/profile', className="nav-link"),
         ]
+
+        if access_type == 1:
+            sidebar += [
+                html.A('Training Documents', href='/training_instructions', className="nav-link"),
+                html.A(html.B('KM Team'), href='/km_dashboard', className="nav-link"),
+                html.A('SDG Evidence List', href='/SDG_evidencelist', className="nav-link"),
+                html.A('-----------------------------------', style={'color': 'white'}),
+            ]
         if access_type >= 2:
-            sidebar += [ 
-                html.A(html.B('Home'), href='/homepage', className="nav-link"),  
-                html.A('Profile', href='/profile', className="nav-link"),   
-                html.A('Search Users', href='/search_users', className="nav-link"),  
-                html.A('-----------------------------------', style={'color': 'white'} ),  
-                
-                #admin dashboard 
-                html.A(html.B('Admin'),  href='/administration_dashboard', className="nav-link"),  
-                html.A('Record Expenses',  href='/record_expenses', className="nav-link"),  
-                html.A('Training Documents',  href='/training_instructions', className="nav-link"),  
-                html.A('View Training List',  href='/training_record', className="nav-link"),  
-                #html.A('Generate Report', id='generate-report-link', href='/generate_report', className="nav-link"), 
-                html.A('-----------------------------------', style={'color': 'white'} ),  
+            sidebar += [
+                html.A('Search Users', href='/search_users', className="nav-link"),
+                html.A('-----------------------------------', style={'color': 'white'}),
 
-                #internal qa dashboard
-                html.A(html.B('Internal QA'), href='/iqa_dashboard', className="nav-link"),  
-                #html.A('iAADs Reports Summary', id='iaads-reports-link', href='/iaads_reports', className="nav-link"),  
-                html.A('Academic Heads Directory',  href='/acad_heads_directory', className="nav-link"),  
-                html.A('-----------------------------------', style={'color': 'white'} ),  
+                # admin dashboard
+                html.A(html.B('Admin'), href='/administration_dashboard', className="nav-link"),
+                html.A('Record Expenses', href='/record_expenses', className="nav-link"),
+                html.A('Training Documents', href='/training_instructions', className="nav-link"),
+                html.A('View Training List', href='/training_record', className="nav-link"),
+                html.A('-----------------------------------', style={'color': 'white'}),
 
-                #external qa dashboard
-                html.A(html.B('External QA'),  href='/eqa_dashboard', className="nav-link"),  
-                html.A('Assessment Reports', href='/assessment_reports', className="nav-link"),  
-                html.A('Assessment Tracker', href='/assessment_tracker', className="nav-link"),  
-                html.A('Program List',  href='/program_list', className="nav-link"),  
-                html.A('-----------------------------------', style={'color': 'white'} ),  
-                        
-                #km team dashboard
-                html.A(html.B('KM Team'), href='/km_dashboard', className="nav-link"),  
-                #html.A('THE World Univ Rankings', id='the-world-univ-rankings-link', href='/THEworld_rankings', className="nav-link"),  
-                html.A('SDG Impact Rankings',  href='/SDGimpact_rankings', className="nav-link"),  
-                html.A('SDG Evidence List',  href='/SDG_evidencelist', className="nav-link"),  
-                #html.A('QS University Rankings', id='qs-university-rankings-link', href='/QSworld_rankings', className="nav-link"),  
-                html.A('-----------------------------------', style={'color': 'white'} ), 
-        
-                #qa officers
-                html.A(html.B('QA Officers Dashboard'), href='/QAOfficers_dashboard', className="nav-link"),    
-                html.A('QA Officers Directory', href='/qaofficers_directory', className="nav-link"),  
-            
-                ]
-            return [sidebar]
-    else: raise PreventUpdate
+                # internal qa dashboard
+                html.A(html.B('Internal QA'), href='/iqa_dashboard', className="nav-link"),
+                html.A('Academic Heads Directory', href='/acad_heads_directory', className="nav-link"),
+                html.A('-----------------------------------', style={'color': 'white'}),
+
+                # external qa dashboard
+                html.A(html.B('External QA'), href='/eqa_dashboard', className="nav-link"),
+                html.A('Assessment Reports', href='/assessment_reports', className="nav-link"),
+                html.A('Assessment Tracker', href='/assessment_tracker', className="nav-link"),
+                html.A('Program List', href='/program_list', className="nav-link"),
+                html.A('-----------------------------------', style={'color': 'white'}),
+
+                # km team dashboard
+                html.A(html.B('KM Team'), href='/km_dashboard', className="nav-link"),
+                html.A('SDG Impact Rankings', href='/SDGimpact_rankings', className="nav-link"),
+                html.A('SDG Evidence List', href='/SDG_evidencelist', className="nav-link"),
+                html.A('-----------------------------------', style={'color': 'white'}),
+
+                # qa officers
+                html.A(html.B('QA Officers Dashboard'), href='/QAOfficers_dashboard', className="nav-link"),
+                html.A('QA Officers Directory', href='/qaofficers_directory', className="nav-link"),
+            ]
+
+        return [sidebar]
+    else:
+        raise PreventUpdate
 
 sidebar = dbc.Col(
     width = 2,
     id = 'sidebar',
-    style = {
-        'margin-left' : '2em',
-        'margin-top' : '1em',
+    style = { 
         'max-height': '90vh',  # Maximum height of the navbar
         'overflow-y': 'auto'   # Enable vertical scrolling
         }    

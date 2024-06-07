@@ -345,10 +345,7 @@ layout = html.Div(
         html.Div(id='post-trigger', style={'display': 'none'}),
         dbc.Row(
             [
-                dbc.Col(
-                    cm.sidebar,
-                    width=2
-                ),
+                cm.sidebar,
                 dbc.Col(
                     [
                         html.H1("KM TEAM DASHBOARD", className="my-3"),
