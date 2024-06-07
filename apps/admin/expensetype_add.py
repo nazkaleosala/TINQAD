@@ -165,7 +165,7 @@ layout = html.Div(
     [
         dbc.Row(
             [
-                dbc.Col(cm.generate_navbar(), width=2),
+                dbc.Col(cm.sidebar,width=2),
                 dbc.Col(
                     [
                         html.H1("Add Expense Type"),

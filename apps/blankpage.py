@@ -17,10 +17,7 @@ layout = html.Div(
     [
         dbc.Row(
             [
-                dbc.Col(
-                    cm.generate_navbar(), 
-                    width=2 
-                ),
+                cm.sidebar,
                 dbc.Col(
                     [
                         html.H1("Page is not yet available"),
