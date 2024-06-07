@@ -850,15 +850,15 @@ def generate_greeting(pathname, user_id):
         cols = ['livedname', 'fname']
         df = db.querydatafromdatabase(sql, values, cols)
         
-        if df.empty or (df['livedname'].isnull().all() and df['fname'].isnull().all()):
-            text = html.H5( html.B("👋 Welcome!"))
+        if df.empty or (df.isnull().all().all()) or (df['livedname'].str.strip().eq("").all() and df['fname'].str.strip().eq("").all()):
+            text = html.H5(html.B("👋 Welcome!"))
             color = '#F9B236'  # Set default color
         else:
             name = df['livedname'][0] if df['livedname'][0] else df['fname'][0]
             time = datetime.now(pytz.timezone('Asia/Manila')).hour
 
             if time >= 0 and time < 12:
-                text = html.H5( html.B("☕ Good morning, %s!" % name))
+                text = html.H5(html.B("☕ Good morning, %s!" % name))
                 color = '#F9B236'    
             elif time >= 12 and time < 18:
                 text = html.H5(html.B("🍲 Good afternoon, %s!" % name))
