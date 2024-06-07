@@ -194,7 +194,7 @@ form = dbc.Form(
                     width=4
                 ),
                 dbc.Col(
-                    dbc.Input(type="text", id='qa_training_other'),
+                    dbc.Input(type="text", id='qa_training_other', placeholder="Other: Training Name"),
                     width=6,
                 ),
             ],

@@ -126,8 +126,7 @@ def navbarlinks(pathname, user_id):
 def generate_navbar(pathname, access_type, user_id):
     if user_id != -1:
         sidebar = [
-            html.A(html.B('Home'), href='/homepage', className="nav-link"),
-            html.A('Profile', href='/profile', className="nav-link"),
+            html.A(html.B('Home'), href='/homepage', className="nav-link"),  
         ]
 
         if access_type == 1:
@@ -139,6 +138,7 @@ def generate_navbar(pathname, access_type, user_id):
             ]
         if access_type >= 2:
             sidebar += [
+                html.A('Profile', href='/profile', className="nav-link"),
                 html.A('Search Users', href='/search_users', className="nav-link"),
                 html.A('-----------------------------------', style={'color': 'white'}),
 

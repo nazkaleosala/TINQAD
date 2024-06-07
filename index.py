@@ -13,7 +13,7 @@ from apps import commonmodules as cm
 from apps import home
 from apps import blankpage  
 
-from apps.maindashboard import homepage, user_profile, register_user, search_users, password, about_TINQAD
+from apps.maindashboard import homepage, user_profile, register_user, search_users, password, about_TINQAD, basichome
 from apps.admin import administration_dashboard, expensetype_add, record_expenses, training_instructions, training_documents, add_expenses, training_record, viewexpense_list, viewtraining_list
 from apps.iqa import iqa_dashboard, more_details, acad_heads_directory, acadheads_profile
 from apps.eqa import eqa_dashboard, assessment_reports, assessment_details, accreditation_tracker, program_list, program_details, sar_details
@@ -83,6 +83,7 @@ def displaypage(pathname, sessionlogout, user_id, accesstype, search):
                     # Main Dashboard 
                     if pathname == '/homepage':
                         returnlayout = homepage.layout
+                    
                     elif pathname == '/profile':
                         returnlayout = user_profile.layout  
                     elif pathname == '/register_user':
@@ -176,17 +177,19 @@ def displaypage(pathname, sessionlogout, user_id, accesstype, search):
                 
                 elif accesstype == 2:
                     if pathname == '/homepage':
-                        returnlayout = homepage.layout
-                    elif pathname == '/profile':
-                        returnlayout = user_profile.layout  
-                    elif pathname == '/register_user':
-                        returnlayout = register_user.layout
-                    elif pathname == '/search_users':
-                        returnlayout = search_users.layout
-                    elif pathname == '/password':
-                        returnlayout = password.layout
+                        returnlayout = basichome.layout
                     elif pathname == '/About_TINQAD':
                         returnlayout = about_TINQAD.layout
+                    elif pathname == '/training_documents':
+                        returnlayout = training_documents.layout
+                    elif pathname == '/km_dashboard':
+                        returnlayout = km_dashboard.layout 
+                    elif pathname == '/SDGimpactrankings/SDG_submission':
+                        returnlayout = SDG_submission.layout 
+                    elif pathname == '/SDGimpactrankings/SDG_revision':
+                        returnlayout = SDG_revision.layout 
+                    elif pathname == '/SDG_evidencelist':
+                        returnlayout = SDG_evidencelist.layout 
                     else:
                         returnlayout = blankpage.layout
                 else:
