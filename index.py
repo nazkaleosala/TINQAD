@@ -14,10 +14,10 @@ from apps import home
 from apps import blankpage  
 
 from apps.maindashboard import homepage, user_profile, register_user, search_users, password, about_TINQAD, basichome
-from apps.admin import administration_dashboard, expensetype_add, record_expenses, training_instructions, training_documents, add_expenses, training_record, viewexpense_list, viewtraining_list
+from apps.admin import administration_dashboard, expensetype_add, record_expenses, training_instructions, instructions, training_documents, add_expenses, training_record, viewexpense_list, viewtraining_list
 from apps.iqa import iqa_dashboard, more_details, acad_heads_directory, acadheads_profile
 from apps.eqa import eqa_dashboard, assessment_reports, assessment_details, accreditation_tracker, program_list, program_details, sar_details
-from apps.km import km_dashboard, SDGimpact_rankings, SDG_submission, SDG_revision, add_criteria, SDG_evidencelist
+from apps.km import km_dashboard, SDGimpact_rankings, SDG_submission, SDG_revision, add_criteria, SDG_evidencelist, checkinglist
 from apps.qaofficers import qa_directory, qaofficers_profile, training_details, qa_dashboard 
 
  
@@ -122,8 +122,10 @@ def displaypage(pathname, sessionlogout, user_id, accesstype, search):
                     returnlayout = viewexpense_list.layout
                 elif pathname == '/expense_list/add_expensetype':
                     returnlayout = expensetype_add.layout
+                elif pathname == '/instructions':
+                    returnlayout = instructions.layout
                 elif pathname == '/training_instructions':
-                    returnlayout = training_instructions.layout
+                    returnlayout = training_instructions.layout 
                 elif pathname == '/training_documents':
                     returnlayout = training_documents.layout
                 elif pathname == '/training_record':
@@ -170,6 +172,8 @@ def displaypage(pathname, sessionlogout, user_id, accesstype, search):
                     returnlayout = SDG_revision.layout 
                 elif pathname == '/SDG_evidencelist':
                     returnlayout = SDG_evidencelist.layout 
+                elif pathname == '/checkinglist':
+                    returnlayout = checkinglist.layout 
                 
                 #qa officers
                 elif pathname == '/QAOfficers_dashboard':
@@ -187,7 +191,7 @@ def displaypage(pathname, sessionlogout, user_id, accesstype, search):
                 if pathname == '/About_TINQAD':
                     returnlayout = about_TINQAD.layout
                 elif pathname == '/training_documents':
-                    returnlayout = training_documents.layout
+                    returnlayout = training_documents.layout 
                 elif pathname == '/km_dashboard':
                     returnlayout = km_dashboard.layout 
                 elif pathname == '/SDGimpactrankings/SDG_submission':

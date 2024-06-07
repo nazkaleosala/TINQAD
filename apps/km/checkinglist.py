@@ -57,15 +57,7 @@ layout = html.Div(
                                     [
                                         dbc.CardHeader("Submissions for Checking"),
                                         dbc.CardBody(
-                                            html.Div(
-                                                id='checking_list', 
-                                                style={
-                                                    'marginTop': '20px',
-                                                    'overflowX': 'auto',
-                                                    'overflowY': 'auto',
-                                                    'maxHeight': '300px', 
-                                                }
-                                            )
+                                             
                                         )
                                     ],
                                     color="light"
@@ -80,15 +72,7 @@ layout = html.Div(
                                     [
                                         dbc.CardHeader("Submissions in need of Revisions"),
                                         dbc.CardBody(
-                                            html.Div(
-                                                id='revisions_list', 
-                                                style={
-                                                    'marginTop': '20px',
-                                                    'overflowX': 'auto',
-                                                    'overflowY': 'auto',
-                                                    'maxHeight': '300px',
-                                                }
-                                            )
+                                             
                                         )
                                     ],
                                     color="light"
@@ -123,13 +107,7 @@ layout = html.Div(
                                                 dbc.CardHeader("Approved Revisions"),
                                                 dbc.CardBody(
                                                     html.Div(
-                                                        id='checkedrevisions_list', 
-                                                        style={
-                                                            'marginTop': '20px',
-                                                            'overflowX': 'auto',
-                                                            'overflowY': 'auto',
-                                                            'maxHeight': '500px',
-                                                        }
+                                                         
                                                     )
                                                 )
                                             ],
@@ -138,38 +116,14 @@ layout = html.Div(
                                         width="12"
                                     )
                                 ),
-
-                                dbc.Modal(
-                                    [
-                                        dbc.ModalHeader("Confirm Removal"),
-                                        dbc.ModalBody("Remove evidence from list of revisions?"),
-                                        dbc.ModalFooter(
-                                            [
-                                                dbc.Button("Cancel", id="sdgrevision_cancel_remove", color="secondary"),
-                                                dbc.Button("Confirm", id="sdgrevision_confirm_remove", color="danger")
-                                            ]
-                                        ),
-                                    ],
-                                    centered=True,
-                                    id='sdgrevision_confirmmodal',
-                                    backdrop=True,   
-                                    className="modal-success"  
-                                )
-
                             ],
                         ),
-                        html.Br(),    
-                        html.Br(),    
-
-
-
+                        html.Br(),  html.Br(),    
                     ], width=9, style={'marginLeft': '15px'}
                 ),
             ]
         ),
-        html.Br(),
-        html.Br(),
-        html.Br(),
+        html.Br(), html.Br(), html.Br(),
         dbc.Row(
             [
                 dbc.Col(cm.generate_footer(), width={"size": 12, "offset": 0}),

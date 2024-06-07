@@ -1,14 +1,11 @@
 import dash_bootstrap_components as dbc
-from dash import dash, html, dcc, Input, Output, State
-from dash import callback_context
-from dash.exceptions import PreventUpdate
+from dash import html, Input, Output 
+from dash import callback_context 
 
+import dash
 from apps import commonmodules as cm
 from app import app
-from apps import dbconnect as db
-from dash.dash_table.Format import Group
-
-
+from apps import dbconnect as db 
 
 layout = html.Div(
     [
@@ -43,7 +40,9 @@ layout = html.Div(
                                     html.Br(),
                                     html.Div(
                                         [
-                                            dbc.Button("Proceed", id="proceed_button", color="primary", href="/training_documents?mode=add"), 
+                                            dbc.Checkbox(id="accept_checkbox", className="mr-2"),
+                                            html.Label("I have read and accept all of the instructions carefully."),
+                                            dbc.Button("Proceed", id="proceed_button", color="primary", href="/training_documents?mode=add", disabled=True),
                                         ],
                                         style={"display": "flex", "justify-content": "flex-end", "gap": "10px"},
                                     ),
@@ -66,9 +65,6 @@ layout = html.Div(
     ],
 )
 
-
- 
-
 # Callback to fetch announcements and display them
 @app.callback(
     Output("traininginstructions_display", "children"),
@@ -89,3 +85,14 @@ def fetch_announcements(pathname):
 
         instruction_content = df.loc[0, "trinstructions_content"]
         return instruction_content  
+
+
+
+
+# Define the callback to enable/disable the button
+@app.callback(
+    Output("proceed_button", "disabled"),
+    Input("accept_checkbox", "checked")
+)
+def toggle_proceed_button(checked):
+    return not checked

@@ -52,7 +52,7 @@ layout = html.Div(
                                             
                                             dbc.Textarea(
                                                 id="trinstructions_content",
-                                                placeholder="Type a new instruction, make sure its complete before hitting save!",
+                                                placeholder="Type a new instruction, make sure its complete before saving!",
                                                 style={"resize": "vertical"},
                                                 rows=5,
                                             ),
@@ -113,7 +113,7 @@ layout = html.Div(
     [Input("url", "pathname")],   
 )
 def fetch_announcements(pathname):
-    if pathname == "/training_instructions": 
+    if pathname == "/instructions": 
         sql = """
             SELECT trinstructions_content
             FROM adminteam.training_instructions
