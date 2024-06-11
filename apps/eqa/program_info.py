@@ -45,7 +45,7 @@ form = dbc.Form(
                 dbc.Col(
                     dbc.Input(
                         id="cluster_name",
-                        placeholder=" Management and Economics",
+                        placeholder="Management and Economics",
                         type="text",
                         disabled=True,
                     ),
@@ -60,7 +60,7 @@ form = dbc.Form(
                 dbc.Col(
                     dbc.Input(
                         id="cluster_shortname",
-                        placeholder=" MAE",
+                        placeholder="MAE",
                         type="text",
                         disabled=True,
                     ),
@@ -77,7 +77,7 @@ form = dbc.Form(
                dbc.Col(
                    dcc.Dropdown(
                        id='newcluster_id',
-                       placeholder=" Select Cluster",
+                       placeholder="Select Cluster",
                        disabled=True,
                    ),
                    width=7,
@@ -92,7 +92,7 @@ form = dbc.Form(
                 dbc.Col(
                     dbc.Input(
                         id="college_name",
-                        placeholder=" College of Engineering",
+                        placeholder="College of Engineering",
                         type="text",
                         disabled=True,
                     ),
@@ -107,7 +107,7 @@ form = dbc.Form(
                 dbc.Col(
                     dbc.Input(
                         id="college_shortname",
-                        placeholder=" COE",
+                        placeholder="COE",
                         type="text",
                         disabled=True,
                     ),
@@ -124,7 +124,7 @@ form = dbc.Form(
                dbc.Col(
                    dcc.Dropdown(
                        id='newcollege_id',
-                       placeholder=" Select College",
+                       placeholder="Select College",
                        disabled=True,
                    ),
                    width=7,
@@ -139,7 +139,7 @@ form = dbc.Form(
                 dbc.Col(
                     dbc.Input(
                         id="deg_unit_name",
-                        placeholder=" Department of Industrial Engineering",
+                        placeholder="Department of Industrial Engineering",
                         type="text",
                         disabled=True,
                     ),
@@ -154,7 +154,7 @@ form = dbc.Form(
                 dbc.Col(
                     dbc.Input(
                         id="deg_unit_shortname",
-                        placeholder=" DIEOR",
+                        placeholder="DIEOR",
                         type="text",
                         disabled=True,
                     ),
