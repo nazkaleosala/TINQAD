@@ -16,7 +16,7 @@ from apps import blankpage
 from apps.maindashboard import homepage, user_profile, register_user, search_users, password, about_TINQAD, basichome
 from apps.admin import administration_dashboard, expensetype_add, record_expenses, training_instructions, instructions, training_documents, add_expenses, training_record, viewexpense_list, viewtraining_list
 from apps.iqa import iqa_dashboard, more_details, acad_heads_directory, acadheads_profile
-from apps.eqa import eqa_dashboard, assessment_reports, assessment_details, accreditation_tracker, program_list, program_details, sar_details
+from apps.eqa import eqa_dashboard, assessment_reports, assessment_details, accreditation_tracker, program_list, program_details, sar_details, program_info
 from apps.km import km_dashboard, SDGimpact_rankings, SDG_submission, SDG_revision, add_criteria, SDG_evidencelist, checkinglist
 from apps.qaofficers import qa_directory, qaofficers_profile, training_details, qa_dashboard 
 
@@ -158,6 +158,8 @@ def displaypage(pathname, sessionlogout, user_id, accesstype, search):
                     returnlayout = program_list.layout
                 elif pathname == '/program_details':
                     returnlayout = program_details.layout
+                elif pathname == '/program_info':
+                    returnlayout = program_info.layout
 
                 #km team
                 elif pathname == '/km_dashboard':

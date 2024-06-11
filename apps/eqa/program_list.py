@@ -48,6 +48,13 @@ layout = html.Div(
                                     ),
                                     width="auto",    
                                 ),
+                                dbc.Col(   
+                                    dbc.Button(
+                                        "➕ Add Program Info", color="warning", 
+                                        href='/program_info', 
+                                    ),
+                                    width="auto",    
+                                ),
                             ],
                             className="align-items-center",   
                             justify="between",  
