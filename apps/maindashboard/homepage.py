@@ -357,7 +357,7 @@ def insert_announcement(n_clicks, n_dismiss, anmsgs_header, anmsgs_content, curr
 
     if not n_clicks or not anmsgs_header or not anmsgs_content:
         print("Missing input: ", n_clicks, anmsgs_header, anmsgs_content)
-        return ["Please fill in all fields", "", False]
+        return ["", "", False]
 
     try: 
         user_sql = """
