@@ -111,7 +111,6 @@ def programlist_loadlist(pathname, searchterm):
                         FROM eqateam.program_details
                     )
                 ) AS "Applicable Accreditation Body",
-                pro_degree_count AS "Degree Count",
                 pro_calendar_type_id AS "Academic Calendar Type"
             FROM
                 eqateam.program_details pd
@@ -123,7 +122,7 @@ def programlist_loadlist(pathname, searchterm):
                     NOT pro_del_ind
         """
         cols = ['ID', "Degree Program", "College", "Department", "Cluster",  "Program Type", 
-                "Applicable Accreditation Body", "Degree Count", "Academic Calendar Type"]
+                "Applicable Accreditation Body", "Academic Calendar Type"]
         
         values = []
 
@@ -161,7 +160,7 @@ def programlist_loadlist(pathname, searchterm):
             df["Academic Calendar Type"] = df["Academic Calendar Type"].map(map_academic_calendar_type)
 
             df = df[["Degree Program", "College", "Department", "Cluster",  "Program Type", 
-                     "Applicable Accreditation Body", "Degree Count", "Academic Calendar Type", 'Action']]
+                     "Applicable Accreditation Body", "Academic Calendar Type", 'Action']]
 
         # Generate the table from the filtered DataFrame
         if not df.empty:
