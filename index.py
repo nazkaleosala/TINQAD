@@ -97,9 +97,9 @@ def displaypage(pathname, sessionlogout, user_id, accesstype, search):
             if accesstype >= 1:
                 if pathname == '/homepage':
                     if accesstype == 2:
-                        returnlayout = homepage.layout  # Layout for access type 1 users
+                        returnlayout = homepage.layout  # Layout for basic users
                     elif accesstype == 1:
-                        returnlayout = basichome.layout  # Layout for access type 2 users
+                        returnlayout = basichome.layout  # Layout for full access users
                 elif pathname == '/profile':
                     returnlayout = user_profile.layout
                 elif pathname == '/register_user':
