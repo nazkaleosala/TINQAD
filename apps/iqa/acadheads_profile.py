@@ -604,7 +604,7 @@ def record_acadhead_profile(submitbtn, closebtn, removerecord,
 
                 db.modifydatabase(sql, values) 
                 modal_open = True
-                feedbackmessage = html.H5("Unithead registered successfully.")
+                feedbackmessage = html.H5("Unit head registered successfully.")
                 okay_href = "/acad_heads_directory"
                 
             elif create_mode == 'edit':
