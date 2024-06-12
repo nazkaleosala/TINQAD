@@ -206,11 +206,13 @@ def recordexpenses_loadlist(pathname, searchterm, active_tab):
                 LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
                 LEFT JOIN adminteam.sub_expenses AS se ON e.sub_expense_id = se.sub_expense_id
                 LEFT JOIN adminteam.expense_status AS es ON e.exp_status = es.expense_status_id
+                WHERE
+                    exp_del_ind IS FALSE
             """
             values = []
-            cols = ['ID', 'Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type', 
-                    'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by',
-                    'File', 'File Path']
+            cols = ['ID', 'Date', 'Payee Name', 'Main Expense Type',
+                    'Sub Expense Type', 'Particulars', 'Amount', 'Status', 
+                    'BUR No', 'Submitted by','File', 'File Path']
 
             if searchterm:
                 sql += """ WHERE exp_payee ILIKE %s OR es.expense_status_name ILIKE %s OR exp_bur_no ILIKE %s """
