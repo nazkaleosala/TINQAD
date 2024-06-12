@@ -13,21 +13,18 @@ from apps import dbconnect as db
 
 import datetime
 
-
-
 # Using the corrected path
 UPLOAD_DIRECTORY = r".\assets\database\admin"
 
 # Ensure the directory exists or create it
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
-
 custom_css = {
     "tabs": {"background-color": "#C2C2C2"},
     "tab": {"padding": "20px"},
     "active_tab": {"background-color": "yellow"}
 }
-  
+
 layout = html.Div(
     [
         dbc.Row(
@@ -87,8 +84,6 @@ layout = html.Div(
                                 )
                             ],
                         ),
-                        
-                         
                     ], 
                     width=9, 
                     style={'marginLeft': '15px'}
@@ -104,8 +99,7 @@ layout = html.Div(
             ]
         )
     ]
-) 
-
+)
 
 @app.callback(
     Output("tabs-content", "children"),
@@ -129,15 +123,10 @@ def switch_tab(tab):
                 style={
                     'marginTop': '20px',
                     'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
-                    }
-                )
-            ]
+                }
+            )
+        ]
     return html.Div("No Tab Selected")
-
-
-
-
-
 
 @app.callback(
     Output('recordexpenses_list', 'children'),
@@ -215,54 +204,33 @@ def recordexpenses_loadlist(pathname, searchterm, active_tab):
                     'BUR No', 'Submitted by','File', 'File Path']
 
             if searchterm:
-                sql += """ WHERE exp_payee ILIKE %s OR es.expense_status_name ILIKE %s OR exp_bur_no ILIKE %s """
+                sql += """ AND (exp_payee ILIKE %s OR es.expense_status_name ILIKE %s OR exp_bur_no ILIKE %s) """
                 like_pattern = f"%{searchterm}%"
                 values.extend([like_pattern, like_pattern, like_pattern])
 
         df = db.querydatafromdatabase(sql, values, cols)
  
-
     else:
         return [html.Div("Invalid tab selection")]
 
-        # Execute the query and load data
-    if sql:
-        df = db.querydatafromdatabase(sql, values, cols)
-             
-        if not df.empty:
-            if active_tab == "current":
-                df["Action"] = df["ID"].apply(
-                    lambda x: html.Div(
-                        dbc.Button('Edit', href=f'/record_expenses/add_expense?mode=edit&id={x}', size='sm', color='warning'),
-                        style={'text-align': 'center'}
-                    )
-                )
-                df = df[['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type',
-                    'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by', 
-                    'File', 'Action']]
-                    
-                df['File'] = df.apply(lambda row: html.A(row['File'], href=os.path.join(UPLOAD_DIRECTORY, row['File']) if row['File'] else ''), axis=1)
+    if not df.empty:
+        df["Action"] = df["ID"].apply(
+            lambda x: html.Div(
+                dbc.Button('Edit', href=f'/record_expenses/add_expense?mode=edit&id={x}', size='sm', color='warning'),
+                style={'text-align': 'center'}
+            )
+        )
+        df = df[['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type',
+                'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by', 
+                'File', 'Action']]
+                
+        df['File'] = df.apply(lambda row: html.A(row['File'], href=os.path.join(UPLOAD_DIRECTORY, row['File']) if row['File'] else ''), axis=1)
 
-
-            if active_tab == "view_all":
-                df["Action"] = df["ID"].apply(
-                    lambda x: html.Div(
-                        dbc.Button('Edit', href=f'/record_expenses/add_expense?mode=edit&id={x}', size='sm', color='warning'),
-                        style={'text-align': 'center'}
-                    )
-                )
-                df = df[['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type',
-                    'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by', 
-                    'File', 'Action']]
-                    
-                df['File'] = df.apply(lambda row: html.A(row['File'], href=os.path.join(UPLOAD_DIRECTORY, row['File']) if row['File'] else ''), axis=1)
-
-
-            df['Amount'] = df['Amount'].apply(lambda x: '{:,.2f}'.format(x))
-            table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
-            return [table]
-            
-        else:
-            return [html.Div("No records to display")]
+        df['Amount'] = df['Amount'].apply(lambda x: '{:,.2f}'.format(x))
+        table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+        return [table]
+        
+    else:
+        return [html.Div("No records to display")]
 
     return [html.Div("Query could not be processed")]
