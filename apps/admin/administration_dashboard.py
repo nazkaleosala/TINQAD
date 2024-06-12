@@ -16,9 +16,6 @@ from datetime import datetime
 
 
 
-def get_current_month():
-    # Return the current month's name, e.g., "April".
-    return datetime.now().strftime("%B")
 
 def get_year_range():
     current_year = datetime.now().year
@@ -56,7 +53,7 @@ def charts_mainexp():
         )])
         pie_fig.update_traces(textinfo='percent+label')  # Show percentage and label on pie chart
         pie_fig.update_layout(
-            title=f"{get_current_month()} {get_year_range()}",  # Title with month and year
+            title=f"{get_year_range()}",  # Title with month and year
             title_font=dict(size=18), 
             legend=dict(title_font=dict(size=12), orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
         )
@@ -133,7 +130,7 @@ def charts_subexp():
         )])
         pie_fig.update_traces(textinfo='percent')  # Show percentage and label on pie chart
         pie_fig.update_layout(
-            title=f"{get_current_month()} {get_year_range()}",  # Title with month and year
+            title=f"{get_year_range()}",  # Title with month and year
             title_font=dict(size=18), 
             
         )
