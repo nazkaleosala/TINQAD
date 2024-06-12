@@ -23,7 +23,7 @@ def get_year_range():
     return f"{previous_year}-{current_year}"
 
 
-def charts_mainexp(): 
+def charts_mainexp():
     current_year = datetime.now().year
 
     pie_sql = """
@@ -31,9 +31,10 @@ def charts_mainexp():
         FROM adminteam.expenses AS e
         LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
         WHERE EXTRACT(YEAR FROM e.exp_date) = %s
+          AND e.exp_del_ind IS FALSE
         GROUP BY me.main_expense_shortname
     """
-   
+
     pie_df = db.querydatafromdatabase(pie_sql, (current_year,), ['main_expense_shortname', 'total_amount'])
 
     if pie_df.empty:
@@ -54,7 +55,7 @@ def charts_mainexp():
         pie_fig.update_traces(textinfo='percent+label')  # Show percentage and label on pie chart
         pie_fig.update_layout(
             title=f"{get_year_range()}",  # Title with month and year
-            title_font=dict(size=18), 
+            title_font=dict(size=18),
             legend=dict(title_font=dict(size=12), orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
         )
         pie_chart = dcc.Graph(figure=pie_fig)
@@ -66,6 +67,7 @@ def charts_mainexp():
             SUM(exp_amount) AS total_amount
         FROM adminteam.expenses
         WHERE EXTRACT(YEAR FROM exp_date) = %s
+          AND exp_del_ind IS FALSE
         GROUP BY TO_CHAR(exp_date, 'Month')
         ORDER BY TO_DATE(TO_CHAR(exp_date, 'Month'), 'Month')
     """
@@ -76,10 +78,10 @@ def charts_mainexp():
     else:
         bar_fig = go.Figure([go.Bar(x=bar_df['month'], y=bar_df['total_amount'])])
         bar_fig.update_layout(
-            title='Monthly Expenses', 
-            xaxis_title='Month', 
+            title='Monthly Expenses',
+            xaxis_title='Month',
             yaxis_title='Expenses',
-            title_x=0.5,  
+            title_x=0.5,
             margin={'l': 50, 'r': 50, 't': 100, 'b': 0},  # Zero bottom margin
             height=400  # Set the height of the bar graph
         )
@@ -97,6 +99,7 @@ def charts_mainexp():
 
 
 
+
 def charts_subexp():
     # Fetch data from the database for the pie chart
     current_year = datetime.now().year
@@ -104,13 +107,13 @@ def charts_subexp():
     pie_sql = """
         SELECT se.sub_expense_name, SUM(exp_amount) AS total_amount
         FROM adminteam.expenses AS e
-        LEFT JOIN adminteam.sub_expenses AS se ON e.main_expense_id = se.sub_expense_id 
-        WHERE 
-            EXTRACT(YEAR FROM e.exp_date) = %s
-            AND e.main_expense_id = 1
-        GROUP BY se.sub_expense_name 
+        LEFT JOIN adminteam.sub_expenses AS se ON e.main_expense_id = se.sub_expense_id
+        WHERE EXTRACT(YEAR FROM e.exp_date) = %s
+          AND e.main_expense_id = 1
+          AND e.exp_del_ind IS FALSE
+        GROUP BY se.sub_expense_name
     """
-   
+
     pie_df = db.querydatafromdatabase(pie_sql, (current_year,), ['sub_expense_name', 'total_amount'])
 
     if pie_df.empty:
@@ -120,7 +123,7 @@ def charts_subexp():
         custom_legend_labels = dict(zip(pie_df['sub_expense_name'], pie_df['sub_expense_name']))
 
         # Define custom colors
-        custom_colors = ['#39B54A', '#F8B237', '#D37157', '#A9CD46', '#7EADE4','#40BFBC']
+        custom_colors = ['#39B54A', '#F8B237', '#D37157', '#A9CD46', '#7EADE4', '#40BFBC']
 
         pie_fig = go.Figure(data=[go.Pie(
             labels=pie_df['sub_expense_name'],
@@ -131,14 +134,12 @@ def charts_subexp():
         pie_fig.update_traces(textinfo='percent')  # Show percentage and label on pie chart
         pie_fig.update_layout(
             title=f"{get_year_range()}",  # Title with month and year
-            title_font=dict(size=18), 
-            
+            title_font=dict(size=18),
         )
-        pie_chart = dcc.Graph(figure=pie_fig) 
+        pie_chart = dcc.Graph(figure=pie_fig)
 
-    legend=dict(title_font=dict(size=12), orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
- 
-    
+    legend = dict(title_font=dict(size=12), orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
+
     return dbc.Row(
         [
             dbc.Col(pie_chart, width=6),  # Equal width for both charts
