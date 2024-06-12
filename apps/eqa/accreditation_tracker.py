@@ -19,14 +19,11 @@ def get_available_years():
     SELECT DISTINCT EXTRACT(YEAR FROM arep_sched_assessdate) AS year
     FROM eqateam.assess_report
     ORDER BY year DESC
-    """
-    # Execute the query and fetch the results
-    values = []  # No need for values in this query
-    cols = ['year']  # The column name in the result
-    df = db.querydatafromdatabase(sql, values, cols)
-    # Extract unique years from the dataframe
-    years = df['year'].tolist()
-    # Convert years to string and return as dropdown options
+    """ 
+    values = []   
+    cols = ['year']   
+    df = db.querydatafromdatabase(sql, values, cols) 
+    years = df['year'].tolist() 
     return [{'label': str(year), 'value': str(year)} for year in years]
 
 

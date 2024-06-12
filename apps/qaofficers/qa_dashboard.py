@@ -250,7 +250,7 @@ qaofficerscard = dbc.Card(
                             dbc.Input(
                                 type='text',
                                 id='qaotraininglist_filter',
-                                placeholder='🔎 Search by name, email, position, etc',
+                                placeholder='🔎 Search by name, rank/designation, cluster',
                                 className='ml-auto'
                             ),
                             width="8",
@@ -388,7 +388,6 @@ def clustertraininglist_loadlist(pathname, search_term):
     else:
         raise PreventUpdate
 
-
 @app.callback(
     [
         Output('qaotraininglist_list', 'children')
@@ -397,8 +396,7 @@ def clustertraininglist_loadlist(pathname, search_term):
         Input('url', 'pathname'),
         Input('qaotraininglist_filter', 'value'),
     ]
-    )
-
+)
 def traininglist_loadlist(pathname, searchterm):
     if pathname == '/QAOfficers_dashboard': 
         sql = """
@@ -432,24 +430,29 @@ def traininglist_loadlist(pathname, searchterm):
                 ON qo.qaofficer_cluster_id = clus.cluster_id
             WHERE
                 qo.qaofficer_del_ind IS False
-            
-            GROUP BY 
-                qo.qaofficer_id, qo.qaofficer_full_name, cp.cuposition_name, du.deg_unit_name, cl.college_name, clus.cluster_name
-        
         """
         cols = ["ID", 'Name', 'Rank/Designation', 'Department','College','Academic Cluster', 'Trainings']   
 
         if searchterm:
             sql += """
-                WHERE
-                    qaofficer_sname ILIKE %s OR
-                    qaofficer_fname ILIKE %s OR
-                    qaofficer_role ILIKE %s
+                AND (
+                    qo.qaofficer_sname ILIKE %s OR
+                    qo.qaofficer_fname ILIKE %s OR
+                    qo.qaofficer_role ILIKE %s OR
+                    cp.cuposition_name ILIKE %s OR
+                    clus.cluster_name ILIKE %s  
+                     
+                )
             """
             like_pattern = f"%{searchterm}%"
-            values = [like_pattern] * 3
+            values = [like_pattern] * 5
         else:
             values = []
+
+        sql += """
+            GROUP BY 
+                qo.qaofficer_id, qo.qaofficer_full_name, cp.cuposition_name, du.deg_unit_name, cl.college_name, clus.cluster_name
+        """
 
         df = db.querydatafromdatabase(sql, values, cols) 
 

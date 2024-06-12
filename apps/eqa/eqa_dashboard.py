@@ -729,11 +729,11 @@ def assessmentschedule_loadlist(pathname, searchterm, selected_years_text):
                 arep_sched_assessdate AS "Latest Assessment Date",
                 EXTRACT(YEAR FROM arep_sched_assessdate + INTERVAL '5 years') AS "Next Assessment Year"
             FROM 
-                eqateam.assess_report AS a 
+                eqateam.assess_report
             WHERE
                 arep_del_ind IS FALSE
                 AND arep_report_type = '2'
-                AND arep_review_status = '1'
+                AND arep_review_status = '1';
         """
 
         cols = ["Degree Program", 'Latest Assessment Date','Next Assessment Year']   
