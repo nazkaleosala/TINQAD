@@ -56,6 +56,10 @@ layout = html.Div(
             ]
         ),
         html.Div(style={"margin-top": "20px"}),
+
+        html.Br(),
+        html.Br(),
+        html.Br(),
         # Footer
         dbc.Row(
             [
