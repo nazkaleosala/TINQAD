@@ -412,25 +412,24 @@ def manageevidence_list(n_clicks_list, button_id_list, selected_criteria=None):
 
 
 
+ 
 
 
 
 
 
 
-
+ 
 @app.callback(
     [
         Output('managerevision_list', 'children')
     ],
     [
-        Input('url', 'pathname'),  
+        Input('url', 'pathname'),
     ]
 )
-
-def update_managerevision_list (pathname):
-    if pathname == '/SDGimpact_rankings': 
-         
+def update_managerevision_list(pathname):
+    if pathname == '/SDGimpact_rankings':
         sql = """
             SELECT 
                 sdgrevision_id AS "ID",
@@ -451,10 +450,8 @@ def update_managerevision_list (pathname):
                 sdgr_checkstatus = '2'   
                 AND sdgr_del_ind IS FALSE
         """
-        
 
         cols = ["ID", "Evidence Name", "Office", "Description", "Ranking Body", "Applicable Criteria"]
-
         df = db.querydatafromdatabase(sql, [], cols)
 
         if df.shape[0] > 0:
@@ -463,30 +460,27 @@ def update_managerevision_list (pathname):
                     dbc.Button('❌', id={'type': 'revision_remove_button', 'index': x}, 
                                size='sm', color='danger'), style={'text-align': 'center'})
             )
-
             df = df[["Evidence Name", "Office", "Description", "Ranking Body", "Applicable Criteria", 'Action']]
 
-
         if not df.empty:
-            df["Applicable Criteria"] = df["Applicable Criteria"].apply(
-                lambda x: ", ".join(x) if x else "None"
-            )
+            df["Applicable Criteria"] = df["Applicable Criteria"].apply(lambda x: ", ".join(x) if x else "None")
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
         else:
-            return [html.Div("No approved revisions yet")]
-    
+            return [html.Div("No approved evidences yet")]
+    else:
+        raise PreventUpdate
+
 @app.callback(
     Output('managerevision_list', 'children', allow_duplicate=True),
     [Input({'type': 'revision_remove_button', 'index': dash.dependencies.ALL}, 'n_clicks')],
     [State({'type': 'revision_remove_button', 'index': dash.dependencies.ALL}, 'id')],
     prevent_initial_call=True
 )
-def update_managerevision_list(n_clicks_list, button_id_list):
+def handle_revision_remove_buttons(n_clicks_list, button_id_list):
     if not n_clicks_list or not any(n_clicks_list):
         raise PreventUpdate
 
-    outputs = []
     for n_clicks, button_id in zip(n_clicks_list, button_id_list):
         if n_clicks:
             sdgrevision_id = button_id['index']
@@ -495,7 +489,6 @@ def update_managerevision_list(n_clicks_list, button_id_list):
                 SET sdgr_del_ind = TRUE
                 WHERE sdgrevision_id = %s
             """
-            db.modifydatabase(update_sql, [sdgrevision_id])  
-            outputs.append(update_managerevision_list('/SDGimpact_rankings', button_id_list)[0])
+            db.modifydatabase(update_sql, [sdgrevision_id])
 
-    return outputs
+    return update_managerevision_list('/SDGimpact_rankings')

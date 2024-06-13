@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
  
 import dash 
 from dash.exceptions import PreventUpdate
-import pandas as pd
+import pandas as pd 
 import os
 
 from apps import commonmodules as cm
