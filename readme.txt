@@ -26,7 +26,7 @@ Acknowledgments
 We would like to express our gratitude to the following individuals and groups for their support and contributions to TINQAD:
 *Stakeholders: Dean Aura Matias, Michelle Avelino, Charles Ramos, Arlyh Hirao, Kristine Cruz, Kelvin Mendoza, Prynze Sazon, Michael Baguisa, Beau Estepa, Esphy Alfaro
 *Instructors: Prof. Erickson Llaguno, Prof. Leslie Gopalan, Prof. Carlo Sonday
-*IT Team: Data Commons, Dr. Johnrob Bantang, Augusto Jr. (Jay) Gayon, Christopher Costosa,
+*IT Team: Data Commons, Dr. Johnrob Bantang, Augusto Gayon Jr., Christopher Costosa,
 Kristian Karl Santos
 
 License
