@@ -3,13 +3,18 @@ import dash_bootstrap_components as dbc
  
 import dash 
 from dash.exceptions import PreventUpdate
-import pandas as pd
+import pandas as pd 
+import os
 
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
+ 
+# Using the corrected path
+UPLOAD_DIRECTORY = r".\assets\database\km"
 
-
+# Ensure the directory exists or create it
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
                         
 
@@ -196,7 +201,7 @@ layout = html.Div(
 def checking_list (pathname):
     if pathname == '/SDG_evidencelist':   
          
-        sql = """
+        sql = """ 
             SELECT 
                 sdgsubmission_id AS "ID", 
                 sdg_evidencename AS "Evidence Name",
@@ -204,6 +209,9 @@ def checking_list (pathname):
                 (SELECT deg_unit_name FROM public.deg_unit WHERE deg_unit_id  = sdg_deg_unit_id) AS "Department",
                 sdg_description AS "Description",
                 (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body",
+                sdg_file_name AS "File",
+                sdg_file_path AS "File Path",
+                sdg_link AS "Link",
                 (
                     SELECT json_agg(sdgcriteria_code)
                     FROM kmteam.SDGCriteria
@@ -217,7 +225,7 @@ def checking_list (pathname):
                 sdg_checkstatus = '1'   
                 AND sdg_del_ind IS FALSE
         """
-        cols = ['ID', 'Evidence Name', 'Office','Department', 'Description', 'Ranking Body', "Applicable Criteria"]
+        cols = ['ID', 'Evidence Name', 'Office','Department', 'Description', 'Ranking Body', 'File', 'File Path',  'Link',  "Applicable Criteria"]
 
         df = db.querydatafromdatabase(sql, [], cols)
 
@@ -229,8 +237,10 @@ def checking_list (pathname):
                 )
             )
 
-            df = df[['Evidence Name', 'Office', 'Department','Description', 'Ranking Body', "Applicable Criteria", 'Action']]
+            df = df[['Evidence Name', 'Office', 'Department','Description', 'Ranking Body', 'File', "Link", "Applicable Criteria", 'Action']]
 
+            df['File'] = df.apply(lambda row: html.A(row['File'], href=os.path.join(UPLOAD_DIRECTORY, row['File']) if row['File'] else ''), axis=1)
+            
         if not df.empty:
             df["Applicable Criteria"] = df["Applicable Criteria"].apply(
                 lambda x: ", ".join(x) if x else "None"
@@ -268,6 +278,9 @@ def revisions_list (pathname):
                 (SELECT deg_unit_name FROM public.deg_unit WHERE deg_unit_id  = sdg_deg_unit_id) AS "Department",
                 sdg_description AS "Description", 
                 (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdg_rankingbody) AS "Ranking Body",
+                sdg_file_name AS "File",
+                sdg_file_path AS "File Path",
+                sdg_link AS "Link",
                 (
                     SELECT json_agg(sdgcriteria_code)
                     FROM kmteam.SDGCriteria
@@ -280,7 +293,7 @@ def revisions_list (pathname):
             WHERE
                 sdg_checkstatus = '3'   AND sdg_del_ind IS FALSE
         """ 
-        cols = ['ID', 'Evidence Name', 'Office', 'Department','Description', 'Ranking Body', "Applicable Criteria"]
+        cols = ['ID', 'Evidence Name', 'Office', 'Department','Description', 'Ranking Body', 'File', 'File Path',  'Link', "Applicable Criteria"]
 
         df = db.querydatafromdatabase(sql, [], cols)
 
@@ -291,8 +304,10 @@ def revisions_list (pathname):
                                size='sm', color='danger'), style={'text-align': 'center'})
             )
 
-            df = df[['Evidence Name', 'Office', 'Department', 'Description', 'Ranking Body', "Applicable Criteria", 'Action']]
+            df = df[['Evidence Name', 'Office', 'Department', 'Description', 'Ranking Body', 'File', "Link",  "Applicable Criteria", 'Action']]
 
+            df['File'] = df.apply(lambda row: html.A(row['File'], href=os.path.join(UPLOAD_DIRECTORY, row['File']) if row['File'] else ''), axis=1)
+            
         if not df.empty:
             df["Applicable Criteria"] = df["Applicable Criteria"].apply(
                 lambda x: ", ".join(x) if x else "None"
@@ -357,6 +372,9 @@ def checkedrevisions_list (pathname):
                 sdgr_description AS "Description",
                 (SELECT checkstatus_name FROM kmteam.checkstatus WHERE checkstatus_id  = sdgr_checkstatus) AS "Status",
                 (SELECT ranking_body_name FROM kmteam.ranking_body WHERE ranking_body_id = sdgr_rankingbody) AS "Ranking Body",
+                sdgr_file_name AS "File",
+                sdgr_file_path AS "File Path",
+                sdgr_link AS "Link",
                 (
                     SELECT json_agg(sdgcriteria_code)
                     FROM kmteam.SDGCriteria
@@ -370,7 +388,7 @@ def checkedrevisions_list (pathname):
                 sdgr_del_ind IS FALSE
             
         """ 
-        cols = ['ID', 'Evidence Name', 'Office', 'Department','Description', 'Status','Ranking Body', "Applicable Criteria"]
+        cols = ['ID', 'Evidence Name', 'Office', 'Department','Description', 'Status','Ranking Body', 'File', 'File Path',  'Link',"Applicable Criteria"]
 
         df = db.querydatafromdatabase(sql, [], cols)
 
@@ -382,7 +400,10 @@ def checkedrevisions_list (pathname):
                 )
             )
 
-            df = df[['Evidence Name', 'Office', 'Department', 'Description', 'Status', 'Ranking Body', "Applicable Criteria", 'Action']]
+            df = df[['Evidence Name', 'Office', 'Department', 'Description', 'Status', 'Ranking Body', 'File', 'Link',"Applicable Criteria", 'Action']]
+
+            df['File'] = df.apply(lambda row: html.A(row['File'], href=os.path.join(UPLOAD_DIRECTORY, row['File']) if row['File'] else ''), axis=1)
+            
 
         if not df.empty:
             df["Applicable Criteria"] = df["Applicable Criteria"].apply(

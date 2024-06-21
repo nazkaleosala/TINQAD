@@ -164,7 +164,7 @@ def assessmentreports_loadlist(pathname, sar_searchterm, others_searchterm, acti
 
     if active_tab == "sar":
         sql = """
-            SELECT 
+            SELECT  
                 sarep_id AS "ID", 
                 sarep_currentdate AS "Date", 
                 dp.pro_degree_title  AS "Degree Program", 

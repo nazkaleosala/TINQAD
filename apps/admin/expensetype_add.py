@@ -125,7 +125,7 @@ form = dbc.Form(
                     width="auto"
                 ),
                 dbc.Col(
-                    dbc.Button("Cancel", color="warning", id="cancel_button", n_clicks=0, href="/SDGimpact_rankings"),  
+                    dbc.Button("Cancel", color="warning", id="cancel_button", n_clicks=0, href="/expense_list"),  
                     width="auto"
                 ),
             ],

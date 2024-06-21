@@ -138,7 +138,7 @@ layout = html.Div(
     ],
 )
 def qadirectory_loadlist(pathname, searchterm, selected_month, selected_year):
-    if pathname == '/QAOfficers_directory':
+    if pathname == '/qaofficers_directory':
          
         
         # Fetch the data

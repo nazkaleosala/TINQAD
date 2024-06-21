@@ -347,17 +347,13 @@ def toggle_announcement_form(footer_clicks, cancel_clicks, current_style):
 def insert_announcement(n_clicks, n_dismiss, anmsgs_header, anmsgs_content, current_userid):
     ctx = callback_context
     if not ctx.triggered:
-        raise PreventUpdate
-
-    print(f"Callback triggered by: {ctx.triggered}")
-
-    # Handle dismissing the alert
+        raise PreventUpdate 
+ 
     if ctx.triggered[0]['prop_id'] == 'new_homeannouncement_alert.n_dismiss':
         return ["", "", False]
 
-    if not n_clicks or not anmsgs_header or not anmsgs_content:
-        print("Missing input: ", n_clicks, anmsgs_header, anmsgs_content)
-        return ["Please fill in all fields", "", False]
+    if not n_clicks or not anmsgs_header or not anmsgs_content: 
+        return ["", "", False]
 
     try: 
         user_sql = """
@@ -370,29 +366,25 @@ def insert_announcement(n_clicks, n_dismiss, anmsgs_header, anmsgs_content, curr
         if user_df.empty:
             raise Exception("User not found")
 
-        username = user_df.iloc[0]['username']
-        print(f"Username fetched: {username}")
+        username = user_df.iloc[0]['username'] 
 
         # Insert the announcement with the username
         sql = """
             INSERT INTO maindashboard.announcements (anmsgs_header, anmsgs_content, anmsgs_user)
             VALUES (%s, %s, %s)
         """
-        db.modifydatabase(sql, (anmsgs_header, anmsgs_content, username))
-        print(f"Announcement inserted: {anmsgs_header}, {anmsgs_content}, {username}")
+        db.modifydatabase(sql, (anmsgs_header, anmsgs_content, username)) 
         
         # Record the alert in the alerts table
         alert_sql = """
             INSERT INTO maindashboard.alerts (alert_userid, alert_message)
             VALUES (%s, %s)
         """
-        db.modifydatabase(alert_sql, (current_userid, f"{username} has a new announcement!"))
-        print(f"Alert inserted for user {current_userid}: {username} has a new announcement!")
+        db.modifydatabase(alert_sql, (current_userid, f"{username} has a new announcement!")) 
 
-        return ["Announcement posted successfully!", "Announcement posted!", True]
+        return ["", "Announcement posted!", True]
 
-    except Exception as e:
-        print(f"Error: {str(e)}")
+    except Exception as e: 
         return [f"Error: {str(e)}", "", False] 
 
 

@@ -396,7 +396,7 @@ layout = html.Div(
                                     width="auto"
                                 ),
                                 dbc.Col(
-                                    dbc.Button("Cancel", color="warning", id="qaofficer_cancel_button", n_clicks=0, href="/QAOfficers_directory"),  
+                                    dbc.Button("Cancel", color="warning", id="qaofficer_cancel_button", n_clicks=0, href="/qaofficers_directory"),  
                                     width="auto"
                                 ),
                             ],
@@ -415,7 +415,7 @@ layout = html.Div(
                                 ),
                                 dbc.ModalFooter(
                                     dbc.Button(
-                                        "Proceed", href='/QAOfficers_directory', id='qaofficer_btn_modal'
+                                        "Proceed", href='/qaofficers_directory', id='qaofficer_btn_modal'
                                     ), 
                                 )
                                 
@@ -779,7 +779,7 @@ def record_qaofficer_profile(submitbtn, closebtn, removerecord,
                 db.modifydatabase(sql, values) 
                 modal_open = True
                 feedbackmessage = html.H5("QA Officer registered successfully.")
-                okay_href = "/QAOfficers_directory"
+                okay_href = "/qaofficers_directory"
                 
             elif create_mode == 'edit':
                 # Update existing user record
@@ -812,7 +812,7 @@ def record_qaofficer_profile(submitbtn, closebtn, removerecord,
                 db.modifydatabase(sqlcode, values)
                 
                 feedbackmessage = html.H5("Account has been updated.")
-                okay_href = "/QAOfficers_directory"
+                okay_href = "/qaofficers_directory"
                 modal_open = True
 
             else:

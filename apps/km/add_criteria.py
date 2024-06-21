@@ -28,7 +28,7 @@ form = dbc.Form(
                     dbc.Input(
                         id="sdgcriteria_number",
                         placeholder="Enter SDG #",
-                        type="text",
+                        type="number", 
                     ),
                     width=8,
                 ),

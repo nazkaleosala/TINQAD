@@ -231,7 +231,7 @@ form = dbc.Form(
                         id="arep_file",
                         children=html.Div(
                             [
-                                'Drag and Drop or Select Files',
+                                '       Drag and Drop or Select Files',
                             ],
                             style={"display": "flex", "alignItems": "center"},
                         ),

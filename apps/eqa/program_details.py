@@ -21,7 +21,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Select Degree Program ",
+                        "Degree Program Title",
                         html.Span("*", style={"color":"#F8B237"})
                     ],
                     width=4
@@ -124,28 +124,6 @@ form = dbc.Form(
             className="mb-2",
         ), 
         
-        
-        
-        
-        
-        
-            
-        dbc.Row(
-            [
-                dbc.Label(
-                    [
-                        "Degree Count ",
-                        html.Span("*", style={"color": "#F8B237"})
-                    ],
-                    width=4),
-                dbc.Col(
-                    dbc.Input(type="number", id="pro_degree_count"),
-                    width=2,
-                ),
-            ],
-            className="mb-1",
-        ),
-
         dbc.Row(
             [
                 dbc.Label(
@@ -510,7 +488,6 @@ def populate_accreditationbody_dropdown(pathname):
         State('pro_cluster_id', 'value'),
         State('pro_college_id', 'value'),
         State('pro_department_id', 'value'),
-        State('pro_degree_count', 'value'),
         State('pro_program_type_id', 'value'),
         State('pro_calendar_type_id', 'value'),
         State('pro_accreditation_body_id', 'value'),
@@ -521,7 +498,7 @@ def populate_accreditationbody_dropdown(pathname):
 def record_program_details(submitbtn, closebtn, removerecord,
                             pro_degree_title, pro_degree_shortname, pro_degree_initials,
                             pro_cluster_id, pro_college_id, pro_department_id,
-                            pro_degree_count, pro_program_type_id, pro_calendar_type_id,
+                            pro_program_type_id, pro_calendar_type_id,
                             pro_accreditation_body_id, search):
     ctx = dash.callback_context 
 
@@ -581,16 +558,16 @@ def record_program_details(submitbtn, closebtn, removerecord,
                     INSERT INTO eqateam.program_details (
                         pro_degree_title, pro_degree_shortname, pro_degree_initials, 
                         pro_cluster_id, pro_college_id, pro_department_id,
-                        pro_degree_count, pro_program_type_id, pro_calendar_type_id, 
+                        pro_program_type_id, pro_calendar_type_id, 
                         pro_accreditation_body_id, pro_del_ind
                     )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
 
                 values = (
                     pro_degree_title, pro_degree_shortname, pro_degree_initials,
                     pro_cluster_id, pro_college_id, pro_department_id,
-                    pro_degree_count, pro_program_type_id, pro_calendar_type_id, 
+                    pro_program_type_id, pro_calendar_type_id, 
                     json.dumps(pro_accreditation_body_id) if pro_accreditation_body_id else None,
                     False
                 )
@@ -610,7 +587,6 @@ def record_program_details(submitbtn, closebtn, removerecord,
                 sqlcode = """
                     UPDATE eqateam.program_details
                     SET
-                        pro_degree_count = %s,
                         pro_calendar_type_id = %s,
                         pro_accreditation_body_id = %s, 
                         pro_del_ind = %s
@@ -621,7 +597,6 @@ def record_program_details(submitbtn, closebtn, removerecord,
                 to_delete = bool(removerecord) 
                 
                 values = [
-                    pro_degree_count,
                     pro_calendar_type_id,
                     json.dumps(pro_accreditation_body_id) if pro_accreditation_body_id else None,
                     to_delete,
@@ -697,7 +672,6 @@ def new_accreditation_details(addbtn, new_accreditation_body_id):
         Output('pro_cluster_id', 'value'),
         Output('pro_college_id', 'value'),
         Output('pro_department_id', 'value'),
-        Output('pro_degree_count', 'value'),
         Output('pro_program_type_id', 'value'),
         Output('pro_calendar_type_id', 'value'),
         Output('pro_accreditation_body_id', 'value'),
@@ -722,7 +696,7 @@ def pro_loadprofile(timestamp, toload, search):
             SELECT 
                 pro_degree_title, pro_degree_shortname, pro_degree_initials,
                 pro_cluster_id, pro_college_id, pro_department_id,
-                pro_degree_count, pro_program_type_id, pro_calendar_type_id,
+                pro_program_type_id, pro_calendar_type_id,
                 pro_accreditation_body_id
                 
             FROM eqateam.program_details
@@ -733,7 +707,7 @@ def pro_loadprofile(timestamp, toload, search):
         cols = [
             'pro_degree_title', 'pro_degree_shortname', 'pro_degree_initials',
             'pro_cluster_id', 'pro_college_id', 'pro_department_id',
-            'pro_degree_count', 'pro_program_type_id', 'pro_calendar_type_id',
+            'pro_program_type_id', 'pro_calendar_type_id',
             'pro_accreditation_body_id'
         ]
 
@@ -746,7 +720,6 @@ def pro_loadprofile(timestamp, toload, search):
         pro_cluster_id = int(df['pro_cluster_id'][0])
         pro_college_id = df['pro_college_id'][0]
         pro_department_id = df['pro_department_id'][0]
-        pro_degree_count = df['pro_degree_count'][0]
         pro_program_type_id = df['pro_program_type_id'][0]
         pro_calendar_type_id = df['pro_calendar_type_id'][0]
         pro_accreditation_body_id = df['pro_accreditation_body_id'][0]
@@ -756,7 +729,7 @@ def pro_loadprofile(timestamp, toload, search):
         
         return [pro_degree_title, pro_degree_shortname, pro_degree_initials,
                 pro_cluster_id, pro_college_id, pro_department_id,
-                pro_degree_count, pro_program_type_id, pro_calendar_type_id,
+                pro_program_type_id, pro_calendar_type_id,
                 pro_accreditation_body_id
                 ]
     

@@ -219,6 +219,10 @@ def generate_sar_submissions_chart():
             
     """
     program_data = db.querydatafromdatabase(sql, [], ['pro_program_type_id', 'input_count']) 
+    
+    if program_data.empty:  # If there are no submissions
+        return {'data': [], 'layout': {'annotations': [{'text': 'No SAR Submissions yet', 'xref': 'paper', 'yref': 'paper', 'showarrow': False, 'font': {'size': 20}}]}}
+    
     id_to_label = {1: 'C ', 2: 'D ', 3: 'A ', 4: 'U ', 5: 'M ', 6: 'P '} # Map IDs to labels
     program_data['pro_program_type_label'] = program_data['pro_program_type_id'].map(id_to_label)
      
@@ -258,8 +262,6 @@ def generate_sar_submissions_chart():
         )
     ) 
     return {'data': [trace], 'layout': layout} # Return the figure
-
-
 
 
 
@@ -727,11 +729,11 @@ def assessmentschedule_loadlist(pathname, searchterm, selected_years_text):
                 arep_sched_assessdate AS "Latest Assessment Date",
                 EXTRACT(YEAR FROM arep_sched_assessdate + INTERVAL '5 years') AS "Next Assessment Year"
             FROM 
-                eqateam.assess_report AS a 
+                eqateam.assess_report
             WHERE
                 arep_del_ind IS FALSE
                 AND arep_report_type = '2'
-                AND arep_review_status = '1'
+                AND arep_review_status = '1';
         """
 
         cols = ["Degree Program", 'Latest Assessment Date','Next Assessment Year']   
