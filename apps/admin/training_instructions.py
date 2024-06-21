@@ -7,13 +7,17 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db 
 
+
+
+
+
 layout = html.Div(
     [
         dbc.Row(
             [
                 # Navbar
                 cm.sidebar,
-                
+
                 dbc.Col(
                     dbc.Card(
                         id="instructions-card",
@@ -34,9 +38,9 @@ layout = html.Div(
                                             "minHeight": "150px",
                                             "overflowY": "auto",
                                             "white-space": "pre-wrap",
-                                        }, 
+                                        },
                                     ),
-                                     
+
                                     html.Br(),
                                     html.Div(
                                         [
@@ -46,7 +50,7 @@ layout = html.Div(
                                         ],
                                         style={"display": "flex", "justify-content": "flex-end", "gap": "10px"},
                                     ),
-                                     
+
                                 ],
                             ),
                         ],
@@ -72,10 +76,10 @@ layout = html.Div(
 # Callback to fetch announcements and display them
 @app.callback(
     Output("traininginstructions_display", "children"),
-    [Input("url", "pathname")],   
+    [Input("url", "pathname")],
 )
 def fetch_announcements(pathname):
-    if pathname == "/training_instructions": 
+    if pathname == "/training_instructions":
         sql = """
             SELECT trinstructions_content
             FROM adminteam.training_instructions
@@ -84,19 +88,17 @@ def fetch_announcements(pathname):
         """
 
         values = ()
-        dfcolumns = ["trinstructions_content"]  
+        dfcolumns = ["trinstructions_content"]
         df = db.querydatafromdatabase(sql, values, dfcolumns)
 
         instruction_content = df.loc[0, "trinstructions_content"]
-        return instruction_content  
-
-
+        return instruction_content
 
 
 # Define the callback to enable/disable the button
 @app.callback(
     Output("proceed_button", "disabled"),
-    Input("accept_checkbox", "checked")
+    Input("accept_checkbox", "value")
 )
-def toggle_proceed_button(checked):
-    return not checked
+def toggle_proceed_button(checked): 
+    return not checked if checked is not None else True

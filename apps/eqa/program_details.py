@@ -21,7 +21,7 @@ form = dbc.Form(
             [
                 dbc.Label(
                     [
-                        "Select Degree Program ",
+                        "Degree Program Title",
                         html.Span("*", style={"color":"#F8B237"})
                     ],
                     width=4
